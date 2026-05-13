@@ -1,0 +1,291 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ====================
+// User & Auth
+// ====================
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String?
+  name          String
+  phone         String?
+  role          Role     @default(STUDENT)
+  avatarUrl     String?
+  isActive      Boolean  @default(true)
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  student       Student?
+
+  @@index([email])
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  STUDENT
+}
+
+// ====================
+// Student Profile
+// ====================
+
+model Student {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fatherName        String?
+  motherName        String?
+  dob               DateTime?
+  gender            String?
+  address           String?
+  city              String?
+  state             String?
+  country           String?
+  pincode           String?
+
+  neetScore         Int?
+  neetRank          Int?
+  twelfthPercentage Float?
+
+  currentStage      Int              @default(1)
+  applicationStatus ApplicationStatus @default(NOT_STARTED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documents    StudentDocument[]
+  payments     Payment[]
+  applications UniversityApplication[]
+
+  @@index([userId])
+}
+
+enum ApplicationStatus {
+  NOT_STARTED
+  STAGE_1_PENDING
+  STAGE_1_IN_REVIEW
+  STAGE_1_APPROVED
+  STAGE_2_PENDING
+  STAGE_2_IN_REVIEW
+  STAGE_2_APPROVED
+  STAGE_3_ACTIVE
+  STAGE_4_PENDING
+  STAGE_4_APPROVED
+  STAGE_5_UNLOCKED
+  COMPLETED
+  REJECTED
+}
+
+// ====================
+// Universities
+// ====================
+
+model University {
+  id          String   @id @default(uuid())
+  name        String
+  country     String
+  city        String?
+  description String?
+  website     String?
+  logoUrl     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  courses UniversityCourse[]
+
+  @@index([country])
+}
+
+model UniversityCourse {
+  id           String    @id @default(uuid())
+  universityId String
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  name         String
+  duration     Int
+  fees         Float
+  currency     String   @default("USD")
+  eligibility  String?
+  seats        Int?
+  isActive     Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applications UniversityApplication[]
+}
+
+model UniversityApplication {
+  id         String   @id @default(uuid())
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId   String
+  course     UniversityCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  status     String   @default("pending")
+  appliedAt  DateTime @default(now())
+
+  @@index([studentId])
+}
+
+// ====================
+// Documents
+// ====================
+
+model DocumentType {
+  id                String   @id @default(uuid())
+  name              String
+  code              String   @unique
+  description       String?
+  requiredForStage  Int
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  studentDocuments StudentDocument[]
+}
+
+model StudentDocument {
+  id             String   @id @default(uuid())
+  studentId      String
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  documentTypeId String
+  documentType   DocumentType @relation(fields: [documentTypeId], references: [id])
+
+  fileUrl        String
+  fileName       String
+  fileSize       Int
+
+  status         DocumentStatus @default(UPLOADED)
+  remarks        String?
+  verifiedBy     String?
+  verifiedAt     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId])
+}
+
+enum DocumentStatus {
+  UPLOADED
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  REUPLOAD_REQUIRED
+}
+
+// ====================
+// Payments
+// ====================
+
+model Payment {
+  id                String   @id @default(uuid())
+  studentId         String
+  student           Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  stage             Int
+  amount            Float
+  currency          String   @default("INR")
+
+  status            PaymentStatus @default(PENDING)
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+
+  paidAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId])
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+  MANUALLY_APPROVED
+}
+
+// ====================
+// Letters
+// ====================
+
+model AdmissionLetter {
+  id         String   @id @default(uuid())
+  studentId  String   @unique
+  fileUrl    String
+  uploadedBy String
+  uploadedAt DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model InvitationLetter {
+  id              String   @id @default(uuid())
+  studentId       String   @unique
+  fileUrl         String
+  uploadedBy      String
+  isDownloadable  Boolean  @default(false)
+  uploadedAt      DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+// ====================
+// Visa Support
+// ====================
+
+model VisaCenter {
+  id          String   @id @default(uuid())
+  name        String
+  address     String?
+  city        String
+  country     String
+  contactNo   String?
+  email       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model VisaChecklist {
+  id          String   @id @default(uuid())
+  country     String
+  title       String
+  description String?
+  documents   String[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ====================
+// Audit Logs
+// ====================
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  oldValue   String?
+  newValue   String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+}
