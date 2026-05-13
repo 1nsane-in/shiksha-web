@@ -23,10 +23,32 @@ model User {
   emailVerified Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  lastLoginAt   DateTime?
+  lastLoginIp   String?
 
-  student       Student?
+  student      Student?
+  sessions     UserSession[]
+  activityLogs UserActivityLog[]
+  notifications Notification[]
 
   @@index([email])
+  @@index([role])
+}
+
+model UserSession {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  tokenHash    String   @unique
+  deviceInfo   String?
+  ipAddress    String?
+  userAgent    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 enum Role {
@@ -57,6 +79,7 @@ model Student {
   neetScore         Int?
   neetRank          Int?
   twelfthPercentage Float?
+  tenthPercentage   Float?
 
   currentStage      Int              @default(1)
   applicationStatus ApplicationStatus @default(NOT_STARTED)
@@ -67,8 +90,37 @@ model Student {
   documents    StudentDocument[]
   payments     Payment[]
   applications UniversityApplication[]
+  
+  // AI & Automation relations
+  aiJobs       AIJob[]
+  automationEvents AutomationEvent[]
+  notificationPreferences NotificationPreference[]
+  
+  // Activity tracking
+  stageHistories StageHistory[]
 
   @@index([userId])
+  @@index([applicationStatus])
+  @@index([currentStage])
+}
+
+model StageHistory {
+  id          String   @id @default(uuid())
+  studentId   String
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  fromStage   Int?
+  toStage     Int
+  fromStatus  ApplicationStatus?
+  toStatus    ApplicationStatus
+  
+  changedBy   String?
+  changedAt   DateTime @default(now())
+  reason      String?
+  metadata    Json?
+  
+  @@index([studentId])
+  @@index([changedAt])
 }
 
 enum ApplicationStatus {
@@ -99,13 +151,17 @@ model University {
   description String?
   website     String?
   logoUrl     String?
+  ranking     Int?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  metadata    Json? // For AI enrichment
 
   courses UniversityCourse[]
 
   @@index([country])
+  @@index([name])
 }
 
 model UniversityCourse {
@@ -119,7 +175,10 @@ model UniversityCourse {
   currency     String   @default("USD")
   eligibility  String?
   seats        Int?
+  availableSeats Int?
   isActive     Boolean  @default(true)
+  
+  metadata     Json? // For AI: curriculum, specializations, etc.
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -136,8 +195,17 @@ model UniversityApplication {
 
   status     String   @default("pending")
   appliedAt  DateTime @default(now())
+  
+  // AI recommendation data
+  matchScore Float?
+  recommendedBy String?
+  recommendationReason String?
+  
+  // Agent assignment
+  assignedAgentId String?
 
   @@index([studentId])
+  @@index([status])
 }
 
 // ====================
@@ -152,6 +220,10 @@ model DocumentType {
   requiredForStage  Int
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
+  
+  // AI processing config
+  ocrRequired      Boolean  @default(false)
+  validationRules  Json?
 
   studentDocuments StudentDocument[]
 }
@@ -166,21 +238,38 @@ model StudentDocument {
   fileUrl        String
   fileName       String
   fileSize       Int
-
+  mimeType       String?
+  
+  // Metadata extracted
+  extractedData  Json?
+  
   status         DocumentStatus @default(UPLOADED)
   remarks        String?
   verifiedBy     String?
   verifiedAt     DateTime?
+  
+  // Version control
+  version        Int      @default(1)
+  replacedBy     String?
+  
+  // Access tracking
+  viewCount      Int      @default(0)
+  lastViewedAt   DateTime?
+  lastViewedBy   String?
+  downloadCount  Int      @default(0)
+  lastDownloadedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([studentId])
+  @@index([status])
 }
 
 enum DocumentStatus {
   UPLOADED
   IN_REVIEW
+  PROCESSING
   APPROVED
   REJECTED
   REUPLOAD_REQUIRED
@@ -202,17 +291,36 @@ model Payment {
   status            PaymentStatus @default(PENDING)
   razorpayOrderId   String?
   razorpayPaymentId String?
+  razorpaySignature  String?
+  
+  // Payment method
+  paymentMethod     String?
+  bankReference     String?
+  
+  // Manual approval
+  manuallyApproved   Boolean  @default(false)
+  approvedBy        String?
+  approvalNote      String?
 
   paidAt DateTime?
+  
+  // Refund tracking
+  refundAmount      Float?
+  refundReason      String?
+  refundedAt        DateTime?
+  refundStatus      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([studentId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 enum PaymentStatus {
   PENDING
+  PROCESSING
   SUCCESS
   FAILED
   REFUNDED
@@ -227,21 +335,33 @@ model AdmissionLetter {
   id         String   @id @default(uuid())
   studentId  String   @unique
   fileUrl    String
+  fileName   String?
   uploadedBy String
   uploadedAt DateTime @default(now())
 
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  // Access tracking
+  viewCount     Int      @default(0)
+  downloadCount Int      @default(0)
 }
 
 model InvitationLetter {
   id              String   @id @default(uuid())
   studentId       String   @unique
   fileUrl         String
+  fileName        String?
   uploadedBy      String
   isDownloadable  Boolean  @default(false)
   uploadedAt      DateTime @default(now())
 
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  // Access tracking
+  viewCount     Int      @default(0)
+  downloadCount Int      @default(0)
+  lastViewedAt  DateTime?
+  lastDownloadedAt DateTime?
 }
 
 // ====================
@@ -256,9 +376,12 @@ model VisaCenter {
   country     String
   contactNo   String?
   email       String?
+  website     String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  @@index([country])
 }
 
 model VisaChecklist {
@@ -270,11 +393,278 @@ model VisaChecklist {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  @@index([country])
 }
 
 // ====================
-// Audit Logs
+// AI & Automation
 // ====================
+
+model AIJob {
+  id            String   @id @default(uuid())
+  studentId     String?
+  student       Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  documentId    String?
+  
+  jobType       AIJobType
+  status        AIJobStatus @default(PENDING)
+  priority      Int      @default(5)
+  
+  input         Json
+  output        Json?
+  error         String?
+  
+  confidence    Float?
+  flags         Json?
+  
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // For automation
+  retryCount    Int      @default(0)
+  maxRetries    Int      @default(3)
+  
+  @@index([status])
+  @@index([jobType])
+  @@index([createdAt])
+}
+
+enum AIJobType {
+  OCR_EXTRACT
+  DOCUMENT_CLASSIFY
+  DOCUMENT_VALIDATE
+  FIELD_EXTRACT
+  PROFILE_SUMMARY
+  UNIVERSITY_RECOMMEND
+  FRAUD_DETECT
+  DUPLICATE_CHECK
+}
+
+enum AIJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  RETRYING
+}
+
+model AIExtractedField {
+  id        String   @id @default(uuid())
+  jobId     String
+  job       AIJob   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  fieldName String
+  value     String
+  confidence Float
+  
+  source    String? // page, region, etc.
+  metadata  Json?
+  
+  validated Boolean @default(false)
+  correctValue String?
+  correctedBy String?
+  
+  @@index([jobId])
+}
+
+model AIFlag {
+  id          String   @id @default(uuid())
+  jobId       String
+  job         AIJob   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  type        String
+  severity    String   // low, medium, high, critical
+  category    String
+  message     String
+  
+  resolved    Boolean @default(false)
+  resolvedBy  String?
+  resolvedAt  DateTime?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([jobId])
+  @@index([severity])
+}
+
+model AutomationRule {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  trigger     String   // event type
+  conditions  Json
+  actions     Json
+  
+  priority    Int      @default(5)
+  isActive    Boolean  @default(true)
+  
+  runCount    Int      @default(0)
+  successCount Int     @default(0)
+  failureCount Int     @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AutomationEvent {
+  id          String   @id @default(uuid())
+  ruleId      String?
+  studentId   String?
+  student     Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  eventType   String
+  payload     Json
+  
+  status      String   @default("pending")
+  processedAt  DateTime?
+  result      Json?
+  error       String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([eventType])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ====================
+// Notifications
+// ====================
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type        String
+  title       String
+  message     String
+  data        Json?
+  
+  isRead      Boolean @default(false)
+  readAt      DateTime?
+  
+  channels    Json? // { email: false, sms: true, push: true }
+  sentAt      DateTime?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model NotificationPreference {
+  id          String   @id @default(uuid())
+  studentId   String   @unique
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  emailEnabled    Boolean @default(true)
+  smsEnabled      Boolean @default(false)
+  pushEnabled     Boolean @default(true)
+  
+  documentUpdates Boolean @default(true)
+  paymentReminders Boolean @default(true)
+  stageChanges    Boolean @default(true)
+  announcements   Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ====================
+// User Activity Logging
+// ====================
+
+model UserActivityLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  action      String
+  entityType  String?
+  entityId    String?
+  
+  metadata    Json?
+  ipAddress   String?
+  userAgent   String?
+  deviceInfo  Json?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model PageView {
+  id          String   @id @default(uuid())
+  userId      String?
+  sessionId   String
+  
+  path        String
+  queryParams Json?
+  referrer    String?
+  
+  deviceType  String?
+  browser     String?
+  os          String?
+  
+  duration    Int? // seconds
+  bounced     Boolean @default(false)
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([path])
+  @@index([createdAt])
+}
+
+// ====================
+// Search & Query History
+// ====================
+
+model SearchHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  
+  query       String
+  filters     Json?
+  resultCount Int?
+  
+  clicked     String? // entity type that was clicked
+  clickedId   String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ====================
+// System Logs
+// ====================
+
+model SystemLog {
+  id          String   @id @default(uuid())
+  level       String   // info, warn, error
+  category    String   // auth, payment, document, ai
+  
+  message     String
+  metadata    Json?
+  
+  userId      String?
+  requestId   String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([level])
+  @@index([category])
+  @@index([createdAt])
+}
 
 model AuditLog {
   id         String   @id @default(uuid())
@@ -282,10 +672,88 @@ model AuditLog {
   action     String
   entityType String
   entityId   String
-  oldValue   String?
-  newValue   String?
+  
+  oldValue   Json?
+  newValue   Json?
+  
   ipAddress  String?
+  userAgent  String?
+  
+  changeReason String?
+  
   createdAt  DateTime @default(now())
 
   @@index([entityType, entityId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ====================
+// Feature Flags & Config
+// ====================
+
+model FeatureFlag {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  description String?
+  value       Json
+  isActive    Boolean  @default(true)
+  
+  // Rollout
+  rolloutPercentage Int  @default(100)
+  targetRoles Json?
+  targetUsers  Json?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SystemSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       Json
+  description String?
+  
+  updatedBy   String
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+// ====================
+// Analytics Aggregations
+// ====================
+
+model DailyMetric {
+  id          String   @id @default(uuid())
+  date        DateTime @db.Date
+  metricType  String
+  value       Float
+  count       Int       @default(1)
+  
+  metadata    Json?
+  
+  @@unique([date, metricType])
+  @@index([date])
+  @@index([metricType])
+}
+
+model StudentMetric {
+  id          String   @id @default(uuid())
+  studentId   String
+  
+  // Calculated metrics
+  totalPayments   Float @default(0)
+  documentScore    Float @default(0)
+  completionRate   Float @default(0)
+  daysInSystem     Int   @default(0)
+  
+  lastCalculatedAt DateTime @default(now())
+  
+  // AI-generated insights
+  riskScore    Float?
+  recommendations Json?
+  lastAIAnalysisAt DateTime?
+  
+  @@unique([studentId])
 }

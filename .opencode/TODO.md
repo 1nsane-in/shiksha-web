@@ -116,19 +116,36 @@ Medical Admission Management Platform with 3 user roles: Super Admin, Admin, Stu
 ### Tables Created (Prisma Schema)
 | Table | Status | Notes |
 |-------|--------|-------|
-| User | ✅ Done | email, name, role, isActive |
+| User | ✅ Done | email, name, role, lastLoginAt, lastLoginIp |
+| UserSession | ✅ Done | Token management, device tracking |
 | Student | ✅ Done | profile, stage, status |
-| University | ✅ Done | name, country, courses |
-| UniversityCourse | ✅ Done | fees, duration, seats |
-| UniversityApplication | ✅ Done | student-course mapping |
-| DocumentType | ✅ Done | code, name, requiredForStage |
-| StudentDocument | ✅ Done | upload, verification |
-| Payment | ✅ Done | stage, amount, razorpay IDs |
-| AdmissionLetter | ✅ Done | file, student mapping |
-| InvitationLetter | ✅ Done | file, download control |
+| StageHistory | ✅ Done | Stage change tracking for audit |
+| University | ✅ Done | name, country, courses, ranking |
+| UniversityCourse | ✅ Done | fees, duration, seats, metadata |
+| UniversityApplication | ✅ Done | student-course mapping, AI recommendation |
+| DocumentType | ✅ Done | code, name, requiredForStage, OCR config |
+| StudentDocument | ✅ Done | upload, verification, extractedData, access tracking |
+| Payment | ✅ Done | stage, amount, razorpay IDs, refunds |
+| AdmissionLetter | ✅ Done | file, student mapping, access tracking |
+| InvitationLetter | ✅ Done | file, download control, access tracking |
 | VisaCenter | ✅ Done | visa support centers |
 | VisaChecklist | ✅ Done | country-wise docs |
-| AuditLog | ✅ Done | tracking changes |
+| Notification | ✅ Done | user notifications, multi-channel |
+| NotificationPreference | ✅ Done | per-student preferences |
+| UserActivityLog | ✅ Done | detailed activity tracking |
+| PageView | ✅ Done | frontend analytics |
+| SearchHistory | ✅ Done | query tracking for AI |
+| SystemLog | ✅ Done | system-level logging |
+| AuditLog | ✅ Done | change tracking |
+| AIJob | ✅ Done | AI job queue (OCR, validation) |
+| AIExtractedField | ✅ Done | Extracted field storage |
+| AIFlag | ✅ Done | AI-detected issues |
+| AutomationRule | ✅ Done | Configurable automation rules |
+| AutomationEvent | ✅ Done | Automation execution log |
+| FeatureFlag | ✅ Done | Feature toggles |
+| SystemSetting | ✅ Done | Dynamic config |
+| DailyMetric | ✅ Done | Aggregated analytics |
+| StudentMetric | ✅ Done | Student-level computed metrics |
 
 ### Pending Migrations
 - [ ] Run `npx prisma migrate dev` after Supabase setup

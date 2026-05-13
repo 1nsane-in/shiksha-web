@@ -1,30 +1,40 @@
-import { Module } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { TerminusModule } from '@nestjs/terminus';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { HealthController } from './health/health.controller';
 import { DatabaseHealthIndicator } from './health/db.health';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AnalyticsService } from './services/analytics.service';
+import { ActivityLogService } from './services/activity-log.service';
+import { AuditLogService } from './services/audit-log.service';
+import { NotificationService } from './services/notification.service';
+import { MetricsService } from './services/metrics.service';
 import { SentryFilter } from './filters/sentry.filter';
 import { DashboardController } from './controllers/dashboard.controller';
+import { ActivityTrackingInterceptor } from './interceptors/activity-tracking.interceptor';
 
+@Global()
 @Module({
-  imports: [
-    TerminusModule,
-    PrismaModule,
-  ],
-  controllers: [
-    HealthController,
-    DashboardController,
-  ],
+  imports: [TerminusModule, PrismaModule],
+  controllers: [HealthController, DashboardController],
   providers: [
     DatabaseHealthIndicator,
     AnalyticsService,
+    ActivityLogService,
+    AuditLogService,
+    NotificationService,
+    MetricsService,
     {
       provide: APP_FILTER,
       useClass: SentryFilter,
     },
   ],
-  exports: [AnalyticsService],
+  exports: [
+    AnalyticsService,
+    ActivityLogService,
+    AuditLogService,
+    NotificationService,
+    MetricsService,
+  ],
 })
 export class CommonModule {}
