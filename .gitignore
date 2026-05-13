@@ -7,3 +7,23 @@ coverage
 .env
 .env.local
 *.log
+
+# Keep session tracking
+!.opencode/
+!.opencode/**
+!.opencode/sessions/
+!.opencode/TODO.md
+!.opencode/commands.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Turbo cache
+.turbo/
