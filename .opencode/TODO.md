@@ -16,6 +16,8 @@ Medical Admission Management Platform with 3 user roles: Super Admin, Admin, Stu
 - **Auth:** Supabase (Email OTP + Google OAuth)
 - **Payments:** Razorpay
 - **Storage:** Supabase Storage
+- **Error Tracking:** Sentry
+- **Analytics:** PostHog
 
 ---
 
