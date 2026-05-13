@@ -26,11 +26,13 @@ model User {
   lastLoginAt   DateTime?
   lastLoginIp   String?
 
-  student      Student?
-  sessions     UserSession[]
-  activityLogs UserActivityLog[]
+  student       Student?
+  sessions      UserSession[]
+  activityLogs  UserActivityLog[]
   notifications Notification[]
-
+  orgMemberships OrganizationMember[]
+  aiConversations AIConversation[]
+  
   @@index([email])
   @@index([role])
 }
@@ -757,3 +759,512 @@ model StudentMetric {
   
   @@unique([studentId])
 }
+
+// ====================
+// Organizations & Teams
+// ====================
+
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  logoUrl     String?
+  
+  // Subscription
+  plan        Plan     @default(FREE)
+  stripeCustomerId      String?
+  stripeSubscriptionId  String?
+  
+  // Usage limits
+  maxStudents      Int      @default(10)
+  maxAdmins        Int      @default(2)
+  currentStudents  Int      @default(0)
+  currentAdmins    Int      @default(0)
+  
+  // Settings
+  customDomain     String?
+  brandingColor    String?
+  features         Json?
+  
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  members     OrganizationMember[]
+  invites     OrganizationInvitation[]
+  apiKeys     APIKey[]
+  webhooks    WebhookEndpoint[]
+  integrations Integration[]
+  
+  @@index([slug])
+  @@index([stripeCustomerId])
+}
+
+model OrganizationMember {
+  id             String   @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  role           OrgRole  @default(MEMBER)
+  permissions    Json?
+  
+  invitedBy      String?
+  joinedAt       DateTime @default(now())
+  
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model OrganizationInvitation {
+  id             String   @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  email          String
+  role           OrgRole  @default(MEMBER)
+  
+  token          String   @unique
+  invitedBy      String
+  
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  
+  createdAt      DateTime @default(now())
+  
+  @@index([email])
+  @@index([token])
+}
+
+enum Plan {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+  CUSTOM
+}
+
+// ====================
+// Billing & Subscriptions
+// ====================
+
+model Subscription {
+  id                    String   @id @default(uuid())
+  organizationId        String
+  
+  stripeSubscriptionId  String   @unique
+  stripeCustomerId      String
+  stripePriceId         String
+  
+  status                SubscriptionStatus
+  plan                  Plan
+  
+  currentPeriodStart    DateTime
+  currentPeriodEnd      DateTime
+  cancelAtPeriodEnd     Boolean @default(false)
+  canceledAt            DateTime?
+  
+  trialStart            DateTime?
+  trialEnd              DateTime?
+  
+  seats                 Int      @default(1)
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([organizationId])
+  @@index([stripeSubscriptionId])
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  TRIALING
+  UNPAID
+}
+
+model Invoice {
+  id                    String   @id @default(uuid())
+  organizationId        String
+  subscriptionId        String?
+  
+  stripeInvoiceId       String   @unique
+  
+  number                String?
+  status                InvoiceStatus
+  
+  amountDue             Float
+  amountPaid            Float
+  currency              String   @default("USD")
+  
+  invoicePdf            String?
+  invoiceUrl            String?
+  
+  dueDate               DateTime?
+  paidAt                DateTime?
+  
+  createdAt             DateTime @default(now())
+  
+  @@index([organizationId])
+  @@index([status])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  UNCOLLECTIBLE
+  VOID
+}
+
+model PricingPlan {
+  id              String   @id @default(uuid())
+  name            Plan     @unique
+  displayName     String
+  description     String?
+  
+  monthlyPrice    Float
+  yearlyPrice     Float
+  currency        String   @default("USD")
+  
+  features        Json
+  limits          Json
+  
+  stripeMonthlyPriceId  String?
+  stripeYearlyPriceId   String?
+  
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ====================
+// API Keys & Webhooks
+// ====================
+
+model APIKey {
+  id              String   @id @default(uuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  name            String
+  keyHash         String   @unique
+  prefix          String
+  
+  permissions     Json?
+  
+  lastUsedAt      DateTime?
+  expiresAt       DateTime?
+  
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  
+  @@index([organizationId])
+  @@index([keyHash])
+}
+
+model WebhookEndpoint {
+  id                String   @id @default(uuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  url               String
+  secret            String
+  
+  events            String[]
+  
+  isActive          Boolean  @default(true)
+  
+  lastTriggeredAt   DateTime?
+  failureCount      Int      @default(0)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model WebhookEvent {
+  id              String   @id @default(uuid())
+  endpointId      String
+  
+  eventType       String
+  payload         Json
+  
+  status          WebhookEventStatus @default(PENDING)
+  attempts        Int      @default(0)
+  maxAttempts     Int      @default(5)
+  
+  responseCode    Int?
+  responseError   String?
+  
+  deliveredAt     DateTime?
+  nextRetryAt     DateTime?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([endpointId])
+  @@index([status])
+}
+
+enum WebhookEventStatus {
+  PENDING
+  DELIVERED
+  FAILED
+  RETRYING
+}
+
+// ====================
+// Integrations
+// ====================
+
+model Integration {
+  id              String   @id @default(uuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  type            IntegrationType
+  name            String
+  
+  config          Json?
+  credentials     Json?
+  
+  isActive        Boolean  @default(true)
+  lastSyncAt      DateTime?
+  syncError       String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([organizationId, type])
+}
+
+enum IntegrationType {
+  WHATSAPP
+  TWILIO
+  MSG91
+  SENDGRID
+  MAILGUN
+  SMTP
+  GOOGLE_CALENDAR
+  ZOOM
+  SLACK
+  DISCORD
+  GOOGLE_ANALYTICS
+  CUSTOM_WEBHOOK
+}
+
+// ====================
+// Security (2FA, SSO)
+// ====================
+
+model TwoFactorAuth {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  
+  secret          String
+  backupCodes     String[]
+  
+  verified        Boolean  @default(false)
+  enabledAt       DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId])
+}
+
+model SSOConnection {
+  id              String   @id @default(uuid())
+  organizationId  String
+  
+  name            String
+  type            SSOType
+  
+  ssoUrl          String
+  certificate     String
+  
+  entityId        String
+  callbackUrl     String
+  
+  attributeMapping Json?
+  
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  
+  @@index([organizationId])
+}
+
+enum SSOType {
+  SAML
+  OAUTH_GOOGLE
+  OAUTH_MICROSOFT
+  OAUTH_OKTA
+  OIDC
+}
+
+model LoginAttempt {
+  id              String   @id @default(uuid())
+  email           String
+  ipAddress       String
+  
+  success         Boolean
+  failureReason   String?
+  
+  userAgent       String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([email])
+  @@index([ipAddress])
+  @@index([createdAt])
+}
+
+// ====================
+// AI Assistant
+// ====================
+
+model AIConversation {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title           String?
+  context         Json?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  messages        AIConversationMessage[]
+  
+  @@index([userId])
+}
+
+model AIConversationMessage {
+  id              String   @id @default(uuid())
+  conversationId  String
+  conversation    AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  role            String
+  content         String
+  
+  metadata        Json?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([conversationId])
+}
+
+model AIRecommendation {
+  id              String   @id @default(uuid())
+  studentId       String?
+  
+  type            String
+  data            Json
+  confidence      Float
+  
+  reason          String?
+  
+  dismissed       Boolean  @default(false)
+  applied         Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([studentId])
+}
+
+// ====================
+// Support & Helpdesk
+// ====================
+
+model SupportTicket {
+  id              String   @id @default(uuid())
+  organizationId  String?
+  userId          String
+  
+  subject         String
+  description     String
+  categoryId      String?
+  
+  priority        TicketPriority @default(MEDIUM)
+  status          TicketStatus @default(OPEN)
+  
+  assignedTo      String?
+  
+  resolvedAt      DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  messages        SupportTicketMessage[]
+  
+  @@index([userId])
+  @@index([status])
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+model SupportTicketMessage {
+  id              String   @id @default(uuid())
+  ticketId        String
+  ticket          SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  senderId        String
+  senderRole      String
+  
+  content         String
+  attachments     String[]
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([ticketId])
+}
+
+model Announcement {
+  id              String   @id @default(uuid())
+  organizationId  String?
+  
+  title           String
+  content         String
+  
+  type            String   @default("info")
+  category        String?
+  
+  targetRoles     String[]
+  
+  startsAt        DateTime?
+  endsAt          DateTime?
+  
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([isActive])
+}
+
+
+model Organization {
