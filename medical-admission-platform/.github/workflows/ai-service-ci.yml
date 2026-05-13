@@ -1,0 +1,42 @@
+name: AI Service CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/ai-service/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/ai-service/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install dependencies
+        working-directory: apps/ai-service
+        run: poetry install
+
+      - name: Lint
+        working-directory: apps/ai-service
+        run: poetry run ruff check src/
+
+      - name: Format check
+        working-directory: apps/ai-service
+        run: poetry run black --check src/
+
+      - name: Test
+        working-directory: apps/ai-service
+        run: poetry run pytest
