@@ -61,6 +61,14 @@ Medical Admission Management Platform with 3 user roles: Super Admin, Admin, Stu
 - [ ] Manual payment approval (admin)
 - [ ] Stage unlock logic based on payment
 
+### Phase 2.5: Observability ✅ COMPLETE
+- [x] Sentry error tracking (backend)
+- [x] Sentry error tracking (frontend)
+- [x] PostHog analytics (backend)
+- [x] PostHog analytics (frontend)
+- [x] Health check endpoints
+- [x] Admin dashboard stats endpoint
+
 ### Phase 3: Letters Module
 - [ ] Create Letters module
 - [ ] Admission letter upload/view
