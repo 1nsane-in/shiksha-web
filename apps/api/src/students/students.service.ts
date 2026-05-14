@@ -192,7 +192,7 @@ export class StudentsService {
 
     const student = await this.prisma.student.update({
       where: { id },
-      data: dto,
+      data: dto as any,
     });
 
     return student;

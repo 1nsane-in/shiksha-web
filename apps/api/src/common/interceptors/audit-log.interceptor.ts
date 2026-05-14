@@ -3,10 +3,9 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
-  CallHandler,
-} from '@nestjs/core';
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { AuditLogService } from '../services/audit-log.service';
 
 interface AuditableOptions {
@@ -15,10 +14,10 @@ interface AuditableOptions {
   getEntityId?: (data: any) => string | undefined;
 }
 
-export function Auditable(options: AuditableOptions) {
+  export function Auditable(options: AuditableOptions) {
   @Injectable()
   class AuditInterceptor implements NestInterceptor {
-    constructor(private auditLogService: AuditLogService) {}
+    constructor(public readonly auditLogService: AuditLogService) {}
 
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
       const request = context.switchToHttp().getRequest();

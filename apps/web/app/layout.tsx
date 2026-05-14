@@ -1,19 +1,17 @@
-import { Providers } from './providers';
-import './globals.css';
-import { initAnalytics } from '@/lib/analytics';
+import type { Metadata } from "next";
+import "./globals.css";
 
-initAnalytics();
+export const metadata: Metadata = {
+  title: "MedCareer | Your Journey to Medical Excellence",
+  description:
+    "Medical admission management platform for students, admins, and agents. Apply to top medical universities, track your applications, and manage your medical career.",
+  icons: { icon: "/favicon.svg" },
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        <Providers>{children}</Providers>
-      </body>
+    <html lang="en" className="scroll-smooth">
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

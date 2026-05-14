@@ -94,6 +94,8 @@ model Student {
   applications UniversityApplication[]
   
   // AI & Automation relations
+  admissionLetter   AdmissionLetter?
+  invitationLetter  InvitationLetter?
   aiJobs       AIJob[]
   automationEvents AutomationEvent[]
   notificationPreferences NotificationPreference[]
@@ -426,6 +428,9 @@ model AIJob {
   updatedAt     DateTime @updatedAt
   
   // For automation
+  extractedFields AIExtractedField[]
+  validationFlags AIFlag[]
+
   retryCount    Int      @default(0)
   maxRetries    Int      @default(3)
   
@@ -1265,6 +1270,3 @@ model Announcement {
   
   @@index([isActive])
 }
-
-
-model Organization {

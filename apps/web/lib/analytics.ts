@@ -7,7 +7,6 @@ import {
   type LinkProps,
 } from '@tanstack/react-router';
 import posthog from 'posthog-js';
-import { type Router } from 'next/router';
 
 export const initAnalytics = () => {
   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {

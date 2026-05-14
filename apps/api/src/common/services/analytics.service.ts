@@ -15,7 +15,7 @@ export class AnalyticsService {
   constructor() {
     const apiKey = process.env.POSTHOG_KEY;
     const host = process.env.POSTHOG_HOST || 'https://us.i.posthog.com';
-    this.enabled = process.env.NODE_ENV === 'production' || process.env.POSTHOG_KEY;
+    this.enabled = !!(process.env.NODE_ENV === 'production' || process.env.POSTHOG_KEY);
 
     if (this.enabled && apiKey) {
       this.posthog = new PostHog(apiKey, { host });

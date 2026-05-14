@@ -4,9 +4,9 @@
 
 This file defines how AI coding agents, automation agents, and developer assistants should work inside this repository.
 
-Project: Medical Admission Management Platform  
-Architecture: Next.js + NestJS + FastAPI + PostgreSQL  
-Primary Rule: Keep business workflows in NestJS and AI workflows in FastAPI.
+Project: Medical Admission Management Platform (V1)  
+Architecture: Next.js + NestJS + Neon PostgreSQL  
+Primary Rule: Keep all logic in NestJS — no separate AI service in V1.
 
 ---
 
@@ -53,21 +53,31 @@ NestJS owns:
 - Audit logs
 - Settings
 
-## 2.2 AI Service
+## 2.2 AI / LLM (in NestJS)
 
-Use FastAPI for AI-related features only.
+V1 does NOT have a separate AI service. AI features live inside NestJS.
 
-FastAPI owns:
+AI in NestJS uses:
 
-- OCR
-- Document classification
-- Field extraction
-- AI document validation
+- **Vercel AI SDK** — TypeScript wrapper for LLM calls
+- **OpenRouter** — API gateway for multiple LLM models
+- **Amazon Nova Lite** — default cheapest LLM via OpenRouter
+
+NestJS AI module handles:
+
 - Application summaries
-- Recommendation logic
-- LLM-based assistance
+- Admin assistant suggestions
+- Student support chatbot
+- Email/message drafting
+- Document review note drafting
 
-FastAPI should not directly own core business rules such as student stage changes, payment approvals, or commission settlement.
+No OCR in V1. Document verification is manual.
+
+Rules:
+
+- Do NOT auto-approve documents based on AI output.
+- AI results are suggestions for admins only.
+- No FastAPI service for V1.
 
 ## 2.3 Frontend
 
@@ -92,7 +102,6 @@ Recommended structure:
 /apps
   /web                 # Next.js frontend
   /api                 # NestJS main backend
-  /ai-service          # FastAPI AI service
 
 /packages
   /shared-types        # Shared TypeScript types if needed
@@ -132,13 +141,9 @@ If the repository is not a monorepo, keep equivalent separation using separate f
 - Use Zod or class-validator for validation depending on layer.
 - Keep types consistent across frontend/backend.
 
-## 4.3 Python Rules
+## 4.3 (No Python in V1)
 
-- Use type hints.
-- Use Pydantic models for request/response validation.
-- Keep AI logic separated from API routing.
-- Long-running AI tasks should be asynchronous or queue-based.
-- Do not let AI service directly mutate core business state unless explicitly routed through NestJS.
+No Python services in V1. All logic is TypeScript.
 
 ---
 
@@ -287,43 +292,52 @@ Never rely only on frontend restrictions.
 
 ---
 
-## 7. FastAPI AI Service Guidelines
+## 7. NestJS AI Module Guidelines
 
-Recommended structure:
+AI features live inside NestJS. No separate service.
+
+Recommended structure within NestJS:
 
 ```txt
-ai_service/
-  main.py
-  api/
-    routes_documents.py
-    routes_health.py
-  services/
-    ocr_service.py
-    classification_service.py
-    validation_service.py
-    summary_service.py
-  schemas/
-    document.py
-    ai_result.py
-  core/
-    config.py
-    logging.py
-  workers/
-    document_worker.py
+apps/api/src/modules/ai/
+  ai.module.ts
+  ai.controller.ts
+  ai.service.ts
+  dto/
+    chat.dto.ts
+    summarize.dto.ts
+  types/
+    ai-response.types.ts
 ```
 
-## 7.1 AI Service Rules
+## 7.1 AI Rules
 
-- Keep endpoints small.
-- Put business-independent AI logic in services.
-- Return structured JSON responses.
-- Include confidence score where relevant.
-- Do not auto-approve documents in V1.
-- Treat AI results as assistant suggestions for admins.
+- Use Vercel AI SDK for all LLM interactions.
+- Route all LLM calls through OpenRouter.
+- Default model: Amazon Nova Lite.
+- Do NOT auto-approve documents based on AI output.
+- AI results are suggestions for admins only.
+- Log all AI requests/responses in ai_requests table.
+- Handle LLM timeouts gracefully with fallback responses.
 
 ## 7.2 AI Result Format
 
-AI document validation should return a structure similar to:
+AI responses should follow this structure:
+
+```json
+{
+  "success": true,
+  "model": "amazon/nova-lite-v1",
+  "content": "Generated text response",
+  "tokenUsage": {
+    "input": 150,
+    "output": 45,
+    "total": 195
+  }
+}
+```
+
+For structured data extraction (suggestions only, not auto-decision):
 
 ```json
 {
@@ -352,7 +366,7 @@ Do not fabricate extracted fields. If extraction fails, return null/empty values
 ## 8. Database Guidelines
 
 Use PostgreSQL.
-
+Use Neon PostgreSQL as the provider.
 Use Prisma in NestJS.
 
 Important table groups:
@@ -408,7 +422,7 @@ Important table groups:
 
 ### AI
 
-- ai_jobs
+- ai_requests
 - ai_document_results
 - ai_validation_flags
 
@@ -435,7 +449,7 @@ Recommended route patterns:
 /api/settings/*
 ```
 
-FastAPI routes:
+NestJS AI routes (V2 if FastAPI is added later):
 
 ```txt
 /health
@@ -548,9 +562,9 @@ Minimum testing expectations:
 - Admin document verification flow
 - Payment status display
 
-## 12.3 AI Service
+## 12.3 AI Module
 
-- Test document processing endpoints
+- Test AI endpoints
 - Test empty/invalid file handling
 - Test structured response format
 - Test timeout/error behavior
@@ -570,14 +584,16 @@ JWT_REFRESH_SECRET=
 RAZORPAY_KEY_ID=
 RAZORPAY_KEY_SECRET=
 RAZORPAY_WEBHOOK_SECRET=
-S3_BUCKET_NAME=
-S3_ACCESS_KEY_ID=
-S3_SECRET_ACCESS_KEY=
-S3_REGION=
-S3_ENDPOINT=
-REDIS_URL=
-EMAIL_PROVIDER_API_KEY=
-AI_SERVICE_URL=
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET_NAME=
+ZEPTOMAIL_API_KEY=
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_VERIFY_SERVICE_SID=
+OPENROUTER_API_KEY=
+AI_DEFAULT_MODEL=amazon/nova-lite-v1
 ```
 
 ---
@@ -602,8 +618,7 @@ A feature is complete only when:
 
 Do not:
 
-- Put AI business logic inside NestJS unless it is only orchestration.
-- Let FastAPI directly approve applications/payments.
+- Put AI business logic inside FastAPI in V1 — keep everything in NestJS.
 - Hardcode payment amounts in frontend.
 - Hardcode document requirements in frontend.
 - Expose S3 public URLs.
@@ -627,7 +642,7 @@ Do not:
 8. Agent allocation and commission tracking
 9. University management
 10. Reports
-11. FastAPI AI document service
+11. AI module in NestJS (Vercel AI SDK + OpenRouter)
 12. QA and deployment
 
 ---
@@ -638,7 +653,7 @@ When making changes, always preserve the product direction:
 
 ```txt
 Core platform = NestJS
-AI workflows = FastAPI
+AI workflows = NestJS
 User interface = Next.js
 Database = PostgreSQL
 Files = Private object storage

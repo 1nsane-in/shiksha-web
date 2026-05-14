@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { AuditLog } from '@prisma/client';
 
 export interface CreateAuditLogDto {
@@ -86,7 +86,7 @@ export class AuditLogService {
     metadata?: Record<string, any>;
   }) {
     const newMeta = data.metadata || {};
-    const newMetaJson = Object.keys(newMeta).length > 0 ? newMeta : null;
+    const newMetaJson = Object.keys(newMeta).length > 0 ? newMeta : undefined;
     
     return this.prisma.stageHistory.create({
       data: {
