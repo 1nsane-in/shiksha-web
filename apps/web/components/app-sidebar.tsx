@@ -1,11 +1,10 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-import { NavDocuments } from "@/components/nav-documents"
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavMain } from "@/components/nav-main";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -14,191 +13,117 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, ListIcon, ChartBarIcon, FolderIcon, UsersIcon, CameraIcon, FileTextIcon, Settings2Icon, CircleHelpIcon, SearchIcon, DatabaseIcon, FileChartColumnIcon, FileIcon, CommandIcon } from "lucide-react"
+} from "@/components/ui/sidebar";
+import {
+  LayoutDashboard,
+  FileText,
+  Users,
+  CreditCard,
+  Settings,
+  HelpCircle,
+  FileBarChart,
+  Building2,
+  GraduationCap,
+} from "lucide-react";
 
 const data = {
   user: {
-    name: "Student",
-    email: "student@medcareer.com",
+    name: "Admin",
+    email: "admin@shiksha.com",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
     {
       title: "Dashboard",
-      url: "/student/dashboard",
-      icon: (
-        <LayoutDashboardIcon
-        />
-      ),
+      url: "/dashboard",
+      icon: <LayoutDashboard />,
     },
     {
-      title: "Application Stages",
-      url: "/student/stages",
-      icon: (
-        <ListIcon
-        />
-      ),
+      title: "Applications",
+      url: "/applications",
+      icon: <FileText />,
+      items: [
+        { title: "All Applications", url: "/applications" },
+        { title: "Pending Review", url: "/applications?status=pending" },
+      ],
     },
     {
-      title: "Analytics",
-      url: "/student/analytics",
-      icon: (
-        <ChartBarIcon
-        />
-      ),
-    },
-    {
-      title: "Documents",
-      url: "/student/documents",
-      icon: (
-        <FolderIcon
-        />
-      ),
+      title: "Students",
+      url: "#",
+      icon: <Users />,
+      items: [
+        { title: "All Students", url: "#" },
+        { title: "Document Verification", url: "#" },
+      ],
     },
     {
       title: "Payments",
-      url: "/student/payments",
-      icon: (
-        <UsersIcon
-        />
-      ),
-    },
-  ],
-  navClouds: [
-    {
-      title: "Admission",
-      icon: (
-        <CameraIcon
-        />
-      ),
-      isActive: true,
       url: "#",
+      icon: <CreditCard />,
       items: [
-        {
-          title: "Application Status",
-          url: "/student/stages",
-        },
-        {
-          title: "Exam Dashboard",
-          url: "/student/exam",
-        },
+        { title: "Transactions", url: "#" },
+        { title: "Pending Approvals", url: "#" },
       ],
     },
     {
-      title: "Letters",
-      icon: (
-        <FileTextIcon
-        />
-      ),
+      title: "Universities",
       url: "#",
+      icon: <Building2 />,
       items: [
-        {
-          title: "Admission Letter",
-          url: "/student/letters/admission",
-        },
-        {
-          title: "Invitation Letter",
-          url: "/student/letters/invitation",
-        },
+        { title: "Manage Universities", url: "#" },
+        { title: "Courses", url: "#" },
       ],
     },
     {
-      title: "Visa Support",
-      icon: (
-        <FileTextIcon
-        />
-      ),
-      url: "/student/visa",
+      title: "Admissions",
+      url: "#",
+      icon: <GraduationCap />,
       items: [
-        {
-          title: "Visa Checklist",
-          url: "/student/visa/checklist",
-        },
-        {
-          title: "Application Status",
-          url: "/student/visa/status",
-        },
+        { title: "Stages", url: "#" },
+        { title: "Letters", url: "#" },
       ],
     },
-  ],
-  navSecondary: [
     {
-      title: "LMS Portal",
-      url: "/student/lms",
-      icon: (
-        <Settings2Icon
-        />
-      ),
-    },
-    {
-      title: "Get Help",
+      title: "Reports",
       url: "#",
-      icon: (
-        <CircleHelpIcon
-        />
-      ),
+      icon: <FileBarChart />,
     },
     {
       title: "Settings",
-      url: "/student/settings",
-      icon: (
-        <SearchIcon
-        />
-      ),
+      url: "#",
+      icon: <Settings />,
     },
   ],
-  documents: [
-    {
-      name: "Universities",
-      url: "/student/universities",
-      icon: (
-        <DatabaseIcon
-        />
-      ),
-    },
-    {
-      name: "Reports",
-      url: "/student/reports",
-      icon: (
-        <FileChartColumnIcon
-        />
-      ),
-    },
-    {
-      name: "Agent Contact",
-      url: "/student/agent",
-      icon: (
-        <FileIcon
-        />
-      ),
-    },
-  ],
-}
+  navSecondary: [{ title: "Get Help", url: "#", icon: <HelpCircle /> }],
+};
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              className="data-[slot=sidebar-menu-button]:p-1.5! bg-primary text-primary-foreground hover:bg-primary/90"
-              render={<a href="#" />}
-            >
-              <CommandIcon className="size-5!" />
-              <span className="text-base font-semibold">MedCareer</span>
+            <SidebarMenuButton size="lg" render={<a href="/dashboard" />}>
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <GraduationCap className="size-4" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">Shiksha</span>
+                <span className="truncate text-xs text-sidebar-foreground/60">
+                  Admin Dashboard
+                </span>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
