@@ -9,7 +9,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SupabaseAuthGuard } from './guards/supabase-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import {
@@ -18,6 +17,8 @@ import {
   SendOtpDto,
   VerifyOtpDto,
   CreateAdminDto,
+  GoogleAuthDto,
+  GoogleRegisterDto,
 } from './auth.dto';
 import { Public } from './decorators/public.decorator';
 
@@ -41,8 +42,8 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  async register(@Body() dto: RegisterDto, @Body('token') token: string) {
-    return this.authService.register(dto, token);
+  async register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
   }
 
   @Public()
@@ -52,7 +53,20 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  @UseGuards(SupabaseAuthGuard)
+  @Public()
+  @Post('google-login')
+  @HttpCode(HttpStatus.OK)
+  async googleLogin(@Body() dto: GoogleAuthDto) {
+    return this.authService.googleLogin(dto);
+  }
+
+  @Public()
+  @Post('google-register')
+  @HttpCode(HttpStatus.OK)
+  async googleRegister(@Body() dto: GoogleRegisterDto) {
+    return this.authService.googleRegister(dto);
+  }
+
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Request() req) {
@@ -60,7 +74,6 @@ export class AuthController {
     return this.authService.logout(token);
   }
 
-  @UseGuards(SupabaseAuthGuard)
   @Get('me')
   async getCurrentUser(@Request() req) {
     return this.authService.getCurrentUser(req.user.id);
@@ -83,7 +96,7 @@ export class AuthController {
     return this.authService.resetPassword(token, password);
   }
 
-  @UseGuards(SupabaseAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles('SUPER_ADMIN')
   @Post('create-admin')
   async createAdmin(@Body() dto: CreateAdminDto) {

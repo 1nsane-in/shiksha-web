@@ -1,11 +1,11 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { SupabaseAuthGuard } from '../../auth/guards/supabase-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 
 @Controller('admin/dashboard')
-@UseGuards(SupabaseAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN', 'SUPER_ADMIN')
 export class DashboardController {
   constructor(private prisma: PrismaService) {}

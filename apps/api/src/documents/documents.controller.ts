@@ -11,13 +11,13 @@ import {
   Request,
 } from '@nestjs/common';
 import { DocumentsService } from './documents.service';
-import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UploadDocumentDto, VerifyDocumentDto, CreateDocumentTypeDto, UpdateDocumentTypeDto } from './documents.dto';
 
 @Controller('student/documents')
-@UseGuards(SupabaseAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('STUDENT')
 export class StudentDocumentsController {
   constructor(private documentsService: DocumentsService) {}
@@ -34,7 +34,7 @@ export class StudentDocumentsController {
 }
 
 @Controller('admin/documents')
-@UseGuards(SupabaseAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN', 'SUPER_ADMIN')
 export class AdminDocumentsController {
   constructor(private documentsService: DocumentsService) {}

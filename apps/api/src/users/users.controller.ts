@@ -10,13 +10,13 @@ import {
   Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateProfileDto, UpdateUserByAdminDto } from './users.dto';
 
 @Controller('users')
-@UseGuards(SupabaseAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -32,7 +32,7 @@ export class UsersController {
 }
 
 @Controller('admin/users')
-@UseGuards(SupabaseAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN', 'SUPER_ADMIN')
 export class AdminUsersController {
   constructor(private usersService: UsersService) {}

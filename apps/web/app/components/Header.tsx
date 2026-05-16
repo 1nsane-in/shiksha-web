@@ -4,9 +4,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -15,6 +17,7 @@ export function Header() {
     { name: "Documents", href: "#documents" },
     { name: "Pricing", href: "#pricing" },
     { name: "Contact", href: "#contact" },
+    { name: "Google Auth Demo", href: "/google-auth" },
   ];
 
   return (
@@ -45,9 +48,22 @@ export function Header() {
 
           {/* Auth Section */}
           <div className="hidden md:block">
-            <Button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200">
-              <Link href="/login">Login</Link>
-            </Button>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-600 text-sm">{user?.name}</span>
+                <Button 
+                  onClick={logout}
+                  variant="outline"
+                  className="border-gray-300 text-gray-600 hover:bg-gray-50 text-sm font-medium"
+                >
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200">
+                <Link href="/login">Login</Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -79,9 +95,21 @@ export function Header() {
               </Link>
             ))}
             <div className="pt-4 pb-2">
-              <Button className="w-full bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full text-sm font-medium">
-                <Link href="/login">Login</Link>
-              </Button>
+              {isAuthenticated ? (
+                <div className="space-y-2">
+                  <span className="block px-3 py-2 text-gray-600 text-sm">{user?.name}</span>
+                  <Button 
+                    onClick={logout}
+                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium"
+                  >
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full text-sm font-medium">
+                  <Link href="/login">Login</Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>

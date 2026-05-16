@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UniversitiesService } from './universities.service';
-import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import {
@@ -21,7 +21,7 @@ import {
 } from './universities.dto';
 
 @Controller('admin/universities')
-@UseGuards(SupabaseAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN', 'SUPER_ADMIN')
 export class AdminUniversitiesController {
   constructor(private universitiesService: UniversitiesService) {}
@@ -84,7 +84,7 @@ export class AdminUniversitiesController {
 }
 
 @Controller('universities')
-@UseGuards(SupabaseAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class UniversitiesController {
   constructor(private universitiesService: UniversitiesService) {}
 

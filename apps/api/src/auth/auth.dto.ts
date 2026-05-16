@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsOptional, MinLength, IsEnum, IsBoolean } from 'class-validator';
+import { IsEmail, IsString, IsOptional } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail()
@@ -7,12 +7,12 @@ export class RegisterDto {
   @IsString()
   name: string;
 
+  @IsString()
+  password: string;
+
   @IsOptional()
   @IsString()
   phone?: string;
-
-  @MinLength(8)
-  password: string;
 }
 
 export class LoginDto {
@@ -36,21 +36,27 @@ export class VerifyOtpDto {
   otp: string;
 }
 
-export class UpdateUserDto {
-  @IsOptional()
+export class CreateAdminDto {
+  @IsEmail()
+  email: string;
+
   @IsString()
-  name?: string;
+  name: string;
+
+  @IsString()
+  password: string;
 
   @IsOptional()
   @IsString()
   phone?: string;
-
-  @IsOptional()
-  @IsString()
-  avatarUrl?: string;
 }
 
-export class CreateAdminDto {
+export class GoogleAuthDto {
+  @IsString()
+  accessToken: string;
+}
+
+export class GoogleRegisterDto {
   @IsEmail()
   email: string;
 
@@ -61,6 +67,9 @@ export class CreateAdminDto {
   @IsString()
   phone?: string;
 
-  @MinLength(8)
-  password: string;
+  @IsString()
+  googleId: string;
+
+  @IsString()
+  accessToken: string;
 }

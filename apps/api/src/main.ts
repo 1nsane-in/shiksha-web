@@ -15,7 +15,8 @@ async function bootstrap() {
   initSentry(configService);
 
   app.enableCors({
-    origin: configService.get("FRONTEND_URL") || "http://localhost:3000",
+    origin:
+      configService.get<string>("FRONTEND_URL") || "http://localhost:3000",
     credentials: true,
   });
 
@@ -30,7 +31,7 @@ async function bootstrap() {
   // Graceful shutdown
   app.enableShutdownHooks();
 
-  const port = configService.get("PORT") || 8000;
+  const port = configService.get<number>("PORT") || 8000;
   await app.listen(port);
 
   console.log(`API is running on: http://localhost:${port}`);

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -9,6 +10,8 @@ import { UniversitiesModule } from './universities/universities.module';
 import { StudentsModule } from './students/students.module';
 import { DocumentsModule } from './documents/documents.module';
 import { CommonModule } from './common/common.module';
+import { SharedJwtModule } from './common/shared-jwt.module';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -16,6 +19,7 @@ import { CommonModule } from './common/common.module';
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
     }),
+    SharedJwtModule,
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -25,6 +29,12 @@ import { CommonModule } from './common/common.module';
     CommonModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
