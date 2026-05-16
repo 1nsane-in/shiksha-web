@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  Logger,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
@@ -18,6 +19,8 @@ import {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
@@ -94,12 +97,18 @@ export class AuthService {
   }
 
   async googleLogin(dto: GoogleAuthDto) {
+    this.logger.log(`Google login attempt with token: ${dto.accessToken?.substring(0, 20)}...`);
+    
     // Verify Google token
     const userInfo = await this.verifyGoogleToken(dto.accessToken);
+    this.logger.debug(`Google token verification result: ${JSON.stringify(userInfo)}`);
 
     if (!userInfo) {
+      this.logger.warn('Invalid Google token');
       throw new UnauthorizedException("Invalid Google token");
     }
+
+    this.logger.log(`Google user info: ${userInfo.email}, ${userInfo.name}`);
 
     // Find or create user
     let user = await this.prisma.user.findUnique({
@@ -107,12 +116,29 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException(
-        "User not registered. Please register first."
-      );
+      this.logger.log(`User not found, auto-registering: ${userInfo.email}`);
+      // Auto-register the user
+      user = await this.prisma.user.create({
+        data: {
+          email: userInfo.email,
+          name: userInfo.name || userInfo.email.split('@')[0],
+          emailVerified: true,
+          role: "STUDENT",
+          isActive: true,
+        },
+      });
+
+      await this.prisma.student.create({
+        data: {
+          userId: user.id,
+        },
+      });
+
+      this.logger.log(`Auto-registered user: ${user.id}`);
     }
 
     const token = this.generateToken(user);
+    this.logger.log(`Login successful for user: ${user.id}`);
 
     return {
       message: "Google login successful",
@@ -122,11 +148,14 @@ export class AuthService {
   }
 
   async googleRegister(dto: GoogleRegisterDto) {
+    this.logger.log(`Google register attempt for: ${dto.email}`);
+    
     const existingEmailUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
     if (existingEmailUser) {
+      this.logger.warn(`User already exists: ${dto.email}`);
       throw new BadRequestException("User already registered with this email");
     }
 
@@ -148,6 +177,7 @@ export class AuthService {
     });
 
     const token = this.generateToken(newUser);
+    this.logger.log(`Registration successful for user: ${newUser.id}`);
 
     return {
       message: "Google registration successful",
@@ -222,25 +252,109 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  private async verifyGoogleToken(accessToken: string): Promise<any> {
+  private async verifyGoogleToken(token: string): Promise<any> {
     try {
-      // Verify token with Google's API
-      const response = await fetch(
-        `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken}`,
-        {
+      this.logger.debug(`Verifying Google token...`);
+      
+      let accessToken = token;
+      
+      // If it's an authorization code (starts with 4/), exchange it for tokens
+      if (token.startsWith('4/') || token.startsWith('1/')) {
+        this.logger.debug('Token is an authorization code, exchanging for access token...');
+        
+        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
+          body: new URLSearchParams({
+            code: token,
+            client_id: process.env.GOOGLE_CLIENT_ID || '',
+            client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
+            redirect_uri: 'http://localhost:3000/auth/callback',
+            grant_type: 'authorization_code',
+          }),
+        });
+        
+        if (!tokenResponse.ok) {
+          const errorData = await tokenResponse.json();
+          this.logger.error(`Token exchange failed: ${JSON.stringify(errorData)}`);
+          return null;
         }
-      );
-
-      if (!response.ok) {
-        return null;
+        
+        const tokenData = await tokenResponse.json();
+        this.logger.debug(`Token exchange successful`);
+        accessToken = tokenData.access_token;
+        
+        // If we got an ID token, use it for better user info
+        if (tokenData.id_token) {
+          this.logger.debug('ID token received, decoding...');
+          const idTokenPayload = JSON.parse(Buffer.from(tokenData.id_token.split('.')[1], 'base64').toString());
+          return {
+            sub: idTokenPayload.sub,
+            email: idTokenPayload.email,
+            name: idTokenPayload.name,
+            picture: idTokenPayload.picture,
+            email_verified: idTokenPayload.email_verified,
+          };
+        }
       }
+      
+      // Check if it's an ID token (JWT format)
+      const isIdToken = accessToken.split('.').length === 3;
+      
+      if (isIdToken) {
+        // ID token - verify with Google's tokeninfo endpoint
+        this.logger.debug('Token appears to be an ID token, verifying...');
+        const response = await fetch(
+          `https://oauth2.googleapis.com/tokeninfo?id_token=${accessToken}`
+        );
+        
+        if (!response.ok) {
+          this.logger.warn(`ID token verification failed: ${response.status}`);
+          return null;
+        }
+        
+        const tokenInfo = await response.json();
+        this.logger.debug(`Token info: ${JSON.stringify(tokenInfo)}`);
+        
+        // Verify the audience matches our client ID
+        const expectedAudience = process.env.GOOGLE_CLIENT_ID;
+        if (tokenInfo.aud !== expectedAudience) {
+          this.logger.warn(`Token audience mismatch: ${tokenInfo.aud} !== ${expectedAudience}`);
+          return null;
+        }
+        
+        return {
+          sub: tokenInfo.sub,
+          email: tokenInfo.email,
+          name: tokenInfo.name,
+          picture: tokenInfo.picture,
+          email_verified: tokenInfo.email_verified,
+        };
+      } else {
+        // Access token - get user info
+        this.logger.debug('Token appears to be an access token, fetching user info...');
+        const response = await fetch(
+          `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
 
-      const userInfo = await response.json();
-      return userInfo;
+        if (!response.ok) {
+          this.logger.warn(`Access token verification failed: ${response.status}`);
+          return null;
+        }
+
+        const userInfo = await response.json();
+        this.logger.debug(`User info: ${JSON.stringify(userInfo)}`);
+        return userInfo;
+      }
     } catch (error) {
+      this.logger.error(`Google token verification error: ${error.message}`);
       return null;
     }
   }

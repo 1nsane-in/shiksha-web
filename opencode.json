@@ -20,6 +20,15 @@
         "API_KEY=\"6bc5e566911c0b9c4402690530987f91665844b662791abf1f9a6fea6d89658a\""
       ],
       "enabled": true
+    },
+    "shadcn": {
+      "type": "local",
+      "command": [
+        "npx",
+        "shadcn@latest",
+        "mcp"
+      ],
+      "enabled": true
     }
   }
 }

@@ -7,101 +7,76 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ====================
-// User & Auth
-// ====================
-
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  passwordHash  String?
-  name          String
-  phone         String?
-  role          Role     @default(STUDENT)
-  avatarUrl     String?
-  isActive      Boolean  @default(true)
-  emailVerified Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  lastLoginAt   DateTime?
-  lastLoginIp   String?
-
-  student       Student?
-  sessions      UserSession[]
-  activityLogs  UserActivityLog[]
-  notifications Notification[]
-  orgMemberships OrganizationMember[]
+  id              String               @id @default(uuid())
+  email           String               @unique
+  passwordHash    String?
+  name            String
+  phone           String?
+  role            Role                 @default(STUDENT)
+  avatarUrl       String?
+  isActive        Boolean              @default(true)
+  emailVerified   Boolean              @default(false)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  lastLoginAt     DateTime?
+  lastLoginIp     String?
   aiConversations AIConversation[]
-  
+  notifications   Notification[]
+  orgMemberships  OrganizationMember[]
+  student         Student?
+  activityLogs    UserActivityLog[]
+  sessions        UserSession[]
+
   @@index([email])
   @@index([role])
 }
 
 model UserSession {
-  id           String   @id @default(uuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  tokenHash    String   @unique
-  deviceInfo   String?
-  ipAddress    String?
-  userAgent    String?
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
-  
+  id         String   @id @default(uuid())
+  userId     String
+  tokenHash  String   @unique
+  deviceInfo String?
+  ipAddress  String?
+  userAgent  String?
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([expiresAt])
 }
 
-enum Role {
-  SUPER_ADMIN
-  ADMIN
-  STUDENT
-}
-
-// ====================
-// Student Profile
-// ====================
-
 model Student {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  fatherName        String?
-  motherName        String?
-  dob               DateTime?
-  gender            String?
-  address           String?
-  city              String?
-  state             String?
-  country           String?
-  pincode           String?
-
-  neetScore         Int?
-  neetRank          Int?
-  twelfthPercentage Float?
-  tenthPercentage   Float?
-
-  currentStage      Int              @default(1)
-  applicationStatus ApplicationStatus @default(NOT_STARTED)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  documents    StudentDocument[]
-  payments     Payment[]
-  applications UniversityApplication[]
-  
-  // AI & Automation relations
-  admissionLetter   AdmissionLetter?
-  invitationLetter  InvitationLetter?
-  aiJobs       AIJob[]
-  automationEvents AutomationEvent[]
-  notificationPreferences NotificationPreference[]
-  
-  // Activity tracking
-  stageHistories StageHistory[]
+  id                      String                  @id @default(uuid())
+  userId                  String                  @unique
+  fatherName              String?
+  motherName              String?
+  dob                     DateTime?
+  gender                  String?
+  address                 String?
+  city                    String?
+  state                   String?
+  country                 String?
+  pincode                 String?
+  neetScore               Int?
+  neetRank                Int?
+  twelfthPercentage       Float?
+  tenthPercentage         Float?
+  currentStage            Int                     @default(1)
+  applicationStatus       ApplicationStatus       @default(NOT_STARTED)
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  aiJobs                  AIJob[]
+  admissionLetter         AdmissionLetter?
+  automationEvents        AutomationEvent[]
+  invitationLetter        InvitationLetter?
+  notificationPreferences NotificationPreference?
+  payments                Payment[]
+  stageHistories          StageHistory[]
+  user                    User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents               StudentDocument[]
+  applications            UniversityApplication[]
 
   @@index([userId])
   @@index([applicationStatus])
@@ -109,22 +84,785 @@ model Student {
 }
 
 model StageHistory {
-  id          String   @id @default(uuid())
-  studentId   String
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  
-  fromStage   Int?
-  toStage     Int
-  fromStatus  ApplicationStatus?
-  toStatus    ApplicationStatus
-  
-  changedBy   String?
-  changedAt   DateTime @default(now())
-  reason      String?
-  metadata    Json?
-  
+  id         String             @id @default(uuid())
+  studentId  String
+  fromStage  Int?
+  toStage    Int
+  fromStatus ApplicationStatus?
+  toStatus   ApplicationStatus
+  changedBy  String?
+  changedAt  DateTime           @default(now())
+  reason     String?
+  metadata   Json?
+  student    Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
   @@index([studentId])
   @@index([changedAt])
+}
+
+model University {
+  id          String             @id @default(uuid())
+  name        String
+  country     String
+  city        String?
+  description String?
+  website     String?
+  logoUrl     String?
+  ranking     Int?
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  metadata    Json?
+  courses     UniversityCourse[]
+
+  @@index([country])
+  @@index([name])
+}
+
+model UniversityCourse {
+  id             String                  @id @default(uuid())
+  universityId   String
+  name           String
+  duration       Int
+  fees           Float
+  currency       String                  @default("USD")
+  eligibility    String?
+  seats          Int?
+  availableSeats Int?
+  isActive       Boolean                 @default(true)
+  metadata       Json?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  applications   UniversityApplication[]
+  university     University              @relation(fields: [universityId], references: [id], onDelete: Cascade)
+}
+
+model UniversityApplication {
+  id                   String           @id @default(uuid())
+  studentId            String
+  courseId             String
+  status               String           @default("pending")
+  appliedAt            DateTime         @default(now())
+  matchScore           Float?
+  recommendedBy        String?
+  recommendationReason String?
+  assignedAgentId      String?
+  course               UniversityCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student              Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+}
+
+model DocumentType {
+  id               String            @id @default(uuid())
+  name             String
+  code             String            @unique
+  description      String?
+  requiredForStage Int
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  ocrRequired      Boolean           @default(false)
+  validationRules  Json?
+  studentDocuments StudentDocument[]
+}
+
+model StudentDocument {
+  id               String         @id @default(uuid())
+  studentId        String
+  documentTypeId   String
+  fileUrl          String
+  fileName         String
+  fileSize         Int
+  mimeType         String?
+  extractedData    Json?
+  status           DocumentStatus @default(UPLOADED)
+  remarks          String?
+  verifiedBy       String?
+  verifiedAt       DateTime?
+  version          Int            @default(1)
+  replacedBy       String?
+  viewCount        Int            @default(0)
+  lastViewedAt     DateTime?
+  lastViewedBy     String?
+  downloadCount    Int            @default(0)
+  lastDownloadedAt DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  documentType     DocumentType   @relation(fields: [documentTypeId], references: [id])
+  student          Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  studentId         String
+  stage             Int
+  amount            Float
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+  paymentMethod     String?
+  bankReference     String?
+  manuallyApproved  Boolean       @default(false)
+  approvedBy        String?
+  approvalNote      String?
+  paidAt            DateTime?
+  refundAmount      Float?
+  refundReason      String?
+  refundedAt        DateTime?
+  refundStatus      String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  student           Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AdmissionLetter {
+  id            String   @id @default(uuid())
+  studentId     String   @unique
+  fileUrl       String
+  fileName      String?
+  uploadedBy    String
+  uploadedAt    DateTime @default(now())
+  viewCount     Int      @default(0)
+  downloadCount Int      @default(0)
+  student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model InvitationLetter {
+  id               String    @id @default(uuid())
+  studentId        String    @unique
+  fileUrl          String
+  fileName         String?
+  uploadedBy       String
+  isDownloadable   Boolean   @default(false)
+  uploadedAt       DateTime  @default(now())
+  viewCount        Int       @default(0)
+  downloadCount    Int       @default(0)
+  lastViewedAt     DateTime?
+  lastDownloadedAt DateTime?
+  student          Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model VisaCenter {
+  id        String   @id @default(uuid())
+  name      String
+  address   String?
+  city      String
+  country   String
+  contactNo String?
+  email     String?
+  website   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([country])
+}
+
+model VisaChecklist {
+  id          String   @id @default(uuid())
+  country     String
+  title       String
+  description String?
+  documents   String[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([country])
+}
+
+model AIJob {
+  id              String             @id @default(uuid())
+  studentId       String?
+  documentId      String?
+  jobType         AIJobType
+  status          AIJobStatus        @default(PENDING)
+  priority        Int                @default(5)
+  input           Json
+  output          Json?
+  error           String?
+  confidence      Float?
+  flags           Json?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  retryCount      Int                @default(0)
+  maxRetries      Int                @default(3)
+  extractedFields AIExtractedField[]
+  validationFlags AIFlag[]
+  student         Student?           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([jobType])
+  @@index([createdAt])
+}
+
+model AIExtractedField {
+  id           String  @id @default(uuid())
+  jobId        String
+  fieldName    String
+  value        String
+  confidence   Float
+  source       String?
+  metadata     Json?
+  validated    Boolean @default(false)
+  correctValue String?
+  correctedBy  String?
+  job          AIJob   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}
+
+model AIFlag {
+  id         String    @id @default(uuid())
+  jobId      String
+  type       String
+  severity   String
+  category   String
+  message    String
+  resolved   Boolean   @default(false)
+  resolvedBy String?
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+  job        AIJob     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([severity])
+}
+
+model AutomationRule {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  trigger      String
+  conditions   Json
+  actions      Json
+  priority     Int      @default(5)
+  isActive     Boolean  @default(true)
+  runCount     Int      @default(0)
+  successCount Int      @default(0)
+  failureCount Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AutomationEvent {
+  id          String    @id @default(uuid())
+  ruleId      String?
+  studentId   String?
+  eventType   String
+  payload     Json
+  status      String    @default("pending")
+  processedAt DateTime?
+  result      Json?
+  error       String?
+  createdAt   DateTime  @default(now())
+  student     Student?  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([eventType])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  channels  Json?
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model NotificationPreference {
+  id               String   @id @default(uuid())
+  studentId        String   @unique
+  emailEnabled     Boolean  @default(true)
+  smsEnabled       Boolean  @default(false)
+  pushEnabled      Boolean  @default(true)
+  documentUpdates  Boolean  @default(true)
+  paymentReminders Boolean  @default(true)
+  stageChanges     Boolean  @default(true)
+  announcements    Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  student          Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model UserActivityLog {
+  id         String   @id @default(uuid())
+  userId     String
+  action     String
+  entityType String?
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  deviceInfo Json?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model PageView {
+  id          String   @id @default(uuid())
+  userId      String?
+  sessionId   String
+  path        String
+  queryParams Json?
+  referrer    String?
+  deviceType  String?
+  browser     String?
+  os          String?
+  duration    Int?
+  bounced     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([path])
+  @@index([createdAt])
+}
+
+model SearchHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  query       String
+  filters     Json?
+  resultCount Int?
+  clicked     String?
+  clickedId   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  level     String
+  category  String
+  message   String
+  metadata  Json?
+  userId    String?
+  requestId String?
+  createdAt DateTime @default(now())
+
+  @@index([level])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String?
+  action       String
+  entityType   String
+  entityId     String
+  oldValue     Json?
+  newValue     Json?
+  ipAddress    String?
+  userAgent    String?
+  changeReason String?
+  createdAt    DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model FeatureFlag {
+  id                String   @id @default(uuid())
+  key               String   @unique
+  name              String
+  description       String?
+  value             Json
+  isActive          Boolean  @default(true)
+  rolloutPercentage Int      @default(100)
+  targetRoles       Json?
+  targetUsers       Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model SystemSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       Json
+  description String?
+  updatedBy   String
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+model DailyMetric {
+  id         String   @id @default(uuid())
+  date       DateTime @db.Date
+  metricType String
+  value      Float
+  count      Int      @default(1)
+  metadata   Json?
+
+  @@unique([date, metricType])
+  @@index([date])
+  @@index([metricType])
+}
+
+model StudentMetric {
+  id               String    @id @default(uuid())
+  studentId        String    @unique
+  totalPayments    Float     @default(0)
+  documentScore    Float     @default(0)
+  completionRate   Float     @default(0)
+  daysInSystem     Int       @default(0)
+  lastCalculatedAt DateTime  @default(now())
+  riskScore        Float?
+  recommendations  Json?
+  lastAIAnalysisAt DateTime?
+}
+
+model Organization {
+  id                   String                   @id @default(uuid())
+  name                 String
+  slug                 String                   @unique
+  logoUrl              String?
+  plan                 Plan                     @default(FREE)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  maxStudents          Int                      @default(10)
+  maxAdmins            Int                      @default(2)
+  currentStudents      Int                      @default(0)
+  currentAdmins        Int                      @default(0)
+  customDomain         String?
+  brandingColor        String?
+  features             Json?
+  isActive             Boolean                  @default(true)
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+  apiKeys              APIKey[]
+  integrations         Integration[]
+  invites              OrganizationInvitation[]
+  members              OrganizationMember[]
+  webhooks             WebhookEndpoint[]
+
+  @@index([slug])
+  @@index([stripeCustomerId])
+}
+
+model OrganizationMember {
+  id             String       @id @default(uuid())
+  organizationId String
+  userId         String
+  role           OrgRole      @default(MEMBER)
+  permissions    Json?
+  invitedBy      String?
+  joinedAt       DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model OrganizationInvitation {
+  id             String       @id @default(uuid())
+  organizationId String
+  email          String
+  role           OrgRole      @default(MEMBER)
+  token          String       @unique
+  invitedBy      String
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([token])
+}
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  organizationId       String
+  stripeSubscriptionId String             @unique
+  stripeCustomerId     String
+  stripePriceId        String
+  status               SubscriptionStatus
+  plan                 Plan
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean            @default(false)
+  canceledAt           DateTime?
+  trialStart           DateTime?
+  trialEnd             DateTime?
+  seats                Int                @default(1)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([organizationId])
+  @@index([stripeSubscriptionId])
+}
+
+model Invoice {
+  id              String        @id @default(uuid())
+  organizationId  String
+  subscriptionId  String?
+  stripeInvoiceId String        @unique
+  number          String?
+  status          InvoiceStatus
+  amountDue       Float
+  amountPaid      Float
+  currency        String        @default("USD")
+  invoicePdf      String?
+  invoiceUrl      String?
+  dueDate         DateTime?
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+
+  @@index([organizationId])
+  @@index([status])
+}
+
+model PricingPlan {
+  id                   String   @id @default(uuid())
+  name                 Plan     @unique
+  displayName          String
+  description          String?
+  monthlyPrice         Float
+  yearlyPrice          Float
+  currency             String   @default("USD")
+  features             Json
+  limits               Json
+  stripeMonthlyPriceId String?
+  stripeYearlyPriceId  String?
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model APIKey {
+  id             String       @id @default(uuid())
+  organizationId String
+  name           String
+  keyHash        String       @unique
+  prefix         String
+  permissions    Json?
+  lastUsedAt     DateTime?
+  expiresAt      DateTime?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([keyHash])
+}
+
+model WebhookEndpoint {
+  id              String       @id @default(uuid())
+  organizationId  String
+  url             String
+  secret          String
+  events          String[]
+  isActive        Boolean      @default(true)
+  lastTriggeredAt DateTime?
+  failureCount    Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model WebhookEvent {
+  id            String             @id @default(uuid())
+  endpointId    String
+  eventType     String
+  payload       Json
+  status        WebhookEventStatus @default(PENDING)
+  attempts      Int                @default(0)
+  maxAttempts   Int                @default(5)
+  responseCode  Int?
+  responseError String?
+  deliveredAt   DateTime?
+  nextRetryAt   DateTime?
+  createdAt     DateTime           @default(now())
+
+  @@index([endpointId])
+  @@index([status])
+}
+
+model Integration {
+  id             String          @id @default(uuid())
+  organizationId String
+  type           IntegrationType
+  name           String
+  config         Json?
+  credentials    Json?
+  isActive       Boolean         @default(true)
+  lastSyncAt     DateTime?
+  syncError      String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, type])
+}
+
+model TwoFactorAuth {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  secret      String
+  backupCodes String[]
+  verified    Boolean   @default(false)
+  enabledAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model SSOConnection {
+  id               String   @id @default(uuid())
+  organizationId   String
+  name             String
+  type             SSOType
+  ssoUrl           String
+  certificate      String
+  entityId         String
+  callbackUrl      String
+  attributeMapping Json?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  @@index([organizationId])
+}
+
+model LoginAttempt {
+  id            String   @id @default(uuid())
+  email         String
+  ipAddress     String
+  success       Boolean
+  failureReason String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+
+  @@index([email])
+  @@index([ipAddress])
+  @@index([createdAt])
+}
+
+model AIConversation {
+  id        String                  @id @default(uuid())
+  userId    String
+  title     String?
+  context   Json?
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+  user      User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  AIConversationMessage[]
+
+  @@index([userId])
+}
+
+model AIConversationMessage {
+  id             String         @id @default(uuid())
+  conversationId String
+  role           String
+  content        String
+  metadata       Json?
+  createdAt      DateTime       @default(now())
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
+model AIRecommendation {
+  id         String   @id @default(uuid())
+  studentId  String?
+  type       String
+  data       Json
+  confidence Float
+  reason     String?
+  dismissed  Boolean  @default(false)
+  applied    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([studentId])
+}
+
+model SupportTicket {
+  id             String                 @id @default(uuid())
+  organizationId String?
+  userId         String
+  subject        String
+  description    String
+  categoryId     String?
+  priority       TicketPriority         @default(MEDIUM)
+  status         TicketStatus           @default(OPEN)
+  assignedTo     String?
+  resolvedAt     DateTime?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  messages       SupportTicketMessage[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model SupportTicketMessage {
+  id          String        @id @default(uuid())
+  ticketId    String
+  senderId    String
+  senderRole  String
+  content     String
+  attachments String[]
+  createdAt   DateTime      @default(now())
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+}
+
+model Announcement {
+  id             String    @id @default(uuid())
+  organizationId String?
+  title          String
+  content        String
+  type           String    @default("info")
+  category       String?
+  targetRoles    String[]
+  startsAt       DateTime?
+  endsAt         DateTime?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([isActive])
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  STUDENT
 }
 
 enum ApplicationStatus {
@@ -143,133 +881,6 @@ enum ApplicationStatus {
   REJECTED
 }
 
-// ====================
-// Universities
-// ====================
-
-model University {
-  id          String   @id @default(uuid())
-  name        String
-  country     String
-  city        String?
-  description String?
-  website     String?
-  logoUrl     String?
-  ranking     Int?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  metadata    Json? // For AI enrichment
-
-  courses UniversityCourse[]
-
-  @@index([country])
-  @@index([name])
-}
-
-model UniversityCourse {
-  id           String    @id @default(uuid())
-  universityId String
-  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
-
-  name         String
-  duration     Int
-  fees         Float
-  currency     String   @default("USD")
-  eligibility  String?
-  seats        Int?
-  availableSeats Int?
-  isActive     Boolean  @default(true)
-  
-  metadata     Json? // For AI: curriculum, specializations, etc.
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  applications UniversityApplication[]
-}
-
-model UniversityApplication {
-  id         String   @id @default(uuid())
-  studentId  String
-  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  courseId   String
-  course     UniversityCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  status     String   @default("pending")
-  appliedAt  DateTime @default(now())
-  
-  // AI recommendation data
-  matchScore Float?
-  recommendedBy String?
-  recommendationReason String?
-  
-  // Agent assignment
-  assignedAgentId String?
-
-  @@index([studentId])
-  @@index([status])
-}
-
-// ====================
-// Documents
-// ====================
-
-model DocumentType {
-  id                String   @id @default(uuid())
-  name              String
-  code              String   @unique
-  description       String?
-  requiredForStage  Int
-  isActive          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  
-  // AI processing config
-  ocrRequired      Boolean  @default(false)
-  validationRules  Json?
-
-  studentDocuments StudentDocument[]
-}
-
-model StudentDocument {
-  id             String   @id @default(uuid())
-  studentId      String
-  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  documentTypeId String
-  documentType   DocumentType @relation(fields: [documentTypeId], references: [id])
-
-  fileUrl        String
-  fileName       String
-  fileSize       Int
-  mimeType       String?
-  
-  // Metadata extracted
-  extractedData  Json?
-  
-  status         DocumentStatus @default(UPLOADED)
-  remarks        String?
-  verifiedBy     String?
-  verifiedAt     DateTime?
-  
-  // Version control
-  version        Int      @default(1)
-  replacedBy     String?
-  
-  // Access tracking
-  viewCount      Int      @default(0)
-  lastViewedAt   DateTime?
-  lastViewedBy   String?
-  downloadCount  Int      @default(0)
-  lastDownloadedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([studentId])
-  @@index([status])
-}
-
 enum DocumentStatus {
   UPLOADED
   IN_REVIEW
@@ -279,49 +890,6 @@ enum DocumentStatus {
   REUPLOAD_REQUIRED
 }
 
-// ====================
-// Payments
-// ====================
-
-model Payment {
-  id                String   @id @default(uuid())
-  studentId         String
-  student           Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  stage             Int
-  amount            Float
-  currency          String   @default("INR")
-
-  status            PaymentStatus @default(PENDING)
-  razorpayOrderId   String?
-  razorpayPaymentId String?
-  razorpaySignature  String?
-  
-  // Payment method
-  paymentMethod     String?
-  bankReference     String?
-  
-  // Manual approval
-  manuallyApproved   Boolean  @default(false)
-  approvedBy        String?
-  approvalNote      String?
-
-  paidAt DateTime?
-  
-  // Refund tracking
-  refundAmount      Float?
-  refundReason      String?
-  refundedAt        DateTime?
-  refundStatus      String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([studentId])
-  @@index([status])
-  @@index([createdAt])
-}
-
 enum PaymentStatus {
   PENDING
   PROCESSING
@@ -329,114 +897,6 @@ enum PaymentStatus {
   FAILED
   REFUNDED
   MANUALLY_APPROVED
-}
-
-// ====================
-// Letters
-// ====================
-
-model AdmissionLetter {
-  id         String   @id @default(uuid())
-  studentId  String   @unique
-  fileUrl    String
-  fileName   String?
-  uploadedBy String
-  uploadedAt DateTime @default(now())
-
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  
-  // Access tracking
-  viewCount     Int      @default(0)
-  downloadCount Int      @default(0)
-}
-
-model InvitationLetter {
-  id              String   @id @default(uuid())
-  studentId       String   @unique
-  fileUrl         String
-  fileName        String?
-  uploadedBy      String
-  isDownloadable  Boolean  @default(false)
-  uploadedAt      DateTime @default(now())
-
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  
-  // Access tracking
-  viewCount     Int      @default(0)
-  downloadCount Int      @default(0)
-  lastViewedAt  DateTime?
-  lastDownloadedAt DateTime?
-}
-
-// ====================
-// Visa Support
-// ====================
-
-model VisaCenter {
-  id          String   @id @default(uuid())
-  name        String
-  address     String?
-  city        String
-  country     String
-  contactNo   String?
-  email       String?
-  website     String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([country])
-}
-
-model VisaChecklist {
-  id          String   @id @default(uuid())
-  country     String
-  title       String
-  description String?
-  documents   String[]
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([country])
-}
-
-// ====================
-// AI & Automation
-// ====================
-
-model AIJob {
-  id            String   @id @default(uuid())
-  studentId     String?
-  student       Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  documentId    String?
-  
-  jobType       AIJobType
-  status        AIJobStatus @default(PENDING)
-  priority      Int      @default(5)
-  
-  input         Json
-  output        Json?
-  error         String?
-  
-  confidence    Float?
-  flags         Json?
-  
-  startedAt     DateTime?
-  completedAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // For automation
-  extractedFields AIExtractedField[]
-  validationFlags AIFlag[]
-
-  retryCount    Int      @default(0)
-  maxRetries    Int      @default(3)
-  
-  @@index([status])
-  @@index([jobType])
-  @@index([createdAt])
 }
 
 enum AIJobType {
@@ -458,395 +918,10 @@ enum AIJobStatus {
   RETRYING
 }
 
-model AIExtractedField {
-  id        String   @id @default(uuid())
-  jobId     String
-  job       AIJob   @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
-  fieldName String
-  value     String
-  confidence Float
-  
-  source    String? // page, region, etc.
-  metadata  Json?
-  
-  validated Boolean @default(false)
-  correctValue String?
-  correctedBy String?
-  
-  @@index([jobId])
-}
-
-model AIFlag {
-  id          String   @id @default(uuid())
-  jobId       String
-  job         AIJob   @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
-  type        String
-  severity    String   // low, medium, high, critical
-  category    String
-  message     String
-  
-  resolved    Boolean @default(false)
-  resolvedBy  String?
-  resolvedAt  DateTime?
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([jobId])
-  @@index([severity])
-}
-
-model AutomationRule {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  trigger     String   // event type
-  conditions  Json
-  actions     Json
-  
-  priority    Int      @default(5)
-  isActive    Boolean  @default(true)
-  
-  runCount    Int      @default(0)
-  successCount Int     @default(0)
-  failureCount Int     @default(0)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model AutomationEvent {
-  id          String   @id @default(uuid())
-  ruleId      String?
-  studentId   String?
-  student     Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  
-  eventType   String
-  payload     Json
-  
-  status      String   @default("pending")
-  processedAt  DateTime?
-  result      Json?
-  error       String?
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([eventType])
-  @@index([status])
-  @@index([createdAt])
-}
-
-// ====================
-// Notifications
-// ====================
-
-model Notification {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  type        String
-  title       String
-  message     String
-  data        Json?
-  
-  isRead      Boolean @default(false)
-  readAt      DateTime?
-  
-  channels    Json? // { email: false, sms: true, push: true }
-  sentAt      DateTime?
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([userId])
-  @@index([isRead])
-  @@index([createdAt])
-}
-
-model NotificationPreference {
-  id          String   @id @default(uuid())
-  studentId   String   @unique
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  
-  emailEnabled    Boolean @default(true)
-  smsEnabled      Boolean @default(false)
-  pushEnabled     Boolean @default(true)
-  
-  documentUpdates Boolean @default(true)
-  paymentReminders Boolean @default(true)
-  stageChanges    Boolean @default(true)
-  announcements   Boolean @default(true)
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ====================
-// User Activity Logging
-// ====================
-
-model UserActivityLog {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  action      String
-  entityType  String?
-  entityId    String?
-  
-  metadata    Json?
-  ipAddress   String?
-  userAgent   String?
-  deviceInfo  Json?
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([userId])
-  @@index([action])
-  @@index([createdAt])
-}
-
-model PageView {
-  id          String   @id @default(uuid())
-  userId      String?
-  sessionId   String
-  
-  path        String
-  queryParams Json?
-  referrer    String?
-  
-  deviceType  String?
-  browser     String?
-  os          String?
-  
-  duration    Int? // seconds
-  bounced     Boolean @default(false)
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([userId])
-  @@index([path])
-  @@index([createdAt])
-}
-
-// ====================
-// Search & Query History
-// ====================
-
-model SearchHistory {
-  id          String   @id @default(uuid())
-  userId      String
-  
-  query       String
-  filters     Json?
-  resultCount Int?
-  
-  clicked     String? // entity type that was clicked
-  clickedId   String?
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([userId])
-  @@index([createdAt])
-}
-
-// ====================
-// System Logs
-// ====================
-
-model SystemLog {
-  id          String   @id @default(uuid())
-  level       String   // info, warn, error
-  category    String   // auth, payment, document, ai
-  
-  message     String
-  metadata    Json?
-  
-  userId      String?
-  requestId   String?
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([level])
-  @@index([category])
-  @@index([createdAt])
-}
-
-model AuditLog {
-  id         String   @id @default(uuid())
-  userId     String?
-  action     String
-  entityType String
-  entityId   String
-  
-  oldValue   Json?
-  newValue   Json?
-  
-  ipAddress  String?
-  userAgent  String?
-  
-  changeReason String?
-  
-  createdAt  DateTime @default(now())
-
-  @@index([entityType, entityId])
-  @@index([userId])
-  @@index([createdAt])
-}
-
-// ====================
-// Feature Flags & Config
-// ====================
-
-model FeatureFlag {
-  id          String   @id @default(uuid())
-  key         String   @unique
-  name        String
-  description String?
-  value       Json
-  isActive    Boolean  @default(true)
-  
-  // Rollout
-  rolloutPercentage Int  @default(100)
-  targetRoles Json?
-  targetUsers  Json?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model SystemSetting {
-  id          String   @id @default(uuid())
-  key         String   @unique
-  value       Json
-  description String?
-  
-  updatedBy   String
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
-}
-
-// ====================
-// Analytics Aggregations
-// ====================
-
-model DailyMetric {
-  id          String   @id @default(uuid())
-  date        DateTime @db.Date
-  metricType  String
-  value       Float
-  count       Int       @default(1)
-  
-  metadata    Json?
-  
-  @@unique([date, metricType])
-  @@index([date])
-  @@index([metricType])
-}
-
-model StudentMetric {
-  id          String   @id @default(uuid())
-  studentId   String
-  
-  // Calculated metrics
-  totalPayments   Float @default(0)
-  documentScore    Float @default(0)
-  completionRate   Float @default(0)
-  daysInSystem     Int   @default(0)
-  
-  lastCalculatedAt DateTime @default(now())
-  
-  // AI-generated insights
-  riskScore    Float?
-  recommendations Json?
-  lastAIAnalysisAt DateTime?
-  
-  @@unique([studentId])
-}
-
-// ====================
-// Organizations & Teams
-// ====================
-
-model Organization {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
-  logoUrl     String?
-  
-  // Subscription
-  plan        Plan     @default(FREE)
-  stripeCustomerId      String?
-  stripeSubscriptionId  String?
-  
-  // Usage limits
-  maxStudents      Int      @default(10)
-  maxAdmins        Int      @default(2)
-  currentStudents  Int      @default(0)
-  currentAdmins    Int      @default(0)
-  
-  // Settings
-  customDomain     String?
-  brandingColor    String?
-  features         Json?
-  
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  members     OrganizationMember[]
-  invites     OrganizationInvitation[]
-  apiKeys     APIKey[]
-  webhooks    WebhookEndpoint[]
-  integrations Integration[]
-  
-  @@index([slug])
-  @@index([stripeCustomerId])
-}
-
-model OrganizationMember {
-  id             String   @id @default(uuid())
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  role           OrgRole  @default(MEMBER)
-  permissions    Json?
-  
-  invitedBy      String?
-  joinedAt       DateTime @default(now())
-  
-  @@unique([organizationId, userId])
-  @@index([organizationId])
-  @@index([userId])
-}
-
 enum OrgRole {
   OWNER
   ADMIN
   MEMBER
-}
-
-model OrganizationInvitation {
-  id             String   @id @default(uuid())
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
-  email          String
-  role           OrgRole  @default(MEMBER)
-  
-  token          String   @unique
-  invitedBy      String
-  
-  expiresAt      DateTime
-  acceptedAt     DateTime?
-  
-  createdAt      DateTime @default(now())
-  
-  @@index([email])
-  @@index([token])
 }
 
 enum Plan {
@@ -855,38 +930,6 @@ enum Plan {
   PROFESSIONAL
   ENTERPRISE
   CUSTOM
-}
-
-// ====================
-// Billing & Subscriptions
-// ====================
-
-model Subscription {
-  id                    String   @id @default(uuid())
-  organizationId        String
-  
-  stripeSubscriptionId  String   @unique
-  stripeCustomerId      String
-  stripePriceId         String
-  
-  status                SubscriptionStatus
-  plan                  Plan
-  
-  currentPeriodStart    DateTime
-  currentPeriodEnd      DateTime
-  cancelAtPeriodEnd     Boolean @default(false)
-  canceledAt            DateTime?
-  
-  trialStart            DateTime?
-  trialEnd              DateTime?
-  
-  seats                 Int      @default(1)
-  
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  
-  @@index([organizationId])
-  @@index([stripeSubscriptionId])
 }
 
 enum SubscriptionStatus {
@@ -899,32 +942,6 @@ enum SubscriptionStatus {
   UNPAID
 }
 
-model Invoice {
-  id                    String   @id @default(uuid())
-  organizationId        String
-  subscriptionId        String?
-  
-  stripeInvoiceId       String   @unique
-  
-  number                String?
-  status                InvoiceStatus
-  
-  amountDue             Float
-  amountPaid            Float
-  currency              String   @default("USD")
-  
-  invoicePdf            String?
-  invoiceUrl            String?
-  
-  dueDate               DateTime?
-  paidAt                DateTime?
-  
-  createdAt             DateTime @default(now())
-  
-  @@index([organizationId])
-  @@index([status])
-}
-
 enum InvoiceStatus {
   DRAFT
   OPEN
@@ -933,125 +950,11 @@ enum InvoiceStatus {
   VOID
 }
 
-model PricingPlan {
-  id              String   @id @default(uuid())
-  name            Plan     @unique
-  displayName     String
-  description     String?
-  
-  monthlyPrice    Float
-  yearlyPrice     Float
-  currency        String   @default("USD")
-  
-  features        Json
-  limits          Json
-  
-  stripeMonthlyPriceId  String?
-  stripeYearlyPriceId   String?
-  
-  isActive        Boolean  @default(true)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-
-// ====================
-// API Keys & Webhooks
-// ====================
-
-model APIKey {
-  id              String   @id @default(uuid())
-  organizationId  String
-  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
-  name            String
-  keyHash         String   @unique
-  prefix          String
-  
-  permissions     Json?
-  
-  lastUsedAt      DateTime?
-  expiresAt       DateTime?
-  
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  
-  @@index([organizationId])
-  @@index([keyHash])
-}
-
-model WebhookEndpoint {
-  id                String   @id @default(uuid())
-  organizationId    String
-  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
-  url               String
-  secret            String
-  
-  events            String[]
-  
-  isActive          Boolean  @default(true)
-  
-  lastTriggeredAt   DateTime?
-  failureCount      Int      @default(0)
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-}
-
-model WebhookEvent {
-  id              String   @id @default(uuid())
-  endpointId      String
-  
-  eventType       String
-  payload         Json
-  
-  status          WebhookEventStatus @default(PENDING)
-  attempts        Int      @default(0)
-  maxAttempts     Int      @default(5)
-  
-  responseCode    Int?
-  responseError   String?
-  
-  deliveredAt     DateTime?
-  nextRetryAt     DateTime?
-  
-  createdAt       DateTime @default(now())
-  
-  @@index([endpointId])
-  @@index([status])
-}
-
 enum WebhookEventStatus {
   PENDING
   DELIVERED
   FAILED
   RETRYING
-}
-
-// ====================
-// Integrations
-// ====================
-
-model Integration {
-  id              String   @id @default(uuid())
-  organizationId  String
-  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
-  type            IntegrationType
-  name            String
-  
-  config          Json?
-  credentials     Json?
-  
-  isActive        Boolean  @default(true)
-  lastSyncAt      DateTime?
-  syncError       String?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  @@unique([organizationId, type])
 }
 
 enum IntegrationType {
@@ -1069,152 +972,12 @@ enum IntegrationType {
   CUSTOM_WEBHOOK
 }
 
-// ====================
-// Security (2FA, SSO)
-// ====================
-
-model TwoFactorAuth {
-  id              String   @id @default(uuid())
-  userId          String   @unique
-  
-  secret          String
-  backupCodes     String[]
-  
-  verified        Boolean  @default(false)
-  enabledAt       DateTime?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  @@index([userId])
-}
-
-model SSOConnection {
-  id              String   @id @default(uuid())
-  organizationId  String
-  
-  name            String
-  type            SSOType
-  
-  ssoUrl          String
-  certificate     String
-  
-  entityId        String
-  callbackUrl     String
-  
-  attributeMapping Json?
-  
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  
-  @@index([organizationId])
-}
-
 enum SSOType {
   SAML
   OAUTH_GOOGLE
   OAUTH_MICROSOFT
   OAUTH_OKTA
   OIDC
-}
-
-model LoginAttempt {
-  id              String   @id @default(uuid())
-  email           String
-  ipAddress       String
-  
-  success         Boolean
-  failureReason   String?
-  
-  userAgent       String?
-  
-  createdAt       DateTime @default(now())
-  
-  @@index([email])
-  @@index([ipAddress])
-  @@index([createdAt])
-}
-
-// ====================
-// AI Assistant
-// ====================
-
-model AIConversation {
-  id              String   @id @default(uuid())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  title           String?
-  context         Json?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  messages        AIConversationMessage[]
-  
-  @@index([userId])
-}
-
-model AIConversationMessage {
-  id              String   @id @default(uuid())
-  conversationId  String
-  conversation    AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  
-  role            String
-  content         String
-  
-  metadata        Json?
-  
-  createdAt       DateTime @default(now())
-  
-  @@index([conversationId])
-}
-
-model AIRecommendation {
-  id              String   @id @default(uuid())
-  studentId       String?
-  
-  type            String
-  data            Json
-  confidence      Float
-  
-  reason          String?
-  
-  dismissed       Boolean  @default(false)
-  applied         Boolean  @default(false)
-  
-  createdAt       DateTime @default(now())
-  
-  @@index([studentId])
-}
-
-// ====================
-// Support & Helpdesk
-// ====================
-
-model SupportTicket {
-  id              String   @id @default(uuid())
-  organizationId  String?
-  userId          String
-  
-  subject         String
-  description     String
-  categoryId      String?
-  
-  priority        TicketPriority @default(MEDIUM)
-  status          TicketStatus @default(OPEN)
-  
-  assignedTo      String?
-  
-  resolvedAt      DateTime?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  messages        SupportTicketMessage[]
-  
-  @@index([userId])
-  @@index([status])
 }
 
 enum TicketPriority {
@@ -1230,43 +993,4 @@ enum TicketStatus {
   WAITING_FOR_CUSTOMER
   RESOLVED
   CLOSED
-}
-
-model SupportTicketMessage {
-  id              String   @id @default(uuid())
-  ticketId        String
-  ticket          SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  
-  senderId        String
-  senderRole      String
-  
-  content         String
-  attachments     String[]
-  
-  createdAt       DateTime @default(now())
-  
-  @@index([ticketId])
-}
-
-model Announcement {
-  id              String   @id @default(uuid())
-  organizationId  String?
-  
-  title           String
-  content         String
-  
-  type            String   @default("info")
-  category        String?
-  
-  targetRoles     String[]
-  
-  startsAt        DateTime?
-  endsAt          DateTime?
-  
-  isActive        Boolean  @default(true)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  @@index([isActive])
 }

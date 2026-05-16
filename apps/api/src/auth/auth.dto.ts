@@ -54,6 +54,14 @@ export class CreateAdminDto {
 export class GoogleAuthDto {
   @IsString()
   accessToken: string;
+
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
 }
 
 export class GoogleRegisterDto {

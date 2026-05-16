@@ -1,5 +1,5 @@
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
+import { ValidationPipe, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as Sentry from "@sentry/nestjs";
 import { initSentry } from "./common/sentry.config";
@@ -10,9 +10,25 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const analyticsService = app.get(AnalyticsService);
+  const logger = new Logger("Bootstrap");
 
   // Initialize Sentry
   initSentry(configService);
+
+  // Request logging middleware
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on("finish", () => {
+      const duration = Date.now() - start;
+      logger.log(
+        `${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`
+      );
+      if (req.body && Object.keys(req.body).length > 0) {
+        logger.debug(`Request Body: ${JSON.stringify(req.body)}`);
+      }
+    });
+    next();
+  });
 
   app.enableCors({
     origin:
@@ -34,8 +50,8 @@ async function bootstrap() {
   const port = configService.get<number>("PORT") || 8000;
   await app.listen(port);
 
-  console.log(`API is running on: http://localhost:${port}`);
-  console.log(`Environment: ${configService.get("NODE_ENV") || "development"}`);
+  logger.log(`API is running on: http://localhost:${port}`);
+  logger.log(`Environment: ${configService.get("NODE_ENV") || "development"}`);
 }
 
 bootstrap();

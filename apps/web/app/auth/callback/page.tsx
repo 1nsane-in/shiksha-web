@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -11,7 +11,6 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Get access token from URL hash (implicit flow) or query params
         const hash = window.location.hash;
         const params = new URLSearchParams(hash.replace('#', ''));
         const accessToken = params.get('access_token');
@@ -20,17 +19,13 @@ export default function AuthCallbackPage() {
           throw new Error('No access token received');
         }
 
-        // Send token to backend
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/google-login`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ accessToken }),
         });
 
         if (!res.ok) {
-          // If user not registered, redirect to registration
           if (res.status === 400) {
             router.push(`/register?token=${accessToken}`);
             return;
@@ -39,7 +34,6 @@ export default function AuthCallbackPage() {
         }
 
         const data = await res.json();
-        // Store session if needed
         localStorage.setItem('auth_token', data.session?.access_token);
         router.push('/dashboard');
       } catch (err) {
@@ -74,5 +68,17 @@ export default function AuthCallbackPage() {
         <p className="text-gray-600">Completing authentication...</p>
       </div>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    }>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }

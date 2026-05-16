@@ -1,3 +1,4 @@
+// @ts-ignore - Sentry types not fully compatible with Next.js 16
 import * as Sentry from '@sentry/nextjs';
 
 export function register() {

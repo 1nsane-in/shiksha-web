@@ -137,22 +137,66 @@ export function GoogleLoginButton({
     // Show the One Tap / account selection prompt
     window.google.accounts.id.prompt((notification: any) => {
       if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        // Fallback: use the popup OAuth flow
-        const popup = window.google.accounts.oauth2.initCodeClient({
+        // Fallback: use the popup ID token flow (simpler)
+        window.google.accounts.oauth2.initTokenClient({
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '23400190792-giinr9lds48slhi58bg87ts1evst4h3i.apps.googleusercontent.com',
           scope: 'email profile openid',
           ux_mode: 'popup',
           callback: async (tokenResponse: any) => {
-            if (tokenResponse.code) {
-              const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            if (tokenResponse.access_token) {
+              // Get user info using the access token
               try {
+                const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                  headers: {
+                    Authorization: `Bearer ${tokenResponse.access_token}`,
+                  },
+                });
+                
+                if (!userInfoRes.ok) {
+                  throw new Error('Failed to get user info');
+                }
+                
+                const userInfo = await userInfoRes.json();
+                
+                // Send to backend for login/register
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
                 const res = await fetch(`${API_URL}/auth/google-login`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ accessToken: tokenResponse.code }),
+                  body: JSON.stringify({ 
+                    accessToken: tokenResponse.access_token,
+                    email: userInfo.email,
+                    name: userInfo.name,
+                  }),
                 });
                 
                 if (!res.ok) {
+                  // If user not found, register them
+                  if (res.status === 400) {
+                    const registerRes = await fetch(`${API_URL}/auth/google-register`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        email: userInfo.email,
+                        name: userInfo.name,
+                        phone: '',
+                        googleId: userInfo.sub,
+                        accessToken: tokenResponse.access_token,
+                      }),
+                    });
+                    
+                    if (!registerRes.ok) {
+                      throw new Error('Registration failed');
+                    }
+                    
+                    const registerData = await registerRes.json();
+                    if (registerData.token) {
+                      localStorage.setItem('auth_token', registerData.token);
+                    }
+                    if (onLoginSuccess) onLoginSuccess();
+                    router.push('/dashboard');
+                    return;
+                  }
                   throw new Error('Login failed');
                 }
                 
@@ -175,9 +219,7 @@ export function GoogleLoginButton({
             setLoading(false);
             setError('OAuth popup closed or cancelled');
           },
-        });
-        
-        popup.requestCode();
+        }).requestAccessToken();
       }
     });
   };
