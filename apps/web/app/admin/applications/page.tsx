@@ -14,7 +14,7 @@ import {
 
 export default function ApplicationFormPage() {
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">New Application</h1>

@@ -35,16 +35,16 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/dashboard",
+      url: "/admin",
       icon: <LayoutDashboard />,
     },
     {
       title: "Applications",
-      url: "/applications",
+      url: "/admin/applications",
       icon: <FileText />,
       items: [
-        { title: "All Applications", url: "/applications" },
-        { title: "Pending Review", url: "/applications?status=pending" },
+        { title: "All Applications", url: "/admin/applications" },
+        { title: "Pending Review", url: "/admin/applications?status=pending" },
       ],
     },
     {
@@ -67,11 +67,11 @@ const data = {
     },
     {
       title: "Universities",
-      url: "#",
+      url: "/admin/universities",
       icon: <Building2 />,
       items: [
-        { title: "Manage Universities", url: "#" },
-        { title: "Courses", url: "#" },
+        { title: "All Universities", url: "/admin/universities" },
+        { title: "Add New", url: "/admin/universities/new" },
       ],
     },
     {
@@ -103,7 +103,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<a href="/dashboard" />}>
+            <SidebarMenuButton size="lg" render={<a href="/admin" />}>
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <GraduationCap className="size-4" />
               </div>

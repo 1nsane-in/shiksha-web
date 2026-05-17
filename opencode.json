@@ -29,6 +29,17 @@
         "mcp"
       ],
       "enabled": true
+    },
+    "sequential-thinking": {
+      "type": "command",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "enabled": true
     }
   }
 }

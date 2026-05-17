@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { AuthService } from "@/app/lib/auth-service";
+import { createContext, useContext, useCallback, type ReactNode } from "react";
+import { useAuthStore, selectUser, selectIsAuthenticated } from "@/stores/auth-store";
 
 interface AuthContextType {
-  user: any | null;
+  user: ReturnType<typeof selectUser>;
   isAuthenticated: boolean;
   loading: boolean;
   login: (accessToken: string) => Promise<void>;
@@ -14,55 +14,30 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<any | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check authentication status on mount
-    const authenticated = AuthService.isAuthenticated();
-    setIsAuthenticated(authenticated);
-    setLoading(false);
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const user = useAuthStore(selectUser);
+  const isAuthenticated = useAuthStore(selectIsAuthenticated);
+  const loading = useAuthStore((s) => s.loading);
+  const login = useCallback(async (accessToken: string) => {
+    const { AuthService } = await import("@/app/lib/auth-service");
+    const result = await AuthService.googleLogin(accessToken);
+    if (result.user && result.token) {
+      useAuthStore.getState().login(result.user, result.token);
+    }
+  }, []);
+  const register = useCallback(async (accessToken: string, userData: any) => {
+    const { AuthService } = await import("@/app/lib/auth-service");
+    const result = await AuthService.googleRegister(accessToken, userData);
+    if (result.user && result.token) {
+      useAuthStore.getState().login(result.user, result.token);
+    }
+  }, []);
+  const logout = useCallback(() => {
+    useAuthStore.getState().logout();
   }, []);
 
-  const login = async (accessToken: string) => {
-    try {
-      const result = await AuthService.googleLogin(accessToken);
-      setUser(result.user);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
-  };
-
-  const register = async (accessToken: string, userData: any) => {
-    try {
-      const result = await AuthService.googleRegister(accessToken, userData);
-      setUser(result.user);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
-    }
-  };
-
-  const logout = () => {
-    AuthService.logout();
-    setUser(null);
-    setIsAuthenticated(false);
-  };
-
   return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated,
-      loading,
-      login,
-      register,
-      logout
-    }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -71,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

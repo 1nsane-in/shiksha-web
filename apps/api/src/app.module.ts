@@ -12,6 +12,7 @@ import { DocumentsModule } from './documents/documents.module';
 import { CommonModule } from './common/common.module';
 import { SharedJwtModule } from './common/shared-jwt.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     StudentsModule,
     DocumentsModule,
     CommonModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

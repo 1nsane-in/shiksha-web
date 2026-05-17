@@ -11,9 +11,11 @@ declare global {
 }
 
 export function GoogleLoginButton({ 
-  onLoginSuccess
+  onLoginSuccess,
+  redirectTo = null,
 }: { 
   onLoginSuccess?: () => void;
+  redirectTo?: string | null;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -61,7 +63,7 @@ export function GoogleLoginButton({
         if (onLoginSuccess) {
           onLoginSuccess();
         }
-        router.push('/dashboard');
+        if (redirectTo) router.push(redirectTo);
         return;
       }
 
@@ -95,7 +97,7 @@ export function GoogleLoginButton({
       if (onLoginSuccess) {
         onLoginSuccess();
       }
-      router.push('/dashboard');
+      if (redirectTo) router.push(redirectTo);
     } catch (error) {
       console.error('Google auth error:', error);
       if (error instanceof TypeError && error.message.includes('fetch')) {
@@ -194,7 +196,7 @@ export function GoogleLoginButton({
                       localStorage.setItem('auth_token', registerData.token);
                     }
                     if (onLoginSuccess) onLoginSuccess();
-                    router.push('/dashboard');
+                    if (redirectTo) router.push(redirectTo);
                     return;
                   }
                   throw new Error('Login failed');
@@ -205,7 +207,7 @@ export function GoogleLoginButton({
                   localStorage.setItem('auth_token', data.token);
                 }
                 if (onLoginSuccess) onLoginSuccess();
-                router.push('/dashboard');
+                if (redirectTo) router.push(redirectTo);
               } catch (err) {
                 setError(err instanceof Error ? err.message : 'Authentication failed');
                 setLoading(false);

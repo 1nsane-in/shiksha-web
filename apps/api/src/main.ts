@@ -5,6 +5,7 @@ import * as Sentry from "@sentry/nestjs";
 import { initSentry } from "./common/sentry.config";
 import { AppModule } from "./app.module";
 import { AnalyticsService } from "./common/services/analytics.service";
+import { AllExceptionsFilter } from "./common/filters/http-exception.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,9 @@ async function bootstrap() {
 
   // Initialize Sentry
   initSentry(configService);
+
+  // Global exception filter
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Request logging middleware
   app.use((req, res, next) => {

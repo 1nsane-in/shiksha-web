@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export function Hero() {
   return (
-    <section className="relative py-16 md:py-24 overflow-hidden bg-[#f5f1ec]">
+    <section className="relative py-16 md:py-24 overflow-hidden ">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-sm font-medium text-[#626260] mb-6 tracking-wide uppercase">

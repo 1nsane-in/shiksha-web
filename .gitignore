@@ -27,3 +27,9 @@ Thumbs.db
 
 # Turbo cache
 .turbo/
+.firecrawl/
+.playwright-mcp/
+docs/
+
+
+ 
