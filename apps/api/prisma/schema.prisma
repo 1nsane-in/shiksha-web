@@ -346,6 +346,20 @@ model DocumentType {
   studentDocuments StudentDocument[]
 }
 
+model StageRequirement {
+  id              String   @id @default(uuid())
+  stage           Int
+  description     String?
+  documentTypeIds String[]
+  paymentAmount   Float?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([stage, isActive])
+  @@index([stage])
+}
+
 model StudentDocument {
   id               String         @id @default(uuid())
   studentId        String

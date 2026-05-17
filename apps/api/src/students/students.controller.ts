@@ -6,14 +6,20 @@ import {
   Body,
   Param,
   Query,
+  Req,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UpdateStudentProfileDto, UpdateAcademicDto, AdminUpdateStudentDto, AssignUniversityDto } from './students.dto';
+import {
+  UpdateStudentProfileDto,
+  UpdateAcademicDto,
+  AdminUpdateStudentDto,
+  AssignUniversityDto,
+} from './students.dto';
+import type { AuthenticatedRequest } from '../common/types/request.type';
 
 @Controller('student')
 @UseGuards(JwtAuthGuard)
@@ -22,22 +28,22 @@ export class StudentController {
   constructor(private studentsService: StudentsService) {}
 
   @Get('profile')
-  async getProfile(@Request() req) {
+  async getProfile(@Req() req: AuthenticatedRequest) {
     return this.studentsService.getProfile(req.user.id);
   }
 
   @Put('profile')
-  async updateProfile(@Request() req, @Body() dto: UpdateStudentProfileDto) {
+  async updateProfile(@Req() req: AuthenticatedRequest, @Body() dto: UpdateStudentProfileDto) {
     return this.studentsService.updateProfile(req.user.id, dto);
   }
 
   @Put('profile/academic')
-  async updateAcademic(@Request() req, @Body() dto: UpdateAcademicDto) {
+  async updateAcademic(@Req() req: AuthenticatedRequest, @Body() dto: UpdateAcademicDto) {
     return this.studentsService.updateProfile(req.user.id, dto);
   }
 
   @Get('stage')
-  async getStageInfo(@Request() req) {
+  async getStageInfo(@Req() req: AuthenticatedRequest) {
     return this.studentsService.getStageInfo(req.user.id);
   }
 }

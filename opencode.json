@@ -4,10 +4,7 @@
     "stitch": {
       "type": "remote",
       "url": "https://stitch.googleapis.com/mcp",
-      "enabled": true,
-      "headers": {
-        "X-Goog-Api-Key": "AQ.Ab8RN6LQH1ZPnLOCocOTkGVue2nVii-4efJoz1RhIUDgddh92Q"
-      }
+      "enabled": true
     },
     "@21st-dev/magic": {
       "type": "command",

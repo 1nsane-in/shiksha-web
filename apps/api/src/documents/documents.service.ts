@@ -1,21 +1,21 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadDocumentDto, VerifyDocumentDto, CreateDocumentTypeDto, UpdateDocumentTypeDto } from './documents.dto';
+import { PaginatorService } from '../common/services/paginator.service';
 
 @Injectable()
 export class DocumentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private paginator: PaginatorService,
+  ) {}
 
   async getStudentDocuments(studentId: string) {
-    const documents = await this.prisma.studentDocument.findMany({
+    return this.prisma.studentDocument.findMany({
       where: { studentId },
-      include: {
-        documentType: true,
-      },
+      include: { documentType: true },
       orderBy: { createdAt: 'desc' },
     });
-
-    return documents;
   }
 
   async uploadDocument(studentId: string, dto: UploadDocumentDto) {
@@ -47,7 +47,7 @@ export class DocumentsService {
       throw new BadRequestException('Document already uploaded and pending review');
     }
 
-    const document = await this.prisma.studentDocument.create({
+    return this.prisma.studentDocument.create({
       data: {
         studentId,
         documentTypeId: dto.documentTypeId,
@@ -56,12 +56,8 @@ export class DocumentsService {
         fileSize: dto.fileSize,
         status: 'UPLOADED',
       },
-      include: {
-        documentType: true,
-      },
+      include: { documentType: true },
     });
-
-    return document;
   }
 
   async getMyDocuments(userId: string) {
@@ -88,15 +84,13 @@ export class DocumentsService {
     return this.uploadDocument(student.id, dto);
   }
 
-  async getPendingDocuments(page: number = 1, limit: number = 20) {
-    const skip = (page - 1) * limit;
+  async getPendingDocuments(page = 1, limit = 20) {
+    const where = { status: 'UPLOADED' as const };
 
     const [documents, total] = await Promise.all([
       this.prisma.studentDocument.findMany({
-        where: {
-          status: 'UPLOADED',
-        },
-        skip,
+        where,
+        skip: this.paginator.getSkip({ page, limit }),
         take: limit,
         orderBy: { createdAt: 'asc' },
         include: {
@@ -114,20 +108,10 @@ export class DocumentsService {
           documentType: true,
         },
       }),
-      this.prisma.studentDocument.count({
-        where: { status: 'UPLOADED' },
-      }),
+      this.prisma.studentDocument.count({ where }),
     ]);
 
-    return {
-      data: documents,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    return this.paginator.wrapResult(documents, total, { page, limit });
   }
 
   async verifyDocument(id: string, adminId: string, dto: VerifyDocumentDto) {
@@ -143,7 +127,7 @@ export class DocumentsService {
       throw new BadRequestException('Document cannot be verified');
     }
 
-    const updatedDocument = await this.prisma.studentDocument.update({
+    return this.prisma.studentDocument.update({
       where: { id },
       data: {
         status: dto.status,
@@ -153,15 +137,11 @@ export class DocumentsService {
       },
       include: {
         student: {
-          include: {
-            user: true,
-          },
+          include: { user: true },
         },
         documentType: true,
       },
     });
-
-    return updatedDocument;
   }
 
   async markForReupload(id: string, remarks: string) {
@@ -173,15 +153,13 @@ export class DocumentsService {
       throw new NotFoundException('Document not found');
     }
 
-    const updatedDocument = await this.prisma.studentDocument.update({
+    return this.prisma.studentDocument.update({
       where: { id },
       data: {
         status: 'REUPLOAD_REQUIRED',
         remarks,
       },
     });
-
-    return updatedDocument;
   }
 
   async getDocumentTypes() {
@@ -200,9 +178,7 @@ export class DocumentsService {
       throw new BadRequestException('Document type with this code already exists');
     }
 
-    return this.prisma.documentType.create({
-      data: dto,
-    });
+    return this.prisma.documentType.create({ data: dto });
   }
 
   async updateDocumentType(id: string, dto: UpdateDocumentTypeDto) {

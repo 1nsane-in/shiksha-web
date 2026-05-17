@@ -1,17 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { AuditLog } from '@prisma/client';
+import { AuditLog, ApplicationStatus, Prisma } from '@prisma/client';
 
 export interface CreateAuditLogDto {
   userId?: string;
   action: string;
   entityType: string;
   entityId: string;
-  oldValue?: Record<string, any>;
-  newValue?: Record<string, any>;
+  oldValue?: Record<string, unknown>;
+  newValue?: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
   changeReason?: string;
+}
+
+export interface StageChangeData {
+  studentId: string;
+  fromStage?: number;
+  toStage: number;
+  fromStatus?: string;
+  toStatus: string;
+  changedBy?: string;
+  reason?: string;
+  metadata?: Record<string, unknown>;
 }
 
 @Injectable()
@@ -25,8 +36,8 @@ export class AuditLogService {
         action: data.action,
         entityType: data.entityType,
         entityId: data.entityId,
-        oldValue: data.oldValue,
-        newValue: data.newValue,
+        oldValue: data.oldValue as Prisma.InputJsonValue | undefined,
+        newValue: data.newValue as Prisma.InputJsonValue | undefined,
         ipAddress: data.ipAddress,
         userAgent: data.userAgent,
         changeReason: data.changeReason,
@@ -40,17 +51,14 @@ export class AuditLogService {
     options?: { limit?: number; offset?: number }
   ) {
     return this.prisma.auditLog.findMany({
-      where: {
-        entityType,
-        entityId,
-      },
+      where: { entityType, entityId },
       orderBy: { createdAt: 'desc' },
       take: options?.limit || 50,
       skip: options?.offset || 0,
     });
   }
 
-  async getUserAuditTrail(userId: string, limit: number = 100) {
+  async getUserAuditTrail(userId: string, limit = 100) {
     return this.prisma.auditLog.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
@@ -64,40 +72,33 @@ export class AuditLogService {
     userId?: string;
     limit?: number;
   }) {
+    const where: Record<string, unknown> = {};
+    if (options?.action) where.action = options.action;
+    if (options?.entityType) where.entityType = options.entityType;
+    if (options?.userId) where.userId = options.userId;
+
     return this.prisma.auditLog.findMany({
-      where: {
-        ...(options?.action && { action: options.action }),
-        ...(options?.entityType && { entityType: options.entityType }),
-        ...(options?.userId && { userId: options.userId }),
-      },
+      where,
       orderBy: { createdAt: 'desc' },
       take: options?.limit || 50,
     });
   }
 
-  async logStageChange(data: {
-    studentId: string;
-    fromStage?: number;
-    toStage: number;
-    fromStatus?: string;
-    toStatus: string;
-    changedBy?: string;
-    reason?: string;
-    metadata?: Record<string, any>;
-  }) {
-    const newMeta = data.metadata || {};
-    const newMetaJson = Object.keys(newMeta).length > 0 ? newMeta : undefined;
-    
+  async logStageChange(data: StageChangeData) {
+    const metadata = data.metadata && Object.keys(data.metadata).length > 0
+      ? data.metadata
+      : undefined;
+
     return this.prisma.stageHistory.create({
       data: {
         studentId: data.studentId,
         fromStage: data.fromStage,
         toStage: data.toStage,
-        fromStatus: data.fromStatus as any,
-        toStatus: data.toStatus as any,
+        fromStatus: data.fromStatus as ApplicationStatus,
+        toStatus: data.toStatus as ApplicationStatus,
         changedBy: data.changedBy,
         reason: data.reason,
-        metadata: newMetaJson,
+        metadata: metadata as Prisma.InputJsonValue | undefined,
       },
     });
   }

@@ -1,6 +1,15 @@
+import type { Metadata } from "next"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+
+export const metadata: Metadata = {
+  title: {
+    template: "%s | Admin | Shiksha",
+    default: "Admin Dashboard | Shiksha",
+  },
+  description: "Shiksha Medical Admission Platform - Admin Panel",
+}
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (

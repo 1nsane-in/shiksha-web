@@ -1,10 +1,20 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UpdateStudentProfileDto, UpdateAcademicDto, AdminUpdateStudentDto, AssignUniversityDto } from './students.dto';
+import {
+  UpdateStudentProfileDto,
+  UpdateAcademicDto,
+  AdminUpdateStudentDto,
+  AssignUniversityDto,
+} from './students.dto';
+import { PaginatorService } from '../common/services/paginator.service';
+import { createQueryBuilder } from '../common/helpers/prisma-query-builder';
 
 @Injectable()
 export class StudentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private paginator: PaginatorService,
+  ) {}
 
   async getProfile(userId: string) {
     const student = await this.prisma.student.findUnique({
@@ -20,17 +30,13 @@ export class StudentsService {
           },
         },
         documents: {
-          include: {
-            documentType: true,
-          },
+          include: { documentType: true },
         },
         payments: true,
         applications: {
           include: {
             course: {
-              include: {
-                university: true,
-              },
+              include: { university: true },
             },
           },
         },
@@ -38,13 +44,19 @@ export class StudentsService {
     });
 
     if (!student) {
+      const { NotFoundException } = await import('@nestjs/common');
       throw new NotFoundException('Student not found');
     }
 
     return student;
   }
 
-  async updateProfile(userId: string, dto: UpdateStudentProfileDto | UpdateAcademicDto) {
+  async updateProfile(
+    userId: string,
+    dto: UpdateStudentProfileDto | UpdateAcademicDto,
+  ) {
+    const { NotFoundException } = await import('@nestjs/common');
+
     const student = await this.prisma.student.findUnique({
       where: { userId },
     });
@@ -53,24 +65,22 @@ export class StudentsService {
       throw new NotFoundException('Student not found');
     }
 
-    const updatedStudent = await this.prisma.student.update({
+    return this.prisma.student.update({
       where: { userId },
       data: dto,
     });
-
-    return updatedStudent;
   }
 
   async getStageInfo(userId: string) {
+    const { NotFoundException } = await import('@nestjs/common');
+
     const student = await this.prisma.student.findUnique({
       where: { userId },
       select: {
         currentStage: true,
         applicationStatus: true,
         documents: {
-          include: {
-            documentType: true,
-          },
+          include: { documentType: true },
         },
         payments: true,
       },
@@ -80,47 +90,29 @@ export class StudentsService {
       throw new NotFoundException('Student not found');
     }
 
-    const stageRequirements = {
-      1: {
-        documents: ['passport', 'aadhaar', '12th_marksheet', 'neet_result'],
-        payment: 10000,
-      },
-      2: {
-        documents: ['passport_translated', '12th_marksheet_translated'],
-        payment: 5000,
-      },
-      4: {
-        payment: 5000,
-      },
-    };
-
-    const currentStageRequirements = stageRequirements[student.currentStage] || null;
+    const requirements = await (this.prisma as any).stageRequirement.findMany({
+      where: { stage: student.currentStage, isActive: true },
+    });
 
     return {
       currentStage: student.currentStage,
       applicationStatus: student.applicationStatus,
-      requirements: currentStageRequirements,
+      requirements,
       documents: student.documents,
       payments: student.payments,
     };
   }
 
-  async findAll(page: number = 1, limit: number = 10, status?: string, stage?: number) {
-    const skip = (page - 1) * limit;
-    const where: any = {};
-
-    if (status) {
-      where.applicationStatus = status;
-    }
-
-    if (stage) {
-      where.currentStage = stage;
-    }
+  async findAll(page = 1, limit = 10, status?: string, stage?: number) {
+    const where = createQueryBuilder()
+      .where('applicationStatus', status)
+      .where('currentStage', stage)
+      .build();
 
     const [students, total] = await Promise.all([
       this.prisma.student.findMany({
         where,
-        skip,
+        skip: this.paginator.getSkip({ page, limit }),
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -135,9 +127,7 @@ export class StudentsService {
           applications: {
             include: {
               course: {
-                include: {
-                  university: true,
-                },
+                include: { university: true },
               },
             },
           },
@@ -146,34 +136,24 @@ export class StudentsService {
       this.prisma.student.count({ where }),
     ]);
 
-    return {
-      data: students,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    return this.paginator.wrapResult(students, total, { page, limit });
   }
 
   async findOne(id: string) {
+    const { NotFoundException } = await import('@nestjs/common');
+
     const student = await this.prisma.student.findUnique({
       where: { id },
       include: {
         user: true,
         documents: {
-          include: {
-            documentType: true,
-          },
+          include: { documentType: true },
         },
         payments: true,
         applications: {
           include: {
             course: {
-              include: {
-                university: true,
-              },
+              include: { university: true },
             },
           },
         },
@@ -188,34 +168,63 @@ export class StudentsService {
   }
 
   async adminUpdate(id: string, dto: AdminUpdateStudentDto) {
-    await this.findOne(id);
+    const { NotFoundException } = await import('@nestjs/common');
 
-    const student = await this.prisma.student.update({
+    const student = await this.prisma.student.findUnique({
       where: { id },
-      data: dto as any,
     });
 
-    return student;
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+
+    const updateData: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(dto)) {
+      if (value !== undefined) {
+        updateData[key] = value;
+      }
+    }
+
+    return this.prisma.student.update({
+      where: { id },
+      data: updateData,
+    });
   }
 
   async updateStage(id: string, stage: number, status?: string) {
-    await this.findOne(id);
+    const { NotFoundException } = await import('@nestjs/common');
 
-    const updateData: any = { currentStage: stage };
+    const student = await this.prisma.student.findUnique({
+      where: { id },
+    });
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+
+    const updateData: Record<string, number | string> = {
+      currentStage: stage,
+    };
     if (status) {
       updateData.applicationStatus = status;
     }
 
-    const student = await this.prisma.student.update({
+    return this.prisma.student.update({
       where: { id },
       data: updateData,
     });
-
-    return student;
   }
 
   async assignUniversity(id: string, dto: AssignUniversityDto) {
-    const student = await this.findOne(id);
+    const { NotFoundException } = await import('@nestjs/common');
+
+    const student = await this.prisma.student.findUnique({
+      where: { id },
+    });
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
 
     const course = await this.prisma.universityCourse.findUnique({
       where: { id: dto.courseId },
@@ -243,11 +252,7 @@ export class StudentsService {
   }
 
   async getStats() {
-    const [
-      total,
-      byStage,
-      byStatus,
-    ] = await Promise.all([
+    const [total, byStage, byStatus] = await Promise.all([
       this.prisma.student.count(),
       this.prisma.student.groupBy({
         by: ['currentStage'],
@@ -261,14 +266,20 @@ export class StudentsService {
 
     return {
       total,
-      byStage: byStage.reduce((acc, item) => {
-        acc[item.currentStage] = item._count;
-        return acc;
-      }, {} as Record<number, number>),
-      byStatus: byStatus.reduce((acc, item) => {
-        acc[item.applicationStatus] = item._count;
-        return acc;
-      }, {} as Record<string, number>),
+      byStage: byStage.reduce(
+        (acc, item) => {
+          acc[item.currentStage] = item._count;
+          return acc;
+        },
+        {} as Record<number, number>,
+      ),
+      byStatus: byStatus.reduce(
+        (acc, item) => {
+          acc[item.applicationStatus] = item._count;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
     };
   }
 }

@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Shiksha | Medical Admission Platform",
+  description:
+    "Your gateway to medical education abroad. Apply to top medical universities worldwide with guided admission support.",
+};
+
 import { Header } from "@/components/landing/Header";
 import { HeroCarousel } from "@/components/landing/HeroCarousel";
 import { TrustBar } from "@/components/landing/TrustBar";

@@ -1,6 +1,9 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,59 +12,70 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [serverError, setServerError] = useState("");
 
   const login = useAuthStore((s) => s.login);
 
-  const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
+    setServerError("");
 
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
         },
       );
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+        throw new Error(result.message || "Login failed");
       }
 
-      login(data.user, data.token);
+      login(result.user, result.token);
 
-      // Redirect based on role
-      if (data.user.role === "ADMIN" || data.user.role === "SUPER_ADMIN") {
+      if (
+        result.user.role === "ADMIN" ||
+        result.user.role === "SUPER_ADMIN"
+      ) {
         router.push("/admin/dashboard");
       } else {
         router.push(redirect);
       }
-    } catch (err: any) {
-      setError(err.message || "Invalid email or password");
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      setServerError(
+        err instanceof Error ? err.message : "Invalid email or password",
+      );
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8  ">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-2xl mx-auto space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -73,12 +87,11 @@ function LoginContent() {
         </div>
 
         <div className="mt-8 space-y-6">
-          {/* Admin Login Form */}
-          <form onSubmit={handleAdminLogin} className="space-y-4">
-            {error && (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {serverError && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
                 <AlertCircle className="h-4 w-4" />
-                <span className="text-sm">{error}</span>
+                <span className="text-sm">{serverError}</span>
               </div>
             )}
 
@@ -87,12 +100,15 @@ function LoginContent() {
               <Input
                 id="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@example.com"
-                required
+                {...register("email")}
                 className="mt-1"
               />
+              {errors.email && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -101,10 +117,8 @@ function LoginContent() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  required
+                  {...register("password")}
                   className="pr-10"
                 />
                 <button
@@ -119,10 +133,15 @@ function LoginContent() {
                   )}
                 </button>
               </div>
+              {errors.password && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in as Admin"}
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Signing in..." : "Sign in as Admin"}
             </Button>
           </form>
 

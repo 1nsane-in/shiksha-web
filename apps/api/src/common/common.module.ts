@@ -12,6 +12,7 @@ import { MetricsService } from './services/metrics.service';
 import { SentryFilter } from './filters/sentry.filter';
 import { DashboardController } from './controllers/dashboard.controller';
 import { ActivityTrackingInterceptor } from './interceptors/activity-tracking.interceptor';
+import { PaginatorService } from './services/paginator.service';
 
 @Global()
 @Module({
@@ -24,6 +25,7 @@ import { ActivityTrackingInterceptor } from './interceptors/activity-tracking.in
     AuditLogService,
     NotificationService,
     MetricsService,
+    PaginatorService,
     {
       provide: APP_FILTER,
       useClass: SentryFilter,
@@ -35,6 +37,7 @@ import { ActivityTrackingInterceptor } from './interceptors/activity-tracking.in
     AuditLogService,
     NotificationService,
     MetricsService,
+    PaginatorService,
   ],
 })
 export class CommonModule {}

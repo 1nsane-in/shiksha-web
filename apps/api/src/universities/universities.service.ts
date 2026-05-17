@@ -14,12 +14,39 @@ import {
   UniversityQueryDto,
   UniversityStatus,
 } from './universities.dto';
+import { PaginatorService } from '../common/services/paginator.service';
+import { createQueryBuilder } from '../common/helpers/prisma-query-builder';
+
+const UNIVERSITY_INCLUDES = {
+  location: true,
+  contact: true,
+  academic: true,
+  recognition: true,
+  fees: true,
+  infrastructure: true,
+  admission: true,
+  support: true,
+  content: true,
+  admin: true,
+  courses: {
+    where: { isActive: true },
+  },
+  documents: true,
+  _count: {
+    select: {
+      courses: true,
+      applications: true,
+    },
+  },
+};
 
 @Injectable()
 export class UniversitiesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private paginator: PaginatorService,
+  ) {}
 
-  // Generate slug from name
   private generateSlug(name: string): string {
     return name
       .toLowerCase()
@@ -27,37 +54,35 @@ export class UniversitiesService {
       .replace(/^-+|-+$/g, '');
   }
 
-  // Find all universities with filters
+  private async findByIdOrThrow(id: string) {
+    const university = await this.prisma.university.findUnique({
+      where: { id },
+    });
+
+    if (!university) {
+      throw new NotFoundException('University not found');
+    }
+
+    return university;
+  }
+
   async findAll(query: UniversityQueryDto) {
-    const page = parseInt(query.page || '1');
-    const limit = parseInt(query.limit || '10');
-    const skip = (page - 1) * limit;
+    const { page, limit } = this.paginator.parseOptions(
+      query.page,
+      query.limit,
+    );
 
-    const where: any = {};
-
-    if (query.country) {
-      where.location = { country: query.country };
-    }
-
-    if (query.status) {
-      where.status = query.status;
-    }
-
-    if (query.type) {
-      where.type = query.type;
-    }
-
-    if (query.search) {
-      where.OR = [
-        { name: { contains: query.search, mode: 'insensitive' } },
-        { shortName: { contains: query.search, mode: 'insensitive' } },
-      ];
-    }
+    const where = createQueryBuilder()
+      .where('status', query.status)
+      .whereNested('location', 'country', query.country)
+      .where('type', query.type)
+      .search(query.search, ['name', 'shortName'])
+      .build();
 
     const [universities, total] = await Promise.all([
       this.prisma.university.findMany({
         where,
-        skip,
+        skip: this.paginator.getSkip({ page, limit }),
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -74,45 +99,15 @@ export class UniversitiesService {
       this.prisma.university.count({ where }),
     ]);
 
-    return {
-      data: universities,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    return this.paginator.wrapResult(universities, total, { page, limit });
   }
 
-  // Find one university by ID or slug
   async findOne(identifier: string) {
     const university = await this.prisma.university.findFirst({
       where: {
         OR: [{ id: identifier }, { slug: identifier }],
       },
-      include: {
-        location: true,
-        contact: true,
-        academic: true,
-        recognition: true,
-        fees: true,
-        infrastructure: true,
-        admission: true,
-        support: true,
-        content: true,
-        admin: true,
-        courses: {
-          where: { isActive: true },
-        },
-        documents: true,
-        _count: {
-          select: {
-            courses: true,
-            applications: true,
-          },
-        },
-      },
+      include: UNIVERSITY_INCLUDES,
     });
 
     if (!university) {
@@ -122,11 +117,9 @@ export class UniversitiesService {
     return university;
   }
 
-  // Create new university
   async create(dto: CreateUniversityDto) {
     const slug = this.generateSlug(dto.name);
 
-    // Check if slug already exists
     const existing = await this.prisma.university.findUnique({
       where: { slug },
     });
@@ -137,7 +130,6 @@ export class UniversitiesService {
       );
     }
 
-    // Validate seat distribution
     const totalSeats =
       dto.academic.governmentSeats +
       dto.academic.managementSeats +
@@ -149,7 +141,6 @@ export class UniversitiesService {
       );
     }
 
-    // Create university with all related data
     const university = await this.prisma.university.create({
       data: {
         slug,
@@ -161,39 +152,21 @@ export class UniversitiesService {
         logo: dto.logo,
         bannerImage: dto.bannerImage,
         status: UniversityStatus.DRAFT,
-        location: {
-          create: dto.location,
-        },
-        contact: {
-          create: dto.contact,
-        },
-        academic: {
-          create: dto.academic,
-        },
-        recognition: {
-          create: dto.recognition,
-        },
-        fees: {
-          create: dto.fees,
-        },
-        infrastructure: {
-          create: dto.infrastructure,
-        },
+        location: { create: dto.location },
+        contact: { create: dto.contact },
+        academic: { create: dto.academic },
+        recognition: { create: dto.recognition },
+        fees: { create: dto.fees },
+        infrastructure: { create: dto.infrastructure },
         admission: {
           create: {
             ...dto.admission,
             applicationDeadline: new Date(dto.admission.applicationDeadline),
           },
         },
-        support: {
-          create: dto.support,
-        },
-        content: {
-          create: dto.content,
-        },
-        admin: {
-          create: dto.admin,
-        },
+        support: { create: dto.support },
+        content: { create: dto.content },
+        admin: { create: dto.admin },
       },
       include: {
         location: true,
@@ -212,21 +185,14 @@ export class UniversitiesService {
     return university;
   }
 
-  // Update university
   async update(id: string, dto: UpdateUniversityDto) {
-    await this.findOne(id);
+    await this.findByIdOrThrow(id);
 
-    // If name is being updated, regenerate slug
-    let slug: string | undefined;
     if (dto.name) {
-      slug = this.generateSlug(dto.name);
+      const slug = this.generateSlug(dto.name);
 
-      // Check if new slug conflicts
       const existing = await this.prisma.university.findFirst({
-        where: {
-          slug,
-          NOT: { id },
-        },
+        where: { slug, NOT: { id } },
       });
 
       if (existing) {
@@ -236,7 +202,6 @@ export class UniversitiesService {
       }
     }
 
-    // Validate seat distribution if academic data is being updated
     if (dto.academic) {
       const totalSeats =
         (dto.academic.governmentSeats || 0) +
@@ -250,55 +215,62 @@ export class UniversitiesService {
       }
     }
 
-    // Update university and related data
-    const updateData: any = {
-      ...(dto.name && { name: dto.name }),
-      ...(dto.shortName && { shortName: dto.shortName }),
-      ...(dto.establishedYear && { establishedYear: dto.establishedYear }),
-      ...(dto.type && { type: dto.type }),
-      ...(dto.website && { website: dto.website }),
-      ...(dto.logo && { logo: dto.logo }),
-      ...(dto.bannerImage && { bannerImage: dto.bannerImage }),
-      ...(dto.status && { status: dto.status }),
-      ...(slug && { slug }),
-    };
+    const updateData: Record<string, unknown> = {};
+    const scalarFields: (keyof UpdateUniversityDto)[] = [
+      'name',
+      'shortName',
+      'establishedYear',
+      'type',
+      'website',
+      'logo',
+      'bannerImage',
+      'status',
+    ];
 
-    // Update related entities
-    if (dto.location) {
-      updateData.location = { update: dto.location };
-    }
-    if (dto.contact) {
-      updateData.contact = { update: dto.contact };
-    }
-    if (dto.academic) {
-      updateData.academic = { update: dto.academic };
-    }
-    if (dto.recognition) {
-      updateData.recognition = { update: dto.recognition };
-    }
-    if (dto.fees) {
-      updateData.fees = { update: dto.fees };
-    }
-    if (dto.infrastructure) {
-      updateData.infrastructure = { update: dto.infrastructure };
-    }
-    if (dto.admission) {
-      const admissionData: any = { ...dto.admission };
-      if (dto.admission.applicationDeadline) {
-        admissionData.applicationDeadline = new Date(
-          dto.admission.applicationDeadline,
-        );
+    for (const field of scalarFields) {
+      const value = dto[field];
+      if (value !== undefined) {
+        if (field === 'name') {
+          updateData[field] = value;
+          updateData.slug = this.generateSlug(value as string);
+        } else {
+          updateData[field] = value;
+        }
       }
-      updateData.admission = { update: admissionData };
     }
-    if (dto.support) {
-      updateData.support = { update: dto.support };
-    }
-    if (dto.content) {
-      updateData.content = { update: dto.content };
-    }
-    if (dto.admin) {
-      updateData.admin = { update: dto.admin };
+
+    const relationFields: Array<{
+      key: keyof UpdateUniversityDto;
+      transform?: (val: unknown) => unknown;
+    }> = [
+      { key: 'location' },
+      { key: 'contact' },
+      { key: 'academic' },
+      { key: 'recognition' },
+      { key: 'fees' },
+      { key: 'infrastructure' },
+      { key: 'support' },
+      { key: 'content' },
+      { key: 'admin' },
+      {
+        key: 'admission',
+        transform: (val) => {
+          const admissionData = { ...(val as Record<string, unknown>) };
+          if (admissionData.applicationDeadline) {
+            admissionData.applicationDeadline = new Date(
+              admissionData.applicationDeadline as string,
+            );
+          }
+          return admissionData;
+        },
+      },
+    ];
+
+    for (const { key, transform } of relationFields) {
+      const value = dto[key];
+      if (value !== undefined) {
+        updateData[key] = { update: transform ? transform(value) : value };
+      }
     }
 
     const university = await this.prisma.university.update({
@@ -321,9 +293,8 @@ export class UniversitiesService {
     return university;
   }
 
-  // Delete university (soft delete by setting status to INACTIVE)
   async delete(id: string) {
-    await this.findOne(id);
+    await this.findByIdOrThrow(id);
 
     const university = await this.prisma.university.update({
       where: { id },
@@ -333,26 +304,22 @@ export class UniversitiesService {
     return { message: 'University deleted successfully', university };
   }
 
-  // Update university status
   async updateStatus(id: string, status: UniversityStatus) {
-    await this.findOne(id);
+    await this.findByIdOrThrow(id);
 
-    const university = await this.prisma.university.update({
+    return this.prisma.university.update({
       where: { id },
       data: {
         status,
-        ...(status === UniversityStatus.ACTIVE && { verifiedAt: new Date() }),
+        ...(status === UniversityStatus.ACTIVE ? { verifiedAt: new Date() } : {}),
       },
     });
-
-    return university;
   }
 
-  // Upload document
   async uploadDocument(id: string, dto: UploadUniversityDocumentDto) {
-    await this.findOne(id);
+    await this.findByIdOrThrow(id);
 
-    const document = await this.prisma.universityDocument.create({
+    return this.prisma.universityDocument.create({
       data: {
         universityId: id,
         type: dto.type,
@@ -361,23 +328,17 @@ export class UniversitiesService {
         fileSize: dto.fileSize,
       },
     });
-
-    return document;
   }
 
-  // Get documents
   async getDocuments(id: string) {
-    await this.findOne(id);
+    await this.findByIdOrThrow(id);
 
-    const documents = await this.prisma.universityDocument.findMany({
+    return this.prisma.universityDocument.findMany({
       where: { universityId: id },
       orderBy: { uploadedAt: 'desc' },
     });
-
-    return documents;
   }
 
-  // Delete document
   async deleteDocument(documentId: string) {
     const document = await this.prisma.universityDocument.findUnique({
       where: { id: documentId },
@@ -394,18 +355,12 @@ export class UniversitiesService {
     return { message: 'Document deleted successfully' };
   }
 
-  // Course management
   async addCourse(universityId: string, dto: CreateCourseDto) {
-    await this.findOne(universityId);
+    await this.findByIdOrThrow(universityId);
 
-    const course = await this.prisma.universityCourse.create({
-      data: {
-        ...dto,
-        universityId,
-      },
+    return this.prisma.universityCourse.create({
+      data: { ...dto, universityId },
     });
-
-    return course;
   }
 
   async updateCourse(courseId: string, dto: UpdateCourseDto) {
@@ -417,12 +372,10 @@ export class UniversitiesService {
       throw new NotFoundException('Course not found');
     }
 
-    const updatedCourse = await this.prisma.universityCourse.update({
+    return this.prisma.universityCourse.update({
       where: { id: courseId },
       data: dto,
     });
-
-    return updatedCourse;
   }
 
   async deleteCourse(courseId: string) {
@@ -442,7 +395,6 @@ export class UniversitiesService {
     return { message: 'Course deleted successfully' };
   }
 
-  // Get countries
   async getCountries() {
     const locations = await this.prisma.universityLocation.findMany({
       select: { country: true },
@@ -453,39 +405,31 @@ export class UniversitiesService {
     return locations.map((l) => l.country);
   }
 
-  // Get statistics
   async getStatistics() {
-    const [
-      total,
-      active,
-      draft,
-      underReview,
-      byType,
-      byCountry,
-      recentlyAdded,
-    ] = await Promise.all([
-      this.prisma.university.count(),
-      this.prisma.university.count({ where: { status: 'ACTIVE' } }),
-      this.prisma.university.count({ where: { status: 'DRAFT' } }),
-      this.prisma.university.count({ where: { status: 'UNDER_REVIEW' } }),
-      this.prisma.university.groupBy({
-        by: ['type'],
-        _count: true,
-      }),
-      this.prisma.universityLocation.groupBy({
-        by: ['country'],
-        _count: true,
-        orderBy: { _count: { country: 'desc' } },
-        take: 10,
-      }),
-      this.prisma.university.count({
-        where: {
-          createdAt: {
-            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Last 30 days
+    const [total, active, draft, underReview, byType, byCountry, recentlyAdded] =
+      await Promise.all([
+        this.prisma.university.count(),
+        this.prisma.university.count({ where: { status: 'ACTIVE' } }),
+        this.prisma.university.count({ where: { status: 'DRAFT' } }),
+        this.prisma.university.count({ where: { status: 'UNDER_REVIEW' } }),
+        this.prisma.university.groupBy({
+          by: ['type'],
+          _count: true,
+        }),
+        this.prisma.universityLocation.groupBy({
+          by: ['country'],
+          _count: true,
+          orderBy: { _count: { country: 'desc' } },
+          take: 10,
+        }),
+        this.prisma.university.count({
+          where: {
+            createdAt: {
+              gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+            },
           },
-        },
-      }),
-    ]);
+        }),
+      ]);
 
     return {
       total,
