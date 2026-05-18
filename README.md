@@ -79,6 +79,30 @@ Start all services:
 docker-compose up -d
 ```
 
+## Deployment
+
+### Free Deployment Options
+
+See detailed guides:
+- **[Render Deployment Guide](./RENDER_DEPLOYMENT.md)** - Complete setup instructions
+- **[Deployment Checklist](./DEPLOYMENT_CHECKLIST.md)** - Quick reference checklist
+
+**Quick Deploy to Render:**
+1. Install Render GitHub App on your organization
+2. Create PostgreSQL database on Render
+3. Create Web Service with:
+   - Root Directory: `apps/api`
+   - Build: `pnpm install && pnpm --filter @repo/api build`
+   - Start: `pnpm --filter @repo/api start:prod`
+4. Add environment variables (see `.env.production.example`)
+5. Deploy!
+
+**Other Free Options:**
+- Railway (500 hours/month)
+- Fly.io (3 VMs free)
+- Google Cloud Run (2M requests/month)
+- AWS Free Tier (12 months)
+
 ## License
 
 MIT
