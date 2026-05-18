@@ -19,6 +19,7 @@ import {
   CreateAdminDto,
   GoogleAuthDto,
   GoogleRegisterDto,
+  RefreshTokenDto,
 } from './auth.dto';
 import { Public } from './decorators/public.decorator';
 
@@ -67,11 +68,17 @@ export class AuthController {
     return this.authService.googleRegister(dto);
   }
 
+  @Public()
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() dto: RefreshTokenDto) {
+    return this.authService.refreshTokens(dto);
+  }
+
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Request() req) {
-    const token = req.headers.authorization?.split(' ')[1];
-    return this.authService.logout(token);
+  async logout(@Body('refreshToken') refreshToken: string) {
+    return this.authService.logout(refreshToken);
   }
 
   @Get('me')

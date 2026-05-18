@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCreateUniversity } from "@/domains/universities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +34,7 @@ export default function NewUniversityPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const createUniversity = useCreateUniversity();
   const [formData, setFormData] = useState<any>({
     name: "",
     shortName: "",
@@ -148,24 +150,8 @@ export default function NewUniversityPage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/admin/universities`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (response.ok) {
-        router.push("/admin/universities");
-      } else {
-        const error = await response.json();
-        alert(`Error: ${error.message}`);
-      }
+      await createUniversity.mutateAsync(formData);
+      router.push("/admin/universities");
     } catch (error) {
       console.error("Failed to create university:", error);
       alert("Failed to create university");

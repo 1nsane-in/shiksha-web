@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
+import * as crypto from "crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import {
   RegisterDto,
@@ -15,6 +16,7 @@ import {
   CreateAdminDto,
   GoogleAuthDto,
   GoogleRegisterDto,
+  RefreshTokenDto,
 } from "./auth.dto";
 
 @Injectable()
@@ -64,9 +66,9 @@ export class AuthService {
       },
     });
 
-    const token = this.generateToken(newUser);
+    const tokens = await this.generateTokens(newUser);
 
-    return { message: "Registration successful", user: newUser, token };
+    return { message: "Registration successful", user: newUser, ...tokens };
   }
 
   async login(dto: LoginDto) {
@@ -87,19 +89,18 @@ export class AuthService {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    const token = this.generateToken(user);
+    const tokens = await this.generateTokens(user);
 
     return {
       message: "Login successful",
       user,
-      token,
+      ...tokens,
     };
   }
 
   async googleLogin(dto: GoogleAuthDto) {
     this.logger.log(`Google login attempt with token: ${dto.accessToken?.substring(0, 20)}...`);
     
-    // Verify Google token
     const userInfo = await this.verifyGoogleToken(dto.accessToken);
     this.logger.debug(`Google token verification result: ${JSON.stringify(userInfo)}`);
 
@@ -110,14 +111,12 @@ export class AuthService {
 
     this.logger.log(`Google user info: ${userInfo.email}, ${userInfo.name}`);
 
-    // Find or create user
     let user = await this.prisma.user.findUnique({
       where: { email: userInfo.email },
     });
 
     if (!user) {
       this.logger.log(`User not found, auto-registering: ${userInfo.email}`);
-      // Auto-register the user
       user = await this.prisma.user.create({
         data: {
           email: userInfo.email,
@@ -137,13 +136,13 @@ export class AuthService {
       this.logger.log(`Auto-registered user: ${user.id}`);
     }
 
-    const token = this.generateToken(user);
+    const tokens = await this.generateTokens(user);
     this.logger.log(`Login successful for user: ${user.id}`);
 
     return {
       message: "Google login successful",
       user,
-      token,
+      ...tokens,
     };
   }
 
@@ -176,19 +175,46 @@ export class AuthService {
       },
     });
 
-    const token = this.generateToken(newUser);
+    const tokens = await this.generateTokens(newUser);
     this.logger.log(`Registration successful for user: ${newUser.id}`);
 
     return {
       message: "Google registration successful",
       user: newUser,
-      token,
+      ...tokens,
     };
   }
 
-  async logout(token: string) {
-    // TODO: Add token to blacklist if needed
+  async logout(refreshToken: string) {
+    const hash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+    await this.prisma.userSession.deleteMany({ where: { tokenHash: hash } });
     return { message: "Logged out successfully" };
+  }
+
+  async refreshTokens(dto: RefreshTokenDto) {
+    const hash = crypto.createHash("sha256").update(dto.refreshToken).digest("hex");
+
+    const session = await this.prisma.userSession.findUnique({
+      where: { tokenHash: hash },
+      include: { user: true },
+    });
+
+    if (!session || session.expiresAt < new Date()) {
+      throw new UnauthorizedException("Invalid or expired refresh token");
+    }
+
+    if (!session.user.isActive) {
+      throw new UnauthorizedException("Account is deactivated");
+    }
+
+    await this.prisma.userSession.delete({ where: { id: session.id } });
+
+    const tokens = await this.generateTokens(session.user);
+
+    return {
+      message: "Tokens refreshed successfully",
+      ...tokens,
+    };
   }
 
   async getCurrentUser(userId: string) {
@@ -242,14 +268,27 @@ export class AuthService {
     return { message: "Password reset successful" };
   }
 
-  private generateToken(user: any) {
+  private async generateTokens(user: any) {
     const payload = {
       sub: user.id,
       email: user.email,
       role: user.role,
     };
 
-    return this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload);
+
+    const refreshToken = crypto.randomUUID();
+    const refreshHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+
+    await this.prisma.userSession.create({
+      data: {
+        userId: user.id,
+        tokenHash: refreshHash,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    return { accessToken, refreshToken };
   }
 
   private async verifyGoogleToken(token: string): Promise<any> {

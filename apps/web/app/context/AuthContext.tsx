@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useCallback, type ReactNode } from "react";
 import { useAuthStore, selectUser, selectIsAuthenticated } from "@/stores/auth-store";
+import { googleLogin as googleLoginApi, googleRegister as googleRegisterApi } from "@/domains/auth/auth.api";
 
 interface AuthContextType {
   user: ReturnType<typeof selectUser>;
@@ -19,17 +20,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const loading = useAuthStore((s) => s.loading);
   const login = useCallback(async (accessToken: string) => {
-    const { AuthService } = await import("@/app/lib/auth-service");
-    const result = await AuthService.googleLogin(accessToken);
-    if (result.user && result.token) {
-      useAuthStore.getState().login(result.user, result.token);
+    const result = await googleLoginApi({ accessToken });
+    if (result.user && result.accessToken) {
+      useAuthStore.getState().login(result.user, result.accessToken, result.refreshToken);
     }
   }, []);
   const register = useCallback(async (accessToken: string, userData: any) => {
-    const { AuthService } = await import("@/app/lib/auth-service");
-    const result = await AuthService.googleRegister(accessToken, userData);
-    if (result.user && result.token) {
-      useAuthStore.getState().login(result.user, result.token);
+    const result = await googleRegisterApi({ ...userData, accessToken });
+    if (result.user && result.accessToken) {
+      useAuthStore.getState().login(result.user, result.accessToken, result.refreshToken);
     }
   }, []);
   const logout = useCallback(() => {

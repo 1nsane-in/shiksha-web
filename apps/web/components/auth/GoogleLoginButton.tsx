@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useAuthStore } from "@/stores/auth-store";
+import { googleLogin, googleRegister } from "@/domains/auth/auth.api";
 
 declare global {
   interface Window {
@@ -42,61 +44,30 @@ export function GoogleLoginButton({
 
   const sendTokenToBackend = async (idToken: string) => {
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      
       // First try login
-      const loginRes = await fetch(`${API_URL}/auth/google-login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          accessToken: idToken,
-        }),
-      });
-
-      if (loginRes.ok) {
-        const data = await loginRes.json();
-        if (data.token) {
-          localStorage.setItem('auth_token', data.token);
-        }
-        if (onLoginSuccess) {
-          onLoginSuccess();
-        }
+      const loginData = await googleLogin({ accessToken: idToken }).catch(() => null);
+      
+      if (loginData?.accessToken) {
+        useAuthStore.getState().login(loginData.user, loginData.accessToken, loginData.refreshToken);
+        if (onLoginSuccess) onLoginSuccess();
         if (redirectTo) router.push(redirectTo);
         return;
       }
 
-      // If login fails (user not found), try registration
-      // Decode the JWT to get user info
+      // If login fails, try registration
       const payload = JSON.parse(atob(idToken.split('.')[1]));
-      
-      const registerRes = await fetch(`${API_URL}/auth/google-register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: payload.email,
-          name: payload.name,
-          phone: '',
-          googleId: payload.sub,
-          accessToken: idToken,
-        }),
+      const registerData = await googleRegister({
+        email: payload.email,
+        name: payload.name,
+        phone: '',
+        googleId: payload.sub,
+        accessToken: idToken,
       });
 
-      if (!registerRes.ok) {
-        const errorData = await registerRes.json();
-        throw new Error(errorData.message || 'Registration failed');
+      if (registerData.accessToken) {
+        useAuthStore.getState().login(registerData.user, registerData.accessToken, registerData.refreshToken);
       }
-
-      const registerData = await registerRes.json();
-      if (registerData.token) {
-        localStorage.setItem('auth_token', registerData.token);
-      }
-      if (onLoginSuccess) {
-        onLoginSuccess();
-      }
+      if (onLoginSuccess) onLoginSuccess();
       if (redirectTo) router.push(redirectTo);
     } catch (error) {
       console.error('Google auth error:', error);
@@ -161,50 +132,23 @@ export function GoogleLoginButton({
                 const userInfo = await userInfoRes.json();
                 
                 // Send to backend for login/register
-                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-                const res = await fetch(`${API_URL}/auth/google-login`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ 
-                    accessToken: tokenResponse.access_token,
-                    email: userInfo.email,
-                    name: userInfo.name,
-                  }),
-                });
+                const loginData = await googleLogin({ accessToken: tokenResponse.access_token }).catch(() => null);
                 
-                if (!res.ok) {
-                  // If user not found, register them
-                  if (res.status === 400) {
-                    const registerRes = await fetch(`${API_URL}/auth/google-register`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        email: userInfo.email,
-                        name: userInfo.name,
-                        phone: '',
-                        googleId: userInfo.sub,
-                        accessToken: tokenResponse.access_token,
-                      }),
-                    });
-                    
-                    if (!registerRes.ok) {
-                      throw new Error('Registration failed');
-                    }
-                    
-                    const registerData = await registerRes.json();
-                    if (registerData.token) {
-                      localStorage.setItem('auth_token', registerData.token);
-                    }
-                    if (onLoginSuccess) onLoginSuccess();
-                    if (redirectTo) router.push(redirectTo);
-                    return;
-                  }
-                  throw new Error('Login failed');
+                if (loginData?.accessToken) {
+                  useAuthStore.getState().login(loginData.user, loginData.accessToken, loginData.refreshToken);
+                  if (onLoginSuccess) onLoginSuccess();
+                  if (redirectTo) router.push(redirectTo);
+                  return;
                 }
                 
-                const data = await res.json();
-                if (data.token) {
-                  localStorage.setItem('auth_token', data.token);
+                // If login fails, register them
+                const registerData = await googleRegister({
+                  name: userInfo.name,
+                  accessToken: tokenResponse.access_token,
+                });
+                
+                if (registerData.accessToken) {
+                  useAuthStore.getState().login(registerData.user, registerData.accessToken, registerData.refreshToken);
                 }
                 if (onLoginSuccess) onLoginSuccess();
                 if (redirectTo) router.push(redirectTo);

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { AuthService } from "@/app/lib/auth-service";
+import { useAuthStore } from "@/stores/auth-store";
 import { universities, type University } from "@/lib/university-data";
 import {
   MapPin,
@@ -43,7 +43,7 @@ export function UniversityCards() {
   const router = useRouter();
 
   const handleApply = (uni: University) => {
-    if (!AuthService.isAuthenticated()) {
+    if (!useAuthStore.getState().token) {
       router.push("/login?redirect=%2F");
       return;
     }
@@ -147,6 +147,7 @@ export function UniversityCards() {
                     </Button>
                     <Button
                       size="sm"
+                      nativeButton={false}
                       className="flex-1 gap-1.5 text-xs h-9"
                       // onClick={() => handleApply(uni)}
                       render={
@@ -158,6 +159,7 @@ export function UniversityCards() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      nativeButton={false}
                       className="gap-1 h-9 px-3 text-[#4B2D8E] hover:text-[#2D2154] hover:bg-[#4B2D8E]/5"
                       render={<Link href={`/university/${uni.slug}`} />}
                     >

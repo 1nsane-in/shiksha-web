@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
-import { useAuthStore } from "@/stores/auth-store";
+import { useLogin } from "@/domains/auth";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -27,7 +27,7 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState("");
 
-  const login = useAuthStore((s) => s.login);
+  const loginMutation = useLogin();
 
   const {
     register,
@@ -40,29 +40,9 @@ function LoginContent() {
 
   const onSubmit = async (data: LoginFormData) => {
     setServerError("");
-
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        },
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed");
-      }
-
-      login(result.user, result.token);
-
-      if (
-        result.user.role === "ADMIN" ||
-        result.user.role === "SUPER_ADMIN"
-      ) {
+      const result = await loginMutation.mutateAsync(data);
+      if (result.user.role === "ADMIN" || result.user.role === "SUPER_ADMIN") {
         router.push("/admin/dashboard");
       } else {
         router.push(redirect);

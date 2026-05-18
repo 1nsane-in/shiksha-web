@@ -12,8 +12,10 @@ export interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   loading: boolean;
-  login: (userData: User, authToken: string) => void;
+  login: (userData: User, accessToken: string, refreshToken: string) => void;
+  setTokens: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
 }
 
@@ -22,16 +24,19 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       token: null,
+      refreshToken: null,
       loading: true,
 
-      login: (userData, authToken) => {
-        document.cookie = `token=${authToken}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-        set({ user: userData, token: authToken });
+      login: (userData, accessToken, refreshTok) => {
+        set({ user: userData, token: accessToken, refreshToken: refreshTok });
+      },
+
+      setTokens: (accessToken, refreshTok) => {
+        set({ token: accessToken, refreshToken: refreshTok });
       },
 
       logout: () => {
-        document.cookie = "token=; path=/; max-age=0; SameSite=Lax";
-        set({ user: null, token: null });
+        set({ user: null, token: null, refreshToken: null });
       },
     }),
     {
@@ -39,6 +44,7 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         token: state.token,
+        refreshToken: state.refreshToken,
       }),
       onRehydrateStorage: () => () => {
         useAuthStore.setState({ loading: false });
@@ -49,6 +55,7 @@ export const useAuthStore = create<AuthState>()(
 
 export const selectUser = (s: AuthState) => s.user;
 export const selectToken = (s: AuthState) => s.token;
+export const selectRefreshToken = (s: AuthState) => s.refreshToken;
 export const selectLoading = (s: AuthState) => s.loading;
 export const selectIsAuthenticated = (s: AuthState) => !!s.token && !!s.user;
 export const selectIsAdmin = (s: AuthState) =>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useUniversities, useDeleteUniversity, useUpdateUniversityStatus } from "@/domains/universities";
 
 interface University {
   id: string;
@@ -71,70 +72,30 @@ const statusColors = {
 
 export default function UniversitiesPage() {
   const router = useRouter();
-  const [universities, setUniversities] = useState<University[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchUniversities();
-  }, [page, statusFilter, typeFilter, search]);
-
-  const fetchUniversities = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: "10",
-        ...(search && { search }),
-        ...(statusFilter !== "all" && { status: statusFilter }),
-        ...(typeFilter !== "all" && { type: typeFilter }),
-      });
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/admin/universities?${params}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setUniversities(data.data);
-        setTotalPages(data.meta.totalPages);
-      } else if (response.status === 401) {
-        // Redirect to login if unauthorized
-        router.push("/login?redirect=/admin/universities");
-      }
-    } catch (error) {
-      console.error("Failed to fetch universities:", error);
-    } finally {
-      setLoading(false);
-    }
+  const filters = {
+    page,
+    limit: 10,
+    ...(search && { search }),
+    ...(statusFilter !== "all" && { status: statusFilter }),
+    ...(typeFilter !== "all" && { type: typeFilter }),
   };
+
+  const { data: universitiesData, isLoading } = useUniversities(filters);
+  const universities = universitiesData?.data ?? [];
+  const totalPages = universitiesData?.totalPages ?? 1;
+
+  const deleteMutation = useDeleteUniversity();
+  const statusMutation = useUpdateUniversityStatus();
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this university?")) return;
-
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/admin/universities/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        fetchUniversities();
-      }
+      await deleteMutation.mutateAsync(id);
     } catch (error) {
       console.error("Failed to delete university:", error);
     }
@@ -142,21 +103,7 @@ export default function UniversitiesPage() {
 
   const handleStatusChange = async (id: string, status: string) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/admin/universities/${id}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({ status }),
-        }
-      );
-
-      if (response.ok) {
-        fetchUniversities();
-      }
+      await statusMutation.mutateAsync({ id, status });
     } catch (error) {
       console.error("Failed to update status:", error);
     }
@@ -231,7 +178,7 @@ export default function UniversitiesPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
+            {isLoading ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8">
                   Loading...

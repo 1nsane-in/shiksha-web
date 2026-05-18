@@ -2,6 +2,8 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuthStore } from "@/stores/auth-store";
+import { googleLogin } from "@/domains/auth/auth.api";
 
 function AuthCallbackContent() {
   const router = useRouter();
@@ -19,23 +21,15 @@ function AuthCallbackContent() {
           throw new Error('No access token received');
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/google-login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ accessToken }),
-        });
-
-        if (!res.ok) {
-          if (res.status === 400) {
-            router.push(`/register?token=${accessToken}`);
-            return;
-          }
-          throw new Error('Login failed');
+        const data = await googleLogin({ accessToken });
+        if (data.accessToken) {
+          useAuthStore.getState().login(data.user, data.accessToken, data.refreshToken);
         }
-
-        const data = await res.json();
-        localStorage.setItem('auth_token', data.session?.access_token);
-        router.push('/dashboard');
+        if (data.user?.role === 'ADMIN' || data.user?.role === 'SUPER_ADMIN') {
+          router.push('/admin/dashboard');
+        } else {
+          router.push('/dashboard');
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Authentication failed');
       }

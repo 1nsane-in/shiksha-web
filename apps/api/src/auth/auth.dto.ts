@@ -64,6 +64,11 @@ export class GoogleAuthDto {
   name?: string;
 }
 
+export class RefreshTokenDto {
+  @IsString()
+  refreshToken: string;
+}
+
 export class GoogleRegisterDto {
   @IsEmail()
   email: string;
