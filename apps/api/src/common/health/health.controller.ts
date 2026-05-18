@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { HealthCheck, HealthCheckService } from '@nestjs/terminus';
 import { DatabaseHealthIndicator } from './db.health';
+import { Public } from '../../auth/decorators/public.decorator';
 
 @Controller('health')
 export class HealthController {
@@ -10,6 +11,7 @@ export class HealthController {
   ) {}
 
   @Get()
+  @Public()
   @HealthCheck()
   async check() {
     return this.health.check([
