@@ -8,7 +8,7 @@
 
 **Build Command:**
 ```bash
-pnpm install && pnpm --filter @repo/api build
+pnpm install --no-frozen-lockfile && pnpm --filter @repo/api build
 ```
 
 **Start Command:**
