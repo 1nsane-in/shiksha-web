@@ -2,6 +2,7 @@ import { NestFactory } from "@nestjs/core";
 import { ValidationPipe, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as Sentry from "@sentry/nestjs";
+import cookieParser from "cookie-parser";
 import { initSentry } from "./common/sentry.config";
 import { AppModule } from "./app.module";
 import { AnalyticsService } from "./common/services/analytics.service";
@@ -49,6 +50,8 @@ async function bootstrap() {
   );
 
   // Graceful shutdown
+  app.use(cookieParser());
+
   app.enableShutdownHooks();
 
   const port = configService.get<number>("PORT") || 8000;

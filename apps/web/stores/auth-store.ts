@@ -1,6 +1,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+function setTokenCookie(token: string) {
+  if (typeof document === "undefined") return;
+  document.cookie = `token=${token}; path=/; max-age=${15 * 60}; SameSite=Lax`;
+}
+
+function clearTokenCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie = "token=; path=/; max-age=0";
+}
+
 export interface User {
   id: string;
   email: string;
@@ -12,10 +22,9 @@ export interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
-  refreshToken: string | null;
   loading: boolean;
-  login: (userData: User, accessToken: string, refreshToken: string) => void;
-  setTokens: (accessToken: string, refreshToken: string) => void;
+  login: (userData: User, accessToken: string) => void;
+  setTokens: (accessToken: string) => void;
   logout: () => void;
 }
 
@@ -24,19 +33,21 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       token: null,
-      refreshToken: null,
       loading: true,
 
-      login: (userData, accessToken, refreshTok) => {
-        set({ user: userData, token: accessToken, refreshToken: refreshTok });
+      login: (userData, accessToken) => {
+        set({ user: userData, token: accessToken });
+        setTokenCookie(accessToken);
       },
 
-      setTokens: (accessToken, refreshTok) => {
-        set({ token: accessToken, refreshToken: refreshTok });
+      setTokens: (accessToken) => {
+        set({ token: accessToken });
+        setTokenCookie(accessToken);
       },
 
       logout: () => {
-        set({ user: null, token: null, refreshToken: null });
+        set({ user: null, token: null });
+        clearTokenCookie();
       },
     }),
     {
@@ -44,9 +55,11 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         token: state.token,
-        refreshToken: state.refreshToken,
       }),
-      onRehydrateStorage: () => () => {
+      onRehydrateStorage: () => (state) => {
+        if (state?.token) {
+          setTokenCookie(state.token);
+        }
         useAuthStore.setState({ loading: false });
       },
     }
@@ -55,7 +68,6 @@ export const useAuthStore = create<AuthState>()(
 
 export const selectUser = (s: AuthState) => s.user;
 export const selectToken = (s: AuthState) => s.token;
-export const selectRefreshToken = (s: AuthState) => s.refreshToken;
 export const selectLoading = (s: AuthState) => s.loading;
 export const selectIsAuthenticated = (s: AuthState) => !!s.token && !!s.user;
 export const selectIsAdmin = (s: AuthState) =>

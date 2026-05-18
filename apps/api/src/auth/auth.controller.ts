@@ -4,10 +4,12 @@ import {
   Get,
   Body,
   UseGuards,
-  Request,
+  Request as Req,
   HttpCode,
   HttpStatus,
+  Res,
 } from '@nestjs/common';
+import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
@@ -19,13 +21,20 @@ import {
   CreateAdminDto,
   GoogleAuthDto,
   GoogleRegisterDto,
-  RefreshTokenDto,
 } from './auth.dto';
 import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  private readonly COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: (process.env.NODE_ENV === 'production' ? 'strict' : 'lax') as 'strict' | 'lax' | 'none',
+    path: '/api/auth',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  } as const;
 
   @Public()
   @Post('send-otp')
@@ -43,47 +52,67 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  async register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
+    const result = await this.authService.register(dto);
+    res.cookie('refreshToken', result.refreshToken, this.COOKIE_OPTIONS);
+    return { message: result.message, user: result.user, accessToken: result.accessToken };
   }
 
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+    const result = await this.authService.login(dto);
+    res.cookie('refreshToken', result.refreshToken, this.COOKIE_OPTIONS);
+    return { message: result.message, user: result.user, accessToken: result.accessToken };
   }
 
   @Public()
   @Post('google-login')
   @HttpCode(HttpStatus.OK)
-  async googleLogin(@Body() dto: GoogleAuthDto) {
-    return this.authService.googleLogin(dto);
+  async googleLogin(@Body() dto: GoogleAuthDto, @Res({ passthrough: true }) res: Response) {
+    const result = await this.authService.googleLogin(dto);
+    res.cookie('refreshToken', result.refreshToken, this.COOKIE_OPTIONS);
+    return { message: result.message, user: result.user, accessToken: result.accessToken };
   }
 
   @Public()
   @Post('google-register')
   @HttpCode(HttpStatus.OK)
-  async googleRegister(@Body() dto: GoogleRegisterDto) {
-    return this.authService.googleRegister(dto);
+  async googleRegister(@Body() dto: GoogleRegisterDto, @Res({ passthrough: true }) res: Response) {
+    const result = await this.authService.googleRegister(dto);
+    res.cookie('refreshToken', result.refreshToken, this.COOKIE_OPTIONS);
+    return { message: result.message, user: result.user, accessToken: result.accessToken };
   }
 
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Body() dto: RefreshTokenDto) {
-    return this.authService.refreshTokens(dto);
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const oldRefreshToken = req.cookies?.refreshToken;
+    if (!oldRefreshToken) {
+      return { statusCode: 401, message: 'No refresh token' };
+    }
+    const result = await this.authService.refreshTokens(oldRefreshToken);
+    res.cookie('refreshToken', result.refreshToken, this.COOKIE_OPTIONS);
+    return { message: result.message, accessToken: result.accessToken };
   }
 
+  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Body('refreshToken') refreshToken: string) {
-    return this.authService.logout(refreshToken);
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies?.refreshToken;
+    if (refreshToken) {
+      await this.authService.logout(refreshToken);
+    }
+    res.clearCookie('refreshToken', { path: '/api/auth' });
+    return { message: 'Logged out successfully' };
   }
 
   @Get('me')
-  async getCurrentUser(@Request() req) {
-    return this.authService.getCurrentUser(req.user.id);
+  async getCurrentUser(@Req() req: Request) {
+    return this.authService.getCurrentUser((req as any).user.id);
   }
 
   @Public()

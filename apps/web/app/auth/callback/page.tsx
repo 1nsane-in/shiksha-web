@@ -23,7 +23,7 @@ function AuthCallbackContent() {
 
         const data = await googleLogin({ accessToken });
         if (data.accessToken) {
-          useAuthStore.getState().login(data.user, data.accessToken, data.refreshToken);
+          useAuthStore.getState().login(data.user, data.accessToken);
         }
         if (data.user?.role === 'ADMIN' || data.user?.role === 'SUPER_ADMIN') {
           router.push('/admin/dashboard');

@@ -16,7 +16,6 @@ import {
   CreateAdminDto,
   GoogleAuthDto,
   GoogleRegisterDto,
-  RefreshTokenDto,
 } from "./auth.dto";
 
 @Injectable()
@@ -66,9 +65,9 @@ export class AuthService {
       },
     });
 
-    const tokens = await this.generateTokens(newUser);
+    const { accessToken, refreshToken } = await this.generateTokens(newUser);
 
-    return { message: "Registration successful", user: newUser, ...tokens };
+    return { message: "Registration successful", user: newUser, accessToken, refreshToken };
   }
 
   async login(dto: LoginDto) {
@@ -89,12 +88,13 @@ export class AuthService {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    const tokens = await this.generateTokens(user);
+    const { accessToken, refreshToken } = await this.generateTokens(user);
 
     return {
       message: "Login successful",
       user,
-      ...tokens,
+      accessToken,
+      refreshToken,
     };
   }
 
@@ -136,13 +136,14 @@ export class AuthService {
       this.logger.log(`Auto-registered user: ${user.id}`);
     }
 
-    const tokens = await this.generateTokens(user);
+    const { accessToken, refreshToken } = await this.generateTokens(user);
     this.logger.log(`Login successful for user: ${user.id}`);
 
     return {
       message: "Google login successful",
       user,
-      ...tokens,
+      accessToken,
+      refreshToken,
     };
   }
 
@@ -175,13 +176,14 @@ export class AuthService {
       },
     });
 
-    const tokens = await this.generateTokens(newUser);
+    const { accessToken, refreshToken } = await this.generateTokens(newUser);
     this.logger.log(`Registration successful for user: ${newUser.id}`);
 
     return {
       message: "Google registration successful",
       user: newUser,
-      ...tokens,
+      accessToken,
+      refreshToken,
     };
   }
 
@@ -191,8 +193,8 @@ export class AuthService {
     return { message: "Logged out successfully" };
   }
 
-  async refreshTokens(dto: RefreshTokenDto) {
-    const hash = crypto.createHash("sha256").update(dto.refreshToken).digest("hex");
+  async refreshTokens(refreshToken: string) {
+    const hash = crypto.createHash("sha256").update(refreshToken).digest("hex");
 
     const session = await this.prisma.userSession.findUnique({
       where: { tokenHash: hash },
@@ -209,11 +211,12 @@ export class AuthService {
 
     await this.prisma.userSession.delete({ where: { id: session.id } });
 
-    const tokens = await this.generateTokens(session.user);
+    const { accessToken, refreshToken: newRefreshToken } = await this.generateTokens(session.user);
 
     return {
       message: "Tokens refreshed successfully",
-      ...tokens,
+      accessToken,
+      refreshToken: newRefreshToken,
     };
   }
 

@@ -5,6 +5,7 @@ import { storage } from "./storage";
 export const api = axios.create({
   baseURL: API_URL,
   headers: { "Content-Type": "application/json" },
+  withCredentials: true,
 });
 
 let isRefreshing = false;
@@ -24,11 +25,20 @@ function processQueue(error: unknown, token: string | null) {
   failedQueue = [];
 }
 
+function setTokenCookie(token: string) {
+  if (typeof document === "undefined") return;
+  document.cookie = `token=${token}; path=/; max-age=${15 * 60}; SameSite=Lax`;
+}
+
+function clearTokenCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie = "token=; path=/; max-age=0";
+}
+
 type AuthStorage = {
   state: {
     user: unknown;
     token: string | null;
-    refreshToken: string | null;
   };
 };
 
@@ -53,14 +63,6 @@ api.interceptors.response.use(
       !originalRequest._retry &&
       typeof window !== "undefined"
     ) {
-      const auth = storage.get<AuthStorage>(STORAGE_KEYS.AUTH_STORAGE);
-      const refreshToken = auth?.state?.refreshToken;
-      if (!refreshToken) {
-        storage.remove(STORAGE_KEYS.AUTH_STORAGE);
-        window.location.href = "/login";
-        return Promise.reject(error);
-      }
-
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -76,21 +78,22 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { data } = await axios.post(`${API_URL}/auth/refresh`, {
-          refreshToken,
-        });
+        const { data } = await axios.post(
+          `${API_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
 
         const newToken = data.accessToken;
-        const newRefreshToken = data.refreshToken;
 
         const current = storage.get<AuthStorage>(STORAGE_KEYS.AUTH_STORAGE);
         storage.set(STORAGE_KEYS.AUTH_STORAGE, {
           state: {
             ...current?.state,
             token: newToken,
-            refreshToken: newRefreshToken,
           },
         });
+        setTokenCookie(newToken);
 
         processQueue(null, newToken);
 
@@ -99,6 +102,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         storage.remove(STORAGE_KEYS.AUTH_STORAGE);
+        clearTokenCookie();
         window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {

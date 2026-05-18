@@ -48,7 +48,7 @@ export function GoogleLoginButton({
       const loginData = await googleLogin({ accessToken: idToken }).catch(() => null);
       
       if (loginData?.accessToken) {
-        useAuthStore.getState().login(loginData.user, loginData.accessToken, loginData.refreshToken);
+        useAuthStore.getState().login(loginData.user, loginData.accessToken);
         if (onLoginSuccess) onLoginSuccess();
         if (redirectTo) router.push(redirectTo);
         return;
@@ -65,7 +65,7 @@ export function GoogleLoginButton({
       });
 
       if (registerData.accessToken) {
-        useAuthStore.getState().login(registerData.user, registerData.accessToken, registerData.refreshToken);
+        useAuthStore.getState().login(registerData.user, registerData.accessToken);
       }
       if (onLoginSuccess) onLoginSuccess();
       if (redirectTo) router.push(redirectTo);
@@ -135,7 +135,7 @@ export function GoogleLoginButton({
                 const loginData = await googleLogin({ accessToken: tokenResponse.access_token }).catch(() => null);
                 
                 if (loginData?.accessToken) {
-                  useAuthStore.getState().login(loginData.user, loginData.accessToken, loginData.refreshToken);
+                  useAuthStore.getState().login(loginData.user, loginData.accessToken);
                   if (onLoginSuccess) onLoginSuccess();
                   if (redirectTo) router.push(redirectTo);
                   return;
@@ -148,7 +148,7 @@ export function GoogleLoginButton({
                 });
                 
                 if (registerData.accessToken) {
-                  useAuthStore.getState().login(registerData.user, registerData.accessToken, registerData.refreshToken);
+                  useAuthStore.getState().login(registerData.user, registerData.accessToken);
                 }
                 if (onLoginSuccess) onLoginSuccess();
                 if (redirectTo) router.push(redirectTo);

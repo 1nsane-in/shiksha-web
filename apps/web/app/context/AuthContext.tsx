@@ -22,13 +22,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (accessToken: string) => {
     const result = await googleLoginApi({ accessToken });
     if (result.user && result.accessToken) {
-      useAuthStore.getState().login(result.user, result.accessToken, result.refreshToken);
+      useAuthStore.getState().login(result.user, result.accessToken);
     }
   }, []);
   const register = useCallback(async (accessToken: string, userData: any) => {
     const result = await googleRegisterApi({ ...userData, accessToken });
     if (result.user && result.accessToken) {
-      useAuthStore.getState().login(result.user, result.accessToken, result.refreshToken);
+      useAuthStore.getState().login(result.user, result.accessToken);
     }
   }, []);
   const logout = useCallback(() => {

@@ -1,11 +1,10 @@
 "use client";
 
-import { useAuthStore, selectUser, selectToken, selectRefreshToken, selectIsAuthenticated, selectIsAdmin, selectIsSuperAdmin, selectIsStudent } from "@/stores/auth-store";
+import { useAuthStore, selectUser, selectToken, selectIsAuthenticated, selectIsAdmin, selectIsSuperAdmin, selectIsStudent } from "@/stores/auth-store";
 
 export function useAuth() {
   const user = useAuthStore(selectUser);
   const token = useAuthStore(selectToken);
-  const refreshToken = useAuthStore(selectRefreshToken);
   const loading = useAuthStore((s) => s.loading);
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const isAdmin = useAuthStore(selectIsAdmin);
@@ -18,7 +17,6 @@ export function useAuth() {
   return {
     user,
     token,
-    refreshToken,
     loading,
     isAuthenticated,
     isAdmin,

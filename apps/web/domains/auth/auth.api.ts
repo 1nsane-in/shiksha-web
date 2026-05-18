@@ -16,11 +16,11 @@ export async function googleRegister(dto: GoogleRegisterDto) {
   return data;
 }
 
-export async function refreshAccessToken(dto: { refreshToken: string }) {
-  const { data } = await api.post<RefreshTokenResponse>("/auth/refresh", dto);
+export async function refreshAccessToken() {
+  const { data } = await api.post<RefreshTokenResponse>("/auth/refresh");
   return data;
 }
 
-export async function logout(refreshToken: string) {
-  await api.post("/auth/logout", { refreshToken });
+export async function logout() {
+  await api.post("/auth/logout");
 }

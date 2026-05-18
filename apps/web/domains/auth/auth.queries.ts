@@ -10,7 +10,7 @@ export function useLogin() {
       return login(dto);
     },
     onSuccess: (data) => {
-      loginStore(data.user, data.accessToken, data.refreshToken);
+      loginStore(data.user, data.accessToken);
     },
   });
 }
@@ -23,7 +23,7 @@ export function useGoogleLogin() {
       return googleLogin(dto);
     },
     onSuccess: (data) => {
-      loginStore(data.user, data.accessToken, data.refreshToken);
+      loginStore(data.user, data.accessToken);
     },
   });
 }
@@ -36,19 +36,17 @@ export function useGoogleRegister() {
       return googleRegister(dto);
     },
     onSuccess: (data) => {
-      loginStore(data.user, data.accessToken, data.refreshToken);
+      loginStore(data.user, data.accessToken);
     },
   });
 }
 
 export function useLogout() {
   const logoutStore = useAuthStore((s) => s.logout);
-  const refreshToken = useAuthStore((s) => s.refreshToken);
   return useMutation({
     mutationFn: async () => {
-      if (!refreshToken) return;
       const { logout } = await import("./auth.api");
-      await logout(refreshToken);
+      await logout();
     },
     onSuccess: () => {
       logoutStore();

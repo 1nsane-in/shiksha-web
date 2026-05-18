@@ -2,7 +2,6 @@ export {
   useAuthStore,
   selectUser,
   selectToken,
-  selectRefreshToken,
   selectLoading,
   selectIsAuthenticated,
   selectIsAdmin,
