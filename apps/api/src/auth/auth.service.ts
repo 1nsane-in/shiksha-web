@@ -7,12 +7,15 @@ import {
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
+import { Resend } from "resend";
 import { PrismaService } from "../prisma/prisma.service";
+import { EmailValidationService } from "../common/services/email-validation.service";
 import {
   RegisterDto,
   LoginDto,
   SendOtpDto,
   VerifyOtpDto,
+  CompleteRegistrationDto,
   CreateAdminDto,
   GoogleAuthDto,
   GoogleRegisterDto,
@@ -21,23 +24,134 @@ import {
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly resend: Resend;
 
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+    private emailValidation: EmailValidationService,
+  ) {
+    this.resend = new Resend(process.env.RESEND_API_KEY || "");
+  }
 
   async sendOtp(dto: SendOtpDto) {
-    // TODO: Implement OTP sending with email service (ZeptoMail/Twilio)
+    await this.emailValidation.validateEmailAsync(dto.email);
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+    if (existingUser) {
+      throw new BadRequestException("Email already registered");
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await this.prisma.otpVerification.create({
+      data: {
+        email: dto.email,
+        name: dto.name,
+        otp,
+        expiresAt,
+      },
+    });
+
+    try {
+      await this.resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || "noreply@studyhireglobal.com",
+        to: dto.email,
+        subject: "Your OTP for Study Hire Global",
+        html: `<p>Your OTP is: <strong>${otp}</strong></p><p>This OTP expires in 10 minutes.</p>`,
+      });
+    } catch (error) {
+      this.logger.error(`Failed to send OTP email: ${error.message}`);
+      throw new BadRequestException("Failed to send OTP email");
+    }
+
     return { message: "OTP sent to your email" };
   }
 
   async verifyOtp(dto: VerifyOtpDto) {
-    // TODO: Implement OTP verification
-    return { message: "OTP verified successfully" };
+    const record = await this.prisma.otpVerification.findFirst({
+      where: {
+        email: dto.email,
+        otp: dto.otp,
+        verifiedAt: null,
+        completedAt: null,
+        expiresAt: { gte: new Date() },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!record) {
+      throw new BadRequestException("Invalid or expired OTP");
+    }
+
+    const token = crypto.randomUUID();
+
+    await this.prisma.otpVerification.update({
+      where: { id: record.id },
+      data: { verifiedAt: new Date(), token },
+    });
+
+    return { message: "OTP verified successfully", token };
+  }
+
+  async completeRegistration(dto: CompleteRegistrationDto) {
+    const record = await this.prisma.otpVerification.findFirst({
+      where: {
+        token: dto.token,
+        verifiedAt: { not: null },
+        completedAt: null,
+        expiresAt: { gte: new Date() },
+      },
+    });
+
+    if (!record) {
+      throw new BadRequestException("Invalid or expired registration token");
+    }
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: record.email },
+    });
+    if (existingUser) {
+      throw new BadRequestException("Email already registered");
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: record.email,
+        name: record.name!,
+        passwordHash: hashedPassword,
+        emailVerified: true,
+        role: "STUDENT",
+      },
+    });
+
+    await this.prisma.student.create({
+      data: { userId: user.id },
+    });
+
+    await this.prisma.otpVerification.update({
+      where: { id: record.id },
+      data: { completedAt: new Date() },
+    });
+
+    const { accessToken, refreshToken } = await this.generateTokens(user);
+
+    return {
+      message: "Registration successful",
+      user,
+      accessToken,
+      refreshToken,
+    };
   }
 
   async register(dto: RegisterDto) {
+    this.emailValidation.validateEmail(dto.email);
+
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -149,7 +263,8 @@ export class AuthService {
 
   async googleRegister(dto: GoogleRegisterDto) {
     this.logger.log(`Google register attempt for: ${dto.email}`);
-    
+    this.emailValidation.validateEmail(dto.email);
+
     const existingEmailUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -236,6 +351,8 @@ export class AuthService {
   }
 
   async createAdmin(dto: CreateAdminDto) {
+    this.emailValidation.validateEmail(dto.email);
+
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });

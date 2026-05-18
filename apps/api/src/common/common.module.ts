@@ -9,6 +9,7 @@ import { ActivityLogService } from './services/activity-log.service';
 import { AuditLogService } from './services/audit-log.service';
 import { NotificationService } from './services/notification.service';
 import { MetricsService } from './services/metrics.service';
+import { EmailValidationService } from './services/email-validation.service';
 import { SentryFilter } from './filters/sentry.filter';
 import { DashboardController } from './controllers/dashboard.controller';
 import { ActivityTrackingInterceptor } from './interceptors/activity-tracking.interceptor';
@@ -25,6 +26,7 @@ import { PaginatorService } from './services/paginator.service';
     AuditLogService,
     NotificationService,
     MetricsService,
+    EmailValidationService,
     PaginatorService,
     {
       provide: APP_FILTER,
@@ -37,6 +39,7 @@ import { PaginatorService } from './services/paginator.service';
     AuditLogService,
     NotificationService,
     MetricsService,
+    EmailValidationService,
     PaginatorService,
   ],
 })

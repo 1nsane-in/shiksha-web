@@ -47,6 +47,22 @@ model UserSession {
   @@index([expiresAt])
 }
 
+model OtpVerification {
+  id          String    @id @default(uuid())
+  email       String
+  name        String?
+  otp         String
+  token       String?   @unique
+  attempts    Int       @default(0)
+  expiresAt   DateTime
+  verifiedAt  DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([email])
+  @@index([token])
+}
+
 model Student {
   id                      String                  @id @default(uuid())
   userId                  String                  @unique

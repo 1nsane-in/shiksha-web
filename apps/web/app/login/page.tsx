@@ -7,10 +7,19 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, AlertCircle } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  AlertCircle,
+  GraduationCap,
+  Users,
+  Shield,
+} from "lucide-react";
 import { useLogin } from "@/domains/auth";
+import { LoginForm } from "@/components/auth/login-form";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -19,11 +28,62 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
+type RoleTab = "student" | "parents" | "admin";
+
+const roleConfig: Record<
+  RoleTab,
+  {
+    label: string;
+    icon: React.ElementType;
+    redirect: string;
+    title: string;
+    description: string;
+    emailPlaceholder: string;
+    buttonText: string;
+  }
+> = {
+  student: {
+    label: "Student",
+    icon: GraduationCap,
+    redirect: "/student/dashboard",
+    title: "Sign in as Student",
+    description: "Access your application dashboard",
+    emailPlaceholder: "student@example.com",
+    buttonText: "Sign in as Student",
+  },
+  parents: {
+    label: "Parents",
+    icon: Users,
+    redirect: "/parents/dashboard",
+    title: "Sign in as Parent",
+    description: "Monitor your ward's application progress",
+    emailPlaceholder: "parent@example.com",
+    buttonText: "Sign in as Parent",
+  },
+  admin: {
+    label: "Admin",
+    icon: Shield,
+    redirect: "/admin/dashboard",
+    title: "Sign in as Admin",
+    description: "Admin login or continue with Google",
+    emailPlaceholder: "admin@example.com",
+    buttonText: "Sign in as Admin",
+  },
+};
+
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
+  const initialTab = (
+    redirect.includes("admin")
+      ? "admin"
+      : redirect.includes("parents")
+        ? "parents"
+        : "student"
+  ) as RoleTab;
 
+  const [activeTab, setActiveTab] = useState<RoleTab>(initialTab);
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState("");
 
@@ -42,10 +102,13 @@ function LoginContent() {
     setServerError("");
     try {
       const result = await loginMutation.mutateAsync(data);
+      const config = roleConfig[activeTab];
       if (result.user.role === "ADMIN" || result.user.role === "SUPER_ADMIN") {
         router.push("/admin/dashboard");
+      } else if (result.user.role === "STUDENT") {
+        router.push("/student/dashboard");
       } else {
-        router.push(redirect);
+        router.push(config.redirect);
       }
     } catch (err) {
       setServerError(
@@ -55,113 +118,25 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-2xl mx-auto space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Admin login or continue with Google
-          </p>
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <a href="#" className="flex items-center gap-2 font-medium">
+            <img src="/img/logo.png" alt="" className='h-8' />
+          </a>
         </div>
-
-        <div className="mt-8 space-y-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {serverError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
-                <span className="text-sm">{serverError}</span>
-              </div>
-            )}
-
-            <div>
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="admin@example.com"
-                {...register("email")}
-                className="mt-1"
-              />
-              {errors.email && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <div className="relative mt-1">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  {...register("password")}
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Signing in..." : "Sign in as Admin"}
-            </Button>
-          </form>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 text-gray-500">
-                Or continue with
-              </span>
-            </div>
-          </div>
-
-          <div>
-            <GoogleLoginButton redirectTo={redirect} />
-          </div>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 text-gray-500">
-                New student?
-              </span>
-            </div>
-          </div>
-
-          <div>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() => router.push("/register")}
-            >
-              Create Student Account
-            </Button>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
+            <LoginForm />
           </div>
         </div>
+      </div>
+      <div className="relative hidden bg-muted lg:block">
+        <img
+          src="https://images.unsplash.com/photo-1607013407627-6ee814329547?q=80&w=964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Image"
+          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        />
       </div>
     </div>
   );

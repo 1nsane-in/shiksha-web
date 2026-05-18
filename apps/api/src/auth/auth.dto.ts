@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsOptional } from 'class-validator';
+import { IsEmail, IsString, IsOptional, MinLength } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail()
@@ -26,6 +26,9 @@ export class LoginDto {
 export class SendOtpDto {
   @IsEmail()
   email: string;
+
+  @IsString()
+  name: string;
 }
 
 export class VerifyOtpDto {
@@ -34,6 +37,15 @@ export class VerifyOtpDto {
 
   @IsString()
   otp: string;
+}
+
+export class CompleteRegistrationDto {
+  @IsString()
+  token: string;
+
+  @IsString()
+  @MinLength(6)
+  password: string;
 }
 
 export class CreateAdminDto {

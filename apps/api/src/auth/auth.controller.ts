@@ -18,6 +18,7 @@ import {
   LoginDto,
   SendOtpDto,
   VerifyOtpDto,
+  CompleteRegistrationDto,
   CreateAdminDto,
   GoogleAuthDto,
   GoogleRegisterDto,
@@ -48,6 +49,18 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.authService.verifyOtp(dto);
+  }
+
+  @Public()
+  @Post('complete-registration')
+  @HttpCode(HttpStatus.OK)
+  async completeRegistration(
+    @Body() dto: CompleteRegistrationDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.completeRegistration(dto);
+    res.cookie('refreshToken', result.refreshToken, this.COOKIE_OPTIONS);
+    return { message: result.message, user: result.user, accessToken: result.accessToken };
   }
 
   @Public()
