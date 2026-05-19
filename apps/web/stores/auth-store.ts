@@ -15,7 +15,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: "STUDENT" | "ADMIN" | "SUPER_ADMIN";
+  role: "STUDENT" | "PARENT" | "ADMIN" | "SUPER_ADMIN";
   isActive: boolean;
 }
 

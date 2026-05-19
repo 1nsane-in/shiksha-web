@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: "STUDENT" | "ADMIN" | "SUPER_ADMIN";
+  role: "STUDENT" | "PARENT" | "ADMIN" | "SUPER_ADMIN";
   isActive: boolean;
 }
 
@@ -30,4 +30,25 @@ export interface GoogleRegisterDto extends GoogleAuthDto {
 
 export interface RefreshTokenResponse {
   accessToken: string;
+}
+
+export interface SendOtpDto {
+  email: string;
+  name: string;
+}
+
+export interface VerifyOtpDto {
+  email: string;
+  otp: string;
+}
+
+export interface VerifyOtpResponse {
+  message: string;
+  token: string;
+}
+
+export interface CompleteRegistrationDto {
+  token: string;
+  password: string;
+  role: string;
 }

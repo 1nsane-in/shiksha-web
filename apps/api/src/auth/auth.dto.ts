@@ -46,6 +46,9 @@ export class CompleteRegistrationDto {
   @IsString()
   @MinLength(6)
   password: string;
+
+  @IsString()
+  role: string;
 }
 
 export class CreateAdminDto {

@@ -1,8 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "./context/AuthContext";
-import { Providers } from "./providers";
+import { AuthProvider } from "@/lib/context/AuthContext";
+import { Providers } from "@/lib/providers";
 
 export const metadata: Metadata = {
   title: "Shiksha | Medical Admission Platform",

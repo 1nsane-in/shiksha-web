@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/context/AuthContext";
+import { useAuth } from "@/lib/context/AuthContext";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 
 export default function GoogleAuthPage() {

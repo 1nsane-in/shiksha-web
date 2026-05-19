@@ -25,6 +25,7 @@ model User {
   notifications   Notification[]
   orgMemberships  OrganizationMember[]
   student         Student?
+  parent          Parent?
   activityLogs    UserActivityLog[]
   sessions        UserSession[]
 
@@ -577,7 +578,7 @@ model AutomationEvent {
   result      Json?
   error       String?
   createdAt   DateTime  @default(now())
-  student     Student?  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student Student? @relation(fields: [studentId], references: [id])
 
   @@index([eventType])
   @@index([status])
@@ -1072,6 +1073,13 @@ enum Role {
   SUPER_ADMIN
   ADMIN
   STUDENT
+  PARENT
+}
+
+model Parent {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum ApplicationStatus {

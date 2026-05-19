@@ -1,5 +1,5 @@
 import { api } from "@/shared/api/axios";
-import type { AuthResponse, LoginDto, GoogleAuthDto, GoogleRegisterDto, RefreshTokenResponse } from "./auth.types";
+import type { AuthResponse, LoginDto, GoogleAuthDto, GoogleRegisterDto, RefreshTokenResponse, SendOtpDto, VerifyOtpDto, VerifyOtpResponse, CompleteRegistrationDto } from "./auth.types";
 
 export async function login(dto: LoginDto) {
   const { data } = await api.post<AuthResponse>("/auth/login", dto);
@@ -23,4 +23,19 @@ export async function refreshAccessToken() {
 
 export async function logout() {
   await api.post("/auth/logout");
+}
+
+export async function sendOtp(dto: SendOtpDto) {
+  const { data } = await api.post<{ message: string; devOtp?: string }>("/auth/send-otp", dto);
+  return data;
+}
+
+export async function verifyOtp(dto: VerifyOtpDto) {
+  const { data } = await api.post<VerifyOtpResponse>("/auth/verify-otp", dto);
+  return data;
+}
+
+export async function completeRegistration(dto: CompleteRegistrationDto) {
+  const { data } = await api.post<AuthResponse>("/auth/complete-registration", dto);
+  return data;
 }

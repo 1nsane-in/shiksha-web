@@ -21,7 +21,7 @@
     "paths": {
       "@/*": ["./*"],
       "@stores/*": ["./stores/*"],
-      "@providers/*": ["./app/providers/*"]
+      "@providers/*": ["./lib/providers/*"]
     }
   },
   "include": [
