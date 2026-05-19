@@ -1,26 +1,23 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "@/components/ui/field";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Eye,
-  EyeOff,
-  AlertCircle,
-  GraduationCap,
-  Users,
-  Shield,
-} from "lucide-react";
+import { AlertCircle, GraduationCap, Users, Shield } from "lucide-react";
 import { useLogin } from "@/domains/auth";
-import { LoginForm } from "@/components/auth/login-form";
-import { useAuth } from "@/hooks/useAuth";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -36,7 +33,6 @@ const roleConfig: Record<
   {
     label: string;
     icon: React.ElementType;
-    redirect: string;
     title: string;
     description: string;
     emailPlaceholder: string;
@@ -46,7 +42,6 @@ const roleConfig: Record<
   student: {
     label: "Student",
     icon: GraduationCap,
-    redirect: "/student/dashboard",
     title: "Sign in as Student",
     description: "Access your application dashboard",
     emailPlaceholder: "student@example.com",
@@ -55,7 +50,6 @@ const roleConfig: Record<
   parents: {
     label: "Parents",
     icon: Users,
-    redirect: "/parents/dashboard",
     title: "Sign in as Parent",
     description: "Monitor your ward's application progress",
     emailPlaceholder: "parent@example.com",
@@ -64,7 +58,6 @@ const roleConfig: Record<
   admin: {
     label: "Admin",
     icon: Shield,
-    redirect: "/admin/dashboard",
     title: "Sign in as Admin",
     description: "Admin login or continue with Google",
     emailPlaceholder: "admin@example.com",
@@ -76,8 +69,6 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
-  const { isAuthenticated, user } = useAuth();
-
   const initialTab = (
     redirect.includes("admin")
       ? "admin"
@@ -87,7 +78,6 @@ function LoginContent() {
   ) as RoleTab;
 
   const [activeTab, setActiveTab] = useState<RoleTab>(initialTab);
-  const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState("");
 
   const loginMutation = useLogin();
@@ -104,15 +94,7 @@ function LoginContent() {
   const onSubmit = async (data: LoginFormData) => {
     setServerError("");
     try {
-      const result = await loginMutation.mutateAsync(data);
-      const config = roleConfig[activeTab];
-      if (result.user.role === "ADMIN" || result.user.role === "SUPER_ADMIN") {
-        router.push("/admin/dashboard");
-      } else if (result.user.role === "STUDENT") {
-        router.push("/student/dashboard");
-      } else {
-        router.push(config.redirect);
-      }
+      await loginMutation.mutateAsync(data);
     } catch (err) {
       setServerError(
         err instanceof Error ? err.message : "Invalid email or password",
@@ -120,37 +102,111 @@ function LoginContent() {
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      if (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") {
-        router.replace("/admin/dashboard");
-      } else if (user?.role === "STUDENT") {
-        router.replace("/student/dashboard");
-      } else {
-        router.replace(redirect);
-      }
-    }
-  }, [isAuthenticated, user, redirect, router]);
-
-  if (isAuthenticated) {
-    return (
-      <div className="min-h-svh flex items-center justify-center">
-        <p className="text-muted-foreground">Redirecting...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <a href="#" className="flex items-center gap-2 font-medium">
-            <img src="/img/logo.png" alt="" className='h-8' />
+          <a href="/" className="flex items-center gap-2 font-medium">
+            <img src="/img/logo.png" alt="" className="h-8" />
           </a>
         </div>
         <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            <LoginForm />
+          <div className="w-full max-w-xs flex flex-col gap-6">
+            <Tabs
+              value={activeTab}
+              onValueChange={(v) => setActiveTab(v as RoleTab)}
+            >
+              <TabsList className="w-full">
+                {(["student", "parents", "admin"] as const).map((tab) => {
+                  const Icon = roleConfig[tab].icon;
+                  return (
+                    <TabsTrigger key={tab} value={tab} className="flex-1 gap-2">
+                      <Icon className="h-4 w-4" />
+                      {roleConfig[tab].label}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </Tabs>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col gap-4"
+            >
+              <FieldGroup>
+                <div className="flex flex-col items-center gap-1 text-center">
+                  <h1 className="text-2xl font-bold">
+                    {roleConfig[activeTab].title}
+                  </h1>
+                  <p className="text-sm text-balance text-muted-foreground">
+                    {roleConfig[activeTab].description}
+                  </p>
+                </div>
+                {serverError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <span className="text-sm">{serverError}</span>
+                  </div>
+                )}
+                <Field>
+                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder={roleConfig[activeTab].emailPlaceholder}
+                    {...register("email")}
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-red-600">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </Field>
+                <Field>
+                  <div className="flex items-center">
+                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <a
+                      href="/forgot-password"
+                      className="ml-auto text-sm underline-offset-4 hover:underline"
+                    >
+                      Forgot your password?
+                    </a>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    {...register("password")}
+                  />
+                  {errors.password && (
+                    <p className="text-sm text-red-600">
+                      {errors.password.message}
+                    </p>
+                  )}
+                </Field>
+                <Field>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting || loginMutation.isPending}
+                  >
+                    {isSubmitting || loginMutation.isPending
+                      ? "Logging in..."
+                      : roleConfig[activeTab].buttonText}
+                  </Button>
+                </Field>
+                <FieldSeparator>Or continue with</FieldSeparator>
+                <Field>
+                  <GoogleLoginButton />
+                  <FieldDescription className="text-center">
+                    Don&apos;t have an account?{" "}
+                    <a
+                      href="/register"
+                      className="underline underline-offset-4"
+                    >
+                      Sign up
+                    </a>
+                  </FieldDescription>
+                </Field>
+              </FieldGroup>
+            </form>
           </div>
         </div>
       </div>

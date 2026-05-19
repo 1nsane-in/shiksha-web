@@ -43,7 +43,7 @@ export function UniversityCards() {
   const router = useRouter();
 
   const handleApply = (uni: University) => {
-    if (!useAuthStore.getState().token) {
+    if (!useAuthStore.getState().access_token) {
       router.push("/login?redirect=%2F");
       return;
     }

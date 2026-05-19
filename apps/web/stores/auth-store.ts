@@ -3,12 +3,12 @@ import { persist } from "zustand/middleware";
 
 function setTokenCookie(token: string) {
   if (typeof document === "undefined") return;
-  document.cookie = `refreshToken=${token}; path=/; max-age=${15 * 60}; SameSite=Lax`;
+  document.cookie = `token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
 }
 
 function clearTokenCookie() {
   if (typeof document === "undefined") return;
-  document.cookie = "refreshToken=; path=/; max-age=0";
+  document.cookie = "token=; path=/; max-age=0";
 }
 
 export interface User {
