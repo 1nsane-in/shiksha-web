@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useLogin } from "@/domains/auth";
 import { LoginForm } from "@/components/auth/login-form";
+import { useAuth } from "@/hooks/useAuth";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -75,6 +76,8 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
+  const { isAuthenticated, user } = useAuth();
+
   const initialTab = (
     redirect.includes("admin")
       ? "admin"
@@ -116,6 +119,26 @@ function LoginContent() {
       );
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") {
+        router.replace("/admin/dashboard");
+      } else if (user?.role === "STUDENT") {
+        router.replace("/student/dashboard");
+      } else {
+        router.replace(redirect);
+      }
+    }
+  }, [isAuthenticated, user, redirect, router]);
+
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-svh flex items-center justify-center">
+        <p className="text-muted-foreground">Redirecting...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">

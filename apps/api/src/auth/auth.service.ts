@@ -7,11 +7,10 @@ import {
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
-import * as sgMail from "@sendgrid/mail";
+import { Resend } from "resend";
 import { PrismaService } from "../prisma/prisma.service";
 import { EmailValidationService } from "../common/services/email-validation.service";
 import {
-  RegisterDto,
   LoginDto,
   SendOtpDto,
   VerifyOtpDto,
@@ -19,18 +18,22 @@ import {
   CreateAdminDto,
   GoogleAuthDto,
   GoogleRegisterDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
 } from "./auth.dto";
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
+  private resend: Resend;
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
     private emailValidation: EmailValidationService
   ) {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+    this.resend = new Resend(process.env.RESEND_API_KEY);
   }
 
   async sendOtp(dto: SendOtpDto) {
@@ -56,8 +59,8 @@ export class AuthService {
     });
 
     try {
-      await sgMail.send({
-        from: process.env.SENDGRID_FROM_EMAIL || "noreply@studyhireglobal.com",
+      await this.resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
         to: dto.email,
         subject: "Your OTP for Study Hire Global",
         html: `<p>Your OTP is: <strong>${otp}</strong></p><p>This OTP expires in 10 minutes.</p>`,
@@ -153,46 +156,6 @@ export class AuthService {
     return {
       message: "Registration successful",
       user,
-      accessToken,
-      refreshToken,
-    };
-  }
-
-  async register(dto: RegisterDto) {
-    this.emailValidation.validateEmail(dto.email);
-
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
-
-    if (existingUser) {
-      throw new BadRequestException("User already exists");
-    }
-
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-    const newUser = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        name: dto.name,
-        phone: dto.phone,
-        passwordHash: hashedPassword,
-        emailVerified: true,
-        role: "STUDENT",
-      },
-    });
-
-    await this.prisma.student.create({
-      data: {
-        userId: newUser.id,
-      },
-    });
-
-    const { accessToken, refreshToken } = await this.generateTokens(newUser);
-
-    return {
-      message: "Registration successful",
-      user: newUser,
       accessToken,
       refreshToken,
     };
@@ -400,13 +363,70 @@ export class AuthService {
     return { message: "Admin created successfully", user };
   }
 
-  async forgotPassword(email: string) {
-    // TODO: Implement password reset email
-    return { message: "Password reset email sent" };
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+    if (!user) {
+      throw new BadRequestException("No account found with this email");
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await this.prisma.otpVerification.create({
+      data: {
+        email: dto.email,
+        name: user.name,
+        otp,
+        expiresAt,
+      },
+    });
+
+    try {
+      await this.resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+        to: dto.email,
+        subject: "Password Reset OTP - Study Hire Global",
+        html: `<p>Your password reset OTP is: <strong>${otp}</strong></p><p>This OTP expires in 10 minutes.</p>`,
+      });
+    } catch (error) {
+      this.logger.error(`Failed to send password reset OTP email: ${error.message}`);
+      throw new BadRequestException("Failed to send OTP email");
+    }
+
+    if (process.env.NODE_ENV === "development") {
+      return { message: "Password reset OTP sent to your email", devOtp: otp };
+    }
+    return { message: "Password reset OTP sent to your email" };
   }
 
-  async resetPassword(token: string, newPassword: string) {
-    // TODO: Implement password reset with token verification
+  async resetPassword(dto: ResetPasswordDto) {
+    const record = await this.prisma.otpVerification.findFirst({
+      where: {
+        token: dto.token,
+        verifiedAt: { not: null },
+        completedAt: null,
+        expiresAt: { gte: new Date() },
+      },
+    });
+
+    if (!record) {
+      throw new BadRequestException("Invalid or expired reset token");
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    await this.prisma.user.update({
+      where: { email: record.email },
+      data: { passwordHash: hashedPassword },
+    });
+
+    await this.prisma.otpVerification.update({
+      where: { id: record.id },
+      data: { completedAt: new Date() },
+    });
+
     return { message: "Password reset successful" };
   }
 

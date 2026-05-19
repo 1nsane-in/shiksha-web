@@ -50,5 +50,15 @@ export interface VerifyOtpResponse {
 export interface CompleteRegistrationDto {
   token: string;
   password: string;
+  confirmPassword: string;
   role: string;
+}
+
+export interface ForgotPasswordDto {
+  email: string;
+}
+
+export interface ResetPasswordDto {
+  token: string;
+  password: string;
 }

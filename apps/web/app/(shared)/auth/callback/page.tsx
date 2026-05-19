@@ -28,7 +28,7 @@ function AuthCallbackContent() {
         if (data.user?.role === 'ADMIN' || data.user?.role === 'SUPER_ADMIN') {
           router.push('/admin/dashboard');
         } else {
-          router.push('/dashboard');
+          router.push('/');
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Authentication failed');

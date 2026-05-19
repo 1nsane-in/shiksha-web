@@ -23,7 +23,7 @@ export default function GoogleAuthPage() {
 
       // Simulate the actual login process
       await login(mockAccessToken);
-      router.push("/dashboard");
+      router.push("/");
     } catch (err) {
       setError("Authentication failed. Please try again.");
       console.error("Auth error:", err);

@@ -3,6 +3,7 @@ import { ValidationPipe, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as Sentry from "@sentry/nestjs";
 import cookieParser from "cookie-parser";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { initSentry } from "./common/sentry.config";
 import { AppModule } from "./app.module";
 import { AnalyticsService } from "./common/services/analytics.service";
@@ -13,6 +14,16 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const analyticsService = app.get(AnalyticsService);
   const logger = new Logger("Bootstrap");
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle("Shiksha API")
+    .setDescription("Medical Admission Management Platform")
+    .setVersion("1.0")
+    .addBearerAuth()
+    .addCookieAuth("refreshToken")
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup("api/docs", app, document);
 
   // Initialize Sentry
   initSentry(configService);

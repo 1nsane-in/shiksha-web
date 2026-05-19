@@ -51,6 +51,8 @@ export function RegisterForm({
   const [name, setName] = useState("");
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passError, setPassError] = useState("");
   const [token, setToken] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -88,11 +90,21 @@ export function RegisterForm({
   const handleCompleteRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setPassError("");
+    if (password !== confirmPassword) {
+      setPassError("Passwords do not match");
+      return;
+    }
     setLoading(true);
     try {
-      const result = await completeRegistration({ token, password, role: role.toUpperCase() });
+      const roleValue = role === "parents" ? "PARENT" : role.toUpperCase();
+      const result = await completeRegistration({ token, password, confirmPassword, role: roleValue });
       useAuthStore.getState().login(result.user, result.accessToken);
-      router.push(roleConfig[role].redirect);
+      if (result.user.role === "ADMIN" || result.user.role === "SUPER_ADMIN") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/");
+      }
     } catch (err) {
       setError(getApiErrorMessage(err, "Registration failed"));
     } finally {
@@ -143,15 +155,38 @@ export function RegisterForm({
         {step === "email" && (
           <>
             <Field>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
               <Input
-                id="name"
-                type="text"
-                placeholder="John Doe"
+                id="password"
+                type="password"
+                placeholder="At least 6 characters"
                 required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Re-enter password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </Field>
+            {passError && (
+              <div className="text-sm text-red-600 text-center">{passError}</div>
+            )}
+            <Field>
+              <Button
+                type="submit"
+                onClick={handleCompleteRegistration}
+                disabled={loading || password.length < 6 || !confirmPassword}
+              >
+                {loading ? "Creating account..." : "Create Account"}
+              </Button>
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>

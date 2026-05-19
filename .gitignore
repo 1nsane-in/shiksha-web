@@ -29,7 +29,7 @@ Thumbs.db
 .turbo/
 .firecrawl/
 .playwright-mcp/
-docs/
+# docs/
 
 
  

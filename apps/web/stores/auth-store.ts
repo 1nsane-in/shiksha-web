@@ -3,12 +3,12 @@ import { persist } from "zustand/middleware";
 
 function setTokenCookie(token: string) {
   if (typeof document === "undefined") return;
-  document.cookie = `token=${token}; path=/; max-age=${15 * 60}; SameSite=Lax`;
+  document.cookie = `refreshToken=${token}; path=/; max-age=${15 * 60}; SameSite=Lax`;
 }
 
 function clearTokenCookie() {
   if (typeof document === "undefined") return;
-  document.cookie = "token=; path=/; max-age=0";
+  document.cookie = "refreshToken=; path=/; max-age=0";
 }
 
 export interface User {
@@ -21,7 +21,7 @@ export interface User {
 
 interface AuthState {
   user: User | null;
-  token: string | null;
+  access_token: string | null;
   loading: boolean;
   login: (userData: User, accessToken: string) => void;
   setTokens: (accessToken: string) => void;
@@ -32,21 +32,21 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      token: null,
+      access_token: null,
       loading: true,
 
       login: (userData, accessToken) => {
-        set({ user: userData, token: accessToken });
+        set({ user: userData, access_token: accessToken });
         setTokenCookie(accessToken);
       },
 
       setTokens: (accessToken) => {
-        set({ token: accessToken });
+        set({ access_token: accessToken });
         setTokenCookie(accessToken);
       },
 
       logout: () => {
-        set({ user: null, token: null });
+        set({ user: null, access_token: null });
         clearTokenCookie();
       },
     }),
@@ -54,11 +54,11 @@ export const useAuthStore = create<AuthState>()(
       name: "auth-storage",
       partialize: (state) => ({
         user: state.user,
-        token: state.token,
+        access_token: state.access_token,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state?.token) {
-          setTokenCookie(state.token);
+        if (state?.access_token) {
+          setTokenCookie(state.access_token);
         }
         useAuthStore.setState({ loading: false });
       },
@@ -67,9 +67,9 @@ export const useAuthStore = create<AuthState>()(
 );
 
 export const selectUser = (s: AuthState) => s.user;
-export const selectToken = (s: AuthState) => s.token;
+export const selectToken = (s: AuthState) => s.access_token;
 export const selectLoading = (s: AuthState) => s.loading;
-export const selectIsAuthenticated = (s: AuthState) => !!s.token && !!s.user;
+export const selectIsAuthenticated = (s: AuthState) => !!s.access_token && !!s.user;
 export const selectIsAdmin = (s: AuthState) =>
   s.user?.role === "ADMIN" || s.user?.role === "SUPER_ADMIN";
 export const selectIsSuperAdmin = (s: AuthState) => s.user?.role === "SUPER_ADMIN";

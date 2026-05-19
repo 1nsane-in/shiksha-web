@@ -3,8 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useLogout } from "@/domains/auth";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -17,6 +29,9 @@ const navLinks = [
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+  const logoutMutation = useLogout();
+  const initials = user?.name?.charAt(0)?.toUpperCase() || "U";
 
   return (
     <header className="sticky top-0 z-50">
@@ -36,20 +51,50 @@ export function Header() {
             </ul>
           </nav>
 
-          <div className="hidden md:block">
-            <Button variant="secondary" size="sm" nativeButton={false} render={<Link href="/login" />}>
-              Login
+          <div className="flex items-center gap-2">
+            {isAuthenticated && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={<button type="button" className="flex items-center gap-2 cursor-pointer" />}
+                >
+                  <Avatar className="size-8">
+                    <AvatarFallback>{initials}</AvatarFallback>
+                  </Avatar>
+                  <ChevronDown className="hidden md:block size-4 text-white/70" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" sideOffset={8}>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{user.name}</span>
+                        <span className="text-xs text-muted-foreground">{user.email}</span>
+                      </div>
+                    </DropdownMenuLabel>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => logoutMutation.mutate()}>
+                    <LogOut className="size-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="hidden md:block">
+                <Button variant="secondary" size="sm" nativeButton={false} render={<Link href="/login" />}>
+                  Login
+                </Button>
+              </div>
+            )}
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </Button>
           </div>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-          </Button>
         </div>
       </div>
 
@@ -69,16 +114,18 @@ export function Header() {
                     </Link>
                   </li>
                 ))}
-                <li className="pt-2">
-                  <Button
-                    variant="secondary"
-                    className="w-full bg-white/10 text-white"
-                    nativeButton={false}
-                    render={<Link href="/login" />}
-                  >
-                    Login
-                  </Button>
-                </li>
+                {!isAuthenticated && (
+                  <li className="pt-2">
+                    <Button
+                      variant="secondary"
+                      className="w-full bg-white/10 text-white"
+                      nativeButton={false}
+                      render={<Link href="/login" />}
+                    >
+                      Login
+                    </Button>
+                  </li>
+                )}
               </ul>
             </nav>
           </div>

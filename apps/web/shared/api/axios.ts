@@ -27,25 +27,25 @@ function processQueue(error: unknown, token: string | null) {
 
 function setTokenCookie(token: string) {
   if (typeof document === "undefined") return;
-  document.cookie = `token=${token}; path=/; max-age=${15 * 60}; SameSite=Lax`;
+  document.cookie = `refreshToken=${token}; path=/; max-age=${15 * 60}; SameSite=Lax`;
 }
 
 function clearTokenCookie() {
   if (typeof document === "undefined") return;
-  document.cookie = "token=; path=/; max-age=0";
+  document.cookie = "refreshToken=; path=/; max-age=0";
 }
 
 type AuthStorage = {
   state: {
     user: unknown;
-    token: string | null;
+    access_token: string | null;
   };
 };
 
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const auth = storage.get<AuthStorage>(STORAGE_KEYS.AUTH_STORAGE);
-    const token = auth?.state?.token;
+    const token = auth?.state?.access_token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -90,7 +90,7 @@ api.interceptors.response.use(
         storage.set(STORAGE_KEYS.AUTH_STORAGE, {
           state: {
             ...current?.state,
-            token: newToken,
+            access_token: newToken,
           },
         });
         setTokenCookie(newToken);
