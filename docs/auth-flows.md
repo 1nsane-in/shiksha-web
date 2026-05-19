@@ -22,11 +22,8 @@ Send OTP  ───▶  Verify OTP ───▶ Set Password ───▶ Logged
 
 ```json
 {
-  "email": "admin@example.com",
-  "name": "Admin User",
-  "password": "adminPass123",
-  "confirmPassword": "adminPass123",
-  "phone": "+1234567890"
+  "email": "john@example.com",
+  "name": "John Doe"
 }
 ```
 
@@ -199,7 +196,7 @@ Auto-registers user with `STUDENT` role if they don't exist.
 
 ---
 
-## 4. Token Refresh
+## 3. Token Refresh
 
 Call when API returns 401.
 
@@ -231,7 +228,7 @@ Call when API returns 401.
 
 ---
 
-## 5. Logout
+## 4. Logout
 
 `POST /auth/logout?mobile=true`
 
@@ -252,7 +249,7 @@ Call when API returns 401.
 
 ---
 
-## 6. Forgot Password
+## 5. Forgot Password
 
 ```
 Step 1          Step 2          Step 3           Done
