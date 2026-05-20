@@ -24,52 +24,99 @@ import {
   UniversityQueryDto,
   UniversityStatus,
 } from './universities.dto';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 
 // Admin Controller - Full CRUD access
+@ApiTags('Admin Universities')
+@ApiBearerAuth()
 @Controller('admin/universities')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN', 'SUPER_ADMIN')
 export class AdminUniversitiesController {
   constructor(private universitiesService: UniversitiesService) {}
 
-  // Get all universities with filters
   @Get()
+  @ApiOperation({ summary: 'Get all universities (Admin)' })
+  @ApiQuery({ name: 'page', required: false, type: String, description: 'Page number' })
+  @ApiQuery({ name: 'limit', required: false, type: String, description: 'Items per page' })
+  @ApiQuery({ name: 'country', required: false, type: String, description: 'Filter by country' })
+  @ApiQuery({ name: 'status', required: false, enum: UniversityStatus, description: 'Filter by status' })
+  @ApiQuery({ name: 'type', required: false, type: String, description: 'Filter by university type' })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by name or short name' })
+  @ApiResponse({ status: 200, description: 'List of universities with pagination' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - requires ADMIN or SUPER_ADMIN role' })
   async findAll(@Query() query: UniversityQueryDto) {
-    return this.universitiesService.findAll(query);
+    return this.universitiesService.findAllAdmin(query);
   }
 
-  // Get statistics
   @Get('statistics')
+  @ApiOperation({ summary: 'Get university statistics (Admin)' })
+  @ApiResponse({ status: 200, description: 'University statistics' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getStatistics() {
     return this.universitiesService.getStatistics();
   }
 
-  // Get countries
   @Get('countries')
+  @ApiOperation({ summary: 'Get all countries with universities (Admin)' })
+  @ApiResponse({ status: 200, description: 'List of countries' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getCountries() {
     return this.universitiesService.getCountries();
   }
 
-  // Get single university
   @Get(':id')
+  @ApiOperation({ summary: 'Get university details by ID (Admin)' })
+  @ApiParam({ name: 'id', description: 'University ID or slug' })
+  @ApiResponse({ status: 200, description: 'University details with all relations' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'University not found' })
   async findOne(@Param('id') id: string) {
-    return this.universitiesService.findOne(id);
+    return this.universitiesService.findOneAdmin(id);
   }
 
   // Create new university
   @Post()
+  @ApiOperation({ summary: 'Create a new university (Admin)' })
+  @ApiResponse({ status: 201, description: 'University created successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 409, description: 'University already exists' })
   async create(@Body() dto: CreateUniversityDto) {
     return this.universitiesService.create(dto);
   }
 
   // Update university
   @Put(':id')
+  @ApiOperation({ summary: 'Update university (Admin)' })
+  @ApiParam({ name: 'id', description: 'University ID' })
+  @ApiResponse({ status: 200, description: 'University updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'University not found' })
   async update(@Param('id') id: string, @Body() dto: UpdateUniversityDto) {
     return this.universitiesService.update(id, dto);
   }
 
   // Update university status
   @Patch(':id/status')
+  @ApiOperation({ summary: 'Update university status (Admin)' })
+  @ApiParam({ name: 'id', description: 'University ID' })
+  @ApiResponse({ status: 200, description: 'Status updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'University not found' })
   async updateStatus(
     @Param('id') id: string,
     @Body('status') status: UniversityStatus,
@@ -79,12 +126,24 @@ export class AdminUniversitiesController {
 
   // Delete university (soft delete)
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete university (Admin)' })
+  @ApiParam({ name: 'id', description: 'University ID' })
+  @ApiResponse({ status: 200, description: 'University deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'University not found' })
   async delete(@Param('id') id: string) {
     return this.universitiesService.delete(id);
   }
 
   // Document management
   @Post(':id/documents')
+  @ApiOperation({ summary: 'Upload university document (Admin)' })
+  @ApiParam({ name: 'id', description: 'University ID' })
+  @ApiResponse({ status: 201, description: 'Document uploaded successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'University not found' })
   async uploadDocument(
     @Param('id') id: string,
     @Body() dto: UploadUniversityDocumentDto,
@@ -93,22 +152,44 @@ export class AdminUniversitiesController {
   }
 
   @Get(':id/documents')
+  @ApiOperation({ summary: 'Get university documents (Admin)' })
+  @ApiParam({ name: 'id', description: 'University ID' })
+  @ApiResponse({ status: 200, description: 'List of documents' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async getDocuments(@Param('id') id: string) {
     return this.universitiesService.getDocuments(id);
   }
 
   @Delete('documents/:documentId')
+  @ApiOperation({ summary: 'Delete university document (Admin)' })
+  @ApiParam({ name: 'documentId', description: 'Document ID' })
+  @ApiResponse({ status: 200, description: 'Document deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async deleteDocument(@Param('documentId') documentId: string) {
     return this.universitiesService.deleteDocument(documentId);
   }
 
   // Course management
   @Post(':id/courses')
+  @ApiOperation({ summary: 'Add course to university (Admin)' })
+  @ApiParam({ name: 'id', description: 'University ID' })
+  @ApiResponse({ status: 201, description: 'Course added successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'University not found' })
   async addCourse(@Param('id') id: string, @Body() dto: CreateCourseDto) {
     return this.universitiesService.addCourse(id, dto);
   }
 
   @Put('courses/:courseId')
+  @ApiOperation({ summary: 'Update university course (Admin)' })
+  @ApiParam({ name: 'courseId', description: 'Course ID' })
+  @ApiResponse({ status: 200, description: 'Course updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Course not found' })
   async updateCourse(
     @Param('courseId') courseId: string,
     @Body() dto: UpdateCourseDto,
@@ -117,43 +198,55 @@ export class AdminUniversitiesController {
   }
 
   @Delete('courses/:courseId')
+  @ApiOperation({ summary: 'Delete university course (Admin)' })
+  @ApiParam({ name: 'courseId', description: 'Course ID' })
+  @ApiResponse({ status: 200, description: 'Course deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   async deleteCourse(@Param('courseId') courseId: string) {
     return this.universitiesService.deleteCourse(courseId);
   }
 }
 
 // Public Controller - Read-only access for students
+@ApiTags('Universities')
 @Controller('universities')
 export class UniversitiesController {
   constructor(private universitiesService: UniversitiesService) {}
 
-  // Get all active universities
   @Public()
   @Get()
+  @ApiOperation({ summary: 'Get all active universities (Public)' })
+  @ApiQuery({ name: 'page', required: false, type: String, description: 'Page number' })
+  @ApiQuery({ name: 'limit', required: false, type: String, description: 'Items per page' })
+  @ApiQuery({ name: 'country', required: false, type: String, description: 'Filter by country' })
+  @ApiQuery({ name: 'type', required: false, type: String, description: 'Filter by university type' })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by name or short name' })
+  @ApiResponse({ status: 200, description: 'List of active universities with pagination' })
   async findAll(@Query() query: UniversityQueryDto) {
-    // Force status to ACTIVE for public access
     const publicQuery = { ...query, status: UniversityStatus.ACTIVE };
     return this.universitiesService.findAll(publicQuery);
   }
 
-  // Get countries
   @Public()
   @Get('countries')
+  @ApiOperation({ summary: 'Get countries with active universities (Public)' })
+  @ApiResponse({ status: 200, description: 'List of countries' })
   async getCountries() {
     return this.universitiesService.getCountries();
   }
 
-  // Get single university by ID or slug
   @Public()
   @Get(':identifier')
+  @ApiOperation({ summary: 'Get university details by ID or slug (Public)' })
+  @ApiParam({ name: 'identifier', description: 'University ID or slug' })
+  @ApiResponse({ status: 200, description: 'University details' })
+  @ApiResponse({ status: 404, description: 'University not found or not active' })
   async findOne(@Param('identifier') identifier: string) {
     const university = await this.universitiesService.findOne(identifier);
-
-    // Only return active universities to public
     if (university.status !== UniversityStatus.ACTIVE) {
       throw new Error('University not available');
     }
-
     return university;
   }
 }

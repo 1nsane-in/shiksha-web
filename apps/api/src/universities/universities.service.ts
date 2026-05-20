@@ -85,6 +85,67 @@ export class UniversitiesService {
         skip: this.paginator.getSkip({ page, limit }),
         take: limit,
         orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          shortName: true,
+          slug: true,
+          establishedYear: true,
+          type: true,
+          status: true,
+          logo: true,
+          bannerImage: true,
+          location: {
+            select: {
+              country: true,
+              city: true,
+              state: true,
+              address: true,
+            },
+          },
+          contact: {
+            select: {
+              email: true,
+              phone: true,
+            },
+          },
+          academic: {
+            select: {
+              medium: true,
+            },
+          },
+          content: {
+            select: {
+              gallery: true,
+            },
+          },
+        },
+      }),
+      this.prisma.university.count({ where }),
+    ]);
+
+    return this.paginator.wrapResult(universities, total, { page, limit });
+  }
+
+  async findAllAdmin(query: UniversityQueryDto) {
+    const { page, limit } = this.paginator.parseOptions(
+      query.page,
+      query.limit,
+    );
+
+    const where = createQueryBuilder()
+      .where('status', query.status)
+      .whereNested('location', 'country', query.country)
+      .where('type', query.type)
+      .search(query.search, ['name', 'shortName'])
+      .build();
+
+    const [universities, total] = await Promise.all([
+      this.prisma.university.findMany({
+        where,
+        skip: this.paginator.getSkip({ page, limit }),
+        take: limit,
+        orderBy: { createdAt: 'desc' },
         include: {
           location: true,
           contact: true,
@@ -103,6 +164,113 @@ export class UniversitiesService {
   }
 
   async findOne(identifier: string) {
+    const university = await this.prisma.university.findFirst({
+      where: {
+        OR: [{ id: identifier }, { slug: identifier }],
+      },
+      select: {
+        id: true,
+        name: true,
+        shortName: true,
+        slug: true,
+        establishedYear: true,
+        type: true,
+        status: true,
+        logo: true,
+        bannerImage: true,
+        location: {
+          select: {
+            country: true,
+            state: true,
+            city: true,
+            address: true,
+            latitude: true,
+            longitude: true,
+          },
+        },
+        contact: {
+          select: {
+            email: true,
+            phone: true,
+            admissionOfficeHours: true,
+          },
+        },
+        academic: {
+          select: {
+            programs: true,
+            duration: true,
+            medium: true,
+            specializations: true,
+            intakeMonths: true,
+            totalSeats: true,
+            governmentSeats: true,
+            managementSeats: true,
+            nriSeats: true,
+          },
+        },
+        content: {
+          select: {
+            gallery: true,
+          },
+        },
+        infrastructure: {
+          select: {
+            hospitalBeds: true,
+            departments: true,
+            hostelBoys: true,
+            hostelGirls: true,
+            laboratories: true,
+            campusArea: true,
+            facilities: true,
+            cafeteria: true,
+            wifiCampus: true,
+            transportation: true,
+          },
+        },
+        admission: {
+          select: {
+            entranceExams: true,
+            minimumMarks: true,
+            ageCriteria: true,
+            eligibility: true,
+            requiredDocuments: true,
+            applicationDeadline: true,
+            applicationFee: true,
+            selectionProcess: true,
+          },
+        },
+        support: {
+          select: {
+            placementRate: true,
+            averagePackage: true,
+            visaAssistance: true,
+            languageSupport: true,
+            counselingServices: true,
+            careerGuidance: true,
+          },
+        },
+        courses: {
+          where: { isActive: true },
+          select: {
+            id: true,
+            name: true,
+            duration: true,
+            fees: true,
+            seats: true,
+            isActive: true,
+          },
+        },
+      },
+    });
+
+    if (!university) {
+      throw new NotFoundException('University not found');
+    }
+
+    return university;
+  }
+
+  async findOneAdmin(identifier: string) {
     const university = await this.prisma.university.findFirst({
       where: {
         OR: [{ id: identifier }, { slug: identifier }],

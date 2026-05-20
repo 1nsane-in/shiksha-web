@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   UpdateStudentProfileDto,
@@ -6,6 +11,7 @@ import {
   AdminUpdateStudentDto,
   AssignUniversityDto,
 } from './students.dto';
+import { SubmitApplicationFormDto } from './dto/application-form.dto';
 import { PaginatorService } from '../common/services/paginator.service';
 import { createQueryBuilder } from '../common/helpers/prisma-query-builder';
 
@@ -35,16 +41,13 @@ export class StudentsService {
         payments: true,
         applications: {
           include: {
-            course: {
-              include: { university: true },
-            },
+            university: true,
           },
         },
       },
     });
 
     if (!student) {
-      const { NotFoundException } = await import('@nestjs/common');
       throw new NotFoundException('Student not found');
     }
 
@@ -55,8 +58,6 @@ export class StudentsService {
     userId: string,
     dto: UpdateStudentProfileDto | UpdateAcademicDto,
   ) {
-    const { NotFoundException } = await import('@nestjs/common');
-
     const student = await this.prisma.student.findUnique({
       where: { userId },
     });
@@ -72,8 +73,6 @@ export class StudentsService {
   }
 
   async getStageInfo(userId: string) {
-    const { NotFoundException } = await import('@nestjs/common');
-
     const student = await this.prisma.student.findUnique({
       where: { userId },
       select: {
@@ -126,9 +125,7 @@ export class StudentsService {
           },
           applications: {
             include: {
-              course: {
-                include: { university: true },
-              },
+              university: true,
             },
           },
         },
@@ -140,8 +137,6 @@ export class StudentsService {
   }
 
   async findOne(id: string) {
-    const { NotFoundException } = await import('@nestjs/common');
-
     const student = await this.prisma.student.findUnique({
       where: { id },
       include: {
@@ -152,9 +147,7 @@ export class StudentsService {
         payments: true,
         applications: {
           include: {
-            course: {
-              include: { university: true },
-            },
+            university: true,
           },
         },
       },
@@ -168,8 +161,6 @@ export class StudentsService {
   }
 
   async adminUpdate(id: string, dto: AdminUpdateStudentDto) {
-    const { NotFoundException } = await import('@nestjs/common');
-
     const student = await this.prisma.student.findUnique({
       where: { id },
     });
@@ -192,8 +183,6 @@ export class StudentsService {
   }
 
   async updateStage(id: string, stage: number, status?: string) {
-    const { NotFoundException } = await import('@nestjs/common');
-
     const student = await this.prisma.student.findUnique({
       where: { id },
     });
@@ -215,9 +204,209 @@ export class StudentsService {
     });
   }
 
-  async assignUniversity(id: string, dto: AssignUniversityDto) {
-    const { NotFoundException } = await import('@nestjs/common');
+  async submitApplication(userId: string, dto: SubmitApplicationFormDto) {
+    const student = await this.prisma.student.findUnique({
+      where: { userId },
+    });
 
+    if (!student) {
+      throw new NotFoundException('Student profile not found. Please complete your profile first.');
+    }
+
+    const dob = new Date(dto.dateOfBirth);
+    const age = new Date().getFullYear() - dob.getFullYear();
+    if (age < 16) {
+      throw new BadRequestException('Applicant must be at least 16 years old');
+    }
+
+    const signatureDate = new Date(dto.signatureDate);
+    if (signatureDate > new Date()) {
+      throw new BadRequestException('Signature date cannot be in the future');
+    }
+
+    const university = await this.prisma.university.findUnique({
+      where: { id: dto.universityId },
+    });
+
+    if (!university) {
+      throw new NotFoundException('University not found');
+    }
+
+    if (university.status !== 'ACTIVE') {
+      throw new ConflictException('This university is not currently accepting applications');
+    }
+
+    const existingApplication = await this.prisma.universityApplication.findFirst({
+      where: {
+        studentId: student.id,
+        universityId: dto.universityId,
+        status: { not: 'rejected' },
+      },
+    });
+
+    if (existingApplication) {
+      throw new ConflictException('You have already applied to this university');
+    }
+
+    const formData = {
+      middleName: dto.middleName,
+      dateOfBirth: dto.dateOfBirth,
+      placeOfBirth: { ...dto.placeOfBirth },
+      citizenship: dto.citizenship,
+      maritalStatus: dto.maritalStatus,
+      gender: dto.gender,
+      permanentAddress: dto.permanentAddress,
+      permanentCity: dto.permanentCity,
+      permanentState: dto.permanentState,
+      permanentZip: dto.permanentZip,
+      permanentCountry: dto.permanentCountry,
+      embassyLocation: dto.embassyLocation,
+      language1: { ...dto.language1 },
+      language2: dto.language2 ? { ...dto.language2 } : undefined,
+      otherLanguages: dto.otherLanguages,
+      postGraduateDetail: dto.postGraduateDetail,
+    } as any;
+
+    const application = await this.prisma.universityApplication.create({
+      data: {
+        studentId: student.id,
+        universityId: dto.universityId,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        email: dto.email,
+        selectedProgram: dto.selectedProgram,
+        submittedAt: new Date(),
+        status: 'pending',
+        formData,
+      },
+    });
+
+    return {
+      message: 'Application submitted successfully',
+      applicationId: application.id,
+    };
+  }
+
+  async getMyApplications(userId: string, page = 1, limit = 10) {
+    const student = await this.prisma.student.findUnique({
+      where: { userId },
+    });
+
+    if (!student) {
+      throw new NotFoundException('Student profile not found');
+    }
+
+    const [applications, total] = await Promise.all([
+      this.prisma.universityApplication.findMany({
+        where: { studentId: student.id },
+        skip: this.paginator.getSkip({ page, limit }),
+        take: limit,
+        orderBy: { submittedAt: 'desc' },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          selectedProgram: true,
+          status: true,
+          submittedAt: true,
+          university: {
+            select: {
+              id: true,
+              name: true,
+              shortName: true,
+              slug: true,
+            },
+          },
+        },
+      }),
+      this.prisma.universityApplication.count({ where: { studentId: student.id } }),
+    ]);
+
+    return this.paginator.wrapResult(applications, total, { page, limit });
+  }
+
+  async getMyApplicationById(userId: string, applicationId: string) {
+    const student = await this.prisma.student.findUnique({
+      where: { userId },
+    });
+
+    if (!student) {
+      throw new NotFoundException('Student profile not found');
+    }
+
+    const application = await this.prisma.universityApplication.findFirst({
+      where: {
+        id: applicationId,
+        studentId: student.id,
+      },
+      include: {
+        university: {
+          select: {
+            id: true,
+            name: true,
+            shortName: true,
+            slug: true,
+            type: true,
+            status: true,
+            location: {
+              select: {
+                country: true,
+                city: true,
+              },
+            },
+            contact: {
+              select: {
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!application) {
+      throw new NotFoundException('Application not found');
+    }
+
+    return application;
+  }
+
+  async checkApplication(userId: string, universityId: string) {
+    const student = await this.prisma.student.findUnique({
+      where: { userId },
+    });
+
+    if (!student) {
+      return { applied: false };
+    }
+
+    const application = await this.prisma.universityApplication.findFirst({
+      where: {
+        studentId: student.id,
+        universityId,
+        status: { not: 'rejected' },
+      },
+      select: {
+        id: true,
+        selectedProgram: true,
+        status: true,
+        submittedAt: true,
+      },
+    });
+
+    if (!application) {
+      return { applied: false };
+    }
+
+    return {
+      applied: true,
+      application,
+    };
+  }
+
+  async assignUniversity(id: string, dto: AssignUniversityDto) {
     const student = await this.prisma.student.findUnique({
       where: { id },
     });
@@ -238,6 +427,7 @@ export class StudentsService {
     const application = await this.prisma.universityApplication.create({
       data: {
         studentId: id,
+        universityId: course.universityId,
         courseId: dto.courseId,
         status: 'pending',
       },

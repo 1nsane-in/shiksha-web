@@ -332,22 +332,26 @@ model UniversityCourse {
 }
 
 model UniversityApplication {
-  id                   String           @id @default(uuid())
-  studentId            String
-  courseId             String
-  status               String           @default("pending")
-  appliedAt            DateTime         @default(now())
-  matchScore           Float?
-  recommendedBy        String?
-  recommendationReason String?
-  assignedAgentId      String?
-  course               UniversityCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  student              Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  university           University?      @relation(fields: [universityId], references: [id])
-  universityId         String?
+  id               String           @id @default(uuid())
+  studentId        String
+  universityId     String
+  status           String           @default("pending")
+  firstName        String?
+  lastName         String?
+  email            String?
+  selectedProgram  String?
+  submittedAt      DateTime?
+  formData         Json?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  course           UniversityCourse? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  courseId         String?
+  student          Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  university       University       @relation(fields: [universityId], references: [id])
 
   @@index([studentId])
   @@index([status])
+  @@index([universityId])
 }
 
 model DocumentType {
