@@ -8,6 +8,7 @@ import {
   ValidateNested,
   IsObject,
   MaxLength,
+  IsArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -124,9 +125,9 @@ export class SubmitApplicationFormDto {
   language2?: LanguageAbilityDto;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(500)
-  otherLanguages?: string;
+  @IsArray()
+  @IsString({ each: true })
+  otherLanguages?: string[];
 
   @IsEnum(['pre-medical', 'general-medicine', 'dentistry', 'post-graduate'])
   selectedProgram: 'pre-medical' | 'general-medicine' | 'dentistry' | 'post-graduate';

@@ -291,7 +291,7 @@ Submit an admission application to a university. Called when student fills and s
     "reading": "moderate",
     "writing": "low"
   },
-  "otherLanguages": "Marathi (basic)",
+  "otherLanguages": ["Marathi (basic)"],
   "selectedProgram": "general-medicine",
   "postGraduateDetail": null,
   "signature": "John Michael Doe",
@@ -409,7 +409,7 @@ Get details of a specific application by ID.
     "embassyLocation": "Mumbai",
     "language1": { "name": "English", "speaking": "high", "reading": "high", "writing": "high" },
     "language2": { "name": "Hindi", "speaking": "moderate", "reading": "moderate", "writing": "low" },
-    "otherLanguages": "Marathi (basic)",
+    "otherLanguages": ["Marathi (basic)"],
     "postGraduateDetail": null
   },
   "university": {
