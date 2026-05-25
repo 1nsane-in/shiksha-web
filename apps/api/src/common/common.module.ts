@@ -12,13 +12,15 @@ import { MetricsService } from './services/metrics.service';
 import { EmailValidationService } from './services/email-validation.service';
 import { SentryFilter } from './filters/sentry.filter';
 import { DashboardController } from './controllers/dashboard.controller';
+import { UploadController } from './controllers/upload.controller';
 import { ActivityTrackingInterceptor } from './interceptors/activity-tracking.interceptor';
 import { PaginatorService } from './services/paginator.service';
+import { TimelineService } from './services/timeline.service';
 
 @Global()
 @Module({
   imports: [TerminusModule, PrismaModule],
-  controllers: [HealthController, DashboardController],
+  controllers: [HealthController, DashboardController, UploadController],
   providers: [
     DatabaseHealthIndicator,
     AnalyticsService,
@@ -28,6 +30,8 @@ import { PaginatorService } from './services/paginator.service';
     MetricsService,
     EmailValidationService,
     PaginatorService,
+    TimelineService,
+    TimelineService,
     {
       provide: APP_FILTER,
       useClass: SentryFilter,
@@ -41,6 +45,8 @@ import { PaginatorService } from './services/paginator.service';
     MetricsService,
     EmailValidationService,
     PaginatorService,
+    TimelineService,
+    TimelineService,
   ],
 })
 export class CommonModule {}

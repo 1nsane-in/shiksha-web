@@ -13,6 +13,13 @@ import { CommonModule } from './common/common.module';
 import { SharedJwtModule } from './common/shared-jwt.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AdminModule } from './admin/admin.module';
+import { LettersModule } from './letters/letters.module';
+import { PaymentsModule } from './payments/payments.module';
+import { ExamsModule } from './exams/exams.module';
+import { TicketsModule } from './tickets/tickets.module';
+import { DeviceTokenModule } from './notifications/device-token.module';
+import { TimelineModule } from './modules/timeline/timeline.module';
+import { VisaSupportModule } from './visa-support/visa-support.module';
 
 @Module({
   imports: [
@@ -29,6 +36,13 @@ import { AdminModule } from './admin/admin.module';
     DocumentsModule,
     CommonModule,
     AdminModule,
+    LettersModule,
+    PaymentsModule,
+    ExamsModule,
+    TicketsModule,
+    DeviceTokenModule,
+    TimelineModule,
+    VisaSupportModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,0 +1,277 @@
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException, InternalServerErrorException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../prisma/prisma.service';
+import { TimelineService } from '../common/services/timeline.service';
+import { NotificationService } from '../common/services/notification.service';
+import {
+  STAGE_PAYMENT_CONFIG,
+  InitiatePayUPaymentDto,
+  VerifyPayUPaymentDto,
+  ManualPaymentApprovalDto,
+  generatePayUHash,
+  verifyPayUResponse,
+} from './dto/payment.dto';
+import { randomUUID } from 'crypto';
+
+@Injectable()
+export class PaymentsService {
+  private payuKey: string;
+  private payuSalt: string;
+  private payuBaseUrl: string;
+
+  constructor(
+    private prisma: PrismaService,
+    private config: ConfigService,
+    private timeline: TimelineService,
+    private notification: NotificationService,
+  ) {
+    this.payuKey = this.config.get<string>('PAYU_KEY') || '';
+    this.payuSalt = this.config.get<string>('PAYU_SALT') || '';
+    this.payuBaseUrl = this.config.get<string>('PAYU_BASE_URL') || 'https://secure.payu.in';
+  }
+
+  async initiatePayment(userId: string, dto: InitiatePayUPaymentDto) {
+    const config = STAGE_PAYMENT_CONFIG[dto.stage];
+    if (!config) {
+      throw new BadRequestException('Invalid payment stage. Valid stages: 2 (admission fee), 3 (exam fee)');
+    }
+
+    const student = await this.prisma.student.findUnique({ where: { userId } });
+    if (!student) throw new NotFoundException('Student profile not found');
+    if (student.currentStage < dto.stage) {
+      throw new BadRequestException('Please complete previous stages first');
+    }
+
+    const application = await this.prisma.universityApplication.findUnique({
+      where: { id: dto.applicationId, studentId: student.id },
+    });
+    if (!application) throw new NotFoundException('Application not found');
+
+    // Check existing pending payment for same stage
+    const existing = await this.prisma.payment.findFirst({
+      where: { applicationId: dto.applicationId, stage: dto.stage, status: { in: ['PENDING', 'PROCESSING'] } },
+    });
+
+    let txnid: string;
+    let paymentId: string;
+
+    if (existing) {
+      txnid = existing.razorpayOrderId || 'TXN' + randomUUID().replace(/-/g, '').substring(0, 20);
+      paymentId = existing.id;
+      // Update txnid if needed
+      if (!existing.razorpayOrderId) {
+        await this.prisma.payment.update({ where: { id: existing.id }, data: { razorpayOrderId: txnid } });
+      }
+    } else {
+      txnid = 'TXN' + randomUUID().replace(/-/g, '').substring(0, 20);
+      const payment = await this.prisma.payment.create({
+        data: {
+          studentId: student.id,
+          applicationId: dto.applicationId,
+          stage: dto.stage,
+          amount: config.amount,
+          currency: 'INR',
+          status: 'PENDING',
+          razorpayOrderId: txnid,
+        },
+      });
+      paymentId = payment.id;
+    }
+
+    const productinfo = 'Stage_' + dto.stage + '_' + config.label;
+    const amount = config.amount.toString();
+
+    const hash = generatePayUHash({
+      key: this.payuKey,
+      txnid: txnid,
+      amount: amount,
+      productinfo: productinfo,
+      firstname: dto.firstName,
+      email: dto.email,
+      salt: this.payuSalt,
+      udf1: dto.applicationId,
+      udf2: dto.stage.toString(),
+    });
+
+    return {
+      paymentId,
+      hash,
+      key: this.payuKey,
+      txnid,
+      amount,
+      productinfo,
+      firstname: dto.firstName,
+      email: dto.email,
+      phone: dto.phone || '',
+      surl: this.config.get<string>('PAYU_SURL') || this.config.get<string>('FRONTEND_URL') + '/payments/success',
+      furl: this.config.get<string>('PAYU_FURL') || this.config.get<string>('FRONTEND_URL') + '/payments/failure',
+      service_provider: 'payu_paisa',
+      udf1: dto.applicationId,
+      udf2: dto.stage.toString(),
+      udf3: '',
+      udf4: '',
+      udf5: '',
+    };
+  }
+
+  async verifyPayment(dto: VerifyPayUPaymentDto) {
+    // Verify PayU response hash
+    const expectedHash = verifyPayUResponse({
+      status: dto.status,
+      txnid: dto.txnid,
+      amount: dto.amount,
+      productinfo: dto.productinfo,
+      firstname: dto.firstname,
+      email: dto.email,
+      salt: this.payuSalt,
+      key: this.payuKey,
+      udf1: dto.udf1,
+      udf2: dto.udf2,
+      udf3: dto.udf3,
+      udf4: dto.udf4,
+      udf5: dto.udf5,
+    });
+
+    if (expectedHash !== dto.hash.toLowerCase()) {
+      throw new BadRequestException('Invalid payment response hash');
+    }
+
+    // Find payment record
+    const payment = await this.prisma.payment.findFirst({
+      where: { razorpayOrderId: dto.txnid },
+      include: { student: true },
+    });
+    if (!payment) throw new NotFoundException('Payment record not found');
+
+    const isSuccess = dto.status === 'success';
+
+    // Update payment record
+    const updated = await this.prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        razorpayPaymentId: dto.mihpayid || dto.payumoney_id,
+        status: isSuccess ? 'SUCCESS' : 'FAILED',
+        paidAt: isSuccess ? new Date() : null,
+        paymentMethod: dto.mode || 'payu',
+        bankReference: dto.bank_ref_num,
+        ...(dto.error ? { approvalNote: dto.error_Message || dto.error } : {}),
+      },
+    });
+
+    if (isSuccess) {
+      await this.advanceAfterPayment(payment);
+    }
+
+    return { success: isSuccess, payment: updated };
+  }
+
+  private async advanceAfterPayment(payment: { id: string; stage: number; applicationId: string | null; studentId: string }) {
+    let nextStage: number | null = null;
+    let nextStatus: string | null = null;
+
+    if (payment.stage === 2) { nextStage = 3; nextStatus = 'STAGE_3_ACTIVE'; }
+    else if (payment.stage === 3) { nextStage = 4; nextStatus = 'STAGE_4_PENDING'; }
+
+    if (nextStage && payment.applicationId) {
+      const student = await this.prisma.student.findUnique({ where: { id: payment.studentId } });
+      if (student && student.currentStage < nextStage) {
+        const oldStage = student.currentStage;
+        await this.prisma.student.update({
+          where: { id: payment.studentId },
+          data: { currentStage: nextStage, applicationStatus: nextStatus as any },
+        });
+        await this.timeline.onStageAdvanced(payment.applicationId, payment.studentId, oldStage, nextStage);
+
+        const user = await this.prisma.student.findUnique({ where: { id: payment.studentId }, include: { user: true } });
+        if (user?.user) {
+          await this.notification.create({
+            userId: user.user.id,
+            type: 'STAGE_ADVANCED',
+            title: 'Stage ' + nextStage + ' Unlocked',
+            message: 'Your payment was successful! Proceed to the next stage.',
+            data: { applicationId: payment.applicationId, stage: nextStage },
+          });
+        }
+      }
+    }
+
+    if (payment.applicationId) {
+      if (payment.stage === 2) {
+        await this.timeline.onStage2PaymentCompleted(payment.applicationId, payment.studentId, 5000);
+      }
+    }
+  }
+
+  async getPaymentHistory(userId: string, applicationId?: string) {
+    const student = await this.prisma.student.findUnique({ where: { userId } });
+    if (!student) throw new NotFoundException('Student profile not found');
+    const where: any = { studentId: student.id };
+    if (applicationId) where.applicationId = applicationId;
+    return this.prisma.payment.findMany({ where, orderBy: { createdAt: 'desc' } });
+  }
+
+  async getPaymentById(paymentId: string, userId: string, userRole: string) {
+    const payment = await this.prisma.payment.findUnique({
+      where: { id: paymentId },
+      include: { student: true },
+    });
+    if (!payment) throw new NotFoundException('Payment not found');
+    if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN' && payment.student.userId !== userId) {
+      throw new ForbiddenException('Access denied');
+    }
+    return payment;
+  }
+
+  async manualApprove(adminId: string, dto: ManualPaymentApprovalDto) {
+    const payment = await this.prisma.payment.findUnique({
+      where: { id: dto.paymentId },
+      include: { student: { include: { user: true } } },
+    });
+    if (!payment) throw new NotFoundException('Payment not found');
+
+    await this.prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: 'MANUALLY_APPROVED',
+        manuallyApproved: true,
+        approvedBy: adminId,
+        approvalNote: dto.note,
+        paidAt: new Date(),
+      },
+    });
+
+    await this.advanceAfterPayment(payment);
+
+    await this.notification.create({
+      userId: payment.student.user.id,
+      type: 'PAYMENT_APPROVED',
+      title: 'Payment Approved',
+      message: 'Your payment of ₹' + payment.amount + ' has been manually approved.',
+      data: { paymentId: payment.id, stage: payment.stage },
+    });
+
+    return { message: 'Payment approved successfully' };
+  }
+
+  async getPendingPayments(page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prisma.payment.findMany({
+        where: { status: { in: ['PENDING', 'PROCESSING'] } },
+        include: { student: { include: { user: { select: { name: true, email: true } } } } },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.payment.count({ where: { status: { in: ['PENDING', 'PROCESSING'] } } }),
+    ]);
+    return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
+  }
+
+  getStageConfig() {
+    return Object.entries(STAGE_PAYMENT_CONFIG).map(([stage, config]) => ({
+      stage: Number(stage),
+      ...config,
+    }));
+  }
+}

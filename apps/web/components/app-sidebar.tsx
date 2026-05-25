@@ -24,6 +24,9 @@ import {
   FileBarChart,
   Building2,
   GraduationCap,
+  MessageSquare,
+  ClipboardCheck,
+  FileBadge2,
 } from "lucide-react";
 
 const data = {
@@ -48,21 +51,19 @@ const data = {
       ],
     },
     {
-      title: "Students",
-      url: "#",
-      icon: <Users />,
+      title: "Documents",
+      url: "/admin/documents",
+      icon: <ClipboardCheck />,
       items: [
-        { title: "All Students", url: "#" },
-        { title: "Document Verification", url: "#" },
+        { title: "Document Verification", url: "/admin/documents" },
       ],
     },
     {
       title: "Payments",
-      url: "#",
+      url: "/admin/payments",
       icon: <CreditCard />,
       items: [
-        { title: "Transactions", url: "#" },
-        { title: "Pending Approvals", url: "#" },
+        { title: "Pending Approvals", url: "/admin/payments" },
       ],
     },
     {
@@ -75,12 +76,36 @@ const data = {
       ],
     },
     {
-      title: "Admissions",
-      url: "#",
+      title: "Exams",
+      url: "/admin/exams",
       icon: <GraduationCap />,
       items: [
-        { title: "Stages", url: "#" },
-        { title: "Letters", url: "#" },
+        { title: "Manage Exams", url: "/admin/exams" },
+      ],
+    },
+    {
+      title: "Letters",
+      url: "/admin/letters",
+      icon: <FileText />,
+      items: [
+        { title: "Upload & Manage", url: "/admin/letters" },
+      ],
+    },
+    {
+      title: "Tickets",
+      url: "/admin/tickets",
+      icon: <MessageSquare />,
+      items: [
+        { title: "Support Tickets", url: "/admin/tickets" },
+      ],
+    },
+    {
+      title: "Visa Support",
+      url: "/admin/visa-support",
+      icon: <FileBadge2 />,
+      items: [
+        { title: "Visa Centers", url: "/admin/visa-support" },
+        { title: "Applications", url: "/admin/visa-support?tab=applications" },
       ],
     },
     {
