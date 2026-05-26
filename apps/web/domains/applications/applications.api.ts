@@ -11,6 +11,6 @@ export function getApplication(id: string) {
   return client.get<ApplicationDetail>(`/admin/applications/${id}`);
 }
 
-export function updateApplicationStatus(id: string, stage: string, status: string) {
-  return client.patch(`/admin/applications/${id}/status`, { stage, status });
+export function updateApplicationStatus(id: string, status: string) {
+  return client.patch<{ message: string }>(`/admin/applications/${id}/status`, { status });
 }

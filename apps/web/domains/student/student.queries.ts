@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
 
 export function useStudentProfile() {
@@ -40,5 +40,19 @@ export function useMyApplicationById(id: string) {
       return getMyApplicationById(id);
     },
     enabled: !!id,
+  });
+}
+
+export function useSubmitApplication() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: import("./student.types").SubmitApplicationFormData) => {
+      const { submitApplication } = await import("./student.api");
+      return submitApplication(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.student.applications() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.student.stage() });
+    },
   });
 }

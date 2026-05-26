@@ -1,5 +1,5 @@
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe, Logger } from "@nestjs/common";
+import { ValidationPipe, Logger, VersioningType } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { ConfigService } from "@nestjs/config";
 import { join } from "path";
@@ -10,6 +10,7 @@ import { initSentry } from "./common/sentry.config";
 import { AppModule } from "./app.module";
 import { AnalyticsService } from "./common/services/analytics.service";
 import { AllExceptionsFilter } from "./common/filters/http-exception.filter";
+import { versionMiddleware } from "./common/middleware/version-middleware";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -17,30 +18,39 @@ async function bootstrap() {
   const analyticsService = app.get(AnalyticsService);
   const logger = new Logger("Bootstrap");
 
+  app.enableVersioning({
+    type: VersioningType.HEADER,
+    header: "X-Api-Version",
+    defaultVersion: "1",
+  });
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle("Shiksha API")
     .setDescription("Medical Admission Management Platform")
     .setVersion("1.0")
     .addBearerAuth()
     .addCookieAuth("refreshToken")
+    .addApiKey(
+      { type: "apiKey", name: "X-Api-Version", in: "header" },
+      "X-Api-Version",
+    )
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup("api/docs", app, document);
 
-  // Initialize Sentry
   initSentry(configService);
 
-  // Global exception filter
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // Request logging middleware
+  app.use(versionMiddleware);
+
   app.use((req, res, next) => {
     const start = Date.now();
     res.on("finish", () => {
       const duration = Date.now() - start;
-      logger.log(req.method + " " + req.originalUrl + " " + res.statusCode + " - " + duration + "ms");
+      logger.log(`${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`);
       if (req.body && Object.keys(req.body).length > 0) {
-        logger.debug("Request Body: " + JSON.stringify(req.body));
+        logger.debug(`Request Body: ${JSON.stringify(req.body)}`);
       }
     });
     next();
@@ -52,7 +62,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Serve uploaded files
   app.useStaticAssets(join(process.cwd(), "uploads"), { prefix: "/uploads" });
 
   app.useGlobalPipes(
@@ -63,7 +72,6 @@ async function bootstrap() {
     })
   );
 
-  // Graceful shutdown
   app.use(cookieParser());
 
   app.enableShutdownHooks();
@@ -71,7 +79,7 @@ async function bootstrap() {
   const port = configService.get<number>("PORT") || 8000;
   await app.listen(port);
 
-  logger.log("API is running on: http://localhost:" + port);
+  logger.log(`API is running on: http://localhost:${port}`);
 }
 
 bootstrap();

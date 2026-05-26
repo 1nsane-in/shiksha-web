@@ -42,6 +42,15 @@ type AuthStorage = {
   };
 };
 
+api.interceptors.response.use((response) => {
+  if (response.data && typeof response.data === 'object' && 'ok' in response.data) {
+    if (response.data.ok === true) {
+      response.data = response.data.data;
+    }
+  }
+  return response;
+});
+
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const auth = storage.get<AuthStorage>(STORAGE_KEYS.AUTH_STORAGE);
@@ -78,13 +87,14 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { data } = await axios.post(
+        const { data: refreshData } = await axios.post(
           `${API_URL}/auth/refresh`,
           {},
           { withCredentials: true }
         );
 
-        const newToken = data.accessToken;
+        const body = refreshData?.ok === true ? refreshData.data : refreshData;
+        const newToken = body?.accessToken;
 
         const current = storage.get<AuthStorage>(STORAGE_KEYS.AUTH_STORAGE);
         storage.set(STORAGE_KEYS.AUTH_STORAGE, {

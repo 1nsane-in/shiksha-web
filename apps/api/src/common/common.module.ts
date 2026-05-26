@@ -14,6 +14,8 @@ import { SentryFilter } from './filters/sentry.filter';
 import { DashboardController } from './controllers/dashboard.controller';
 import { UploadController } from './controllers/upload.controller';
 import { ActivityTrackingInterceptor } from './interceptors/activity-tracking.interceptor';
+import { ResponseWrapperInterceptor } from './interceptors/response-wrapper.interceptor';
+import { IdempotencyInterceptor } from './idempotency/idempotency.interceptor';
 import { PaginatorService } from './services/paginator.service';
 import { TimelineService } from './services/timeline.service';
 
@@ -35,6 +37,18 @@ import { TimelineService } from './services/timeline.service';
     {
       provide: APP_FILTER,
       useClass: SentryFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseWrapperInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: IdempotencyInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ActivityTrackingInterceptor,
     },
   ],
   exports: [

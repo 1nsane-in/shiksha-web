@@ -1,4 +1,5 @@
 export interface University {
+  id: string
   name: string
   slug: string
   shortName: string
@@ -22,6 +23,7 @@ export interface University {
 
 export const universities: University[] = [
   {
+    id: "jalal-abad-international-university",
     name: "Jalal-Abad International University",
     slug: "jalal-abad-international-university",
     shortName: "JAIU",
@@ -44,6 +46,7 @@ export const universities: University[] = [
     detailUrl: "https://wciecorganization.com/jaiu_university",
   },
   {
+    id: "jalal-abad-state-university",
     name: "Jalal-Abad State University",
     slug: "jalal-abad-state-university",
     shortName: "JASU",
@@ -65,6 +68,7 @@ export const universities: University[] = [
     detailUrl: "https://wciecorganization.com/jalal_abad_university",
   },
   {
+    id: "osh-state-university",
     name: "Osh State University",
     slug: "osh-state-university",
     shortName: "OSU",
@@ -86,6 +90,7 @@ export const universities: University[] = [
     detailUrl: "https://wciecorganization.com/osh_state_university",
   },
   {
+    id: "central-asian-international-medical-university",
     name: "The Central Asian International Medical University",
     slug: "central-asian-international-medical-university",
     shortName: "CAIMU",
@@ -107,6 +112,7 @@ export const universities: University[] = [
     detailUrl: "https://wciecorganization.com/caimu_university",
   },
   {
+    id: "osh-state-medical-university",
     name: "Osh State Medical University",
     slug: "osh-state-medical-university",
     shortName: "OSMU",

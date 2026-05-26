@@ -26,9 +26,9 @@ export function useApplication(id: string) {
 export function useUpdateApplicationStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, stage, status }: { id: string; stage: string; status: string }) => {
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
       const { updateApplicationStatus } = await import("./applications.api");
-      return updateApplicationStatus(id, stage, status);
+      return updateApplicationStatus(id, status);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.applications.all });

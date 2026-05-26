@@ -13,6 +13,7 @@ import { CommonModule } from './common/common.module';
 import { SharedJwtModule } from './common/shared-jwt.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AdminModule } from './admin/admin.module';
+import { ApplicationsModule } from './applications/applications.module';
 import { LettersModule } from './letters/letters.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ExamsModule } from './exams/exams.module';
@@ -20,6 +21,7 @@ import { TicketsModule } from './tickets/tickets.module';
 import { DeviceTokenModule } from './notifications/device-token.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { VisaSupportModule } from './visa-support/visa-support.module';
+import { RateLimitingModule } from './common/rate-limiting/rate-limiting.module';
 
 @Module({
   imports: [
@@ -27,12 +29,14 @@ import { VisaSupportModule } from './visa-support/visa-support.module';
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
     }),
+    RateLimitingModule,
     SharedJwtModule,
     PrismaModule,
     AuthModule,
     UsersModule,
     UniversitiesModule,
     StudentsModule,
+    ApplicationsModule,
     DocumentsModule,
     CommonModule,
     AdminModule,

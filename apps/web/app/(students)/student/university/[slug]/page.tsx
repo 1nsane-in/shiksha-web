@@ -1,12 +1,15 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUniversityBySlug } from "@/lib/university-data";
+import { useSubmitApplication } from "@/domains/student/student.queries";
+import { getApiErrorMessage } from "@/lib/api-error";
+import type { SubmitApplicationFormData } from "@/domains/student/student.types";
 import {
   MapPin,
   GraduationCap,
@@ -22,6 +25,7 @@ import {
   ExternalLink,
   ArrowLeft,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -235,7 +239,105 @@ type ApplyFormProps = {
   onBack: () => void;
 };
 
+const languageLevels = ['low', 'moderate', 'high'] as const;
+
 function ApplicationForm({ uni, onBack }: ApplyFormProps) {
+  const router = useRouter();
+  const submitMutation = useSubmitApplication();
+  const [error, setError] = useState<string | null>(null);
+
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    middleName: '',
+    dateOfBirth: '',
+    birthCity: '',
+    birthState: '',
+    birthCountry: '',
+    citizenship: '',
+    maritalStatus: '' as '' | 'single' | 'married',
+    gender: '' as '' | 'male' | 'female' | 'other',
+    permanentAddress: '',
+    permanentCity: '',
+    permanentState: '',
+    permanentZip: '',
+    permanentCountry: '',
+    email: '',
+    embassyLocation: '',
+    lang1Name: '',
+    lang1Speaking: 'moderate' as 'high' | 'moderate' | 'low',
+    lang1Reading: 'moderate' as 'high' | 'moderate' | 'low',
+    lang1Writing: 'moderate' as 'high' | 'moderate' | 'low',
+    selectedProgram: '' as '' | 'pre-medical' | 'general-medicine' | 'dentistry' | 'post-graduate',
+    postGraduateDetail: '',
+    signature: '',
+    signatureDate: new Date().toISOString().split('T')[0],
+  });
+
+  const update = (field: string, value: string) =>
+    setForm((prev) => ({ ...prev, [field]: value }));
+
+  const handleSubmit = async () => {
+    setError(null);
+    if (!form.firstName || !form.lastName || !form.dateOfBirth || !form.citizenship ||
+        !form.maritalStatus || !form.gender || !form.permanentAddress || !form.permanentCity ||
+        !form.permanentState || !form.permanentZip || !form.permanentCountry ||
+        !form.email || !form.embassyLocation || !form.selectedProgram ||
+        !form.signature || !form.birthCity || !form.birthState || !form.birthCountry) {
+      setError('Please fill all required fields');
+      return;
+    }
+
+    const data: SubmitApplicationFormData = {
+      universityId: uni.id,
+      firstName: form.firstName,
+      lastName: form.lastName,
+      middleName: form.middleName || undefined,
+      dateOfBirth: form.dateOfBirth,
+      placeOfBirth: {
+        city: form.birthCity,
+        state: form.birthState,
+        country: form.birthCountry,
+      },
+      citizenship: form.citizenship,
+      maritalStatus: form.maritalStatus as 'single' | 'married',
+      gender: form.gender as 'male' | 'female' | 'other',
+      permanentAddress: form.permanentAddress,
+      permanentCity: form.permanentCity,
+      permanentState: form.permanentState,
+      permanentZip: form.permanentZip,
+      permanentCountry: form.permanentCountry,
+      email: form.email,
+      embassyLocation: form.embassyLocation,
+      language1: {
+        name: form.lang1Name || 'English',
+        speaking: form.lang1Speaking,
+        reading: form.lang1Reading,
+        writing: form.lang1Writing,
+      },
+      selectedProgram: form.selectedProgram as SubmitApplicationFormData['selectedProgram'],
+      postGraduateDetail: form.postGraduateDetail || undefined,
+      signature: form.signature,
+      signatureDate: form.signatureDate,
+    };
+
+    if (form.selectedProgram === 'post-graduate' && !form.postGraduateDetail) {
+      setError('Please specify your post-graduate program details');
+      return;
+    }
+
+    submitMutation.mutate(data, {
+      onSuccess: (res) => {
+        router.push(`/student/applications/${res.applicationId}`);
+      },
+      onError: (err) => {
+        setError(getApiErrorMessage(err, 'Failed to submit application'));
+      },
+    });
+  };
+
+  const inputCls = "w-full rounded-lg border border-[#E0D8F0] bg-[#f0ecf6] px-3 py-2.5 text-sm text-[#2D2154] outline-none focus:border-[#1B2A4A] focus:ring-1 focus:ring-[#1B2A4A]/20";
+
   return (
     <div>
       <button
@@ -252,55 +354,61 @@ function ApplicationForm({ uni, onBack }: ApplyFormProps) {
           <p className="mt-1 text-sm text-[#6B6B6B]">Fill in your details to start the application</p>
         </div>
 
+        {error && (
+          <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
         <Card>
           <CardHeader>
-            <CardTitle>Information About Applicant</CardTitle>
+            <CardTitle>Personal Information</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>First Name</Label>
-                <Input placeholder="Enter first name" />
+                <Label>First Name *</Label>
+                <Input placeholder="Enter first name" value={form.firstName} onChange={(e) => update('firstName', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Last Name</Label>
-                <Input placeholder="Enter last name" />
+                <Label>Last Name *</Label>
+                <Input placeholder="Enter last name" value={form.lastName} onChange={(e) => update('lastName', e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label>Middle Name</Label>
-                <Input placeholder="Enter middle name" />
+                <Input placeholder="Enter middle name" value={form.middleName} onChange={(e) => update('middleName', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Date of Birth</Label>
-                <Input type="date" />
+                <Label>Date of Birth *</Label>
+                <Input type="date" value={form.dateOfBirth} onChange={(e) => update('dateOfBirth', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>City of Birth</Label>
-                <Input placeholder="Enter city" />
+                <Label>City of Birth *</Label>
+                <Input placeholder="Enter city" value={form.birthCity} onChange={(e) => update('birthCity', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>State of Birth</Label>
-                <Input placeholder="Enter state" />
+                <Label>State of Birth *</Label>
+                <Input placeholder="Enter state" value={form.birthState} onChange={(e) => update('birthState', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Country of Birth</Label>
-                <Input placeholder="Enter country" />
+                <Label>Country of Birth *</Label>
+                <Input placeholder="Enter country" value={form.birthCountry} onChange={(e) => update('birthCountry', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Citizenship</Label>
-                <Input placeholder="Enter citizenship" />
+                <Label>Citizenship *</Label>
+                <Input placeholder="Enter citizenship" value={form.citizenship} onChange={(e) => update('citizenship', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Marital Status</Label>
-                <select className="w-full rounded-lg border border-[#E0D8F0] bg-[#f0ecf6] px-3 py-2.5 text-sm text-[#2D2154] outline-none focus:border-[#1B2A4A] focus:ring-1 focus:ring-[#1B2A4A]/20">
+                <Label>Marital Status *</Label>
+                <select className={inputCls} value={form.maritalStatus} onChange={(e) => update('maritalStatus', e.target.value)}>
                   <option value="">Select status</option>
                   <option value="single">Single</option>
                   <option value="married">Married</option>
                 </select>
               </div>
               <div className="space-y-2">
-                <Label>Gender</Label>
-                <select className="w-full rounded-lg border border-[#E0D8F0] bg-[#f0ecf6] px-3 py-2.5 text-sm text-[#2D2154] outline-none focus:border-[#1B2A4A] focus:ring-1 focus:ring-[#1B2A4A]/20">
+                <Label>Gender *</Label>
+                <select className={inputCls} value={form.gender} onChange={(e) => update('gender', e.target.value)}>
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -308,48 +416,138 @@ function ApplicationForm({ uni, onBack }: ApplyFormProps) {
                 </select>
               </div>
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="mt-6 grid grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Permanent Address</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2 col-span-2">
-                <Label>Permanent Street Address</Label>
-                <Input placeholder="Enter street address" />
+                <Label>Street Address *</Label>
+                <Input placeholder="Enter street address" value={form.permanentAddress} onChange={(e) => update('permanentAddress', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>City</Label>
-                <Input placeholder="Enter city" />
+                <Label>City *</Label>
+                <Input placeholder="Enter city" value={form.permanentCity} onChange={(e) => update('permanentCity', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>State</Label>
-                <Input placeholder="Enter state" />
+                <Label>State *</Label>
+                <Input placeholder="Enter state" value={form.permanentState} onChange={(e) => update('permanentState', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Zip / Postal Code</Label>
-                <Input placeholder="Enter zip code" />
+                <Label>Zip / Postal Code *</Label>
+                <Input placeholder="Enter zip code" value={form.permanentZip} onChange={(e) => update('permanentZip', e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Country</Label>
-                <Input placeholder="Enter country" />
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input type="email" placeholder="Enter email" />
-              </div>
-              <div className="space-y-2">
-                <Label>Location of Embassy for Visa</Label>
-                <Input placeholder="Enter embassy location" />
+                <Label>Country *</Label>
+                <Input placeholder="Enter country" value={form.permanentCountry} onChange={(e) => update('permanentCountry', e.target.value)} />
               </div>
             </div>
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle>Contact & Language</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="space-y-2">
+                <Label>Email *</Label>
+                <Input type="email" placeholder="Enter email" value={form.email} onChange={(e) => update('email', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Embassy Location *</Label>
+                <Input placeholder="Enter embassy location" value={form.embassyLocation} onChange={(e) => update('embassyLocation', e.target.value)} />
+              </div>
+            </div>
+            <h4 className="text-sm font-semibold text-[#2D2154] mb-3">Primary Language</h4>
+            <div className="grid grid-cols-4 gap-3">
+              <div className="space-y-2">
+                <Label>Language</Label>
+                <Input placeholder="e.g. English" value={form.lang1Name} onChange={(e) => update('lang1Name', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Speaking</Label>
+                <select className={inputCls} value={form.lang1Speaking} onChange={(e) => update('lang1Speaking', e.target.value)}>
+                  {languageLevels.map((l) => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Reading</Label>
+                <select className={inputCls} value={form.lang1Reading} onChange={(e) => update('lang1Reading', e.target.value)}>
+                  {languageLevels.map((l) => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Writing</Label>
+                <select className={inputCls} value={form.lang1Writing} onChange={(e) => update('lang1Writing', e.target.value)}>
+                  {languageLevels.map((l) => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Program Selection</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label>Selected Program *</Label>
+              <select className={inputCls} value={form.selectedProgram} onChange={(e) => update('selectedProgram', e.target.value)}>
+                <option value="">Select program</option>
+                <option value="pre-medical">Pre-Medical</option>
+                <option value="general-medicine">General Medicine (MBBS)</option>
+                <option value="dentistry">Dentistry</option>
+                <option value="post-graduate">Post Graduate</option>
+              </select>
+            </div>
+            {form.selectedProgram === 'post-graduate' && (
+              <div className="mt-4 space-y-2">
+                <Label>Post Graduate Details *</Label>
+                <Input placeholder="Specify your post-graduate program" value={form.postGraduateDetail} onChange={(e) => update('postGraduateDetail', e.target.value)} />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Signature & Declaration</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Full Name (as signature) *</Label>
+                <Input placeholder="Type your full name" value={form.signature} onChange={(e) => update('signature', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Date *</Label>
+                <Input type="date" value={form.signatureDate} onChange={(e) => update('signatureDate', e.target.value)} />
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-[#6B6B6B]">
+              By submitting this application, you confirm that all information provided is accurate and complete.
+            </p>
+          </CardContent>
+        </Card>
+
         <div className="flex items-center justify-end gap-3">
-          <Button variant="secondary" size="sm" onClick={onBack}>
+          <Button variant="secondary" size="sm" onClick={onBack} disabled={submitMutation.isPending}>
             Cancel
           </Button>
-          <Button size="sm">Submit Application</Button>
+          <Button size="sm" onClick={handleSubmit} disabled={submitMutation.isPending}>
+            {submitMutation.isPending ? (
+              <><Loader2 className="size-4 animate-spin mr-1" /> Submitting...</>
+            ) : (
+              'Submit Application'
+            )}
+          </Button>
         </div>
       </div>
     </div>

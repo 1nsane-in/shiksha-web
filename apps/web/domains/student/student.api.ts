@@ -1,5 +1,5 @@
 import { client } from "@/shared/api/client";
-import type { StudentProfile, StudentApplication, StageInfo } from "./student.types";
+import type { StudentProfile, StudentApplication, StageInfo, SubmitApplicationFormData } from "./student.types";
 
 export function getStudentProfile() {
   return client.get<StudentProfile>("/student/profile");
@@ -17,4 +17,8 @@ export function getMyApplications(page = 1, limit = 10) {
 
 export function getMyApplicationById(id: string) {
   return client.get<StudentApplication & { university: any }>("/student/applications/" + id);
+}
+
+export function submitApplication(data: SubmitApplicationFormData) {
+  return client.post<{ message: string; applicationId: string }>("/student/apply", data);
 }
