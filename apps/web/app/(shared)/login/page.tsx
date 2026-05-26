@@ -80,7 +80,7 @@ function LoginContent() {
   const [activeTab, setActiveTab] = useState<RoleTab>(initialTab);
   const [serverError, setServerError] = useState("");
 
-  const loginMutation = useLogin();
+  const loginMutation = useLogin(redirect);
 
   const {
     register,
@@ -95,10 +95,13 @@ function LoginContent() {
     setServerError("");
     try {
       await loginMutation.mutateAsync(data);
-    } catch (err) {
-      setServerError(
-        err instanceof Error ? err.message : "Invalid email or password",
-      );
+    } catch (err: unknown) {
+      const apiError =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response: { data: { message?: string } } }).response?.data
+              ?.message
+          : undefined;
+      setServerError(apiError ?? (err instanceof Error ? err.message : "Invalid email or password"));
     }
   };
 

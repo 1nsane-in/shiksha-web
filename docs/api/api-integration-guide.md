@@ -292,6 +292,122 @@ Content-Type: application/json
 }
 ```
 
+#### Complete Registration
+
+```http
+POST /auth/complete-registration
+Content-Type: application/json
+
+{
+  "email": "student@example.com",
+  "otp": "123456",
+  "name": "Rahul Kumar",
+  "password": "securePassword123"
+}
+```
+
+```json
+// Response 200
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "dGhpcyBpcyBhIHJlZnJl...",
+  "user": {
+    "id": "user-uuid",
+    "email": "student@example.com",
+    "name": "Rahul Kumar",
+    "role": "STUDENT",
+    "studentId": "student-uuid"
+  }
+}
+```
+
+#### Login
+
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "student@example.com",
+  "password": "securePassword123"
+}
+```
+
+```json
+// Response 200
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "dGhpcyBpcyBhIHJlZnJl...",
+  "user": {
+    "id": "user-uuid",
+    "email": "student@example.com",
+    "name": "Rahul Kumar",
+    "role": "STUDENT",
+    "studentId": "student-uuid"
+  }
+}
+```
+
+#### Google Login
+
+```http
+POST /auth/google-login
+Content-Type: application/json
+
+{
+  "googleToken": "google_access_token_here"
+}
+```
+
+```json
+// Response 200
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "dGhpcyBpcyBhIHJlZnJl...",
+  "user": {
+    "id": "user-uuid",
+    "email": "student@example.com",
+    "name": "Rahul Kumar",
+    "role": "STUDENT",
+    "studentId": "student-uuid"
+  }
+}
+```
+
+#### Forgot Password
+
+```http
+POST /auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "student@example.com"
+}
+```
+
+```json
+// Response 200
+{ "message": "Password reset OTP sent" }
+```
+
+#### Reset Password
+
+```http
+POST /auth/reset-password
+Content-Type: application/json
+
+{
+  "email": "student@example.com",
+  "otp": "123456",
+  "newPassword": "newSecurePassword123"
+}
+```
+
+```json
+// Response 200
+{ "message": "Password reset successfully" }
+```
+
 ### 4.2 Applications
 
 List of common error responses:
@@ -313,7 +429,7 @@ List of common error responses:
 #### Get My Applications
 
 ```http
-GET /students/applications
+GET /student/applications
 Authorization: Bearer <token>
 ```
 
@@ -342,7 +458,7 @@ Authorization: Bearer <token>
 #### Get Single Application
 
 ```http
-GET /students/applications/:id
+GET /student/applications/:id
 Authorization: Bearer <token>
 ```
 
@@ -845,7 +961,7 @@ Content-Type: application/json
 #### Get Application Timeline
 
 ```http
-GET /students/applications/:applicationId/timeline
+GET /timeline/application/:applicationId
 Authorization: Bearer <token>
 ```
 
@@ -854,6 +970,8 @@ Authorization: Bearer <token>
 [
   {
     "id": "evt-uuid",
+    "applicationId": "app-uuid",
+    "studentId": "student-uuid",
     "stage": 1,
     "event": "APPLICATION_SUBMITTED",
     "title": "Application Submitted",
@@ -865,6 +983,8 @@ Authorization: Bearer <token>
   },
   {
     "id": "evt-uuid",
+    "applicationId": "app-uuid",
+    "studentId": "student-uuid",
     "stage": 2,
     "event": "ADMISSION_LETTER_ISSUED",
     "title": "Admission Letter Issued",
@@ -876,6 +996,8 @@ Authorization: Bearer <token>
   },
   {
     "id": "evt-uuid",
+    "applicationId": "app-uuid",
+    "studentId": "student-uuid",
     "stage": 2,
     "event": "PAYMENT_STAGE_2_COMPLETED",
     "title": "Admission Fee Paid",
@@ -889,6 +1011,96 @@ Authorization: Bearer <token>
 ```
 
 **UI Hint:** The last event with `isActive: true` is the current position. Show earlier events as "completed" (green), the active one as "current" (blue/orange), and future ones as "locked" (gray).
+
+#### Get My Timeline (Student)
+
+```http
+GET /timeline/my
+Authorization: Bearer <token>
+```
+
+```json
+// Response 200
+[
+  {
+    "id": "evt-uuid",
+    "applicationId": "app-uuid",
+    "studentId": "student-uuid",
+    "stage": 1,
+    "event": "APPLICATION_SUBMITTED",
+    "title": "Application Submitted",
+    "description": "Your university application has been submitted successfully.",
+    "occurredAt": "2025-05-20T10:30:00Z",
+    "isCompleted": true,
+    "isActive": false,
+    "metadata": { "submittedAt": "2025-05-20T10:30:00Z" }
+  },
+  {
+    "id": "evt-uuid",
+    "applicationId": "app-uuid",
+    "studentId": "student-uuid",
+    "stage": 2,
+    "event": "ADMISSION_LETTER_ISSUED",
+    "title": "Admission Letter Issued",
+    "description": "Your admission letter has been uploaded.",
+    "occurredAt": "2025-05-21T10:00:00Z",
+    "isCompleted": true,
+    "isActive": false,
+    "metadata": {}
+  }
+]
+```
+
+**Notes:**
+- The actual API endpoint is `/timeline/` not `/students/applications/:applicationId/timeline`
+- The timeline events include additional fields: `applicationId` and `studentId` 
+- The `isActive` field is computed dynamically based on the latest event in the timeline
+- The `isCompleted` field is always `true` for all events
+
+#### Get My Timeline (Student)
+
+```http
+GET /timeline/my
+Authorization: Bearer <token>
+```
+
+```json
+// Response 200
+[
+  {
+    "id": "evt-uuid",
+    "applicationId": "app-uuid",
+    "studentId": "student-uuid",
+    "stage": 1,
+    "event": "APPLICATION_SUBMITTED",
+    "title": "Application Submitted",
+    "description": "Your university application has been submitted successfully.",
+    "occurredAt": "2025-05-20T10:30:00Z",
+    "isCompleted": true,
+    "isActive": false,
+    "metadata": { "submittedAt": "2025-05-20T10:30:00Z" }
+  },
+  {
+    "id": "evt-uuid",
+    "applicationId": "app-uuid",
+    "studentId": "student-uuid",
+    "stage": 2,
+    "event": "ADMISSION_LETTER_ISSUED",
+    "title": "Admission Letter Issued",
+    "description": "Your admission letter has been uploaded.",
+    "occurredAt": "2025-05-21T10:00:00Z",
+    "isCompleted": true,
+    "isActive": false,
+    "metadata": {}
+  }
+]
+```
+
+**Notes:**
+- The actual API endpoint is `/timeline/` not `/students/applications/:applicationId/timeline`
+- The timeline events include additional fields: `applicationId` and `studentId` 
+- The `isActive` field is computed dynamically based on the latest event in the timeline
+- The `isCompleted` field is always `true` for all events
 
 ### 4.8 Device Tokens
 
@@ -1098,15 +1310,21 @@ FEATURE_VISA=true
 │  AUTH                                                             │
 │  POST /auth/send-otp        → OTP sent                           │
 │  POST /auth/verify-otp      → { accessToken, refreshToken }      │
+│  POST /auth/complete-registration → { accessToken, refreshToken } │
+│  POST /auth/login           → { accessToken, refreshToken }      │
+│  POST /auth/google-login    → { accessToken, refreshToken }      │
+│  POST /auth/forgot-password → OTP sent                           │
+│  POST /auth/reset-password  → Password reset                     │
 │  POST /auth/refresh         → { accessToken, refreshToken }      │
 │  GET  /auth/me              → { user }                           │
 │                                                                   │
 │  APPLICATIONS                                                     │
-│  GET  /students/applications          → list of applications      │
-│  GET  /students/applications/:id      → single application        │
+│  GET  /student/applications          → list of applications       │
+│  GET  /student/applications/:id      → single application         │
 │                                                                   │
 │  TIMELINE                                                         │
-│  GET  /students/applications/:id/timeline → stage timeline events  │
+│  GET  /timeline/application/:id → stage timeline events           │
+│  GET  /timeline/my → my timeline events                            │
 │                                                                   │
 │  LETTERS                                                          │
 │  GET  /letters/admission/my          → my admission letter        │

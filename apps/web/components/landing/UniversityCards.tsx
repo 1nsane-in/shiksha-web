@@ -2,11 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useAuthStore } from "@/stores/auth-store";
-import { universities, type University } from "@/lib/university-data";
+import { universities } from "@/lib/university-data";
+import { useRouter } from "next/navigation";
 import {
   MapPin,
   GraduationCap,
@@ -40,16 +39,14 @@ function InfoIcon({ icon: Icon }: { icon: React.ElementType }) {
 }
 
 export function UniversityCards() {
+  console.log("UniversityCards rendered");
   const router = useRouter();
-
-  const handleApply = (uni: University) => {
-    if (!useAuthStore.getState().access_token) {
-      router.push("/login?redirect=%2F");
-      return;
-    }
-    router.push(`/applications?university=${encodeURIComponent(uni.name)}`);
+  
+  const handleNavigation = (url: string) => {
+    console.log("Navigating to:", url);
+    router.push(url);
   };
-
+  
   return (
     <section className="py-20 bg-[#F8F6FC]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -129,43 +126,40 @@ export function UniversityCards() {
                     ))}
                   </div>
 
-                  <div className="flex gap-2 mt-auto">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 gap-1.5 text-xs h-9 bg-transparent"
-                      onClick={() =>
+                  <div className="flex gap-2 mt-auto" style={{position: 'relative', zIndex: 10}}>
+                    <button
+                      className="flex-1 gap-1.5 text-xs h-9 bg-transparent border border-border rounded-md inline-flex items-center justify-center hover:bg-muted"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         window.open(
                           uni.brochureUrl,
                           "_blank",
                           "noopener,noreferrer",
-                        )
-                      }
+                        );
+                      }}
                     >
                       <Download className="size-3.5" />
                       Brochure
-                    </Button>
-                    <Button
-                      size="sm"
-                      nativeButton={false}
-                      className="flex-1 gap-1.5 text-xs h-9"
-                      // onClick={() => handleApply(uni)}
-                      render={
-                        <Link href={`/university/${uni.slug}?apply=true`} />
-                      }
+                    </button>
+                    <button
+                      className="flex-1 gap-1.5 text-xs h-9 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md inline-flex items-center justify-center"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleNavigation(`/student/university/${uni.slug}?apply=true`);
+                      }}
                     >
                       Apply Now
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      nativeButton={false}
-                      className="gap-1 h-9 px-3 text-[#4B2D8E] hover:text-[#2D2154] hover:bg-[#4B2D8E]/5"
-                      render={<Link href={`/university/${uni.slug}`} />}
+                    </button>
+                    <button
+                      className="gap-1 h-9 px-3 text-[#4B2D8E] hover:text-[#2D2154] hover:bg-[#4B2D8E]/5 rounded-md inline-flex items-center justify-center"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleNavigation(`/student/university/${uni.slug}`);
+                      }}
                     >
                       Details
                       <ExternalLink className="size-3.5" />
-                    </Button>
+                    </button>
                   </div>
                 </div>
               </div>

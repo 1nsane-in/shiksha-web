@@ -20,8 +20,13 @@ function decodeToken(token: string): { role?: string } | null {
   }
 }
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Allow public university pages without authentication
+  if (pathname.startsWith("/student/university/")) {
+    return NextResponse.next();
+  }
 
   const isProtected = protectedRoutes.some((route) =>
     pathname.startsWith(route)

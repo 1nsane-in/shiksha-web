@@ -12,7 +12,7 @@ Primary Rule: Keep all logic in NestJS — no separate AI service in V1.
 
 ## 1. Product Context
 
-This project is a medical admission management platform for students, admins, and agents. The system manages:
+This project is a medical admission management platform for students and admins. The system manages:
 
 - Student registration and dashboard
 - Stage-wise admission application
@@ -20,7 +20,6 @@ This project is a medical admission management platform for students, admins, an
 - Multi-stage payments
 - Admission letter and invitation letter access
 - Visa support
-- Agent allocation and commission tracking
 - University management
 - AI-assisted document validation
 
@@ -44,7 +43,6 @@ NestJS owns:
 - Document metadata
 - Payment records
 - Razorpay webhooks
-- Agent commission logic
 - University management
 - Letter access control
 - Visa support
@@ -85,7 +83,6 @@ Use Next.js for:
 
 - Student dashboard
 - Admin dashboard
-- Agent dashboard
 - Authentication screens
 - Application tracker
 - Document upload screens
@@ -194,18 +191,7 @@ Supported payment statuses:
 - REFUNDED
 - MANUALLY_APPROVED
 
-## 5.5 Agent Commission
-
-V1 commission logic should remain simple.
-
-Rules:
-
-- Admin assigns students to agents.
-- Commission is generated/tracked based on configured rules.
-- Admin can mark commission as pending, approved, paid, on hold, or cancelled.
-- Do not build complex wallet withdrawal flow in V1 unless explicitly required.
-
-## 5.6 Secure File Viewing
+## 5.5 Secure File Viewing
 
 Do not promise perfect screenshot blocking.
 
@@ -232,8 +218,6 @@ students
 applications
 documents
 payments
-agents
-commissions
 universities
 letters
 visa-support
@@ -275,7 +259,6 @@ Examples:
 - Stage unlock checks
 - Payment approval behavior
 - Document verification transitions
-- Commission generation
 - Letter access checks
 
 ## 6.4 Authorization Rules
@@ -286,7 +269,6 @@ Use guards for:
 - Role checks
 - Ownership checks
 - Admin-only actions
-- Agent-student relationship checks
 
 Never rely only on frontend restrictions.
 
@@ -395,13 +377,6 @@ Important table groups:
 - payments
 - payment_webhook_events
 
-### Agents
-
-- agents
-- agent_student_assignments
-- commission_rules
-- commissions
-
 ### Universities
 
 - universities
@@ -440,8 +415,6 @@ Recommended route patterns:
 /api/applications/*
 /api/documents/*
 /api/payments/*
-/api/agents/*
-/api/commissions/*
 /api/universities/*
 /api/letters/*
 /api/visa-support/*
@@ -476,17 +449,12 @@ app/
     payments/
     letters/
     visa-support/
-  agent/
-    dashboard/
-    students/
-    commissions/
   admin/
     dashboard/
     students/
     applications/
     documents/
     payments/
-    agents/
     universities/
     reports/
     settings/
@@ -524,7 +492,6 @@ Admin dashboard should prioritize:
 - Payment approvals
 - Stage-wise student counts
 - Recent activity
-- Agent commission pending
 
 ---
 
@@ -639,11 +606,9 @@ Do not:
 5. Payment integration
 6. Admission and invitation letters
 7. Visa support
-8. Agent allocation and commission tracking
-9. University management
-10. Reports
-11. AI module in NestJS (Vercel AI SDK + OpenRouter)
-12. QA and deployment
+8. Reports
+9. AI module in NestJS (Vercel AI SDK + OpenRouter)
+10. QA and deployment
 
 ---
 

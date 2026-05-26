@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "./auth.store";
 import type { LoginDto, GoogleAuthDto, GoogleRegisterDto, AuthResponse } from "./auth.types";
 
-export function useLogin() {
+export function useLogin(redirectUrl?: string) {
   const router = typeof window !== "undefined" ? useRouter() : null;
   const loginStore = useAuthStore((s) => s.login);
   return useMutation<AuthResponse, Error, LoginDto>({
@@ -14,6 +14,12 @@ export function useLogin() {
     onSuccess: (data) => {
       const { passwordHash, refreshToken, ...safeUser } = data.user as any;
       loginStore(safeUser as any, data.accessToken);
+      
+      if (redirectUrl && redirectUrl !== "/") {
+        router?.push(redirectUrl);
+        return;
+      }
+      
       const role = safeUser.role;
       if (role === "ADMIN" || role === "SUPER_ADMIN") {
         router?.push("/admin/dashboard");

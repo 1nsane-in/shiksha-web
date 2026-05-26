@@ -35,11 +35,16 @@ export default function UniversityDetailPage() {
 }
 
 function UniversityContent() {
+  console.log("=== UniversityContent rendering ===");
   const router = useRouter();
   const params = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
   const isApplying = searchParams.get("apply") === "true";
   const uni = getUniversityBySlug(params.slug);
+  
+  console.log("Params:", params);
+  console.log("University found:", uni?.name);
+  console.log("Is applying:", isApplying);
 
   if (!uni) {
     return (
@@ -97,7 +102,7 @@ function UniversityContent() {
         </div>
 
         {isApplying ? (
-          <ApplicationForm uni={uni} onBack={() => router.push(`/university/${params.slug}`)} />
+          <ApplicationForm uni={uni} onBack={() => router.push(`/student/university/${params.slug}`)} />
         ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Details */}

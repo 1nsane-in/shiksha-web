@@ -36,8 +36,13 @@ export function LoginForm({
       } else {
         router.push("/");
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid email or password");
+    } catch (err: unknown) {
+      const apiError =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response: { data: { message?: string } } }).response?.data
+              ?.message
+          : undefined;
+      setError(apiError ?? (err instanceof Error ? err.message : "Invalid email or password"));
     }
   };
 

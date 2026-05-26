@@ -147,17 +147,15 @@ export class LettersService {
     return letter;
   }
 
-  async getMyInvitationLetter(studentId: string) {
+  async getMyInvitationLetter(userId: string) {
+    const student = await this.prisma.student.findUnique({ where: { userId } });
+    if (!student) throw new NotFoundException('Student profile not found');
     const letter = await this.prisma.invitationLetter.findFirst({
-      where: { studentId },
+      where: { studentId: student.id },
     });
     if (!letter) throw new NotFoundException('Invitation letter not found');
     // Check if downloadable
     if (!letter.isDownloadable) {
-      // Check if Stage 4 payment is done or auto-unlock
-      const student = await this.prisma.student.findUnique({
-        where: { id: studentId },
-      });
       throw new ForbiddenException('Invitation letter will be available after completing previous stages');
     }
     await this.prisma.invitationLetter.update({
