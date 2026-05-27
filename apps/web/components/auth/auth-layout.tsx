@@ -11,9 +11,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            {children}
-          </div>
+          <div className="w-full max-w-xs">{children}</div>
         </div>
       </div>
       <div className="relative hidden bg-muted lg:block">
@@ -26,4 +24,3 @@ export function AuthLayout({ children }: { children: ReactNode }) {
     </div>
   );
 }
-

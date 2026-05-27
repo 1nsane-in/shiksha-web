@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "./auth.store";
+import { useAuthStore } from "@/stores/auth-store";
 import type { LoginDto, GoogleAuthDto, GoogleRegisterDto, AuthResponse } from "./auth.types";
 
 export function useLogin(redirectUrl?: string) {
@@ -70,4 +70,5 @@ export function useLogout() {
     },
   });
 }
+
 

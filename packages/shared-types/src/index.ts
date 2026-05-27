@@ -15,7 +15,11 @@ export interface Application {
 
 // ========== University Onboarding ==========
 
-export type UniversityType = 'public' | 'private' | 'deemed' | 'trust'
+export type UniversityType = 'GOVERNMENT' | 'PRIVATE' | 'DEEMED' | 'AUTONOMOUS'
+export type UniversityStatus = 'DRAFT' | 'UNDER_REVIEW' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
+export type ECFMGStatus = 'APPROVED' | 'NOT_APPROVED' | 'PENDING'
+export type UniversityDocType = 'BROCHURE' | 'PROSPECTUS' | 'RECOGNITION_CERTIFICATE' | 'AFFILIATION_DOCUMENT' | 'DEGREE_SAMPLE' | 'FEE_STRUCTURE' | 'ADMISSION_FORM' | 'HOSTEL_RULES' | 'ANTI_RAGGING_POLICY' | 'AGREEMENT'
+export type AdminRole = 'ADMIN' | 'SUPER_ADMIN'
 export type AccreditationStatus = 'approved' | 'pending' | 'conditional'
 export type SelectionProcess = 'interview' | 'merit' | 'first-come'
 export type HostelType = 'single' | 'shared' | 'both'

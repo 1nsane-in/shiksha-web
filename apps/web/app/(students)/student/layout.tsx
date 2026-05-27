@@ -1,3 +1,4 @@
+import { Header } from "@/components/landing/Header";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,10 +16,10 @@ export default function StudentLayout({
 }) {
   return (
     <div className="min-h-screen bg-[#F8F6FC] pb-20 md:pb-0">
+      <Header />
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6">
         <main>{children}</main>
       </div>
     </div>
   );
 }
-

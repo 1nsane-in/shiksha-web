@@ -1,3 +1,5 @@
+import type { UniversityType as SharedUniversityType, UniversityStatus as SharedUniversityStatus, ECFMGStatus as SharedECFMGStatus, UniversityDocType as SharedUniversityDocType } from '@repo/shared-types';
+
 export enum UniversityType {
   GOVERNMENT = 'GOVERNMENT',
   PRIVATE = 'PRIVATE',
@@ -31,3 +33,9 @@ export enum UniversityDocType {
   ANTI_RAGGING_POLICY = 'ANTI_RAGGING_POLICY',
   AGREEMENT = 'AGREEMENT',
 }
+
+// Compile-time checks: ensure enum values match shared-types string unions
+type _AssertUniversityTypeExtends = UniversityType extends SharedUniversityType ? true : never;
+type _AssertUniversityStatusExtends = UniversityStatus extends SharedUniversityStatus ? true : never;
+type _AssertECFMGStatusExtends = ECFMGStatus extends SharedECFMGStatus ? true : never;
+type _AssertUniversityDocTypeExtends = UniversityDocType extends SharedUniversityDocType ? true : never;

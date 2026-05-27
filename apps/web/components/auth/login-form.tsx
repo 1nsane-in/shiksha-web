@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils"
+import { cn } from "@repo/ui"
 import { Button } from "@repo/ui"
 import {
   Field,
@@ -106,4 +106,5 @@ export function LoginForm({
     </form>
   )
 }
+
 

@@ -16,15 +16,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  Separator,
 } from "@repo/ui";
 
 const navLinks = [
   { name: "Home", href: "/" },
-  { name: "How It Works", href: "#how-it-works" },
-  { name: "Universities", href: "#universities" },
-  { name: "Documents", href: "#documents" },
-  { name: "Pricing", href: "#pricing" },
-  { name: "Contact", href: "#contact" },
+  { name: "About Us", href: "#" },
+  { name: "Our Universities", href: "#" },
+  { name: "Gallery", href: "#" },
+  { name: "Online Payment", href: "#" },
+  { name: "Courses", href: "#courses" },
+  { name: "Contact Us", href: "#contact" },
 ];
 
 export function Header() {
@@ -34,66 +36,91 @@ export function Header() {
   const initials = user?.name?.charAt(0)?.toUpperCase() || "U";
 
   return (
-    <header className="sticky top-0 z-50">
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto mt-5 flex h-14 max-w-6xl items-center justify-between rounded-md bg-white/20 px-4 backdrop-blur-sm">
+    <header>
+      <div className=" w-full  bg-white ">
+        <div className="flex items-center gap-12 container mx-auto justify-between py-4">
           <Link href="/" className="flex shrink-0 items-center">
-            <Image src="/img/logo.png" alt="Shiksha Logo" width={28} height={28} className="h-7 w-auto" />
+            <Image
+              src="/img/shiksha-logo.png"
+              alt="Shiksha Logo"
+              width={28}
+              height={28}
+              className="h-10 w-auto"
+            />
           </Link>
+          <div className="flex items-center gap-3">
+            <nav className="hidden md:block">
+              <ul className="flex items-center gap-8">
+                {navLinks.map((link) => (
+                  <li key={link.name}>
+                    <Link href={link.href}>{link.name}</Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-          <nav className="hidden md:block">
-            <ul className="flex items-center gap-8">
-              {navLinks.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href}>{link.name}</Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+            <Separator orientation="vertical" className={"mr-5"} />
 
-          <div className="flex items-center gap-2">
-            {isAuthenticated && user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={<button type="button" className="flex items-center gap-2 cursor-pointer" />}
-                >
-                  <Avatar className="size-8">
-                    <AvatarFallback>{initials}</AvatarFallback>
-                  </Avatar>
-                  <ChevronDown className="hidden md:block size-4 text-white/70" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={8}>
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{user.name}</span>
-                        <span className="text-xs text-muted-foreground">{user.email}</span>
-                      </div>
-                    </DropdownMenuLabel>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => logoutMutation.mutate()}>
-                    <LogOut className="size-4" />
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <div className="hidden md:block">
-                <Button variant="secondary" size="sm" nativeButton={false} render={<Link href="/login" />}>
-                  Login
-                </Button>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              {isAuthenticated && user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 cursor-pointer"
+                      />
+                    }
+                  >
+                    <Avatar className="size-8">
+                      <AvatarFallback>{initials}</AvatarFallback>
+                    </Avatar>
+                    <ChevronDown className="hidden md:block size-4 text-white/70" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" sideOffset={8}>
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{user.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {user.email}
+                          </span>
+                        </div>
+                      </DropdownMenuLabel>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => logoutMutation.mutate()}>
+                      <LogOut className="size-4" />
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className="hidden md:block">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    nativeButton={false}
+                    render={<Link href="/login" />}
+                  >
+                    Login
+                  </Button>
+                </div>
+              )}
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-            </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="md:hidden"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                {isMenuOpen ? (
+                  <X className="size-5" />
+                ) : (
+                  <Menu className="size-5" />
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -134,4 +161,3 @@ export function Header() {
     </header>
   );
 }
-

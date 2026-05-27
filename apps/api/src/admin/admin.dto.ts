@@ -1,9 +1,13 @@
 import { IsString, IsEmail, IsOptional, MinLength, IsEnum, IsBoolean } from 'class-validator';
+import type { AdminRole as SharedAdminRole } from '@repo/shared-types';
 
 export enum AdminRole {
   ADMIN = 'ADMIN',
   SUPER_ADMIN = 'SUPER_ADMIN',
 }
+
+// Compile-time check: ensure enum values match shared-types string union
+type _AssertAdminRoleExtends = AdminRole extends SharedAdminRole ? true : never;
 
 export class CreateAdminDto {
   @IsEmail()
