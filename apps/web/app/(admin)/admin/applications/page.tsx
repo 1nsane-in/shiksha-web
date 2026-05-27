@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Button } from "@repo/ui";
+import { Card } from "@repo/ui";
+import { Input } from "@repo/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@repo/ui";
 import { useApplications, useUpdateApplicationStatus } from "@/domains/applications/applications.queries";
 import type { ApplicationFilters } from "@/domains/applications/applications.types";
 import {
@@ -221,3 +221,4 @@ export default function AdminApplicationsPage() {
     </div>
   );
 }
+

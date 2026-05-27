@@ -1,7 +1,7 @@
 "use client";
 
 import { Component, type ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui";
 
 interface Props {
   children: ReactNode;
@@ -46,3 +46,4 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+

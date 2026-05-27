@@ -3,19 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCreateUniversity } from "@/domains/universities";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@repo/ui";
+import { Input } from "@repo/ui";
+import { Label } from "@repo/ui";
+import { Textarea } from "@repo/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
+import { Checkbox } from "@repo/ui";
 import { ArrowLeft, ArrowRight, Save } from "lucide-react";
 
 const steps = [
@@ -940,3 +940,4 @@ export default function NewUniversityPage() {
     </div>
   );
 }
+

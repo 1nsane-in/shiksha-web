@@ -1,122 +1,135 @@
+import type { PaginatedResponse, PaginationMeta } from "../applications/applications.types";
+
+export interface UniversityLocation {
+  country: string;
+  city: string;
+  state: string;
+  address: string;
+}
+
+export interface UniversityContact {
+  email: string;
+  phone: string;
+  admissionOfficeHours?: string;
+}
+
+export interface UniversityAcademic {
+  medium: string;
+}
+
+export interface UniversityContent {
+  gallery: string[];
+  shortDescription?: string;
+  longDescription?: string;
+  highlights?: string[];
+  whyChooseUs?: string;
+  videoTour?: string;
+  virtualTour?: string;
+}
+
 export interface UniversityListItem {
   id: string;
   name: string;
   shortName: string;
-  slug?: string;
-  country: string;
-  city: string;
+  slug: string;
+  establishedYear: number;
   type: string;
   status: string;
-  establishedYear: number;
-  createdAt: string;
-  location?: {
-    country: string;
-    city: string;
-  };
-  _count?: {
-    courses: number;
-    applications: number;
-  };
+  logo: string;
+  bannerImage?: string;
+  location: UniversityLocation | null;
+  contact: UniversityContact | null;
+  academic: UniversityAcademic | null;
+  content: UniversityContent | null;
 }
 
-export interface UniversityDetail {
-  id: string;
-  name: string;
-  shortName: string;
-  slug: string;
-  type: string;
-  status: string;
-  establishedYear: number;
+export interface UniversityDetail extends UniversityListItem {
   website: string;
-  image: string;
-  country: string;
-  location: {
-    address: string;
-    city: string;
-    state: string;
-    country: string;
-  };
-  contact: {
-    email: string;
-    phone: string;
-    admissionOfficeHours: string;
-  };
-  recognition: {
-    ecfmgStatus: string;
-    naacGrade?: string;
-    worldRank?: number;
-  };
+  location: UniversityLocation;
+  contact: UniversityContact;
   academic: {
     programs: string[];
     duration: string;
     medium: string;
+    specializations: string[];
+    intakeMonths: string[];
     totalSeats: number;
     governmentSeats: number;
     managementSeats: number;
     nriSeats: number;
-    intakeMonths: string[];
-  };
-  fees: {
-    currency: string;
-    tuitionAnnual: number;
-    totalProgram: number;
-    registration: number;
-    scholarshipAvailable: boolean;
-    paymentSchedule: string;
-    refundPolicy: string;
-  };
-  infrastructure?: {
-    hospitalBeds?: number;
-    departments?: number;
-    laboratories?: number;
-    hostelBoys?: number;
-    hostelGirls?: number;
-    cafeteria?: boolean;
-    wifiCampus?: boolean;
-    transportation?: boolean;
-  };
+  } | null;
+  infrastructure: {
+    hospitalBeds: number;
+    departments: number;
+    hostelBoys: number;
+    hostelGirls: number;
+    laboratories: number;
+    campusArea: number;
+    facilities: string[];
+    cafeteria: boolean;
+    wifiCampus: boolean;
+    transportation: boolean;
+  } | null;
   admission: {
     entranceExams: string[];
-    eligibilityCriteria?: string;
-    eligibility?: string;
+    minimumMarks: string;
+    ageCriteria: string;
+    eligibility: string;
+    requiredDocuments: string[];
     applicationDeadline: string;
-    minimumMarks?: string;
-    ageCriteria?: string;
-    applicationFee?: number;
-    selectionProcess?: string;
-  };
-  admin?: {
-    headOfDepartment?: string;
-    accreditationBody?: string;
-    accreditationValidUntil?: string;
-    commission: number;
-    pocName?: string;
-    pocDesignation?: string;
-    pocEmail?: string;
-    pocPhone?: string;
-    accountNumber?: string;
-    bankName?: string;
-    bankBranch?: string;
-    ifscCode?: string;
-  };
-  content?: {
-    shortDescription: string;
-    longDescription: string;
-  };
+    applicationFee: number;
+    selectionProcess: string;
+  } | null;
+  support: {
+    placementRate: number;
+    averagePackage: number;
+    visaAssistance: boolean;
+    languageSupport: string[];
+    counselingServices: boolean;
+    careerGuidance: boolean;
+  } | null;
+  content: UniversityContent;
+  courses: {
+    id: string;
+    name: string;
+    duration: number;
+    fees: number;
+    seats: number;
+    isActive: boolean;
+  }[];
+  recognition: {
+    nmcApproved: boolean;
+    whoListed: boolean;
+    ecfmgVerified: boolean;
+    accreditedBy: string;
+    globalRank: number;
+    countryRank: number;
+    approvals: string[];
+  } | null;
+  fees: {
+    currency: string;
+    tuitionFee: number;
+    hostelFee: number;
+    totalFee: number;
+    paymentTerms: string;
+    installmentAvailable: boolean;
+    otherFees: Record<string, number>;
+  } | null;
+  admin: {
+    assignedAdminId: string;
+    assignedAdminName: string;
+    lastReviewedAt: string;
+    notes: string;
+  } | null;
 }
 
 export interface UniversityFilters {
-  search?: string;
-  status?: string;
-  type?: string;
   page?: number;
   limit?: number;
+  country?: string;
+  type?: string;
+  search?: string;
 }
 
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+export type { PaginatedResponse, PaginationMeta };
+

@@ -10,24 +10,24 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@repo/ui"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart"
+} from "@repo/ui"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@repo/ui"
 import {
   ToggleGroup,
   ToggleGroupItem,
-} from "@/components/ui/toggle-group"
+} from "@repo/ui"
 
 const chartData = [
   { date: "2024-04-01", desktop: 222, mobile: 150 },
@@ -295,3 +295,4 @@ export function ChartAreaInteractive() {
     </Card>
   )
 }
+

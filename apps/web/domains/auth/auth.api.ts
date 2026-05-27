@@ -49,3 +49,4 @@ export async function resetPassword(dto: ResetPasswordDto) {
   const { data } = await api.post<{ message: string }>("/auth/reset-password", dto);
   return data;
 }
+

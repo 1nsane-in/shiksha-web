@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/auth-store";
@@ -213,3 +213,4 @@ export function GoogleLoginButton({
     </div>
   );
 }
+

@@ -1,52 +1,66 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { universities } from "@/lib/university-data";
+import { Button } from "@repo/ui";
+import { Card } from "@repo/ui";
 import { useRouter } from "next/navigation";
+import { useUniversities } from "@/domains/universities/universities.queries";
 import {
   MapPin,
   GraduationCap,
-  Calendar,
-  Star,
-  Clock,
   Building2,
-  Globe,
   Award,
   BookOpen,
-  Download,
   ExternalLink,
-  ChevronRight,
+  Loader2,
+  AlertCircle,
+  Mail,
+  Phone,
 } from "lucide-react";
 
 const infoRows = [
-  { label: "University Type", field: "type" as const, icon: Building2 },
-  { label: "Intake", field: "intake" as const, icon: Calendar },
-  { label: "Grade", field: "grade" as const, icon: Star },
-  { label: "Duration", field: "duration" as const, icon: Clock },
+  { label: "Type", field: "type" as const, icon: Building2 },
   { label: "Established", field: "established" as const, icon: Award },
-  { label: "Fee", field: "fee" as const, icon: GraduationCap },
-  { label: "World Rank", field: "worldRank" as const, icon: Globe },
   { label: "Medium", field: "medium" as const, icon: BookOpen },
-  { label: "ECFMG", field: "ecfmg" as const, icon: Award },
-  { label: "Specialization", field: "specialization" as const, icon: BookOpen },
+  { label: "City", field: "city" as const, icon: MapPin },
 ];
 
-function InfoIcon({ icon: Icon }: { icon: React.ElementType }) {
-  return <Icon className="size-3.5 text-[#8B7FAD]" />;
-}
-
 export function UniversityCards() {
-  console.log("UniversityCards rendered");
   const router = useRouter();
-  
-  const handleNavigation = (url: string) => {
-    console.log("Navigating to:", url);
-    router.push(url);
-  };
-  
+  const { data, isLoading, error, refetch } = useUniversities({ limit: 10 });
+
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-[#F8F6FC]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center min-h-[300px]">
+            <Loader2 className="size-6 animate-spin text-muted-foreground" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !data?.length) {
+    return (
+      <section className="py-20 bg-[#F8F6FC]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-center min-h-[300px] gap-4">
+            <AlertCircle className="size-12 text-muted-foreground/50" />
+            <p className="text-muted-foreground">
+              {error ? "Failed to load universities" : "No universities available"}
+            </p>
+            {error && (
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                Retry
+              </Button>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-20 bg-[#F8F6FC]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,24 +78,27 @@ export function UniversityCards() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {universities.map((uni) => (
+          {data?.map((uni) => (
             <Card
-              key={uni.name}
+              key={uni.id}
               className="group border p-0 border-[#E0D8F0] hover:border-[#F0A030]/50 transition-all hover:shadow-xl overflow-hidden"
             >
               <div className="flex flex-col sm:flex-row">
                 <div className="relative w-full sm:w-44 h-40 sm:h-auto shrink-0 bg-white flex items-center justify-center">
                   <div className="relative w-full h-full overflow-hidden">
-                    <Image
-                      src={uni.image}
-                      alt={uni.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {uni.logo ? (
+                      <Image
+                        src={uni.logo}
+                        alt={uni.name}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-muted">
+                        <Building2 className="size-10 text-muted-foreground/40" />
+                      </div>
+                    )}
                   </div>
-                  <span className="absolute top-3 right-3 sm:hidden rounded-full bg-[#F0A030] px-2.5 py-0.5 text-xs font-semibold text-[#2D2154] shadow-sm">
-                    {uni.grade}
-                  </span>
                 </div>
 
                 <div className="flex-1 p-4 flex flex-col min-w-0">
@@ -94,70 +111,77 @@ export function UniversityCards() {
                         {uni.shortName}
                       </p>
                     </div>
-                    <span className="hidden sm:block shrink-0 rounded-full bg-[#F0A030] px-2.5 py-0.5 text-xs font-semibold text-[#2D2154]">
-                      {uni.grade}
-                    </span>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#6B6B6B] mb-4">
                     <div className="flex items-center gap-1">
                       <MapPin className="size-3.5 text-[#8B7FAD]" />
-                      {uni.country}
+                      {[uni.location?.city, uni.location?.country].filter(Boolean).join(', ') || 'N/A'}
                     </div>
                     <div className="flex items-center gap-1">
                       <GraduationCap className="size-3.5 text-[#8B7FAD]" />
-                      {uni.degree} in {uni.course}
+                      {uni.academic?.medium || 'N/A'}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 text-sm mb-4">
-                    {infoRows.map((row) => (
-                      <div key={row.label} className="flex items-center gap-2">
-                        <InfoIcon icon={row.icon} />
-                        <div className="min-w-0">
-                          <span className="text-[#6B6B6B] text-xs">
-                            {row.label}:{" "}
-                          </span>
-                          <span className="text-[#2D2154] font-medium text-xs">
-                            {uni[row.field]}
-                          </span>
+                    {infoRows.map((row) => {
+                      const Icon = row.icon;
+                      let value: string;
+                      if (row.field === 'type') value = uni.type;
+                      else if (row.field === 'established') value = String(uni.establishedYear);
+                      else if (row.field === 'medium') value = uni.academic?.medium || '—';
+                      else if (row.field === 'city') value = uni.location?.city || '—';
+                      else value = '—';
+                      return (
+                        <div key={row.label} className="flex items-center gap-2">
+                          <Icon className="size-3.5 text-[#8B7FAD]" />
+                          <div className="min-w-0">
+                            <span className="text-[#6B6B6B] text-xs">
+                              {row.label}:{" "}
+                            </span>
+                            <span className="text-[#2D2154] font-medium text-xs">
+                              {value}
+                            </span>
+                          </div>
                         </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#6B6B6B] mb-4">
+                    {uni.contact?.email && (
+                      <div className="flex items-center gap-1">
+                        <Mail className="size-3 text-[#8B7FAD]" />
+                        <span className="truncate max-w-[150px]">{uni.contact.email}</span>
                       </div>
-                    ))}
+                    )}
+                    {uni.contact?.phone && (
+                      <div className="flex items-center gap-1">
+                        <Phone className="size-3 text-[#8B7FAD]" />
+                        <span>{uni.contact.phone}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex gap-2 mt-auto" style={{position: 'relative', zIndex: 10}}>
                     <button
-                      className="flex-1 gap-1.5 text-xs h-9 bg-transparent border border-border rounded-md inline-flex items-center justify-center hover:bg-muted"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(
-                          uni.brochureUrl,
-                          "_blank",
-                          "noopener,noreferrer",
-                        );
-                      }}
-                    >
-                      <Download className="size-3.5" />
-                      Brochure
-                    </button>
-                    <button
                       className="flex-1 gap-1.5 text-xs h-9 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md inline-flex items-center justify-center"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleNavigation(`/student/university/${uni.slug}?apply=true`);
+                        router.push(`/student/university/${uni.slug}?apply=true`);
                       }}
                     >
                       Apply Now
                     </button>
                     <button
-                      className="gap-1 h-9 px-3 text-[#4B2D8E] hover:text-[#2D2154] hover:bg-[#4B2D8E]/5 rounded-md inline-flex items-center justify-center"
+                      className="flex-1 gap-1 h-9 px-3 text-[#4B2D8E] hover:text-[#2D2154] hover:bg-[#4B2D8E]/5 rounded-md inline-flex items-center justify-center"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleNavigation(`/student/university/${uni.slug}`);
+                        router.push(`/student/university/${uni.slug}`);
                       }}
                     >
-                      Details
+                      View Details
                       <ExternalLink className="size-3.5" />
                     </button>
                   </div>
@@ -166,24 +190,8 @@ export function UniversityCards() {
             </Card>
           ))}
         </div>
-
-        <div className="mt-12 text-center">
-          <Button
-            variant="ghost"
-            className="gap-2 text-[#4B2D8E] hover:text-[#2D2154] hover:bg-[#4B2D8E]/5"
-            onClick={() =>
-              window.open(
-                "https://wciecorganization.com/explore_university",
-                "_blank",
-                "noopener,noreferrer",
-              )
-            }
-          >
-            View All Universities
-            <ChevronRight className="size-4" />
-          </Button>
-        </div>
       </div>
     </section>
   );
 }
+

@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider } from "@repo/ui"
 
 export const metadata: Metadata = {
   title: {
@@ -29,3 +29,4 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   )
 }
+

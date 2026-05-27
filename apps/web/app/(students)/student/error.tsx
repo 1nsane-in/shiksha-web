@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui";
 
 export default function StudentError({
   error,
@@ -21,3 +21,4 @@ export default function StudentError({
     </div>
   );
 }
+

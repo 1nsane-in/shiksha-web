@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@repo/ui"
 
 export function UniversityHero() {
   return (
@@ -31,3 +31,4 @@ export function UniversityHero() {
     </section>
   )
 }
+

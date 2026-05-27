@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectItem } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@repo/ui";
+import { Button } from "@repo/ui";
+import { Input } from "@repo/ui";
+import { Textarea } from "@repo/ui";
+import { Label } from "@repo/ui";
+import { Select, SelectItem } from "@repo/ui";
 import { useCreateTicket, useMyTickets } from "@/domains/tickets";
 import { useMyApplications } from "@/domains/student";
 import { toast } from "sonner";
@@ -189,3 +189,4 @@ export default function NewTicketPage() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-﻿import { client } from "@/shared/api/client";
+import { client } from "@/shared/api/client";
 import type { ScheduleExamPayload, DeclareResultPayload, ExamResponse } from "./exams.types";
 import type { PaginatedResponse } from "../documents/documents.types";
 

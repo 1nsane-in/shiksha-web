@@ -3,16 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
+} from "@repo/ui";
+import { Tabs, TabsList, TabsTrigger } from "@repo/ui";
+import { Input } from "@repo/ui";
 import {
   AlertCircle,
   ArrowLeft,
@@ -282,3 +282,4 @@ export function RegisterForm({
     </form>
   );
 }
+

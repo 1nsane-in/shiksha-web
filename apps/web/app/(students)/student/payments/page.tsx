@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@repo/ui";
+import { Button } from "@repo/ui";
+import { Badge } from "@repo/ui";
+import { Skeleton } from "@repo/ui";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+} from "@repo/ui";
 import { usePaymentConfig, usePaymentHistory, useInitiatePayment, useVerifyPayment } from "@/domains/payments";
 import { useAuth } from "@/hooks/useAuth";
 import { useStageInfo } from "@/domains/student";
@@ -277,3 +277,4 @@ export default function PaymentsPage() {
     </div>
   );
 }
+

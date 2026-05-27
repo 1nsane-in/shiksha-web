@@ -1,8 +1,8 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+import { Button } from "@repo/ui"
+import { Separator } from "@repo/ui"
+import { SidebarTrigger } from "@repo/ui"
 import { Bell, Search } from "lucide-react"
 
 export function SiteHeader() {
@@ -27,3 +27,4 @@ export function SiteHeader() {
     </header>
   )
 }
+

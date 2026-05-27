@@ -1,9 +1,9 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@repo/ui";
+import { Button } from "@repo/ui";
+import { Badge } from "@repo/ui";
+import { Skeleton } from "@repo/ui";
 import { useMyExam } from "@/domains/exams";
 import {
   GraduationCap, Calendar, MapPin, Hash,
@@ -161,3 +161,4 @@ export default function ExamsPage() {
     </div>
   );
 }
+

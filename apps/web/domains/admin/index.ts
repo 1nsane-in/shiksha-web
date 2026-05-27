@@ -1,4 +1,4 @@
-﻿export * from "./letters.types";
+export * from "./letters.types";
 export * from "./letters.api";
 export * from "./letters.queries";
 export * from "./exams.types";

@@ -1,4 +1,4 @@
-﻿export interface ScheduleExamPayload {
+export interface ScheduleExamPayload {
   applicationId: string;
   examDate: string;
   examSubject: string;
@@ -30,3 +30,4 @@ export interface ExamResponse {
   };
   university?: { name: string; shortName: string };
 }
+

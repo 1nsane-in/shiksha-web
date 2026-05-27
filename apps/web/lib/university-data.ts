@@ -138,3 +138,4 @@ export const universities: University[] = [
 export function getUniversityBySlug(slug: string): University | undefined {
   return universities.find((u) => u.slug === slug);
 }
+

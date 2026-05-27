@@ -3,7 +3,7 @@
 import * as React from "react"
 import { z } from "zod"
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@repo/ui"
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@repo/ui"
 import {
   ChevronLeft,
   ChevronRight,
@@ -166,3 +166,4 @@ export function DataTable({
     </div>
   )
 }
+

@@ -3,7 +3,7 @@
 import {
   Card,
   CardContent,
-} from "@/components/ui/card"
+} from "@repo/ui"
 import { ArrowUpRight, ArrowDownRight } from "lucide-react"
 
 const metrics = [
@@ -70,3 +70,4 @@ export function SectionCards() {
     </div>
   )
 }
+

@@ -1,6 +1,6 @@
 "use client"
 
-import { Card } from "@/components/ui/card"
+import { Card } from "@repo/ui"
 
 const comparisons = [
   { parameter: "College Type", india: "Govt & Pvt", kyrgyzstan: "Govt & Pvt" },
@@ -50,3 +50,4 @@ export function UniversityComparison() {
     </section>
   )
 }
+

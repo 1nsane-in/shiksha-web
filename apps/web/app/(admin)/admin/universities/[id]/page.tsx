@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useUniversity } from "@/domains/universities";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
+import { Badge } from "@repo/ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui";
 import {
   ArrowLeft,
   Edit,

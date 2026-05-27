@@ -52,6 +52,7 @@ api.interceptors.response.use((response) => {
 });
 
 api.interceptors.request.use((config) => {
+  config.headers["X-Api-Version"] = "1";
   if (typeof window !== "undefined") {
     const auth = storage.get<AuthStorage>(STORAGE_KEYS.AUTH_STORAGE);
     const token = auth?.state?.access_token;

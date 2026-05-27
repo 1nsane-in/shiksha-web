@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
@@ -84,3 +84,4 @@ export default function GoogleAuthPage() {
     </div>
   );
 }
+

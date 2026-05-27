@@ -4,16 +4,16 @@ import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@repo/ui";
+import { Input } from "@repo/ui";
+import { Tabs, TabsList, TabsTrigger } from "@repo/ui";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field";
+} from "@repo/ui";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, GraduationCap, Users, Shield } from "lucide-react";

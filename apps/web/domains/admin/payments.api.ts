@@ -1,4 +1,4 @@
-﻿import { client } from "@/shared/api/client";
+import { client } from "@/shared/api/client";
 import type { PaymentResponse, ManualApprovePayload } from "./payments.types";
 import type { PaginatedResponse } from "../documents/documents.types";
 

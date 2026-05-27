@@ -14,3 +14,4 @@ export function getApplication(id: string) {
 export function updateApplicationStatus(id: string, status: string) {
   return client.patch<{ message: string }>(`/admin/applications/${id}/status`, { status });
 }
+

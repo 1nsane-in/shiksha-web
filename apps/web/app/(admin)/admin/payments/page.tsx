@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
+import { Button } from "@repo/ui";
+import { Badge } from "@repo/ui";
+import { Skeleton } from "@repo/ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui";
 import { CheckCircle2, AlertCircle, RefreshCw, CreditCard, IndianRupee, Clock } from "lucide-react";
 import { usePendingPayments, useManualApprovePayment } from "@/domains/admin";
 

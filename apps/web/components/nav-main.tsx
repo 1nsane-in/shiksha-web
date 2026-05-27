@@ -6,7 +6,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from "@repo/ui";
 
 export function NavMain({
   items,
@@ -34,3 +34,4 @@ export function NavMain({
     </SidebarGroup>
   );
 }
+

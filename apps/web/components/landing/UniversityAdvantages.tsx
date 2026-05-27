@@ -54,3 +54,4 @@ export function UniversityAdvantages() {
     </section>
   )
 }
+

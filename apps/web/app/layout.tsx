@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@repo/ui";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { Providers } from "@/lib/providers";
 
@@ -30,3 +30,4 @@ export default function RootLayout({
     </html>
   );
 }
+

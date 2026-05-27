@@ -1,4 +1,4 @@
-﻿export interface PaymentResponse {
+export interface PaymentResponse {
   id: string;
   applicationId: string;
   studentId: string;
@@ -26,3 +26,4 @@ export interface ManualApprovePayload {
   paymentId: string;
   note?: string;
 }
+

@@ -15,3 +15,4 @@ export default function ParentsLayout({
 }) {
   return <>{children}</>;
 }
+

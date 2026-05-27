@@ -1,13 +1,13 @@
-﻿"use client";
+"use client";
 
 import { useState, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
+import { Button } from "@repo/ui";
+import { Input } from "@repo/ui";
+import { Label } from "@repo/ui";
+import { Badge } from "@repo/ui";
+import { Skeleton } from "@repo/ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui";
 import { Upload, FileText, CheckCircle2, AlertCircle, RefreshCw, Lock, Unlock } from "lucide-react";
 import { useUploadAdmissionLetter, useUploadInvitationLetter, useApproveInvitationLetterAccess } from "@/domains/admin";
 import { useUploadFile } from "@/domains/documents";

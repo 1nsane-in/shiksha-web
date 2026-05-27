@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Button } from "@repo/ui";
+import { Card } from "@repo/ui";
 import { useMyApplications } from "@/domains/student/student.queries";
 import {
   FileText,
@@ -117,3 +117,4 @@ export default function MyApplicationsPage() {
     </div>
   );
 }
+

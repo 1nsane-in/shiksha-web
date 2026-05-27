@@ -3,15 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { Button } from "@repo/ui"
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+} from "@repo/ui"
+import { Input } from "@repo/ui"
 import { useLogin } from "@/domains/auth";
 import { GoogleLoginButton } from "./GoogleLoginButton";
 
@@ -106,3 +106,4 @@ export function LoginForm({
     </form>
   )
 }
+

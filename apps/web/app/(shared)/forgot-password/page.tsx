@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@repo/ui";
+import { Input } from "@repo/ui";
 import { AlertCircle, ArrowLeft, CheckCircle } from "lucide-react";
 import { forgotPassword, verifyOtp, resetPassword } from "@/domains/auth";
 import { getApiErrorMessage } from "@/lib/api-error";
@@ -203,3 +203,4 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
+

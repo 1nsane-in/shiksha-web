@@ -1,6 +1,6 @@
 "use client"
 
-import { Card } from "@/components/ui/card"
+import { Card } from "@repo/ui"
 import { Stethoscope, Microscope, HeartPulse, Building, GraduationCap } from "lucide-react"
 
 const careers = [
@@ -53,3 +53,4 @@ export function UniversityCareer() {
     </section>
   )
 }
+
