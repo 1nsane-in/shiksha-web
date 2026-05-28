@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'placehold.co',
       },
+      {
+        protocol: 'https',
+        hostname: '*.r2.dev',
+      },
     ],
   },
 };
@@ -38,3 +42,4 @@ if (process.env.ANALYZE === 'true') {
 }
 
 export default finalConfig;
+

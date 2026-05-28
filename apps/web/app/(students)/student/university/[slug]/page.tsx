@@ -1,582 +1,1012 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { Button } from "@repo/ui";
-import { Input } from "@repo/ui";
-import { Label } from "@repo/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { useUniversity } from "@/domains/universities/universities.queries";
 import { useSubmitApplication } from "@/domains/student/student.queries";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { SubmitApplicationFormData, UniversityDetail } from "@/domains/universities/universities.types";
+import type { SubmitApplicationFormData } from "@/domains/student/student.types";
 import {
   MapPin,
   GraduationCap,
   Calendar,
-  Star,
-  Clock,
   Building2,
-  Globe,
-  Award,
   BookOpen,
-  Download,
-  CheckCircle2,
-  ExternalLink,
   ArrowLeft,
   ChevronRight,
   Loader2,
   Mail,
   Phone,
   Users,
-  Plane,
-  Briefcase,
+  Globe,
+  Clock,
+  Award,
+  Star,
   BookMarked,
   Hospital,
   Wifi,
   Utensils,
   Bus,
   Library,
+  Check,
+  X,
+  Banknote,
+  ShieldCheck,
+  DollarSign,
+  Layers,
+  ImageIcon,
 } from "lucide-react";
 import Image from "next/image";
 
-export default function UniversityDetailPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[#F8F6FC]" />}>
-      <UniversityContent />
-    </Suspense>
+/* ─── brand tokens ─── */
+const theme = {
+  canvas: "#FAF9F6",
+  surface: "#FFFFFF",
+  ink: "#1A153A",
+  inkMuted: "#6B6599",
+  inkSubtle: "#9590B5",
+  gold: "#C4953B",
+  goldLight: "rgba(196, 149, 59, 0.10)",
+  goldBorder: "rgba(196, 149, 59, 0.20)",
+  hairline: "rgba(26, 21, 58, 0.08)",
+  cardRadius: 16,
+  btnRadius: 10,
+};
+
+/* ─── helpers ─── */
+function typeBadgeStyle(type: string) {
+  const map: Record<string, { label: string; cls: string }> = {
+    GOVERNMENT: { label: "Government", cls: "bg-emerald-50 text-emerald-700" },
+    PRIVATE: { label: "Private", cls: "bg-violet-50 text-violet-700" },
+    DEEMED: { label: "Deemed", cls: "bg-amber-50 text-amber-700" },
+    AUTONOMOUS: { label: "Autonomous", cls: "bg-blue-50 text-blue-700" },
+  };
+  return map[type] ?? { label: type, cls: "bg-gray-50 text-gray-600" };
+}
+
+function BoolBadge({ value }: { value: boolean }) {
+  return value ? (
+    <span className="inline-flex items-center gap-1 text-sm font-medium text-emerald-700">
+      <Check className="size-3.5" /> Yes
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1 text-sm font-medium text-rose-500">
+      <X className="size-3.5" /> No
+    </span>
   );
 }
 
-function UniversityContent() {
-  const router = useRouter();
-  const params = useParams<{ slug: string }>();
-  const searchParams = useSearchParams();
-  const isApplying = searchParams.get("apply") === "true";
-  
-  const { data: uni, isLoading, error } = useUniversity(params.slug);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F6FC]">
-        <Loader2 className="size-8 animate-spin text-[#F0A030]" />
-      </div>
-    );
-  }
-
-  if (error || !uni) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F6FC]">
-        <p className="text-lg text-[#6B6B6B]">University not found</p>
-      </div>
-    );
-  }
-
-  const mappedUni = {
-    id: uni.id,
-    name: uni.name,
-    shortName: uni.shortName,
-    slug: uni.slug,
-    type: uni.type,
-    established: uni.establishedYear,
-    medium: uni.academic?.medium || 'English',
-    country: uni.location?.country || '',
-    city: uni.location?.city || '',
-    image: uni.bannerImage || uni.logo || '',
-    logo: uni.logo,
-    grade: uni.status === 'ACTIVE' ? 'NMC Approved' : 'Under Review',
-    intake: uni.academic?.intakeMonths?.join(', ') || 'September, January',
-    duration: uni.academic?.duration || '6 Years',
-    worldRank: uni.recognition?.worldRank?.toString() || 'N/A',
-    ecfmg: uni.recognition?.ecfmgStatus || 'Pending',
-    specialization: uni.academic?.specializations?.[0] || 'General Medicine',
-    degree: 'MBBS',
-    course: uni.academic?.programs?.[0] || 'Medicine',
-    fee: uni.courses?.[0] ? `$${uni.courses[0].fees}/year` : '$5,000/year',
-    brochureUrl: '#',
-    detailUrl: uni.website || '#',
-    email: uni.contact?.email || '',
-    phone: uni.contact?.phone || '',
-  };
-
+function ChipList({ items, limit }: { items: string[]; limit?: number }) {
+  const show = limit ? items.slice(0, limit) : items;
+  const remaining = limit ? items.length - limit : 0;
   return (
-    <div className="min-h-screen bg-[#F8F6FC]">
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Hero */}
-        <div className="relative rounded-2xl overflow-hidden bg-[#2D2154] mb-10">
-          <div className="absolute inset-0">
-            {uni.bannerImage && (
-              <Image src={uni.bannerImage} alt={uni.name} fill className="object-cover opacity-50" />
-            )}
-          </div>
-          <div className="relative z-10 px-8 py-12 md:py-16 md:px-12">
-            <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold mb-4 ${uni.status === 'ACTIVE' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-[#2D2154]'}`}>
-              {uni.status === 'ACTIVE' ? 'NMC Approved' : uni.status}
-            </span>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{uni.name}</h1>
-            <p className="text-[#E0D8F0] text-lg mb-6">{uni.shortName}</p>
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[#C8BDE8]">
-              <div className="flex items-center gap-1.5">
-                <MapPin className="size-4" />
-                {[uni.location?.city, uni.location?.country].filter(Boolean).join(', ')}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Building2 className="size-4" />
-                {uni.type}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Calendar className="size-4" />
-                Est. {uni.establishedYear}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <BookOpen className="size-4" />
-                {uni.academic?.medium}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {isApplying ? (
-          <ApplicationForm uni={mappedUni} onBack={() => router.push(`/student/university/${params.slug}`)} />
-        ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <div className="lg:col-span-2 space-y-8">
-            {/* Academic Programs */}
-            <section className="bg-white rounded-xl border border-[#E0D8F0] p-6">
-              <h2 className="text-xl font-bold text-[#2D2154] mb-4 flex items-center gap-2">
-                <GraduationCap className="size-5 text-[#F0A030]" />
-                Academic Programs
-              </h2>
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                {uni.academic?.programs?.map((prog) => (
-                  <div key={prog} className="bg-[#F8F6FC] rounded-lg p-3 text-sm font-medium text-[#2D2154]">
-                    {prog}
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                <div><p className="text-[#6B6B6B]">Duration</p><p className="font-semibold text-[#2D2154]">{uni.academic?.duration}</p></div>
-                <div><p className="text-[#6B6B6B]">Medium</p><p className="font-semibold text-[#2D2154]">{uni.academic?.medium}</p></div>
-                <div><p className="text-[#6B6B6B]">Total Seats</p><p className="font-semibold text-[#2D2154]">{uni.academic?.totalSeats}</p></div>
-                <div><p className="text-[#6B6B6B]">Intake</p><p className="font-semibold text-[#2D2154]">{uni.academic?.intakeMonths?.join(', ')}</p></div>
-              </div>
-              {uni.academic?.specializations && uni.academic.specializations.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-[#6B6B6B] text-sm mb-2">Specializations</p>
-                  <div className="flex flex-wrap gap-2">
-                    {uni.academic.specializations.map((spec) => (
-                      <span key={spec} className="px-2 py-1 bg-[#F0A030]/10 text-[#F0A030] text-xs rounded-full">{spec}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </section>
-
-            {/* Seat Distribution */}
-            <section className="bg-white rounded-xl border border-[#E0D8F0] p-6">
-              <h2 className="text-xl font-bold text-[#2D2154] mb-4 flex items-center gap-2">
-                <Users className="size-5 text-[#F0A030]" />
-                Seat Distribution
-              </h2>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="bg-[#F8F6FC] rounded-lg p-4">
-                  <p className="text-2xl font-bold text-[#2D2154]">{uni.academic?.governmentSeats}</p>
-                  <p className="text-xs text-[#6B6B6B]">Government</p>
-                </div>
-                <div className="bg-[#F8F6FC] rounded-lg p-4">
-                  <p className="text-2xl font-bold text-[#2D2154]">{uni.academic?.managementSeats}</p>
-                  <p className="text-xs text-[#6B6B6B]">Management</p>
-                </div>
-                <div className="bg-[#F8F6FC] rounded-lg p-4">
-                  <p className="text-2xl font-bold text-[#2D2154]">{uni.academic?.nriSeats}</p>
-                  <p className="text-xs text-[#6B6B6B]">NRI</p>
-                </div>
-              </div>
-            </section>
-
-            {/* Infrastructure */}
-            <section className="bg-white rounded-xl border border-[#E0D8F0] p-6">
-              <h2 className="text-xl font-bold text-[#2D2154] mb-4 flex items-center gap-2">
-                <Building2 className="size-5 text-[#F0A030]" />
-                Infrastructure
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm mb-4">
-                <div className="flex items-center gap-2"><Hospital className="size-4 text-[#F0A030]" /><span>{uni.infrastructure?.hospitalBeds} Beds</span></div>
-                <div className="flex items-center gap-2"><Building2 className="size-4 text-[#F0A030]" /><span>{uni.infrastructure?.departments} Depts</span></div>
-                <div className="flex items-center gap-2"><Library className="size-4 text-[#F0A030]" /><span>{uni.infrastructure?.laboratories} Labs</span></div>
-                <div className="flex items-center gap-2"><BookMarked className="size-4 text-[#F0A030]" /><span>{uni.infrastructure?.campusArea} Acres</span></div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-[#F8F6FC] rounded-lg p-3 text-center">
-                  <p className="text-lg font-bold text-[#2D2154]">{uni.infrastructure?.hostelBoys}</p>
-                  <p className="text-xs text-[#6B6B6B]">Boys Hostel</p>
-                </div>
-                <div className="bg-[#F8F6FC] rounded-lg p-3 text-center">
-                  <p className="text-lg font-bold text-[#2D2154]">{uni.infrastructure?.hostelGirls}</p>
-                  <p className="text-xs text-[#6B6B6B]">Girls Hostel</p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {uni.infrastructure?.facilities?.map((fac) => (
-                  <span key={fac} className="px-3 py-1 bg-[#2D2154]/5 text-[#2D2154] text-sm rounded-full">{fac}</span>
-                ))}
-                {uni.infrastructure?.wifiCampus && <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full flex items-center gap-1"><Wifi className="size-3" /> WiFi</span>}
-                {uni.infrastructure?.cafeteria && <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full flex items-center gap-1"><Utensils className="size-3" /> Cafeteria</span>}
-                {uni.infrastructure?.transportation && <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full flex items-center gap-1"><Bus className="size-3" /> Transport</span>}
-              </div>
-            </section>
-
-            {/* Admission */}
-            <section className="bg-white rounded-xl border border-[#E0D8F0] p-6">
-              <h2 className="text-xl font-bold text-[#2D2154] mb-4 flex items-center gap-2">
-                <BookOpen className="size-5 text-[#F0A030]" />
-                Admission Requirements
-              </h2>
-              <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                <div><p className="text-[#6B6B6B]">Entrance Exams</p><p className="font-medium text-[#2D2154]">{uni.admission?.entranceExams?.join(', ')}</p></div>
-                <div><p className="text-[#6B6B6B]">Minimum Marks</p><p className="font-medium text-[#2D2154]">{uni.admission?.minimumMarks}</p></div>
-                <div><p className="text-[#6B6B6B]">Age Criteria</p><p className="font-medium text-[#2D2154]">{uni.admission?.ageCriteria}</p></div>
-                <div><p className="text-[#6B6B6B]">Application Fee</p><p className="font-medium text-[#2D2154]">${uni.admission?.applicationFee}</p></div>
-              </div>
-              <div className="mb-4">
-                <p className="text-[#6B6B6B] text-sm mb-1">Eligibility</p>
-                <p className="text-[#2D2154]">{uni.admission?.eligibility}</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-[#6B6B6B] text-sm mb-2">Required Documents</p>
-                <div className="flex flex-wrap gap-2">
-                  {uni.admission?.requiredDocuments?.map((doc) => (
-                    <span key={doc} className="px-2 py-1 bg-[#F0A030]/10 text-[#F0A030] text-xs rounded">{doc}</span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[#6B6B6B] text-sm">Deadline</p>
-                <p className="font-medium text-red-600">
-                  {uni.admission?.applicationDeadline ? new Date(uni.admission.applicationDeadline).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
-                </p>
-              </div>
-            </section>
-
-            {/* Support & Placement */}
-            <section className="bg-white rounded-xl border border-[#E0D8F0] p-6">
-              <h2 className="text-xl font-bold text-[#2D2154] mb-4 flex items-center gap-2">
-                <Briefcase className="size-5 text-[#F0A030]" />
-                Placement & Support
-              </h2>
-              <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                <div className="bg-[#F8F6FC] rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-green-600">{uni.support?.placementRate}%</p>
-                  <p className="text-xs text-[#6B6B6B]">Placement Rate</p>
-                </div>
-                <div className="bg-[#F8F6FC] rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-[#2D2154]">₹{uni.support?.averagePackage?.toLocaleString()}</p>
-                  <p className="text-xs text-[#6B6B6B]">Avg Package (INR)</p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {uni.support?.visaAssistance && <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full flex items-center gap-1"><Plane className="size-3" /> Visa</span>}
-                {uni.support?.counselingServices && <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">Counseling</span>}
-                {uni.support?.careerGuidance && <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full">Career</span>}
-              </div>
-              {uni.support?.languageSupport && uni.support.languageSupport.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-[#6B6B6B] text-sm mb-2">Language Support</p>
-                  <div className="flex gap-2">
-                    {uni.support.languageSupport.map((lang) => (
-                      <span key={lang} className="px-2 py-1 bg-[#2D2154]/5 text-[#2D2154] text-xs rounded">{lang}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </section>
-
-            {/* Gallery */}
-            {uni.content?.gallery && uni.content.gallery.length > 0 && (
-              <section className="bg-white rounded-xl border border-[#E0D8F0] p-6">
-                <h2 className="text-xl font-bold text-[#2D2154] mb-4">Gallery</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {uni.content.gallery.map((img, idx) => (
-                    <div key={idx} className="relative aspect-video rounded-lg overflow-hidden bg-[#F8F6FC]">
-                      <Image src={img} alt={`Gallery ${idx + 1}`} fill className="object-cover" />
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border border-[#E0D8F0] p-6 sticky top-6 space-y-6">
-              <div>
-                <h3 className="font-bold text-[#2D2154] mb-4">Contact</h3>
-                <div className="space-y-3 text-sm">
-                  {uni.contact?.email && (
-                    <div className="flex items-center gap-2 text-[#6B6B6B]">
-                      <Mail className="size-4 text-[#F0A030]" />
-                      <a href={`mailto:${uni.contact.email}`} className="hover:text-[#2D2154]">{uni.contact.email}</a>
-                    </div>
-                  )}
-                  {uni.contact?.phone && (
-                    <div className="flex items-center gap-2 text-[#6B6B6B]">
-                      <Phone className="size-4 text-[#F0A030]" />
-                      <a href={`tel:${uni.contact.phone}`} className="hover:text-[#2D2154]">{uni.contact.phone}</a>
-                    </div>
-                  )}
-                  {uni.contact?.admissionOfficeHours && (
-                    <div className="flex items-center gap-2 text-[#6B6B6B]">
-                      <Clock className="size-4 text-[#F0A030]" />
-                      <span>{uni.contact.admissionOfficeHours}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="pt-4 border-t border-[#E0D8F0]">
-                <Button className="w-full gap-2" onClick={() => router.push(`?apply=true`)}>
-                  <GraduationCap className="size-4" />
-                  Apply Now
-                </Button>
-              </div>
-              <div className="pt-4 border-t border-[#E0D8F0]">
-                <h3 className="font-bold text-[#2D2154] mb-2">Location</h3>
-                <div className="flex items-start gap-2 text-sm text-[#6B6B6B]">
-                  <MapPin className="size-4 text-[#F0A030] mt-0.5" />
-                  <div>
-                    <p>{uni.location?.address}</p>
-                    <p>{uni.location?.city}, {uni.location?.state}</p>
-                    <p>{uni.location?.country}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        )}
-      </main>
+    <div className="flex flex-wrap gap-2">
+      {show.map((item) => (
+        <span
+          key={item}
+          className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium transition-colors"
+          style={{
+            background: theme.goldLight,
+            color: theme.ink,
+            border: "1px solid " + theme.goldBorder,
+          }}
+        >
+          {item}
+        </span>
+      ))}
+      {remaining > 0 && (
+        <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium"
+          style={{ color: theme.inkSubtle, background: theme.canvas, border: "1px solid " + theme.hairline }}>
+          +{remaining} more
+        </span>
+      )}
     </div>
   );
 }
 
-type ApplyFormProps = {
-  uni: {
-    id: string;
-    name: string;
-    shortName: string;
-    slug: string;
-    type: string;
-    established: number;
-    medium: string;
-    country: string;
-    city: string;
-    image: string;
-    logo: string;
-    grade: string;
-    intake: string;
-    duration: string;
-    worldRank: string;
-    ecfmg: string;
-    specialization: string;
-    degree: string;
-    course: string;
-    fee: string;
-    brochureUrl: string;
-    detailUrl: string;
-    email: string;
-    phone: string;
-  };
-  onBack: () => void;
-};
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl px-6 py-7 md:px-8" style={{ background: theme.surface, border: "1px solid " + theme.hairline, position: "relative" }}>
+      <div className="absolute left-0 top-0 h-1 w-16 rounded-tl-2xl" style={{ background: theme.gold }} />
+      <h2 className="mb-5 text-lg font-semibold" style={{ color: theme.ink }}>{title}</h2>
+      {children}
+    </div>
+  );
+}
 
-const languageLevels = ['low', 'moderate', 'high'] as const;
+function Skeleton() {
+  return (
+    <div className="min-h-screen" style={{ background: theme.canvas }}>
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-10 h-64 animate-pulse rounded-2xl" style={{ background: theme.hairline }} />
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="h-48 animate-pulse rounded-xl" style={{ background: theme.hairline }} />
+            ))}
+          </div>
+          <div className="h-80 animate-pulse rounded-xl" style={{ background: theme.hairline }} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-function ApplicationForm({ uni, onBack }: ApplyFormProps) {
+function ErrorState({ error, onRetry }: { error: Error | null; onRetry?: () => void }) {
+  return (
+    <div className="min-h-screen" style={{ background: theme.canvas }}>
+      <div className="mx-auto flex min-h-[70vh] max-w-6xl flex-col items-center justify-center gap-5 px-4 text-center">
+        <div className="flex size-16 items-center justify-center rounded-full" style={{ background: theme.goldLight }}>
+          <Star className="size-7" style={{ color: theme.gold }} />
+        </div>
+        <div>
+          <p className="text-lg font-medium" style={{ color: theme.ink }}>
+            {error ? "Unable to load university" : "University not found"}
+          </p>
+          <p className="mt-1 text-sm" style={{ color: theme.inkMuted }}>
+            {error ? "Please check your connection and try again." : "The university you are looking for does not exist or has been removed."}
+          </p>
+        </div>
+        {error && (
+          <button onClick={onRetry}
+            className="inline-flex items-center justify-center px-5 py-2 text-sm font-medium transition-all duration-200"
+            style={{ background: theme.ink, color: "#fff", borderRadius: theme.btnRadius }}>
+            Try Again
+          </button>
+        )}
+        <button onClick={() => window.history.back()}
+          className="inline-flex items-center gap-1.5 text-sm font-medium"
+          style={{ color: theme.inkMuted }}>
+          <ArrowLeft className="size-4" /> Go Back
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── page wrapper ─── */
+export default function UniversityDetailPage() {
+  const params = useParams();
+  const slug = params?.slug as string;
+  const { data: uni, isLoading, error, refetch } = useUniversity(slug);
+
+  if (isLoading) return <Skeleton />;
+  if (error || !uni) return <ErrorState error={error as Error} onRetry={() => refetch?.()} />;
+
+  return <UniversityContent uni={uni} />;
+}
+
+/* ─── mapped helpers ─── */
+function mappedLocation(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+  const loc = uni.location;
+  if (!loc) return null;
+  return { city: loc.city, country: loc.country, state: loc.state, address: loc.address };
+}
+
+function mappedAcademic(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+  return uni.academic;
+}
+
+function mappedAdmission(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+  return uni.admission;
+}
+
+function mappedInfra(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+  return uni.infrastructure;
+}
+
+function mappedSupport(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+  return uni.support;
+}
+
+function mappedContent(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+  return uni.content;
+}
+
+function mappedCourses(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+  return uni.courses;
+}
+
+function mappedRecognition(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+  return uni.recognition;
+}
+
+function mappedFees(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+  return uni.fees;
+}
+
+/* ─── main content ─── */
+function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniversity>["data"]> }) {
+  const loc = mappedLocation(uni);
+  const academic = mappedAcademic(uni);
+  const admission = mappedAdmission(uni);
+  const infra = mappedInfra(uni);
+  const support = mappedSupport(uni);
+  const content = mappedContent(uni);
+  const courses = mappedCourses(uni);
+  const recognition = mappedRecognition(uni);
+  const fees = mappedFees(uni);
+
+  const hasGallery = content?.gallery && content.gallery.length > 0;
+  const hasCourses = courses && courses.length > 0;
+
+  const locationParts = [loc?.city, loc?.state, loc?.country].filter(Boolean);
+  const fullAddress = loc?.address || locationParts.join(", ");
+  const website = (uni as any).website || (uni as any).detailUrl;
+
+  return (
+    <div className="min-h-screen pb-16" style={{ background: theme.canvas }}>
+      {/* ── back nav ── */}
+      <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-6 lg:px-8">
+        <button onClick={() => window.history.back()}
+          className="group inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
+          style={{ color: theme.inkMuted }}>
+          <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" />
+          Back to Universities
+        </button>
+      </div>
+
+      {/* ── hero ── */}
+      <section className="relative mx-auto mt-4 max-w-6xl overflow-hidden px-4 sm:px-6 lg:px-8">
+        <div className="relative min-h-[300px] w-full overflow-hidden rounded-2xl md:min-h-[380px]"
+          style={{ border: "1px solid " + theme.hairline, background: theme.surface }}>
+          {uni.bannerImage ? (
+            <Image src={uni.bannerImage} alt={uni.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 1200px) 100vw, 1200px" />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center"
+              style={{ background: `linear-gradient(135deg, ${theme.ink} 0%, #2D2860 100%)` }}>
+              <Building2 className="size-20" style={{ color: "rgba(255,255,255,0.15)" }} />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          {/* badges */}
+          <div className="absolute right-4 top-4 flex flex-wrap gap-2">
+            <span className="rounded-md px-3 py-1 text-xs font-semibold tracking-wide uppercase"
+              style={{
+                background: typeBadgeStyle(uni.type).cls.split(" ")[0],
+                color: typeBadgeStyle(uni.type).cls.split(" ")[1].replace("text-", "#") || "#fff",
+              }}>
+              {typeBadgeStyle(uni.type).label}
+            </span>
+            {uni.status === "ACTIVE" && (
+              <span className="rounded-md bg-emerald-500/20 px-3 py-1 text-xs font-semibold tracking-wide uppercase text-emerald-200">
+                Active
+              </span>
+            )}
+            {uni.establishedYear && (
+              <span className="rounded-md bg-white/15 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur-sm">
+                Est. {uni.establishedYear}
+              </span>
+            )}
+          </div>
+          {/* text overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+            <div className="flex items-center gap-3">
+              {uni.logo && (
+                <Image src={uni.logo} alt="" width={56} height={56}
+                  className="size-12 rounded-xl border-2 border-white/30 object-contain bg-white p-1 md:size-14" />
+              )}
+              <div>
+                <h1 className="text-2xl font-bold text-white md:text-3xl lg:text-4xl" style={{ fontFamily: "'Georgia', serif" }}>
+                  {uni.name}
+                </h1>
+                <p className="mt-0.5 text-sm text-white/70 md:text-base">
+                  {uni.shortName} &middot; {uni.type.replace(/_/g, " ")}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── content grid ── */}
+      <div className="mx-auto mt-10 grid max-w-6xl grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
+        {/* ── main ── */}
+        <div className="space-y-8 lg:col-span-2">
+          {/* quick-stats row */}
+          {academic && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              {uni.establishedYear && (
+                <StatBox icon={<Calendar className="size-4" />} label="Founded" value={String(uni.establishedYear)} />)}
+              {academic.duration && (
+                <StatBox icon={<GraduationCap className="size-4" />} label="Duration" value={academic.duration} />)}
+              {academic.medium && (
+                <StatBox icon={<BookOpen className="size-4" />} label="Medium" value={academic.medium} />)}
+              {academic.totalSeats && (
+                <StatBox icon={<Users className="size-4" />} label="Total Seats" value={String(academic.totalSeats)} />)}
+              {academic.programs && academic.programs.length > 0 && (
+                <StatBox icon={<BookMarked className="size-4" />} label="Programs" value={String(academic.programs.length)} />)}
+              {recognition?.globalRank && (
+                <StatBox icon={<Award className="size-4" />} label="World Rank" value={`#${recognition.globalRank}`} />)}
+              {support?.placementRate && (
+                <StatBox icon={<Star className="size-4" />} label="Placement" value={`${support.placementRate}%`} />)}
+              {infra?.hospitalBeds && (
+                <StatBox icon={<Hospital className="size-4" />} label="Hospital Beds" value={String(infra.hospitalBeds)} />)}
+            </div>
+          )}
+
+          {/* ── About / Gallery ── */}
+          {(hasGallery) && (
+            <SectionCard title="About & Gallery">
+              {(uni as any).description && (
+                <p className="mb-6 text-sm leading-relaxed" style={{ color: theme.inkMuted }}>
+                  {(uni as any).description}
+                </p>
+              )}
+              {hasGallery && (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {content!.gallery.slice(0, 6).map((img: string, i: number) => (
+                    <div key={i} className="group relative aspect-[4/3] overflow-hidden rounded-xl"
+                      style={{ border: "1px solid " + theme.hairline }}>
+                      <Image src={img} alt={`${uni.name} gallery ${i + 1}`}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 50vw, 25vw" />
+                    </div>
+                  ))}
+                  {content!.gallery.length > 6 && (
+                    <div className="flex aspect-[4/3] items-center justify-center rounded-xl"
+                      style={{ background: theme.goldLight, border: "1px solid " + theme.goldBorder }}>
+                      <p className="text-sm font-medium" style={{ color: theme.gold }}>
+                        +{content!.gallery.length - 6} more
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </SectionCard>
+          )}
+
+          {/* ── Admission Details ── */}
+          {admission && (
+            <SectionCard title="Admission Details">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <InfoField label="Eligibility" value={admission.eligibility} />
+                <InfoField label="Minimum Marks" value={admission.minimumMarks} />
+                <InfoField label="Age Criteria" value={admission.ageCriteria} />
+                <InfoField label="Selection Process" value={admission.selectionProcess} />
+                <InfoField label="Application Fee" value={admission.applicationFee != null ? `₹${admission.applicationFee.toLocaleString()}` : undefined} />
+                {admission.applicationDeadline && (
+                  <InfoField label="Deadline" value={new Date(admission.applicationDeadline).toLocaleDateString("en-IN", {
+                    year: "numeric", month: "long", day: "numeric"
+                  })} />
+                )}
+                {admission.entranceExams && admission.entranceExams.length > 0 && (
+                  <div className="sm:col-span-2">
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Entrance Exams</p>
+                    <ChipList items={admission.entranceExams} />
+                  </div>
+                )}
+                {admission.requiredDocuments && admission.requiredDocuments.length > 0 && (
+                  <div className="sm:col-span-2">
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Required Documents</p>
+                    <ChipList items={admission.requiredDocuments} />
+                  </div>
+                )}
+              </div>
+            </SectionCard>
+          )}
+
+          {/* ── Infrastructure & Facilities ── */}
+          {infra && (
+            <SectionCard title="Infrastructure & Facilities">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                {infra.hospitalBeds != null && (
+                  <InfraStat icon={<Hospital />} label="Hospital Beds" value={String(infra.hospitalBeds)} />)}
+                {infra.departments != null && (
+                  <InfraStat icon={<Layers />} label="Departments" value={String(infra.departments)} />)}
+                {infra.laboratories != null && (
+                  <InfraStat icon={<BookMarked />} label="Labs" value={String(infra.laboratories)} />)}
+                {infra.campusArea != null && (
+                  <InfraStat icon={<Building2 />} label="Campus Area" value={`${infra.campusArea} acres`} />)}
+                {infra.hostelBoys != null && (
+                  <InfraStat icon={<Users />} label="Boys Hostel" value={String(infra.hostelBoys)} />)}
+                {infra.hostelGirls != null && (
+                  <InfraStat icon={<Users />} label="Girls Hostel" value={String(infra.hostelGirls)} />)}
+              </div>
+              {/* boolean facilities */}
+              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {infra.cafeteria != null && (
+                  <BoolRow label="Cafeteria" value={infra.cafeteria} />)}
+                {infra.wifiCampus != null && (
+                  <BoolRow label="WiFi Campus" value={infra.wifiCampus} />)}
+                {infra.transportation != null && (
+                  <BoolRow label="Transportation" value={infra.transportation} />)}
+                {infra.library != null && (
+                  <BoolRow label="Library" value={infra.library} />)}
+              </div>
+              {infra.facilities && infra.facilities.length > 0 && (
+                <div className="mt-5">
+                  <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Facilities</p>
+                  <ChipList items={infra.facilities} />
+                </div>
+              )}
+            </SectionCard>
+          )}
+
+          {/* ── Fees ── */}
+          {fees && (
+            <SectionCard title="Fees & Financials">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {fees.tuitionFee != null && (
+                  <FeeBox label="Tuition Fee" value={`₹${fees.tuitionFee.toLocaleString()}`}
+                    sub={fees.perYear ? "/year" : undefined} />)}
+                {fees.hostelFee != null && (
+                  <FeeBox label="Hostel Fee" value={`₹${fees.hostelFee.toLocaleString()}`} sub={fees.perYear ? "/year" : undefined} />)}
+                {fees.totalFee != null && (
+                  <FeeBox label="Total Fee" value={`₹${fees.totalFee.toLocaleString()}`} sub="Approx" highlight />)}
+                {fees.messFee != null && (
+                  <FeeBox label="Mess Fee" value={`₹${fees.messFee.toLocaleString()}`} />)}
+                {fees.otherFees != null && typeof fees.otherFees === "object" && (
+                  <div className="sm:col-span-2 lg:col-span-3">
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
+                      Other Fees
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {Object.entries(fees.otherFees).map(([key, val]) => (
+                        <div key={key} className="rounded-lg px-3 py-2 text-sm"
+                          style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
+                          <span style={{ color: theme.inkSubtle }}>{key.replace(/([A-Z])/g, " $1").trim()}:</span>
+                          <span className="ml-1 font-medium" style={{ color: theme.ink }}>{String(val)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {fees.paymentTerms && (
+                  <InfoField label="Payment Terms" value={fees.paymentTerms} />)}
+                {fees.installmentAvailable != null && (
+                  <BoolRow label="Installment Available" value={fees.installmentAvailable} />)}
+                {fees.refundPolicy && (
+                  <div className="sm:col-span-2 lg:col-span-3">
+                    <InfoField label="Refund Policy" value={fees.refundPolicy} />
+                  </div>
+                )}
+              </div>
+            </SectionCard>
+          )}
+
+          {/* ── Academic Programs ── */}
+          {academic && (academic.programs?.length || academic.specializations?.length) && (
+            <SectionCard title="Academic Programs">
+              <div className="grid gap-6 sm:grid-cols-2">
+                {academic.programs && academic.programs.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
+                      Programs Offered
+                    </p>
+                    <ul className="space-y-1.5">
+                      {academic.programs.map((p) => (
+                        <li key={p} className="flex items-center gap-2 text-sm" style={{ color: theme.inkMuted }}>
+                          <ChevronRight className="size-3.5 shrink-0" style={{ color: theme.gold }} />
+                          {p}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {academic.specializations && academic.specializations.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
+                      Specializations
+                    </p>
+                    <ChipList items={academic.specializations} />
+                  </div>
+                )}
+                {academic.intakeMonths && academic.intakeMonths.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
+                      Intake Months
+                    </p>
+                    <ChipList items={academic.intakeMonths} />
+                  </div>
+                )}
+                {/* seat breakdown */}
+                {(academic.governmentSeats || academic.managementSeats || academic.nriSeats) && (
+                  <div className="sm:col-span-2">
+                    <p className="mb-3 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
+                      Seat Distribution
+                    </p>
+                    <div className="grid grid-cols-3 gap-3">
+                      {academic.governmentSeats != null && (
+                        <SeatBox label="Government" value={academic.governmentSeats} total={academic.totalSeats} />)}
+                      {academic.managementSeats != null && (
+                        <SeatBox label="Management" value={academic.managementSeats} total={academic.totalSeats} />)}
+                      {academic.nriSeats != null && (
+                        <SeatBox label="NRI" value={academic.nriSeats} total={academic.totalSeats} />)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </SectionCard>
+          )}
+
+          {/* ── Support & Career ── */}
+          {support && (
+            <SectionCard title="Support & Career">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                {support.placementRate != null && (
+                  <div className="rounded-xl px-5 py-4 text-center"
+                    style={{ background: theme.goldLight, border: "1px solid " + theme.goldBorder }}>
+                    <p className="text-3xl font-bold" style={{ color: theme.gold }}>{support.placementRate}%</p>
+                    <p className="mt-1 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                      Placement Rate
+                    </p>
+                  </div>
+                )}
+                {support.averagePackage != null && (
+                  <div className="rounded-xl px-5 py-4 text-center"
+                    style={{ background: theme.goldLight, border: "1px solid " + theme.goldBorder }}>
+                    <p className="text-3xl font-bold" style={{ color: theme.gold }}>
+                      ₹{support.averagePackage.toLocaleString()}
+                    </p>
+                    <p className="mt-1 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                      Avg Package
+                    </p>
+                  </div>
+                )}
+                <div className="sm:col-span-2 space-y-3">
+                  {support.visaAssistance != null && (
+                    <BoolRow label="Visa Assistance" value={support.visaAssistance} />)}
+                  {support.counselingServices != null && (
+                    <BoolRow label="Counseling Services" value={support.counselingServices} />)}
+                  {support.careerGuidance != null && (
+                    <BoolRow label="Career Guidance" value={support.careerGuidance} />)}
+                  {support.languageSupport && support.languageSupport.length > 0 && (
+                    <div className="pt-2">
+                      <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
+                        Language Support
+                      </p>
+                      <ChipList items={support.languageSupport} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </SectionCard>
+          )}
+
+          {/* ── Recognition & Accreditation ── */}
+          {recognition && (
+            <SectionCard title="Recognition & Accreditation">
+              <div className="space-y-4">
+                <div className="flex flex-wrap gap-3">
+                  {recognition.nmcApproved != null && (
+                    <RecogBadge label="NMC Approved" value={recognition.nmcApproved} />)}
+                  {recognition.whoRecognized != null && (
+                    <RecogBadge label="WHO Recognized" value={recognition.whoRecognized} />)}
+                  {recognition.ecfmgVerified != null && (
+                    <RecogBadge label="ECFMG Verified" value={recognition.ecfmgVerified} />)}
+                  {recognition.gmcRecognized != null && (
+                    <RecogBadge label="GMC Recognized" value={recognition.gmcRecognized} />)}
+                  {recognition.amcAccredited != null && (
+                    <RecogBadge label="AMC Accredited" value={recognition.amcAccredited} />)}
+                </div>
+                {recognition.otherApprovals && recognition.otherApprovals.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
+                      Other Approvals
+                    </p>
+                    <ChipList items={recognition.otherApprovals} />
+                  </div>
+                )}
+                {recognition.accreditations && recognition.accreditations.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
+                      Accreditations
+                    </p>
+                    <ChipList items={recognition.accreditations} />
+                  </div>
+                )}
+                {recognition.countryRank != null && (
+                  <div className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm"
+                    style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
+                    <Award className="size-5" style={{ color: theme.gold }} />
+                    <span style={{ color: theme.ink }}>Country Rank: <b>#{recognition.countryRank}</b></span>
+                    {recognition.globalRank != null && (
+                      <span style={{ color: theme.inkSubtle }}> &middot; World Rank: <b>#{recognition.globalRank}</b></span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </SectionCard>
+          )}
+
+          {/* ── Courses ── */}
+          {hasCourses && (
+            <SectionCard title="Courses Offered">
+              <div className="overflow-x-auto rounded-xl"
+                style={{ border: "1px solid " + theme.hairline }}>
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr style={{ background: theme.canvas }}>
+                      <th className="px-4 py-3 font-semibold" style={{ color: theme.ink, borderBottom: "1px solid " + theme.hairline }}>Course</th>
+                      <th className="px-4 py-3 font-semibold" style={{ color: theme.ink, borderBottom: "1px solid " + theme.hairline }}>Duration</th>
+                      <th className="px-4 py-3 font-semibold" style={{ color: theme.ink, borderBottom: "1px solid " + theme.hairline }}>Fees</th>
+                      <th className="px-4 py-3 font-semibold" style={{ color: theme.ink, borderBottom: "1px solid " + theme.hairline }}>Seats</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {courses.map((c: any, i: number) => (
+                      <tr key={c.id || i}
+                        style={{ borderBottom: i < courses.length - 1 ? "1px solid " + theme.hairline : "none" }}>
+                        <td className="px-4 py-3 font-medium" style={{ color: theme.ink }}>{c.name || c.courseName}</td>
+                        <td className="px-4 py-3" style={{ color: theme.inkMuted }}>{c.duration || c.courseDuration || "-"}</td>
+                        <td className="px-4 py-3" style={{ color: theme.inkMuted }}>
+                          {c.fees != null ? `₹${(typeof c.fees === "number" ? c.fees : Number(c.fees)).toLocaleString()}` : c.courseFee ? `₹${Number(c.courseFee).toLocaleString()}` : "-"}
+                        </td>
+                        <td className="px-4 py-3" style={{ color: theme.inkMuted }}>
+                          {c.totalSeats || c.seats || "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </SectionCard>
+          )}
+        </div>
+        {/* ── sidebar ── */}
+        <aside className="space-y-6">
+          {/* quick info */}
+          <div className="rounded-2xl p-6" style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Quick Info</h3>
+            <div className="space-y-3.5">
+              {loc && <SideInfo icon={<MapPin className="size-4" />} label="Location" value={fullAddress} />}
+              {loc?.address && loc.address !== fullAddress && (
+                <SideInfo icon={<MapPin className="size-4" />} label="Address" value={loc.address} />
+              )}
+              {uni.establishedYear && (
+                <SideInfo icon={<Calendar className="size-4" />} label="Established" value={String(uni.establishedYear)} />
+              )}
+              {academic?.duration && (
+                <SideInfo icon={<GraduationCap className="size-4" />} label="Duration" value={academic.duration} />
+              )}
+              {academic?.medium && (
+                <SideInfo icon={<BookOpen className="size-4" />} label="Medium" value={academic.medium} />
+              )}
+              {academic?.totalSeats && (
+                <SideInfo icon={<Users className="size-4" />} label="Total Seats" value={String(academic.totalSeats)} />
+              )}
+              {academic?.intakeMonths && academic.intakeMonths.length > 0 && (
+                <SideInfo icon={<Calendar className="size-4" />} label="Intake" value={academic.intakeMonths.join(", ")} />
+              )}
+              {website && (
+                <SideInfo icon={<Globe className="size-4" />} label="Website" value={website} link />
+              )}
+            </div>
+          </div>
+
+          {/* contact */}
+          {uni.contact && (
+            <div className="rounded-2xl p-6" style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
+              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Contact</h3>
+              <div className="space-y-3.5">
+                {uni.contact.email && (
+                  <SideInfo icon={<Mail className="size-4" />} label="Email" value={uni.contact.email} link />
+                )}
+                {uni.contact.phone && (
+                  <SideInfo icon={<Phone className="size-4" />} label="Phone" value={uni.contact.phone} />
+                )}
+                {uni.contact.admissionOfficeHours && (
+                  <SideInfo icon={<Clock className="size-4" />} label="Office Hours" value={uni.contact.admissionOfficeHours} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* stats */}
+          {recognition && (
+            <div className="rounded-2xl p-6" style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
+              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Statistics</h3>
+              <div className="space-y-2">
+                {support?.placementRate && (
+                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}>
+                    <span style={{ color: theme.inkMuted }}>Placement Rate</span>
+                    <span className="font-semibold" style={{ color: theme.gold }}>{support.placementRate}%</span>
+                  </div>
+                )}
+                {recognition.globalRank && (
+                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}>
+                    <span style={{ color: theme.inkMuted }}>World Rank</span>
+                    <span className="font-semibold" style={{ color: theme.ink }}>#{recognition.globalRank}</span>
+                  </div>
+                )}
+                {infra?.hospitalBeds && (
+                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}>
+                    <span style={{ color: theme.inkMuted }}>Hospital Beds</span>
+                    <span className="font-semibold" style={{ color: theme.ink }}>{infra.hospitalBeds}</span>
+                  </div>
+                )}
+                {academic?.totalSeats && (
+                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}>
+                    <span style={{ color: theme.inkMuted }}>Total Seats</span>
+                    <span className="font-semibold" style={{ color: theme.ink }}>{academic.totalSeats}</span>
+                  </div>
+                )}
+                {admission?.applicationFee != null && (
+                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}>
+                    <span style={{ color: theme.inkMuted }}>Application Fee</span>
+                    <span className="font-semibold" style={{ color: theme.ink }}>₹{admission.applicationFee.toLocaleString()}</span>
+                  </div>
+                )}
+                {support?.averagePackage != null && (
+                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}>
+                    <span style={{ color: theme.inkMuted }}>Avg Package</span>
+                    <span className="font-semibold" style={{ color: theme.ink }}>₹{support.averagePackage.toLocaleString()}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* CTA */}
+          <div className="rounded-2xl p-6 text-center" style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
+            <p className="mb-3 text-sm font-medium" style={{ color: theme.ink }}>Ready to apply?</p>
+            <p className="mb-5 text-xs" style={{ color: theme.inkMuted }}>
+              Start your application to {uni.shortName || uni.name}
+            </p>
+            <ApplicationForm uniName={uni.name} uniId={uni.id} />
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+/* ─── helper components ─── */
+function StatBox({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="rounded-xl px-4 py-3.5 text-center transition-all duration-200"
+      style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
+      <div className="mx-auto mb-1.5 flex items-center justify-center" style={{ color: theme.gold }}>{icon}</div>
+      <p className="text-lg font-semibold leading-tight" style={{ color: theme.ink }}>{value}</p>
+      <p className="mt-0.5 text-xs" style={{ color: theme.inkSubtle }}>{label}</p>
+    </div>
+  );
+}
+
+function InfoField({ label, value }: { label: string; value?: string | null }) {
+  if (!value) return null;
+  return (
+    <div>
+      <p className="mb-1 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>{label}</p>
+      <p className="text-sm leading-relaxed" style={{ color: theme.ink }}>{value}</p>
+    </div>
+  );
+}
+
+function InfraStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="rounded-xl px-3 py-3 text-center"
+      style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
+      <div className="mx-auto mb-1 flex items-center justify-center" style={{ color: theme.gold }}>{icon}</div>
+      <p className="text-base font-semibold" style={{ color: theme.ink }}>{value}</p>
+      <p className="text-xs" style={{ color: theme.inkSubtle }}>{label}</p>
+    </div>
+  );
+}
+
+function BoolRow({ label, value }: { label: string; value: boolean }) {
+  return (
+    <div className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm"
+      style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
+      <span style={{ color: theme.ink }}>{label}</span>
+      <BoolBadge value={value} />
+    </div>
+  );
+}
+
+function FeeBox({ label, value, sub, highlight }: { label: string; value: string; sub?: string; highlight?: boolean }) {
+  return (
+    <div className="rounded-xl px-4 py-4"
+      style={{
+        background: highlight ? theme.goldLight : theme.canvas,
+        border: "1px solid " + (highlight ? theme.goldBorder : theme.hairline),
+      }}>
+      <p className="text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>{label}</p>
+      <p className="mt-1 text-xl font-bold" style={{ color: highlight ? theme.gold : theme.ink }}>{value}</p>
+      {sub && <p className="text-xs" style={{ color: theme.inkSubtle }}>{sub}</p>}
+    </div>
+  );
+}
+
+function SideInfo({ icon, label, value, link }: { icon: React.ReactNode; label: string; value: string; link?: boolean }) {
+  return (
+    <div className="flex items-start gap-2.5 text-sm">
+      <span className="mt-0.5 shrink-0" style={{ color: theme.gold }}>{icon}</span>
+      <div className="min-w-0">
+        <p className="text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>{label}</p>
+        {link ? (
+          <a href={value.startsWith("http") ? value : `https://${value}`} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 truncate font-medium underline-offset-2 hover:underline"
+            style={{ color: theme.ink }}>
+            {value}
+            <Globe className="size-3 shrink-0" style={{ color: theme.gold }} />
+          </a>
+        ) : (
+          <p className="truncate font-medium" style={{ color: theme.ink }}>{value}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RecogBadge({ label, value }: { label: string; value: boolean }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium"
+      style={{
+        background: value ? "rgba(16, 185, 129, 0.08)" : "rgba(239, 68, 68, 0.06)",
+        border: "1px solid " + (value ? "rgba(16, 185, 129, 0.20)" : "rgba(239, 68, 68, 0.12)"),
+        color: value ? "#065F46" : "#991B1B",
+      }}>
+      <ShieldCheck className="size-4" />
+      {label}
+      <span className={value ? "text-emerald-600" : "text-rose-500"}>{value ? "✓" : "✗"}</span>
+    </div>
+  );
+}
+
+function SeatBox({ label, value, total }: { label: string; value: number; total?: number | null }) {
+  const pct = total && total > 0 ? Math.round((value / total) * 100) : 0;
+  return (
+    <div className="rounded-xl px-4 py-3 text-center"
+      style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
+      <p className="text-lg font-bold" style={{ color: theme.ink }}>{value}</p>
+      <p className="text-xs font-medium" style={{ color: theme.inkSubtle }}>{label}</p>
+      {pct > 0 && (
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full" style={{ background: theme.hairline }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: theme.gold }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── application form ─── */
+function ApplicationForm({ uniName, uniId }: { uniName: string; uniId: string }) {
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const submit = useSubmitApplication();
   const router = useRouter();
-  const submitMutation = useSubmitApplication();
-  const [error, setError] = useState<string | null>(null);
 
-  const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    middleName: '',
-    dateOfBirth: '',
-    birthCity: '',
-    birthState: '',
-    birthCountry: '',
-    citizenship: '',
-    maritalStatus: '' as '' | 'single' | 'married',
-    gender: '' as '' | 'male' | 'female' | 'other',
-    permanentAddress: '',
-    permanentCity: '',
-    permanentState: '',
-    permanentZip: '',
-    permanentCountry: '',
-    email: '',
-    embassyLocation: '',
-    lang1Name: '',
-    lang1Speaking: 'moderate' as 'high' | 'moderate' | 'low',
-    lang1Reading: 'moderate' as 'high' | 'moderate' | 'low',
-    lang1Writing: 'moderate' as 'high' | 'moderate' | 'low',
-    selectedProgram: '' as '' | 'pre-medical' | 'general-medicine' | 'dentistry' | 'post-graduate',
-    postGraduateDetail: '',
-    signature: '',
-    signatureDate: new Date().toISOString().split('T')[0],
-  });
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
+  }
 
-  const update = (field: string, value: string) =>
-    setForm((prev) => ({ ...prev, [field]: value }));
-
-  const handleSubmit = async () => {
-    setError(null);
-    if (!form.firstName || !form.lastName || !form.dateOfBirth || !form.citizenship ||
-        !form.maritalStatus || !form.gender || !form.permanentAddress || !form.permanentCity ||
-        !form.permanentState || !form.permanentZip || !form.permanentCountry ||
-        !form.email || !form.embassyLocation || !form.selectedProgram ||
-        !form.signature || !form.birthCity || !form.birthState || !form.birthCountry) {
-      setError('Please fill all required fields');
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const required = ["firstName", "lastName", "email", "phone", "dateOfBirth", "citizenship", "gender", "selectedProgram", "signature"];
+    const newErrors: Record<string, string> = {};
+    for (const field of required) {
+      if (!formData[field]?.trim()) newErrors[field] = "Required";
+    }
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Invalid email";
+    }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
-
-    const data: SubmitApplicationFormData = {
-      universityId: uni.id,
-      firstName: form.firstName,
-      lastName: form.lastName,
-      middleName: form.middleName || undefined,
-      dateOfBirth: form.dateOfBirth,
-      placeOfBirth: { city: form.birthCity, state: form.birthState, country: form.birthCountry },
-      citizenship: form.citizenship,
-      maritalStatus: form.maritalStatus as 'single' | 'married',
-      gender: form.gender as 'male' | 'female' | 'other',
-      permanentAddress: form.permanentAddress,
-      permanentCity: form.permanentCity,
-      permanentState: form.permanentState,
-      permanentZip: form.permanentZip,
-      permanentCountry: form.permanentCountry,
-      email: form.email,
-      embassyLocation: form.embassyLocation,
-      language1: { name: form.lang1Name || 'English', speaking: form.lang1Speaking, reading: form.lang1Reading, writing: form.lang1Writing },
-      selectedProgram: form.selectedProgram as SubmitApplicationFormData['selectedProgram'],
-      postGraduateDetail: form.postGraduateDetail || undefined,
-      signature: form.signature,
-      signatureDate: form.signatureDate,
-    };
-
-    if (form.selectedProgram === 'post-graduate' && !form.postGraduateDetail) {
-      setError('Please specify your post-graduate program details');
-      return;
+    try {
+      await submit.mutateAsync({
+        universityId: uniId,
+        data: formData as unknown as SubmitApplicationFormData,
+      });
+      router.push("/student/dashboard");
+    } catch (err) {
+      setErrors({ _form: getApiErrorMessage(err) || "Submission failed. Try again." });
     }
-
-    submitMutation.mutate(data, {
-      onSuccess: (res) => { router.push(`/student/applications/${res.applicationId}`); },
-      onError: (err) => { setError(getApiErrorMessage(err, 'Failed to submit application')); },
-    });
-  };
-
-  const inputCls = "w-full rounded-lg border border-[#E0D8F0] bg-[#f0ecf6] px-3 py-2.5 text-sm text-[#2D2154] outline-none focus:border-[#1B2A4A] focus:ring-1 focus:ring-[#1B2A4A]/20";
+  }
 
   return (
     <div>
-      <button onClick={onBack} className="mb-6 flex items-center gap-1.5 text-sm text-[#4B2D8E] hover:text-[#2D2154] font-medium">
-        <ArrowLeft className="size-4" />
-        Back to Details
+      <button onClick={() => setOpen(!open)}
+        className="inline-flex w-full items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold transition-all duration-200"
+        style={{
+          background: open ? theme.canvas : theme.gold,
+          color: open ? theme.ink : "#fff",
+          borderRadius: theme.btnRadius,
+          border: "1px solid " + (open ? theme.hairline : theme.gold),
+        }}>
+        {open ? "Cancel" : "Apply Now"}
       </button>
 
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-[#2D2154]">Apply to {uni.name}</h2>
-          <p className="mt-1 text-sm text-[#6B6B6B]">Fill in your details to start the application</p>
-        </div>
-
-        {error && <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">{error}</div>}
-
-        <Card>
-          <CardHeader><CardTitle>Personal Information</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2"><Label>First Name *</Label><Input placeholder="Enter first name" value={form.firstName} onChange={(e) => update('firstName', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Last Name *</Label><Input placeholder="Enter last name" value={form.lastName} onChange={(e) => update('lastName', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Middle Name</Label><Input placeholder="Enter middle name" value={form.middleName} onChange={(e) => update('middleName', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Date of Birth *</Label><Input type="date" value={form.dateOfBirth} onChange={(e) => update('dateOfBirth', e.target.value)} /></div>
-              <div className="space-y-2"><Label>City of Birth *</Label><Input placeholder="Enter city" value={form.birthCity} onChange={(e) => update('birthCity', e.target.value)} /></div>
-              <div className="space-y-2"><Label>State of Birth *</Label><Input placeholder="Enter state" value={form.birthState} onChange={(e) => update('birthState', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Country of Birth *</Label><Input placeholder="Enter country" value={form.birthCountry} onChange={(e) => update('birthCountry', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Citizenship *</Label><Input placeholder="Enter citizenship" value={form.citizenship} onChange={(e) => update('citizenship', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Marital Status *</Label><select className={inputCls} value={form.maritalStatus} onChange={(e) => update('maritalStatus', e.target.value)}><option value="">Select status</option><option value="single">Single</option><option value="married">Married</option></select></div>
-              <div className="space-y-2"><Label>Gender *</Label><select className={inputCls} value={form.gender} onChange={(e) => update('gender', e.target.value)}><option value="">Select gender</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
+      {open && (
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4 text-left">
+          {errors._form && (
+            <div className="rounded-lg px-4 py-3 text-sm text-red-700" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+              {errors._form}
             </div>
-          </CardContent>
-        </Card>
+          )}
 
-        <Card>
-          <CardHeader><CardTitle>Permanent Address</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2 col-span-2"><Label>Street Address *</Label><Input placeholder="Enter street address" value={form.permanentAddress} onChange={(e) => update('permanentAddress', e.target.value)} /></div>
-              <div className="space-y-2"><Label>City *</Label><Input placeholder="Enter city" value={form.permanentCity} onChange={(e) => update('permanentCity', e.target.value)} /></div>
-              <div className="space-y-2"><Label>State *</Label><Input placeholder="Enter state" value={form.permanentState} onChange={(e) => update('permanentState', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Zip / Postal Code *</Label><Input placeholder="Enter zip code" value={form.permanentZip} onChange={(e) => update('permanentZip', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Country *</Label><Input placeholder="Enter country" value={form.permanentCountry} onChange={(e) => update('permanentCountry', e.target.value)} /></div>
-            </div>
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FormField label="First Name *" name="firstName" value={formData.firstName || ""} onChange={handleChange} error={errors.firstName} />
+            <FormField label="Last Name *" name="lastName" value={formData.lastName || ""} onChange={handleChange} error={errors.lastName} />
+          </div>
 
-        <Card>
-          <CardHeader><CardTitle>Contact & Language</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="space-y-2"><Label>Email *</Label><Input type="email" placeholder="Enter email" value={form.email} onChange={(e) => update('email', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Embassy Location *</Label><Input placeholder="Enter embassy location" value={form.embassyLocation} onChange={(e) => update('embassyLocation', e.target.value)} /></div>
-            </div>
-            <h4 className="text-sm font-semibold text-[#2D2154] mb-3">Primary Language</h4>
-            <div className="grid grid-cols-4 gap-3">
-              <div className="space-y-2"><Label>Language</Label><Input placeholder="e.g. English" value={form.lang1Name} onChange={(e) => update('lang1Name', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Speaking</Label><select className={inputCls} value={form.lang1Speaking} onChange={(e) => update('lang1Speaking', e.target.value)}>{languageLevels.map((l) => <option key={l} value={l}>{l}</option>)}</select></div>
-              <div className="space-y-2"><Label>Reading</Label><select className={inputCls} value={form.lang1Reading} onChange={(e) => update('lang1Reading', e.target.value)}>{languageLevels.map((l) => <option key={l} value={l}>{l}</option>)}</select></div>
-              <div className="space-y-2"><Label>Writing</Label><select className={inputCls} value={form.lang1Writing} onChange={(e) => update('lang1Writing', e.target.value)}>{languageLevels.map((l) => <option key={l} value={l}>{l}</option>)}</select></div>
-            </div>
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FormField label="Email *" name="email" type="email" value={formData.email || ""} onChange={handleChange} error={errors.email} />
+            <FormField label="Phone *" name="phone" type="tel" value={formData.phone || ""} onChange={handleChange} error={errors.phone} />
+          </div>
 
-        <Card>
-          <CardHeader><CardTitle>Program Selection</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Label>Selected Program *</Label>
-              <select className={inputCls} value={form.selectedProgram} onChange={(e) => update('selectedProgram', e.target.value)}>
-                <option value="">Select program</option>
-                <option value="pre-medical">Pre-Medical</option>
-                <option value="general-medicine">General Medicine (MBBS)</option>
-                <option value="dentistry">Dentistry</option>
-                <option value="post-graduate">Post Graduate</option>
-              </select>
-            </div>
-            {form.selectedProgram === 'post-graduate' && (
-              <div className="mt-4 space-y-2">
-                <Label>Post Graduate Details *</Label>
-                <Input placeholder="Specify your post-graduate program" value={form.postGraduateDetail} onChange={(e) => update('postGraduateDetail', e.target.value)} />
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FormField label="Date of Birth *" name="dateOfBirth" type="date" value={formData.dateOfBirth || ""} onChange={handleChange} error={errors.dateOfBirth} />
+            <FormField label="Gender *" name="gender" value={formData.gender || ""} onChange={handleChange} error={errors.gender} placeholder="Male / Female / Other" />
+          </div>
 
-        <Card>
-          <CardHeader><CardTitle>Signature & Declaration</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Full Name (as signature) *</Label><Input placeholder="Type your full name" value={form.signature} onChange={(e) => update('signature', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Date *</Label><Input type="date" value={form.signatureDate} onChange={(e) => update('signatureDate', e.target.value)} /></div>
-            </div>
-            <p className="mt-3 text-xs text-[#6B6B6B]">By submitting this application, you confirm that all information provided is accurate and complete.</p>
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FormField label="Citizenship *" name="citizenship" value={formData.citizenship || ""} onChange={handleChange} error={errors.citizenship} placeholder="e.g. Indian" />
+            <FormField label="Selected Program *" name="selectedProgram" value={formData.selectedProgram || ""} onChange={handleChange} error={errors.selectedProgram} placeholder="e.g. MBBS" />
+          </div>
 
-        <div className="flex items-center justify-end gap-3">
-          <Button variant="secondary" size="sm" onClick={onBack} disabled={submitMutation.isPending}>Cancel</Button>
-          <Button size="sm" onClick={handleSubmit} disabled={submitMutation.isPending}>
-            {submitMutation.isPending ? <><Loader2 className="size-4 animate-spin mr-1" /> Submitting...</> : 'Submit Application'}
-          </Button>
-        </div>
-      </div>
+          <FormField label="Permanent Address" name="permanentAddress" value={formData.permanentAddress || ""} onChange={handleChange} />
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FormField label="City" name="permanentCity" value={formData.permanentCity || ""} onChange={handleChange} />
+            <FormField label="State" name="permanentState" value={formData.permanentState || ""} onChange={handleChange} />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FormField label="Zip Code" name="permanentZip" value={formData.permanentZip || ""} onChange={handleChange} />
+            <FormField label="Country" name="permanentCountry" value={formData.permanentCountry || ""} onChange={handleChange} />
+          </div>
+
+          <FormField label="Signature (Full Name) *" name="signature" value={formData.signature || ""} onChange={handleChange} error={errors.signature}
+            placeholder="Type your full name as signature" />
+
+          <button type="submit" disabled={submit.isPending}
+            className="inline-flex w-full items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-60"
+            style={{
+              background: theme.ink,
+              color: "#fff",
+              borderRadius: theme.btnRadius,
+            }}>
+            {submit.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
+            {submit.isPending ? "Submitting..." : "Submit Application"}
+          </button>
+
+          <p className="text-xs text-center" style={{ color: theme.inkSubtle }}>
+            By submitting, you agree to our terms and privacy policy.
+          </p>
+        </form>
+      )}
     </div>
   );
 }
+
+function FormField({
+  label, name, type = "text", value, onChange, error, placeholder,
+}: {
+  label: string; name: string; type?: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  error?: string; placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="mb-1 block text-xs font-medium" style={{ color: theme.inkMuted }}>{label}</label>
+      <input
+        name={name} type={type} value={value} onChange={onChange} placeholder={placeholder}
+        className="w-full rounded-lg px-3 py-2 text-sm outline-none transition-all duration-200"
+        style={{
+          background: theme.canvas,
+          color: theme.ink,
+          border: "1px solid " + (error ? "#EF4444" : theme.hairline),
+        }}
+      />
+      {error && <p className="mt-0.5 text-xs text-red-500">{error}</p>}
+    </div>
+  );
+}
+
+
+

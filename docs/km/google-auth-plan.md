@@ -1,11 +1,13 @@
 # Google Authentication Implementation Plan
 
 ## Overview
+
 This document outlines the implementation plan for integrating Google authentication into the medical admission management platform frontend. The goal is to enable users to sign up and log in using their Google accounts.
 
 ## Current State Assessment
 
 ### Backend
+
 - API endpoints exist for Google authentication:
   - `POST /auth/google-login`
   - `POST /auth/google-register`
@@ -13,6 +15,7 @@ This document outlines the implementation plan for integrating Google authentica
 - Authentication is handled through Supabase
 
 ### Frontend
+
 - Next.js/React application with existing UI components
 - No authentication components implemented yet
 - Header component exists but lacks authentication controls
@@ -24,43 +27,45 @@ This document outlines the implementation plan for integrating Google authentica
 Create a service to handle all authentication-related operations:
 
 **File:** `apps/web/src/lib/auth-service.ts`
+
 ```typescript
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export class AuthService {
-  private static API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  private static API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
   // Google login
   static async googleLogin(accessToken: string) {
     try {
       const response = await fetch(`${this.API_BASE_URL}/auth/google-login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ accessToken }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Google login failed');
+        throw new Error(errorData.message || "Google login failed");
       }
 
       const data = await response.json();
-      
+
       // Store session in cookies or localStorage
       const cookieStore = cookies();
-      cookieStore.set('auth_token', data.session.access_token, {
+      cookieStore.set("auth_token", data.session.access_token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 24 * 7, // 1 week
-        path: '/',
+        path: "/",
       });
-      
+
       return data;
     } catch (error) {
-      console.error('Google login error:', error);
+      console.error("Google login error:", error);
       throw error;
     }
   }
@@ -68,36 +73,39 @@ export class AuthService {
   // Google registration
   static async googleRegister(accessToken: string, userData: any) {
     try {
-      const response = await fetch(`${this.API_BASE_URL}/auth/google-register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${this.API_BASE_URL}/auth/google-register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...userData,
+            accessToken,
+          }),
         },
-        body: JSON.stringify({
-          ...userData,
-          accessToken
-        }),
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Google registration failed');
+        throw new Error(errorData.message || "Google registration failed");
       }
 
       const data = await response.json();
-      
+
       // Store session in cookies or localStorage
       const cookieStore = cookies();
-      cookieStore.set('auth_token', data.session.access_token, {
+      cookieStore.set("auth_token", data.session.access_token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 24 * 7, // 1 week
-        path: '/',
+        path: "/",
       });
-      
+
       return data;
     } catch (error) {
-      console.error('Google registration error:', error);
+      console.error("Google registration error:", error);
       throw error;
     }
   }
@@ -105,17 +113,17 @@ export class AuthService {
   // Check if user is authenticated
   static isAuthenticated() {
     const cookieStore = cookies();
-    return !!cookieStore.get('auth_token');
+    return !!cookieStore.get("auth_token");
   }
 
   // Logout
   static async logout() {
     try {
       const cookieStore = cookies();
-      cookieStore.delete('auth_token');
-      redirect('/login');
+      cookieStore.delete("auth_token");
+      redirect("/login");
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   }
 }
@@ -124,10 +132,11 @@ export class AuthService {
 ### 2. Google Login Button Component
 
 **File:** `apps/web/src/components/auth/GoogleLoginButton.tsx`
+
 ```typescript
 'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from "./button";
 import { useEffect, useState } from "react";
 import { AuthService } from "@/lib/auth-service";
 
@@ -137,10 +146,10 @@ declare global {
   }
 }
 
-export function GoogleLoginButton({ 
+export function GoogleLoginButton({
   onLoginSuccess,
   onRegisterSuccess
-}: { 
+}: {
   onLoginSuccess?: () => void;
   onRegisterSuccess?: () => void;
 }) {
@@ -170,21 +179,21 @@ export function GoogleLoginButton({
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    
+
     try {
       // This would be replaced with actual Google SDK integration
       // For now, we'll simulate with a mock token
       const mockToken = "mock_google_access_token_" + Date.now();
-      
+
       // In real implementation, this would be the actual Google access token
       // from the Google Sign-In SDK
-      
+
       const result = await AuthService.googleLogin(mockToken);
-      
+
       if (onLoginSuccess) {
         onLoginSuccess();
       }
-      
+
       // Redirect or update UI as needed
     } catch (error) {
       console.error('Google login failed:', error);
@@ -224,6 +233,7 @@ export function GoogleLoginButton({
 ### 3. Authentication Context
 
 **File:** `apps/web/src/context/AuthContext.tsx`
+
 ```typescript
 'use client';
 
@@ -315,11 +325,12 @@ export function useAuth() {
 ### 4. Updated Header Component
 
 **Update:** `apps/web/src/components/landing/Header.tsx`
+
 ```typescript
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "./button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -368,7 +379,7 @@ export function Header() {
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 <span className="text-gray-600 text-sm">{user?.name}</span>
-                <Button 
+                <Button
                   onClick={logout}
                   variant="outline"
                   className="border-gray-300 text-gray-600 hover:bg-gray-50 text-sm font-medium"
@@ -415,7 +426,7 @@ export function Header() {
               {isAuthenticated ? (
                 <div className="space-y-2">
                   <span className="block px-3 py-2 text-gray-600 text-sm">{user?.name}</span>
-                  <Button 
+                  <Button
                     onClick={logout}
                     className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium"
                   >
@@ -439,11 +450,12 @@ export function Header() {
 ### 5. Login Page
 
 **File:** `apps/web/src/app/login/page.tsx`
+
 ```typescript
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "./button";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -479,14 +491,14 @@ export default function LoginPage() {
             Or continue with
           </p>
         </div>
-        
+
         <div className="mt-8 space-y-6">
           <div>
-            <GoogleLoginButton 
+            <GoogleLoginButton
               onLoginSuccess={() => router.push("/dashboard")}
             />
           </div>
-          
+
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300" />
@@ -497,10 +509,10 @@ export default function LoginPage() {
               </span>
             </div>
           </div>
-          
+
           <div>
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               className="w-full bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
               onClick={() => router.push("/register")}
             >
@@ -523,10 +535,11 @@ export default function LoginPage() {
    - Wrap the app with `AuthProvider` in `apps/web/src/app/layout.tsx`
 
 3. **Update Layout:**
+
    ```typescript
    // apps/web/src/app/layout.tsx
    import { AuthProvider } from "@/context/AuthContext";
-   
+
    export default function RootLayout({
      children,
    }: {

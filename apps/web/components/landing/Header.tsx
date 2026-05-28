@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@repo/ui";
 import { Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,8 +15,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  Separator,
 } from "@repo/ui";
+import { motion, AnimatePresence } from "motion/react";
+
+/* ─── brand tokens (matching UniversityCards) ─── */
+const theme = {
+  canvas: "#FAF9F6",
+  ink: "#1A153A",
+  inkMuted: "#6B6599",
+  gold: "#C4953B",
+  goldLight: "rgba(196, 149, 59, 0.10)",
+  hairline: "rgba(26, 21, 58, 0.08)",
+};
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -36,128 +45,172 @@ export function Header() {
   const initials = user?.name?.charAt(0)?.toUpperCase() || "U";
 
   return (
-    <header>
-      <div className=" w-full  bg-white ">
-        <div className="flex items-center gap-12 container mx-auto justify-between py-4">
-          <Link href="/" className="flex shrink-0 items-center">
-            <Image
-              src="/img/shiksha-logo.png"
-              alt="Shiksha Logo"
-              width={28}
-              height={28}
-              className="h-10 w-auto"
-            />
-          </Link>
-          <div className="flex items-center gap-3">
-            <nav className="hidden md:block">
-              <ul className="flex items-center gap-8">
-                {navLinks.map((link) => (
-                  <li key={link.name}>
-                    <Link href={link.href}>{link.name}</Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+    <header
+      className="relative"
+      style={{
+        background: theme.canvas,
+        borderBottom: "1px solid " + theme.hairline,
+      }}
+    >
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* ─── Logo ─── */}
+        <Link href="/" className="flex shrink-0 items-center gap-2">
+          <Image
+            src="/img/shiksha-logo.png"
+            alt="Shiksha Logo"
+            width={28}
+            height={28}
+            className="h-9 w-auto"
+          />
+        </Link>
 
-            <Separator orientation="vertical" className={"mr-5"} />
+        {/* ─── Desktop nav ─── */}
+        <nav className="hidden md:block">
+          <ul className="flex items-center gap-10">
+            {navLinks.map((link) => (
+              <li key={link.name}>
+                <Link
+                  href={link.href}
+                  className="group relative text-sm font-medium transition-colors duration-200"
+                  style={{ color: theme.inkMuted }}
+                >
+                  {link.name}
+                  <span
+                    className="absolute -bottom-1 left-0 h-px w-0 bg-current transition-all duration-300 group-hover:w-full"
+                    style={{ color: theme.gold }}
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-            <div className="flex items-center gap-2">
-              {isAuthenticated && user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <button
-                        type="button"
-                        className="flex items-center gap-2 cursor-pointer"
-                      />
-                    }
-                  >
-                    <Avatar className="size-8">
-                      <AvatarFallback>{initials}</AvatarFallback>
-                    </Avatar>
-                    <ChevronDown className="hidden md:block size-4 text-white/70" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" sideOffset={8}>
-                    <DropdownMenuGroup>
-                      <DropdownMenuLabel>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{user.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {user.email}
-                          </span>
-                        </div>
-                      </DropdownMenuLabel>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => logoutMutation.mutate()}>
-                      <LogOut className="size-4" />
-                      Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <div className="hidden md:block">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    nativeButton={false}
-                    render={<Link href="/login" />}
-                  >
-                    Login
-                  </Button>
-                </div>
-              )}
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="md:hidden"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
+        {/* ─── Right: auth + mobile toggle ─── */}
+        <div className="flex items-center gap-3">
+          {isAuthenticated && user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <button
+                    type="button"
+                    className="flex cursor-pointer items-center gap-2"
+                  />
+                }
               >
-                {isMenuOpen ? (
-                  <X className="size-5" />
-                ) : (
-                  <Menu className="size-5" />
-                )}
-              </Button>
+                <Avatar className="size-8">
+                  <AvatarFallback
+                    style={{
+                      background: theme.goldLight,
+                      color: theme.gold,
+                      fontSize: 13,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <ChevronDown
+                  className="hidden size-4 md:block"
+                  style={{ color: theme.inkMuted }}
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" sideOffset={8}>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col">
+                      <span className="font-medium" style={{ color: theme.ink }}>
+                        {user.name}
+                      </span>
+                      <span
+                        className="text-xs"
+                        style={{ color: theme.inkMuted }}
+                      >
+                        {user.email}
+                      </span>
+                    </div>
+                  </DropdownMenuLabel>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => logoutMutation.mutate()}
+                  className="cursor-pointer"
+                >
+                  <LogOut className="size-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="hidden md:block">
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center px-5 py-2 text-sm font-medium transition-all duration-200 active:scale-[0.97]"
+                style={{
+                  background: theme.ink,
+                  color: "#fff",
+                  borderRadius: 10,
+                }}
+              >
+                Login
+              </Link>
             </div>
-          </div>
+          )}
+
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            className="flex size-10 items-center justify-center rounded-lg md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            style={{ color: theme.ink }}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {isMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
         </div>
       </div>
 
-      {isMenuOpen && (
-        <div className="md:hidden">
-          <div className="mx-auto mt-1 max-w-6xl rounded-md bg-[#2D2154] px-4 py-3">
-            <nav>
-              <ul className="space-y-1">
-                {navLinks.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="block rounded-md px-3 py-2 text-white/70 hover:bg-white/10 hover:text-white"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-                {!isAuthenticated && (
-                  <li className="pt-2">
-                    <Button
-                      variant="secondary"
-                      className="w-full bg-white/10 text-white"
-                      nativeButton={false}
-                      render={<Link href="/login" />}
-                    >
-                      Login
-                    </Button>
-                  </li>
-                )}
-              </ul>
+      {/* ─── Mobile menu ─── */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+            className="overflow-hidden md:hidden"
+            style={{ background: theme.ink }}
+          >
+            <nav className="space-y-1 px-4 pb-6 pt-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="block rounded-lg px-4 py-2.5 text-sm font-medium transition-colors duration-200"
+                  style={{ color: "rgba(255,255,255,0.7)" }}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
+              {!isAuthenticated && (
+                <div className="pt-3">
+                  <Link
+                    href="/login"
+                    className="flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium"
+                    style={{
+                      background: theme.gold,
+                      color: theme.ink,
+                    }}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                </div>
+              )}
             </nav>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
