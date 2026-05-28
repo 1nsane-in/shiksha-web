@@ -37,6 +37,7 @@ export interface UniversityListItem {
   status: string;
   logo: string;
   bannerImage?: string;
+  brochureUrl?: string;
   location: UniversityLocation | null;
   contact: UniversityContact | null;
   academic: UniversityAcademic | null;
@@ -132,4 +133,5 @@ export interface UniversityFilters {
 }
 
 export type { PaginatedResponse, PaginationMeta };
+
 

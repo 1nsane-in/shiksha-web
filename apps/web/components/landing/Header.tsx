@@ -46,7 +46,7 @@ export function Header() {
 
   return (
     <header
-      className="relative"
+      className="sticky top-0 z-50"
       style={{
         background: theme.canvas,
         borderBottom: "1px solid " + theme.hairline,

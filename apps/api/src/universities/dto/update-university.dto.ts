@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsEnum,
   IsUrl,
+  Matches,
   Min,
   Max,
   ValidateNested,
@@ -31,6 +32,8 @@ export class UpdateUniversityDto {
   @IsOptional() @IsUrl() website?: string;
   @IsOptional() @IsUrl() logo?: string;
   @IsOptional() @IsUrl() bannerImage?: string;
+  @IsOptional() @IsUrl() @Matches(/\.pdf$/i, { message: "brochureUrl must point to a PDF file" })
+  brochureUrl?: string;
   @IsOptional() @IsEnum(UniversityStatus) status?: UniversityStatus;
 
   @IsOptional() @ValidateNested() @Type(() => UniversityLocationDto) location?: UniversityLocationDto;
@@ -44,3 +47,5 @@ export class UpdateUniversityDto {
   @IsOptional() @ValidateNested() @Type(() => UniversityContentDto) content?: UniversityContentDto;
   @IsOptional() @ValidateNested() @Type(() => UniversityAdminDto) admin?: UniversityAdminDto;
 }
+
+

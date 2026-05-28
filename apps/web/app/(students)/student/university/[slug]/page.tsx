@@ -14,6 +14,7 @@ import {
   BookOpen,
   ArrowLeft,
   ChevronRight,
+  FileDown,
   Loader2,
   Mail,
   Phone,
@@ -24,10 +25,6 @@ import {
   Star,
   BookMarked,
   Hospital,
-  Wifi,
-  Utensils,
-  Bus,
-  Library,
   Check,
   X,
   Banknote,
@@ -95,8 +92,14 @@ function ChipList({ items, limit }: { items: string[]; limit?: number }) {
         </span>
       ))}
       {remaining > 0 && (
-        <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium"
-          style={{ color: theme.inkSubtle, background: theme.canvas, border: "1px solid " + theme.hairline }}>
+        <span
+          className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium"
+          style={{
+            color: theme.inkSubtle,
+            background: theme.canvas,
+            border: "1px solid " + theme.hairline,
+          }}
+        >
           +{remaining} more
         </span>
       )}
@@ -104,11 +107,29 @@ function ChipList({ items, limit }: { items: string[]; limit?: number }) {
   );
 }
 
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+function SectionCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="rounded-2xl px-6 py-7 md:px-8" style={{ background: theme.surface, border: "1px solid " + theme.hairline, position: "relative" }}>
-      <div className="absolute left-0 top-0 h-1 w-16 rounded-tl-2xl" style={{ background: theme.gold }} />
-      <h2 className="mb-5 text-lg font-semibold" style={{ color: theme.ink }}>{title}</h2>
+    <div
+      className="rounded-2xl px-6 py-7 md:px-8"
+      style={{
+        background: theme.surface,
+        border: "1px solid " + theme.hairline,
+        position: "relative",
+      }}
+    >
+      <div
+        className="absolute left-0 top-0 h-1 w-16 rounded-tl-2xl"
+        style={{ background: theme.gold }}
+      />
+      <h2 className="mb-5 text-lg font-semibold" style={{ color: theme.ink }}>
+        {title}
+      </h2>
       {children}
     </div>
   );
@@ -118,25 +139,44 @@ function Skeleton() {
   return (
     <div className="min-h-screen" style={{ background: theme.canvas }}>
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-10 h-64 animate-pulse rounded-2xl" style={{ background: theme.hairline }} />
+        <div
+          className="mb-10 h-64 animate-pulse rounded-2xl"
+          style={{ background: theme.hairline }}
+        />
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="h-48 animate-pulse rounded-xl" style={{ background: theme.hairline }} />
+              <div
+                key={i}
+                className="h-48 animate-pulse rounded-xl"
+                style={{ background: theme.hairline }}
+              />
             ))}
           </div>
-          <div className="h-80 animate-pulse rounded-xl" style={{ background: theme.hairline }} />
+          <div
+            className="h-80 animate-pulse rounded-xl"
+            style={{ background: theme.hairline }}
+          />
         </div>
       </div>
     </div>
   );
 }
 
-function ErrorState({ error, onRetry }: { error: Error | null; onRetry?: () => void }) {
+function ErrorState({
+  error,
+  onRetry,
+}: {
+  error: Error | null;
+  onRetry?: () => void;
+}) {
   return (
     <div className="min-h-screen" style={{ background: theme.canvas }}>
       <div className="mx-auto flex min-h-[70vh] max-w-6xl flex-col items-center justify-center gap-5 px-4 text-center">
-        <div className="flex size-16 items-center justify-center rounded-full" style={{ background: theme.goldLight }}>
+        <div
+          className="flex size-16 items-center justify-center rounded-full"
+          style={{ background: theme.goldLight }}
+        >
           <Star className="size-7" style={{ color: theme.gold }} />
         </div>
         <div>
@@ -144,19 +184,29 @@ function ErrorState({ error, onRetry }: { error: Error | null; onRetry?: () => v
             {error ? "Unable to load university" : "University not found"}
           </p>
           <p className="mt-1 text-sm" style={{ color: theme.inkMuted }}>
-            {error ? "Please check your connection and try again." : "The university you are looking for does not exist or has been removed."}
+            {error
+              ? "Please check your connection and try again."
+              : "The university you are looking for does not exist or has been removed."}
           </p>
         </div>
         {error && (
-          <button onClick={onRetry}
+          <button
+            onClick={onRetry}
             className="inline-flex items-center justify-center px-5 py-2 text-sm font-medium transition-all duration-200"
-            style={{ background: theme.ink, color: "#fff", borderRadius: theme.btnRadius }}>
+            style={{
+              background: theme.ink,
+              color: "#fff",
+              borderRadius: theme.btnRadius,
+            }}
+          >
             Try Again
           </button>
         )}
-        <button onClick={() => window.history.back()}
+        <button
+          onClick={() => window.history.back()}
           className="inline-flex items-center gap-1.5 text-sm font-medium"
-          style={{ color: theme.inkMuted }}>
+          style={{ color: theme.inkMuted }}
+        >
           <ArrowLeft className="size-4" /> Go Back
         </button>
       </div>
@@ -171,52 +221,80 @@ export default function UniversityDetailPage() {
   const { data: uni, isLoading, error, refetch } = useUniversity(slug);
 
   if (isLoading) return <Skeleton />;
-  if (error || !uni) return <ErrorState error={error as Error} onRetry={() => refetch?.()} />;
+  if (error || !uni)
+    return <ErrorState error={error as Error} onRetry={() => refetch?.()} />;
 
   return <UniversityContent uni={uni} />;
 }
 
 /* ─── mapped helpers ─── */
-function mappedLocation(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+function mappedLocation(
+  uni: NonNullable<ReturnType<typeof useUniversity>["data"]>,
+) {
   const loc = uni.location;
   if (!loc) return null;
-  return { city: loc.city, country: loc.country, state: loc.state, address: loc.address };
+  return {
+    city: loc.city,
+    country: loc.country,
+    state: loc.state,
+    address: loc.address,
+  };
 }
 
-function mappedAcademic(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+function mappedAcademic(
+  uni: NonNullable<ReturnType<typeof useUniversity>["data"]>,
+) {
   return uni.academic;
 }
 
-function mappedAdmission(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+function mappedAdmission(
+  uni: NonNullable<ReturnType<typeof useUniversity>["data"]>,
+) {
   return uni.admission;
 }
 
-function mappedInfra(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+function mappedInfra(
+  uni: NonNullable<ReturnType<typeof useUniversity>["data"]>,
+) {
   return uni.infrastructure;
 }
 
-function mappedSupport(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+function mappedSupport(
+  uni: NonNullable<ReturnType<typeof useUniversity>["data"]>,
+) {
   return uni.support;
 }
 
-function mappedContent(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+function mappedContent(
+  uni: NonNullable<ReturnType<typeof useUniversity>["data"]>,
+) {
   return uni.content;
 }
 
-function mappedCourses(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+function mappedCourses(
+  uni: NonNullable<ReturnType<typeof useUniversity>["data"]>,
+) {
   return uni.courses;
 }
 
-function mappedRecognition(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+function mappedRecognition(
+  uni: NonNullable<ReturnType<typeof useUniversity>["data"]>,
+) {
   return uni.recognition;
 }
 
-function mappedFees(uni: NonNullable<ReturnType<typeof useUniversity>["data"]>) {
+function mappedFees(
+  uni: NonNullable<ReturnType<typeof useUniversity>["data"]>,
+) {
   return uni.fees;
 }
 
 /* ─── main content ─── */
-function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniversity>["data"]> }) {
+function UniversityContent({
+  uni,
+}: {
+  uni: NonNullable<ReturnType<typeof useUniversity>["data"]>;
+}) {
   const loc = mappedLocation(uni);
   const academic = mappedAcademic(uni);
   const admission = mappedAdmission(uni);
@@ -238,9 +316,11 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
     <div className="min-h-screen pb-16" style={{ background: theme.canvas }}>
       {/* ── back nav ── */}
       <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-6 lg:px-8">
-        <button onClick={() => window.history.back()}
+        <button
+          onClick={() => window.history.back()}
           className="group inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
-          style={{ color: theme.inkMuted }}>
+          style={{ color: theme.inkMuted }}
+        >
           <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" />
           Back to Universities
         </button>
@@ -248,27 +328,47 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
 
       {/* ── hero ── */}
       <section className="relative mx-auto mt-4 max-w-6xl overflow-hidden px-4 sm:px-6 lg:px-8">
-        <div className="relative min-h-[300px] w-full overflow-hidden rounded-2xl md:min-h-[380px]"
-          style={{ border: "1px solid " + theme.hairline, background: theme.surface }}>
+        <div
+          className="relative min-h-[300px] w-full overflow-hidden rounded-2xl md:min-h-[380px]"
+          style={{
+            border: "1px solid " + theme.hairline,
+            background: theme.surface,
+          }}
+        >
           {uni.bannerImage ? (
-            <Image src={uni.bannerImage} alt={uni.name}
+            <Image
+              src={uni.bannerImage}
+              alt={uni.name}
               fill
               className="object-cover"
-              sizes="(max-width: 1200px) 100vw, 1200px" />
+              sizes="(max-width: 1200px) 100vw, 1200px"
+            />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center"
-              style={{ background: `linear-gradient(135deg, ${theme.ink} 0%, #2D2860 100%)` }}>
-              <Building2 className="size-20" style={{ color: "rgba(255,255,255,0.15)" }} />
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{
+                background: `linear-gradient(135deg, ${theme.ink} 0%, #2D2860 100%)`,
+              }}
+            >
+              <Building2
+                className="size-20"
+                style={{ color: "rgba(255,255,255,0.15)" }}
+              />
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           {/* badges */}
           <div className="absolute right-4 top-4 flex flex-wrap gap-2">
-            <span className="rounded-md px-3 py-1 text-xs font-semibold tracking-wide uppercase"
+            <span
+              className="rounded-md px-3 py-1 text-xs font-semibold tracking-wide uppercase"
               style={{
                 background: typeBadgeStyle(uni.type).cls.split(" ")[0],
-                color: typeBadgeStyle(uni.type).cls.split(" ")[1].replace("text-", "#") || "#fff",
-              }}>
+                color:
+                  typeBadgeStyle(uni.type)
+                    .cls.split(" ")[1]
+                    .replace("text-", "#") || "#fff",
+              }}
+            >
               {typeBadgeStyle(uni.type).label}
             </span>
             {uni.status === "ACTIVE" && (
@@ -286,13 +386,21 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
             <div className="flex items-center gap-3">
               {uni.logo && (
-                <Image src={uni.logo} alt="" width={56} height={56}
-                  className="size-12 rounded-xl border-2 border-white/30 object-contain bg-white p-1 md:size-14" />
+                <Image
+                  src={uni.logo}
+                  alt=""
+                  width={56}
+                  height={56}
+                  className="size-12 rounded-xl border-2 border-white/30 object-contain bg-white p-1 md:size-14"
+                />
               )}
               <div>
-                <h1 className="text-2xl font-bold text-white md:text-3xl lg:text-4xl" style={{ fontFamily: "'Georgia', serif" }}>
+                <p
+                  className="text-2xl font-bold text-white md:text-3xl lg:text-4xl"
+                  style={{ fontFamily: "'Georgia', serif" }}
+                >
                   {uni.name}
-                </h1>
+                </p>
                 <p className="mt-0.5 text-sm text-white/70 md:text-base">
                   {uni.shortName} &middot; {uni.type.replace(/_/g, " ")}
                 </p>
@@ -302,6 +410,7 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
         </div>
       </section>
 
+
       {/* ── content grid ── */}
       <div className="mx-auto mt-10 grid max-w-6xl grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
         {/* ── main ── */}
@@ -310,47 +419,106 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
           {academic && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
               {uni.establishedYear && (
-                <StatBox icon={<Calendar className="size-4" />} label="Founded" value={String(uni.establishedYear)} />)}
+                <StatBox
+                  icon={<Calendar className="size-4" />}
+                  label="Founded"
+                  value={String(uni.establishedYear)}
+                />
+              )}
               {academic.duration && (
-                <StatBox icon={<GraduationCap className="size-4" />} label="Duration" value={academic.duration} />)}
+                <StatBox
+                  icon={<GraduationCap className="size-4" />}
+                  label="Duration"
+                  value={academic.duration}
+                />
+              )}
               {academic.medium && (
-                <StatBox icon={<BookOpen className="size-4" />} label="Medium" value={academic.medium} />)}
+                <StatBox
+                  icon={<BookOpen className="size-4" />}
+                  label="Medium"
+                  value={academic.medium}
+                />
+              )}
               {academic.totalSeats && (
-                <StatBox icon={<Users className="size-4" />} label="Total Seats" value={String(academic.totalSeats)} />)}
+                <StatBox
+                  icon={<Users className="size-4" />}
+                  label="Total Seats"
+                  value={String(academic.totalSeats)}
+                />
+              )}
               {academic.programs && academic.programs.length > 0 && (
-                <StatBox icon={<BookMarked className="size-4" />} label="Programs" value={String(academic.programs.length)} />)}
+                <StatBox
+                  icon={<BookMarked className="size-4" />}
+                  label="Programs"
+                  value={String(academic.programs.length)}
+                />
+              )}
               {recognition?.globalRank && (
-                <StatBox icon={<Award className="size-4" />} label="World Rank" value={`#${recognition.globalRank}`} />)}
+                <StatBox
+                  icon={<Award className="size-4" />}
+                  label="World Rank"
+                  value={`#${recognition.globalRank}`}
+                />
+              )}
               {support?.placementRate && (
-                <StatBox icon={<Star className="size-4" />} label="Placement" value={`${support.placementRate}%`} />)}
+                <StatBox
+                  icon={<Star className="size-4" />}
+                  label="Placement"
+                  value={`${support.placementRate}%`}
+                />
+              )}
               {infra?.hospitalBeds && (
-                <StatBox icon={<Hospital className="size-4" />} label="Hospital Beds" value={String(infra.hospitalBeds)} />)}
+                <StatBox
+                  icon={<Hospital className="size-4" />}
+                  label="Hospital Beds"
+                  value={String(infra.hospitalBeds)}
+                />
+              )}
             </div>
           )}
 
           {/* ── About / Gallery ── */}
-          {(hasGallery) && (
+          {hasGallery && (
             <SectionCard title="About & Gallery">
               {(uni as any).description && (
-                <p className="mb-6 text-sm leading-relaxed" style={{ color: theme.inkMuted }}>
+                <p
+                  className="mb-6 text-sm leading-relaxed"
+                  style={{ color: theme.inkMuted }}
+                >
                   {(uni as any).description}
                 </p>
               )}
               {hasGallery && (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {content!.gallery.slice(0, 6).map((img: string, i: number) => (
-                    <div key={i} className="group relative aspect-[4/3] overflow-hidden rounded-xl"
-                      style={{ border: "1px solid " + theme.hairline }}>
-                      <Image src={img} alt={`${uni.name} gallery ${i + 1}`}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        sizes="(max-width: 640px) 50vw, 25vw" />
-                    </div>
-                  ))}
+                  {content!.gallery
+                    .slice(0, 6)
+                    .map((img: string, i: number) => (
+                      <div
+                        key={i}
+                        className="group relative aspect-[4/3] overflow-hidden rounded-xl"
+                        style={{ border: "1px solid " + theme.hairline }}
+                      >
+                        <Image
+                          src={img}
+                          alt={`${uni.name} gallery ${i + 1}`}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes="(max-width: 640px) 50vw, 25vw"
+                        />
+                      </div>
+                    ))}
                   {content!.gallery.length > 6 && (
-                    <div className="flex aspect-[4/3] items-center justify-center rounded-xl"
-                      style={{ background: theme.goldLight, border: "1px solid " + theme.goldBorder }}>
-                      <p className="text-sm font-medium" style={{ color: theme.gold }}>
+                    <div
+                      className="flex aspect-[4/3] items-center justify-center rounded-xl"
+                      style={{
+                        background: theme.goldLight,
+                        border: "1px solid " + theme.goldBorder,
+                      }}
+                    >
+                      <p
+                        className="text-sm font-medium"
+                        style={{ color: theme.gold }}
+                      >
                         +{content!.gallery.length - 6} more
                       </p>
                     </div>
@@ -365,27 +533,59 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
             <SectionCard title="Admission Details">
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <InfoField label="Eligibility" value={admission.eligibility} />
-                <InfoField label="Minimum Marks" value={admission.minimumMarks} />
+                <InfoField
+                  label="Minimum Marks"
+                  value={admission.minimumMarks}
+                />
                 <InfoField label="Age Criteria" value={admission.ageCriteria} />
-                <InfoField label="Selection Process" value={admission.selectionProcess} />
-                <InfoField label="Application Fee" value={admission.applicationFee != null ? `₹${admission.applicationFee.toLocaleString()}` : undefined} />
+                <InfoField
+                  label="Selection Process"
+                  value={admission.selectionProcess}
+                />
+                <InfoField
+                  label="Application Fee"
+                  value={
+                    admission.applicationFee != null
+                      ? `₹${admission.applicationFee.toLocaleString()}`
+                      : undefined
+                  }
+                />
                 {admission.applicationDeadline && (
-                  <InfoField label="Deadline" value={new Date(admission.applicationDeadline).toLocaleDateString("en-IN", {
-                    year: "numeric", month: "long", day: "numeric"
-                  })} />
+                  <InfoField
+                    label="Deadline"
+                    value={new Date(
+                      admission.applicationDeadline,
+                    ).toLocaleDateString("en-IN", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  />
                 )}
-                {admission.entranceExams && admission.entranceExams.length > 0 && (
-                  <div className="sm:col-span-2">
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Entrance Exams</p>
-                    <ChipList items={admission.entranceExams} />
-                  </div>
-                )}
-                {admission.requiredDocuments && admission.requiredDocuments.length > 0 && (
-                  <div className="sm:col-span-2">
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Required Documents</p>
-                    <ChipList items={admission.requiredDocuments} />
-                  </div>
-                )}
+                {admission.entranceExams &&
+                  admission.entranceExams.length > 0 && (
+                    <div className="sm:col-span-2">
+                      <p
+                        className="mb-2 text-xs font-medium uppercase tracking-wider"
+                        style={{ color: theme.inkSubtle }}
+                      >
+                        Entrance Exams
+                      </p>
+                      <ChipList items={admission.entranceExams} />
+                    </div>
+                  )}
+                {admission.requiredDocuments &&
+                  admission.requiredDocuments.length > 0 && (
+                    <div className="sm:col-span-2">
+                      <p
+                        className="mb-2 text-xs font-medium uppercase tracking-wider"
+                        style={{ color: theme.inkSubtle }}
+                      >
+                        Required Documents
+                      </p>
+                      <ChipList items={admission.requiredDocuments} />
+                    </div>
+                  )}
               </div>
             </SectionCard>
           )}
@@ -395,32 +595,74 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
             <SectionCard title="Infrastructure & Facilities">
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                 {infra.hospitalBeds != null && (
-                  <InfraStat icon={<Hospital />} label="Hospital Beds" value={String(infra.hospitalBeds)} />)}
+                  <InfraStat
+                    icon={<Hospital />}
+                    label="Hospital Beds"
+                    value={String(infra.hospitalBeds)}
+                  />
+                )}
                 {infra.departments != null && (
-                  <InfraStat icon={<Layers />} label="Departments" value={String(infra.departments)} />)}
+                  <InfraStat
+                    icon={<Layers />}
+                    label="Departments"
+                    value={String(infra.departments)}
+                  />
+                )}
                 {infra.laboratories != null && (
-                  <InfraStat icon={<BookMarked />} label="Labs" value={String(infra.laboratories)} />)}
+                  <InfraStat
+                    icon={<BookMarked />}
+                    label="Labs"
+                    value={String(infra.laboratories)}
+                  />
+                )}
                 {infra.campusArea != null && (
-                  <InfraStat icon={<Building2 />} label="Campus Area" value={`${infra.campusArea} acres`} />)}
+                  <InfraStat
+                    icon={<Building2 />}
+                    label="Campus Area"
+                    value={`${infra.campusArea} acres`}
+                  />
+                )}
                 {infra.hostelBoys != null && (
-                  <InfraStat icon={<Users />} label="Boys Hostel" value={String(infra.hostelBoys)} />)}
+                  <InfraStat
+                    icon={<Users />}
+                    label="Boys Hostel"
+                    value={String(infra.hostelBoys)}
+                  />
+                )}
                 {infra.hostelGirls != null && (
-                  <InfraStat icon={<Users />} label="Girls Hostel" value={String(infra.hostelGirls)} />)}
+                  <InfraStat
+                    icon={<Users />}
+                    label="Girls Hostel"
+                    value={String(infra.hostelGirls)}
+                  />
+                )}
               </div>
               {/* boolean facilities */}
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {infra.cafeteria != null && (
-                  <BoolRow label="Cafeteria" value={infra.cafeteria} />)}
+                  <BoolRow label="Cafeteria" value={infra.cafeteria} />
+                )}
                 {infra.wifiCampus != null && (
-                  <BoolRow label="WiFi Campus" value={infra.wifiCampus} />)}
+                  <BoolRow label="WiFi Campus" value={infra.wifiCampus} />
+                )}
                 {infra.transportation != null && (
-                  <BoolRow label="Transportation" value={infra.transportation} />)}
+                  <BoolRow
+                    label="Transportation"
+                    value={infra.transportation}
+                  />
+                )}
                 {infra.library != null && (
-                  <BoolRow label="Library" value={infra.library} />)}
+                  <BoolRow label="Library" value={infra.library} />
+                )}
               </div>
               {infra.facilities && infra.facilities.length > 0 && (
                 <div className="mt-5">
-                  <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Facilities</p>
+                  <p
+                    className="mb-2 text-xs font-medium uppercase tracking-wider"
+                    style={{ color: theme.inkSubtle }}
+                  >
+                    Facilities
+                  </p>
                   <ChipList items={infra.facilities} />
                 </div>
               )}
@@ -432,37 +674,81 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
             <SectionCard title="Fees & Financials">
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {fees.tuitionFee != null && (
-                  <FeeBox label="Tuition Fee" value={`₹${fees.tuitionFee.toLocaleString()}`}
-                    sub={fees.perYear ? "/year" : undefined} />)}
-                {fees.hostelFee != null && (
-                  <FeeBox label="Hostel Fee" value={`₹${fees.hostelFee.toLocaleString()}`} sub={fees.perYear ? "/year" : undefined} />)}
-                {fees.totalFee != null && (
-                  <FeeBox label="Total Fee" value={`₹${fees.totalFee.toLocaleString()}`} sub="Approx" highlight />)}
-                {fees.messFee != null && (
-                  <FeeBox label="Mess Fee" value={`₹${fees.messFee.toLocaleString()}`} />)}
-                {fees.otherFees != null && typeof fees.otherFees === "object" && (
-                  <div className="sm:col-span-2 lg:col-span-3">
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
-                      Other Fees
-                    </p>
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                      {Object.entries(fees.otherFees).map(([key, val]) => (
-                        <div key={key} className="rounded-lg px-3 py-2 text-sm"
-                          style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
-                          <span style={{ color: theme.inkSubtle }}>{key.replace(/([A-Z])/g, " $1").trim()}:</span>
-                          <span className="ml-1 font-medium" style={{ color: theme.ink }}>{String(val)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <FeeBox
+                    label="Tuition Fee"
+                    value={`₹${fees.tuitionFee.toLocaleString()}`}
+                    sub={fees.perYear ? "/year" : undefined}
+                  />
                 )}
+                {fees.hostelFee != null && (
+                  <FeeBox
+                    label="Hostel Fee"
+                    value={`₹${fees.hostelFee.toLocaleString()}`}
+                    sub={fees.perYear ? "/year" : undefined}
+                  />
+                )}
+                {fees.totalFee != null && (
+                  <FeeBox
+                    label="Total Fee"
+                    value={`₹${fees.totalFee.toLocaleString()}`}
+                    sub="Approx"
+                    highlight
+                  />
+                )}
+                {fees.messFee != null && (
+                  <FeeBox
+                    label="Mess Fee"
+                    value={`₹${fees.messFee.toLocaleString()}`}
+                  />
+                )}
+                {fees.otherFees != null &&
+                  typeof fees.otherFees === "object" && (
+                    <div className="sm:col-span-2 lg:col-span-3">
+                      <p
+                        className="mb-2 text-xs font-medium uppercase tracking-wider"
+                        style={{ color: theme.inkSubtle }}
+                      >
+                        Other Fees
+                      </p>
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                        {Object.entries(fees.otherFees).map(([key, val]) => (
+                          <div
+                            key={key}
+                            className="rounded-lg px-3 py-2 text-sm"
+                            style={{
+                              background: theme.canvas,
+                              border: "1px solid " + theme.hairline,
+                            }}
+                          >
+                            <span style={{ color: theme.inkSubtle }}>
+                              {key.replace(/([A-Z])/g, " $1").trim()}:
+                            </span>
+                            <span
+                              className="ml-1 font-medium"
+                              style={{ color: theme.ink }}
+                            >
+                              {String(val)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 {fees.paymentTerms && (
-                  <InfoField label="Payment Terms" value={fees.paymentTerms} />)}
+                  <InfoField label="Payment Terms" value={fees.paymentTerms} />
+                )}
                 {fees.installmentAvailable != null && (
-                  <BoolRow label="Installment Available" value={fees.installmentAvailable} />)}
+                  <BoolRow
+                    label="Installment Available"
+                    value={fees.installmentAvailable}
+                  />
+                )}
                 {fees.refundPolicy && (
                   <div className="sm:col-span-2 lg:col-span-3">
-                    <InfoField label="Refund Policy" value={fees.refundPolicy} />
+                    <InfoField
+                      label="Refund Policy"
+                      value={fees.refundPolicy}
+                    />
                   </div>
                 )}
               </div>
@@ -470,99 +756,178 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
           )}
 
           {/* ── Academic Programs ── */}
-          {academic && (academic.programs?.length || academic.specializations?.length) && (
-            <SectionCard title="Academic Programs">
-              <div className="grid gap-6 sm:grid-cols-2">
-                {academic.programs && academic.programs.length > 0 && (
-                  <div>
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
-                      Programs Offered
-                    </p>
-                    <ul className="space-y-1.5">
-                      {academic.programs.map((p) => (
-                        <li key={p} className="flex items-center gap-2 text-sm" style={{ color: theme.inkMuted }}>
-                          <ChevronRight className="size-3.5 shrink-0" style={{ color: theme.gold }} />
-                          {p}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {academic.specializations && academic.specializations.length > 0 && (
-                  <div>
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
-                      Specializations
-                    </p>
-                    <ChipList items={academic.specializations} />
-                  </div>
-                )}
-                {academic.intakeMonths && academic.intakeMonths.length > 0 && (
-                  <div>
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
-                      Intake Months
-                    </p>
-                    <ChipList items={academic.intakeMonths} />
-                  </div>
-                )}
-                {/* seat breakdown */}
-                {(academic.governmentSeats || academic.managementSeats || academic.nriSeats) && (
-                  <div className="sm:col-span-2">
-                    <p className="mb-3 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
-                      Seat Distribution
-                    </p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {academic.governmentSeats != null && (
-                        <SeatBox label="Government" value={academic.governmentSeats} total={academic.totalSeats} />)}
-                      {academic.managementSeats != null && (
-                        <SeatBox label="Management" value={academic.managementSeats} total={academic.totalSeats} />)}
-                      {academic.nriSeats != null && (
-                        <SeatBox label="NRI" value={academic.nriSeats} total={academic.totalSeats} />)}
+          {academic &&
+            (academic.programs?.length || academic.specializations?.length) && (
+              <SectionCard title="Academic Programs">
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {academic.programs && academic.programs.length > 0 && (
+                    <div>
+                      <p
+                        className="mb-2 text-xs font-medium uppercase tracking-wider"
+                        style={{ color: theme.inkSubtle }}
+                      >
+                        Programs Offered
+                      </p>
+                      <ul className="space-y-1.5">
+                        {academic.programs.map((p) => (
+                          <li
+                            key={p}
+                            className="flex items-center gap-2 text-sm"
+                            style={{ color: theme.inkMuted }}
+                          >
+                            <ChevronRight
+                              className="size-3.5 shrink-0"
+                              style={{ color: theme.gold }}
+                            />
+                            {p}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                  </div>
-                )}
-              </div>
-            </SectionCard>
-          )}
+                  )}
+                  {academic.specializations &&
+                    academic.specializations.length > 0 && (
+                      <div>
+                        <p
+                          className="mb-2 text-xs font-medium uppercase tracking-wider"
+                          style={{ color: theme.inkSubtle }}
+                        >
+                          Specializations
+                        </p>
+                        <ChipList items={academic.specializations} />
+                      </div>
+                    )}
+                  {academic.intakeMonths &&
+                    academic.intakeMonths.length > 0 && (
+                      <div>
+                        <p
+                          className="mb-2 text-xs font-medium uppercase tracking-wider"
+                          style={{ color: theme.inkSubtle }}
+                        >
+                          Intake Months
+                        </p>
+                        <ChipList items={academic.intakeMonths} />
+                      </div>
+                    )}
+                  {/* seat breakdown */}
+                  {(academic.governmentSeats ||
+                    academic.managementSeats ||
+                    academic.nriSeats) && (
+                    <div className="sm:col-span-2">
+                      <p
+                        className="mb-3 text-xs font-medium uppercase tracking-wider"
+                        style={{ color: theme.inkSubtle }}
+                      >
+                        Seat Distribution
+                      </p>
+                      <div className="grid grid-cols-3 gap-3">
+                        {academic.governmentSeats != null && (
+                          <SeatBox
+                            label="Government"
+                            value={academic.governmentSeats}
+                            total={academic.totalSeats}
+                          />
+                        )}
+                        {academic.managementSeats != null && (
+                          <SeatBox
+                            label="Management"
+                            value={academic.managementSeats}
+                            total={academic.totalSeats}
+                          />
+                        )}
+                        {academic.nriSeats != null && (
+                          <SeatBox
+                            label="NRI"
+                            value={academic.nriSeats}
+                            total={academic.totalSeats}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </SectionCard>
+            )}
 
           {/* ── Support & Career ── */}
           {support && (
             <SectionCard title="Support & Career">
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 {support.placementRate != null && (
-                  <div className="rounded-xl px-5 py-4 text-center"
-                    style={{ background: theme.goldLight, border: "1px solid " + theme.goldBorder }}>
-                    <p className="text-3xl font-bold" style={{ color: theme.gold }}>{support.placementRate}%</p>
-                    <p className="mt-1 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                  <div
+                    className="rounded-xl px-5 py-4 text-center"
+                    style={{
+                      background: theme.goldLight,
+                      border: "1px solid " + theme.goldBorder,
+                    }}
+                  >
+                    <p
+                      className="text-3xl font-bold"
+                      style={{ color: theme.gold }}
+                    >
+                      {support.placementRate}%
+                    </p>
+                    <p
+                      className="mt-1 text-xs font-medium uppercase tracking-wider"
+                      style={{ color: theme.inkMuted }}
+                    >
                       Placement Rate
                     </p>
                   </div>
                 )}
                 {support.averagePackage != null && (
-                  <div className="rounded-xl px-5 py-4 text-center"
-                    style={{ background: theme.goldLight, border: "1px solid " + theme.goldBorder }}>
-                    <p className="text-3xl font-bold" style={{ color: theme.gold }}>
+                  <div
+                    className="rounded-xl px-5 py-4 text-center"
+                    style={{
+                      background: theme.goldLight,
+                      border: "1px solid " + theme.goldBorder,
+                    }}
+                  >
+                    <p
+                      className="text-3xl font-bold"
+                      style={{ color: theme.gold }}
+                    >
                       ₹{support.averagePackage.toLocaleString()}
                     </p>
-                    <p className="mt-1 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                    <p
+                      className="mt-1 text-xs font-medium uppercase tracking-wider"
+                      style={{ color: theme.inkMuted }}
+                    >
                       Avg Package
                     </p>
                   </div>
                 )}
                 <div className="sm:col-span-2 space-y-3">
                   {support.visaAssistance != null && (
-                    <BoolRow label="Visa Assistance" value={support.visaAssistance} />)}
-                  {support.counselingServices != null && (
-                    <BoolRow label="Counseling Services" value={support.counselingServices} />)}
-                  {support.careerGuidance != null && (
-                    <BoolRow label="Career Guidance" value={support.careerGuidance} />)}
-                  {support.languageSupport && support.languageSupport.length > 0 && (
-                    <div className="pt-2">
-                      <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
-                        Language Support
-                      </p>
-                      <ChipList items={support.languageSupport} />
-                    </div>
+                    <BoolRow
+                      label="Visa Assistance"
+                      value={support.visaAssistance}
+                    />
                   )}
+                  {support.counselingServices != null && (
+                    <BoolRow
+                      label="Counseling Services"
+                      value={support.counselingServices}
+                    />
+                  )}
+                  {support.careerGuidance != null && (
+                    <BoolRow
+                      label="Career Guidance"
+                      value={support.careerGuidance}
+                    />
+                  )}
+                  {support.languageSupport &&
+                    support.languageSupport.length > 0 && (
+                      <div className="pt-2">
+                        <p
+                          className="mb-2 text-xs font-medium uppercase tracking-wider"
+                          style={{ color: theme.inkSubtle }}
+                        >
+                          Language Support
+                        </p>
+                        <ChipList items={support.languageSupport} />
+                      </div>
+                    )}
                 </div>
               </div>
             </SectionCard>
@@ -574,39 +939,77 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
               <div className="space-y-4">
                 <div className="flex flex-wrap gap-3">
                   {recognition.nmcApproved != null && (
-                    <RecogBadge label="NMC Approved" value={recognition.nmcApproved} />)}
+                    <RecogBadge
+                      label="NMC Approved"
+                      value={recognition.nmcApproved}
+                    />
+                  )}
                   {recognition.whoRecognized != null && (
-                    <RecogBadge label="WHO Recognized" value={recognition.whoRecognized} />)}
+                    <RecogBadge
+                      label="WHO Recognized"
+                      value={recognition.whoRecognized}
+                    />
+                  )}
                   {recognition.ecfmgVerified != null && (
-                    <RecogBadge label="ECFMG Verified" value={recognition.ecfmgVerified} />)}
+                    <RecogBadge
+                      label="ECFMG Verified"
+                      value={recognition.ecfmgVerified}
+                    />
+                  )}
                   {recognition.gmcRecognized != null && (
-                    <RecogBadge label="GMC Recognized" value={recognition.gmcRecognized} />)}
+                    <RecogBadge
+                      label="GMC Recognized"
+                      value={recognition.gmcRecognized}
+                    />
+                  )}
                   {recognition.amcAccredited != null && (
-                    <RecogBadge label="AMC Accredited" value={recognition.amcAccredited} />)}
+                    <RecogBadge
+                      label="AMC Accredited"
+                      value={recognition.amcAccredited}
+                    />
+                  )}
                 </div>
-                {recognition.otherApprovals && recognition.otherApprovals.length > 0 && (
-                  <div>
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
-                      Other Approvals
-                    </p>
-                    <ChipList items={recognition.otherApprovals} />
-                  </div>
-                )}
-                {recognition.accreditations && recognition.accreditations.length > 0 && (
-                  <div>
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
-                      Accreditations
-                    </p>
-                    <ChipList items={recognition.accreditations} />
-                  </div>
-                )}
+                {recognition.otherApprovals &&
+                  recognition.otherApprovals.length > 0 && (
+                    <div>
+                      <p
+                        className="mb-2 text-xs font-medium uppercase tracking-wider"
+                        style={{ color: theme.inkSubtle }}
+                      >
+                        Other Approvals
+                      </p>
+                      <ChipList items={recognition.otherApprovals} />
+                    </div>
+                  )}
+                {recognition.accreditations &&
+                  recognition.accreditations.length > 0 && (
+                    <div>
+                      <p
+                        className="mb-2 text-xs font-medium uppercase tracking-wider"
+                        style={{ color: theme.inkSubtle }}
+                      >
+                        Accreditations
+                      </p>
+                      <ChipList items={recognition.accreditations} />
+                    </div>
+                  )}
                 {recognition.countryRank != null && (
-                  <div className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm"
-                    style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
+                  <div
+                    className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm"
+                    style={{
+                      background: theme.canvas,
+                      border: "1px solid " + theme.hairline,
+                    }}
+                  >
                     <Award className="size-5" style={{ color: theme.gold }} />
-                    <span style={{ color: theme.ink }}>Country Rank: <b>#{recognition.countryRank}</b></span>
+                    <span style={{ color: theme.ink }}>
+                      Country Rank: <b>#{recognition.countryRank}</b>
+                    </span>
                     {recognition.globalRank != null && (
-                      <span style={{ color: theme.inkSubtle }}> &middot; World Rank: <b>#{recognition.globalRank}</b></span>
+                      <span style={{ color: theme.inkSubtle }}>
+                        {" "}
+                        &middot; World Rank: <b>#{recognition.globalRank}</b>
+                      </span>
                     )}
                   </div>
                 )}
@@ -617,27 +1020,88 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
           {/* ── Courses ── */}
           {hasCourses && (
             <SectionCard title="Courses Offered">
-              <div className="overflow-x-auto rounded-xl"
-                style={{ border: "1px solid " + theme.hairline }}>
+              <div
+                className="overflow-x-auto rounded-xl"
+                style={{ border: "1px solid " + theme.hairline }}
+              >
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr style={{ background: theme.canvas }}>
-                      <th className="px-4 py-3 font-semibold" style={{ color: theme.ink, borderBottom: "1px solid " + theme.hairline }}>Course</th>
-                      <th className="px-4 py-3 font-semibold" style={{ color: theme.ink, borderBottom: "1px solid " + theme.hairline }}>Duration</th>
-                      <th className="px-4 py-3 font-semibold" style={{ color: theme.ink, borderBottom: "1px solid " + theme.hairline }}>Fees</th>
-                      <th className="px-4 py-3 font-semibold" style={{ color: theme.ink, borderBottom: "1px solid " + theme.hairline }}>Seats</th>
+                      <th
+                        className="px-4 py-3 font-semibold"
+                        style={{
+                          color: theme.ink,
+                          borderBottom: "1px solid " + theme.hairline,
+                        }}
+                      >
+                        Course
+                      </th>
+                      <th
+                        className="px-4 py-3 font-semibold"
+                        style={{
+                          color: theme.ink,
+                          borderBottom: "1px solid " + theme.hairline,
+                        }}
+                      >
+                        Duration
+                      </th>
+                      <th
+                        className="px-4 py-3 font-semibold"
+                        style={{
+                          color: theme.ink,
+                          borderBottom: "1px solid " + theme.hairline,
+                        }}
+                      >
+                        Fees
+                      </th>
+                      <th
+                        className="px-4 py-3 font-semibold"
+                        style={{
+                          color: theme.ink,
+                          borderBottom: "1px solid " + theme.hairline,
+                        }}
+                      >
+                        Seats
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {courses.map((c: any, i: number) => (
-                      <tr key={c.id || i}
-                        style={{ borderBottom: i < courses.length - 1 ? "1px solid " + theme.hairline : "none" }}>
-                        <td className="px-4 py-3 font-medium" style={{ color: theme.ink }}>{c.name || c.courseName}</td>
-                        <td className="px-4 py-3" style={{ color: theme.inkMuted }}>{c.duration || c.courseDuration || "-"}</td>
-                        <td className="px-4 py-3" style={{ color: theme.inkMuted }}>
-                          {c.fees != null ? `₹${(typeof c.fees === "number" ? c.fees : Number(c.fees)).toLocaleString()}` : c.courseFee ? `₹${Number(c.courseFee).toLocaleString()}` : "-"}
+                      <tr
+                        key={c.id || i}
+                        style={{
+                          borderBottom:
+                            i < courses.length - 1
+                              ? "1px solid " + theme.hairline
+                              : "none",
+                        }}
+                      >
+                        <td
+                          className="px-4 py-3 font-medium"
+                          style={{ color: theme.ink }}
+                        >
+                          {c.name || c.courseName}
                         </td>
-                        <td className="px-4 py-3" style={{ color: theme.inkMuted }}>
+                        <td
+                          className="px-4 py-3"
+                          style={{ color: theme.inkMuted }}
+                        >
+                          {c.duration || c.courseDuration || "-"}
+                        </td>
+                        <td
+                          className="px-4 py-3"
+                          style={{ color: theme.inkMuted }}
+                        >
+                          {c.fees != null
+                            ? `₹${(typeof c.fees === "number" ? c.fees : Number(c.fees)).toLocaleString()}`
+                            : c.courseFee
+                              ? `₹${Number(c.courseFee).toLocaleString()}`
+                              : "-"}
+                        </td>
+                        <td
+                          className="px-4 py-3"
+                          style={{ color: theme.inkMuted }}
+                        >
                           {c.totalSeats || c.seats || "-"}
                         </td>
                       </tr>
@@ -650,48 +1114,155 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
         </div>
         {/* ── sidebar ── */}
         <aside className="space-y-6">
+          {/* CTA */}
+          <div
+            className="rounded-2xl p-6 text-center"
+            style={{
+              background: theme.surface,
+              border: "1px solid " + theme.hairline,
+            }}
+          >
+            <p
+              className="mb-3 text-sm font-medium"
+              style={{ color: theme.ink }}
+            >
+              Ready to apply?
+            </p>
+            <p className="mb-5 text-xs" style={{ color: theme.inkMuted }}>
+              Start your application to {uni.shortName || uni.name}
+            </p>
+            <ApplicationForm uniName={uni.name} uniId={uni.id} />
+            {uni.brochureUrl && (
+              <div className="mt-4 pt-4" style={{ borderTop: "1px solid " + theme.hairline }}>
+                <a
+                  href={uni.brochureUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex w-full items-center justify-center gap-2.5 rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.97]"
+                  style={{
+                    background: theme.gold,
+                    color: '#fff',
+                    borderRadius: theme.btnRadius,
+                  }}
+                >
+                  <FileDown className="size-4 transition-transform duration-200 group-hover:-translate-y-0.5" />
+                  Download Brochure (PDF)
+                </a>
+              </div>
+            )}
+          </div>
           {/* quick info */}
-          <div className="rounded-2xl p-6" style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Quick Info</h3>
+          <div
+            className="rounded-2xl p-6"
+            style={{
+              background: theme.surface,
+              border: "1px solid " + theme.hairline,
+            }}
+          >
+            <h3
+              className="mb-4 text-sm font-semibold uppercase tracking-wider"
+              style={{ color: theme.inkSubtle }}
+            >
+              Quick Info
+            </h3>
             <div className="space-y-3.5">
-              {loc && <SideInfo icon={<MapPin className="size-4" />} label="Location" value={fullAddress} />}
+              {loc && (
+                <SideInfo
+                  icon={<MapPin className="size-4" />}
+                  label="Location"
+                  value={fullAddress}
+                />
+              )}
               {loc?.address && loc.address !== fullAddress && (
-                <SideInfo icon={<MapPin className="size-4" />} label="Address" value={loc.address} />
+                <SideInfo
+                  icon={<MapPin className="size-4" />}
+                  label="Address"
+                  value={loc.address}
+                />
               )}
               {uni.establishedYear && (
-                <SideInfo icon={<Calendar className="size-4" />} label="Established" value={String(uni.establishedYear)} />
+                <SideInfo
+                  icon={<Calendar className="size-4" />}
+                  label="Established"
+                  value={String(uni.establishedYear)}
+                />
               )}
               {academic?.duration && (
-                <SideInfo icon={<GraduationCap className="size-4" />} label="Duration" value={academic.duration} />
+                <SideInfo
+                  icon={<GraduationCap className="size-4" />}
+                  label="Duration"
+                  value={academic.duration}
+                />
               )}
               {academic?.medium && (
-                <SideInfo icon={<BookOpen className="size-4" />} label="Medium" value={academic.medium} />
+                <SideInfo
+                  icon={<BookOpen className="size-4" />}
+                  label="Medium"
+                  value={academic.medium}
+                />
               )}
               {academic?.totalSeats && (
-                <SideInfo icon={<Users className="size-4" />} label="Total Seats" value={String(academic.totalSeats)} />
+                <SideInfo
+                  icon={<Users className="size-4" />}
+                  label="Total Seats"
+                  value={String(academic.totalSeats)}
+                />
               )}
               {academic?.intakeMonths && academic.intakeMonths.length > 0 && (
-                <SideInfo icon={<Calendar className="size-4" />} label="Intake" value={academic.intakeMonths.join(", ")} />
+                <SideInfo
+                  icon={<Calendar className="size-4" />}
+                  label="Intake"
+                  value={academic.intakeMonths.join(", ")}
+                />
               )}
               {website && (
-                <SideInfo icon={<Globe className="size-4" />} label="Website" value={website} link />
+                <SideInfo
+                  icon={<Globe className="size-4" />}
+                  label="Website"
+                  value={website}
+                  link
+                />
               )}
             </div>
           </div>
 
           {/* contact */}
           {uni.contact && (
-            <div className="rounded-2xl p-6" style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Contact</h3>
+            <div
+              className="rounded-2xl p-6"
+              style={{
+                background: theme.surface,
+                border: "1px solid " + theme.hairline,
+              }}
+            >
+              <h3
+                className="mb-4 text-sm font-semibold uppercase tracking-wider"
+                style={{ color: theme.inkSubtle }}
+              >
+                Contact
+              </h3>
               <div className="space-y-3.5">
                 {uni.contact.email && (
-                  <SideInfo icon={<Mail className="size-4" />} label="Email" value={uni.contact.email} link />
+                  <SideInfo
+                    icon={<Mail className="size-4" />}
+                    label="Email"
+                    value={uni.contact.email}
+                    link
+                  />
                 )}
                 {uni.contact.phone && (
-                  <SideInfo icon={<Phone className="size-4" />} label="Phone" value={uni.contact.phone} />
+                  <SideInfo
+                    icon={<Phone className="size-4" />}
+                    label="Phone"
+                    value={uni.contact.phone}
+                  />
                 )}
                 {uni.contact.admissionOfficeHours && (
-                  <SideInfo icon={<Clock className="size-4" />} label="Office Hours" value={uni.contact.admissionOfficeHours} />
+                  <SideInfo
+                    icon={<Clock className="size-4" />}
+                    label="Office Hours"
+                    value={uni.contact.admissionOfficeHours}
+                  />
                 )}
               </div>
             </div>
@@ -699,63 +1270,111 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
 
           {/* stats */}
           {recognition && (
-            <div className="rounded-2xl p-6" style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={{ color: theme.inkSubtle }}>Statistics</h3>
+            <div
+              className="rounded-2xl p-6"
+              style={{
+                background: theme.surface,
+                border: "1px solid " + theme.hairline,
+              }}
+            >
+              <h3
+                className="mb-4 text-sm font-semibold uppercase tracking-wider"
+                style={{ color: theme.inkSubtle }}
+              >
+                Statistics
+              </h3>
               <div className="space-y-2">
                 {support?.placementRate && (
-                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
-                    style={{ background: theme.canvas }}>
-                    <span style={{ color: theme.inkMuted }}>Placement Rate</span>
-                    <span className="font-semibold" style={{ color: theme.gold }}>{support.placementRate}%</span>
+                  <div
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}
+                  >
+                    <span style={{ color: theme.inkMuted }}>
+                      Placement Rate
+                    </span>
+                    <span
+                      className="font-semibold"
+                      style={{ color: theme.gold }}
+                    >
+                      {support.placementRate}%
+                    </span>
                   </div>
                 )}
                 {recognition.globalRank && (
-                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
-                    style={{ background: theme.canvas }}>
+                  <div
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}
+                  >
                     <span style={{ color: theme.inkMuted }}>World Rank</span>
-                    <span className="font-semibold" style={{ color: theme.ink }}>#{recognition.globalRank}</span>
+                    <span
+                      className="font-semibold"
+                      style={{ color: theme.ink }}
+                    >
+                      #{recognition.globalRank}
+                    </span>
                   </div>
                 )}
                 {infra?.hospitalBeds && (
-                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
-                    style={{ background: theme.canvas }}>
+                  <div
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}
+                  >
                     <span style={{ color: theme.inkMuted }}>Hospital Beds</span>
-                    <span className="font-semibold" style={{ color: theme.ink }}>{infra.hospitalBeds}</span>
+                    <span
+                      className="font-semibold"
+                      style={{ color: theme.ink }}
+                    >
+                      {infra.hospitalBeds}
+                    </span>
                   </div>
                 )}
                 {academic?.totalSeats && (
-                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
-                    style={{ background: theme.canvas }}>
+                  <div
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}
+                  >
                     <span style={{ color: theme.inkMuted }}>Total Seats</span>
-                    <span className="font-semibold" style={{ color: theme.ink }}>{academic.totalSeats}</span>
+                    <span
+                      className="font-semibold"
+                      style={{ color: theme.ink }}
+                    >
+                      {academic.totalSeats}
+                    </span>
                   </div>
                 )}
                 {admission?.applicationFee != null && (
-                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
-                    style={{ background: theme.canvas }}>
-                    <span style={{ color: theme.inkMuted }}>Application Fee</span>
-                    <span className="font-semibold" style={{ color: theme.ink }}>₹{admission.applicationFee.toLocaleString()}</span>
+                  <div
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}
+                  >
+                    <span style={{ color: theme.inkMuted }}>
+                      Application Fee
+                    </span>
+                    <span
+                      className="font-semibold"
+                      style={{ color: theme.ink }}
+                    >
+                      ₹{admission.applicationFee.toLocaleString()}
+                    </span>
                   </div>
                 )}
                 {support?.averagePackage != null && (
-                  <div className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
-                    style={{ background: theme.canvas }}>
+                  <div
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}
+                  >
                     <span style={{ color: theme.inkMuted }}>Avg Package</span>
-                    <span className="font-semibold" style={{ color: theme.ink }}>₹{support.averagePackage.toLocaleString()}</span>
+                    <span
+                      className="font-semibold"
+                      style={{ color: theme.ink }}
+                    >
+                      ₹{support.averagePackage.toLocaleString()}
+                    </span>
                   </div>
                 )}
               </div>
             </div>
           )}
-
-          {/* CTA */}
-          <div className="rounded-2xl p-6 text-center" style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
-            <p className="mb-3 text-sm font-medium" style={{ color: theme.ink }}>Ready to apply?</p>
-            <p className="mb-5 text-xs" style={{ color: theme.inkMuted }}>
-              Start your application to {uni.shortName || uni.name}
-            </p>
-            <ApplicationForm uniName={uni.name} uniId={uni.id} />
-          </div>
         </aside>
       </div>
     </div>
@@ -763,13 +1382,38 @@ function UniversityContent({ uni }: { uni: NonNullable<ReturnType<typeof useUniv
 }
 
 /* ─── helper components ─── */
-function StatBox({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function StatBox({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
   return (
-    <div className="rounded-xl px-4 py-3.5 text-center transition-all duration-200"
-      style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
-      <div className="mx-auto mb-1.5 flex items-center justify-center" style={{ color: theme.gold }}>{icon}</div>
-      <p className="text-lg font-semibold leading-tight" style={{ color: theme.ink }}>{value}</p>
-      <p className="mt-0.5 text-xs" style={{ color: theme.inkSubtle }}>{label}</p>
+    <div
+      className="rounded-xl px-4 py-3.5 text-center transition-all duration-200"
+      style={{
+        background: theme.surface,
+        border: "1px solid " + theme.hairline,
+      }}
+    >
+      <div
+        className="mx-auto mb-1.5 flex items-center justify-center"
+        style={{ color: theme.gold }}
+      >
+        {icon}
+      </div>
+      <p
+        className="text-lg font-semibold leading-tight"
+        style={{ color: theme.ink }}
+      >
+        {value}
+      </p>
+      <p className="mt-0.5 text-xs" style={{ color: theme.inkSubtle }}>
+        {label}
+      </p>
     </div>
   );
 }
@@ -778,62 +1422,145 @@ function InfoField({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
   return (
     <div>
-      <p className="mb-1 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>{label}</p>
-      <p className="text-sm leading-relaxed" style={{ color: theme.ink }}>{value}</p>
+      <p
+        className="mb-1 text-xs font-medium uppercase tracking-wider"
+        style={{ color: theme.inkSubtle }}
+      >
+        {label}
+      </p>
+      <p className="text-sm leading-relaxed" style={{ color: theme.ink }}>
+        {value}
+      </p>
     </div>
   );
 }
 
-function InfraStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function InfraStat({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
   return (
-    <div className="rounded-xl px-3 py-3 text-center"
-      style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
-      <div className="mx-auto mb-1 flex items-center justify-center" style={{ color: theme.gold }}>{icon}</div>
-      <p className="text-base font-semibold" style={{ color: theme.ink }}>{value}</p>
-      <p className="text-xs" style={{ color: theme.inkSubtle }}>{label}</p>
+    <div
+      className="rounded-xl px-3 py-3 text-center"
+      style={{
+        background: theme.canvas,
+        border: "1px solid " + theme.hairline,
+      }}
+    >
+      <div
+        className="mx-auto mb-1 flex items-center justify-center"
+        style={{ color: theme.gold }}
+      >
+        {icon}
+      </div>
+      <p className="text-base font-semibold" style={{ color: theme.ink }}>
+        {value}
+      </p>
+      <p className="text-xs" style={{ color: theme.inkSubtle }}>
+        {label}
+      </p>
     </div>
   );
 }
 
 function BoolRow({ label, value }: { label: string; value: boolean }) {
   return (
-    <div className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm"
-      style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
+    <div
+      className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm"
+      style={{
+        background: theme.canvas,
+        border: "1px solid " + theme.hairline,
+      }}
+    >
       <span style={{ color: theme.ink }}>{label}</span>
       <BoolBadge value={value} />
     </div>
   );
 }
 
-function FeeBox({ label, value, sub, highlight }: { label: string; value: string; sub?: string; highlight?: boolean }) {
+function FeeBox({
+  label,
+  value,
+  sub,
+  highlight,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  highlight?: boolean;
+}) {
   return (
-    <div className="rounded-xl px-4 py-4"
+    <div
+      className="rounded-xl px-4 py-4"
       style={{
         background: highlight ? theme.goldLight : theme.canvas,
         border: "1px solid " + (highlight ? theme.goldBorder : theme.hairline),
-      }}>
-      <p className="text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>{label}</p>
-      <p className="mt-1 text-xl font-bold" style={{ color: highlight ? theme.gold : theme.ink }}>{value}</p>
-      {sub && <p className="text-xs" style={{ color: theme.inkSubtle }}>{sub}</p>}
+      }}
+    >
+      <p
+        className="text-xs font-medium uppercase tracking-wider"
+        style={{ color: theme.inkSubtle }}
+      >
+        {label}
+      </p>
+      <p
+        className="mt-1 text-xl font-bold"
+        style={{ color: highlight ? theme.gold : theme.ink }}
+      >
+        {value}
+      </p>
+      {sub && (
+        <p className="text-xs" style={{ color: theme.inkSubtle }}>
+          {sub}
+        </p>
+      )}
     </div>
   );
 }
 
-function SideInfo({ icon, label, value, link }: { icon: React.ReactNode; label: string; value: string; link?: boolean }) {
+function SideInfo({
+  icon,
+  label,
+  value,
+  link,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  link?: boolean;
+}) {
   return (
     <div className="flex items-start gap-2.5 text-sm">
-      <span className="mt-0.5 shrink-0" style={{ color: theme.gold }}>{icon}</span>
+      <span className="mt-0.5 shrink-0" style={{ color: theme.gold }}>
+        {icon}
+      </span>
       <div className="min-w-0">
-        <p className="text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>{label}</p>
+        <p
+          className="text-xs font-medium uppercase tracking-wider"
+          style={{ color: theme.inkSubtle }}
+        >
+          {label}
+        </p>
         {link ? (
-          <a href={value.startsWith("http") ? value : `https://${value}`} target="_blank" rel="noopener noreferrer"
+          <a
+            href={value.startsWith("http") ? value : `https://${value}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-1 truncate font-medium underline-offset-2 hover:underline"
-            style={{ color: theme.ink }}>
+            style={{ color: theme.ink }}
+          >
             {value}
             <Globe className="size-3 shrink-0" style={{ color: theme.gold }} />
           </a>
         ) : (
-          <p className="truncate font-medium" style={{ color: theme.ink }}>{value}</p>
+          <p className="truncate font-medium" style={{ color: theme.ink }}>
+            {value}
+          </p>
         )}
       </div>
     </div>
@@ -842,29 +1569,60 @@ function SideInfo({ icon, label, value, link }: { icon: React.ReactNode; label: 
 
 function RecogBadge({ label, value }: { label: string; value: boolean }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium"
+    <div
+      className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium"
       style={{
-        background: value ? "rgba(16, 185, 129, 0.08)" : "rgba(239, 68, 68, 0.06)",
-        border: "1px solid " + (value ? "rgba(16, 185, 129, 0.20)" : "rgba(239, 68, 68, 0.12)"),
+        background: value
+          ? "rgba(16, 185, 129, 0.08)"
+          : "rgba(239, 68, 68, 0.06)",
+        border:
+          "1px solid " +
+          (value ? "rgba(16, 185, 129, 0.20)" : "rgba(239, 68, 68, 0.12)"),
         color: value ? "#065F46" : "#991B1B",
-      }}>
+      }}
+    >
       <ShieldCheck className="size-4" />
       {label}
-      <span className={value ? "text-emerald-600" : "text-rose-500"}>{value ? "✓" : "✗"}</span>
+      <span className={value ? "text-emerald-600" : "text-rose-500"}>
+        {value ? "✓" : "✗"}
+      </span>
     </div>
   );
 }
 
-function SeatBox({ label, value, total }: { label: string; value: number; total?: number | null }) {
+function SeatBox({
+  label,
+  value,
+  total,
+}: {
+  label: string;
+  value: number;
+  total?: number | null;
+}) {
   const pct = total && total > 0 ? Math.round((value / total) * 100) : 0;
   return (
-    <div className="rounded-xl px-4 py-3 text-center"
-      style={{ background: theme.surface, border: "1px solid " + theme.hairline }}>
-      <p className="text-lg font-bold" style={{ color: theme.ink }}>{value}</p>
-      <p className="text-xs font-medium" style={{ color: theme.inkSubtle }}>{label}</p>
+    <div
+      className="rounded-xl px-4 py-3 text-center"
+      style={{
+        background: theme.surface,
+        border: "1px solid " + theme.hairline,
+      }}
+    >
+      <p className="text-lg font-bold" style={{ color: theme.ink }}>
+        {value}
+      </p>
+      <p className="text-xs font-medium" style={{ color: theme.inkSubtle }}>
+        {label}
+      </p>
       {pct > 0 && (
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full" style={{ background: theme.hairline }}>
-          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: theme.gold }} />
+        <div
+          className="mt-2 h-1.5 w-full overflow-hidden rounded-full"
+          style={{ background: theme.hairline }}
+        >
+          <div
+            className="h-full rounded-full transition-all"
+            style={{ width: `${pct}%`, background: theme.gold }}
+          />
         </div>
       )}
     </div>
@@ -872,7 +1630,13 @@ function SeatBox({ label, value, total }: { label: string; value: number; total?
 }
 
 /* ─── application form ─── */
-function ApplicationForm({ uniName, uniId }: { uniName: string; uniId: string }) {
+function ApplicationForm({
+  uniName,
+  uniId,
+}: {
+  uniName: string;
+  uniId: string;
+}) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -886,7 +1650,17 @@ function ApplicationForm({ uniName, uniId }: { uniName: string; uniId: string })
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const required = ["firstName", "lastName", "email", "phone", "dateOfBirth", "citizenship", "gender", "selectedProgram", "signature"];
+    const required = [
+      "firstName",
+      "lastName",
+      "email",
+      "phone",
+      "dateOfBirth",
+      "citizenship",
+      "gender",
+      "selectedProgram",
+      "signature",
+    ];
     const newErrors: Record<string, string> = {};
     for (const field of required) {
       if (!formData[field]?.trim()) newErrors[field] = "Required";
@@ -905,74 +1679,174 @@ function ApplicationForm({ uniName, uniId }: { uniName: string; uniId: string })
       });
       router.push("/student/dashboard");
     } catch (err) {
-      setErrors({ _form: getApiErrorMessage(err) || "Submission failed. Try again." });
+      setErrors({
+        _form: getApiErrorMessage(err) || "Submission failed. Try again.",
+      });
     }
   }
 
   return (
     <div>
-      <button onClick={() => setOpen(!open)}
+      <button
+        onClick={() => setOpen(!open)}
         className="inline-flex w-full items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold transition-all duration-200"
         style={{
           background: open ? theme.canvas : theme.gold,
           color: open ? theme.ink : "#fff",
           borderRadius: theme.btnRadius,
           border: "1px solid " + (open ? theme.hairline : theme.gold),
-        }}>
+        }}
+      >
         {open ? "Cancel" : "Apply Now"}
       </button>
 
       {open && (
         <form onSubmit={handleSubmit} className="mt-4 space-y-4 text-left">
           {errors._form && (
-            <div className="rounded-lg px-4 py-3 text-sm text-red-700" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+            <div
+              className="rounded-lg px-4 py-3 text-sm text-red-700"
+              style={{
+                background: "rgba(239,68,68,0.08)",
+                border: "1px solid rgba(239,68,68,0.2)",
+              }}
+            >
               {errors._form}
             </div>
           )}
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormField label="First Name *" name="firstName" value={formData.firstName || ""} onChange={handleChange} error={errors.firstName} />
-            <FormField label="Last Name *" name="lastName" value={formData.lastName || ""} onChange={handleChange} error={errors.lastName} />
+            <FormField
+              label="First Name *"
+              name="firstName"
+              value={formData.firstName || ""}
+              onChange={handleChange}
+              error={errors.firstName}
+            />
+            <FormField
+              label="Last Name *"
+              name="lastName"
+              value={formData.lastName || ""}
+              onChange={handleChange}
+              error={errors.lastName}
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormField label="Email *" name="email" type="email" value={formData.email || ""} onChange={handleChange} error={errors.email} />
-            <FormField label="Phone *" name="phone" type="tel" value={formData.phone || ""} onChange={handleChange} error={errors.phone} />
+            <FormField
+              label="Email *"
+              name="email"
+              type="email"
+              value={formData.email || ""}
+              onChange={handleChange}
+              error={errors.email}
+            />
+            <FormField
+              label="Phone *"
+              name="phone"
+              type="tel"
+              value={formData.phone || ""}
+              onChange={handleChange}
+              error={errors.phone}
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormField label="Date of Birth *" name="dateOfBirth" type="date" value={formData.dateOfBirth || ""} onChange={handleChange} error={errors.dateOfBirth} />
-            <FormField label="Gender *" name="gender" value={formData.gender || ""} onChange={handleChange} error={errors.gender} placeholder="Male / Female / Other" />
+            <FormField
+              label="Date of Birth *"
+              name="dateOfBirth"
+              type="date"
+              value={formData.dateOfBirth || ""}
+              onChange={handleChange}
+              error={errors.dateOfBirth}
+            />
+            <FormField
+              label="Gender *"
+              name="gender"
+              value={formData.gender || ""}
+              onChange={handleChange}
+              error={errors.gender}
+              placeholder="Male / Female / Other"
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormField label="Citizenship *" name="citizenship" value={formData.citizenship || ""} onChange={handleChange} error={errors.citizenship} placeholder="e.g. Indian" />
-            <FormField label="Selected Program *" name="selectedProgram" value={formData.selectedProgram || ""} onChange={handleChange} error={errors.selectedProgram} placeholder="e.g. MBBS" />
+            <FormField
+              label="Citizenship *"
+              name="citizenship"
+              value={formData.citizenship || ""}
+              onChange={handleChange}
+              error={errors.citizenship}
+              placeholder="e.g. Indian"
+            />
+            <FormField
+              label="Selected Program *"
+              name="selectedProgram"
+              value={formData.selectedProgram || ""}
+              onChange={handleChange}
+              error={errors.selectedProgram}
+              placeholder="e.g. MBBS"
+            />
           </div>
 
-          <FormField label="Permanent Address" name="permanentAddress" value={formData.permanentAddress || ""} onChange={handleChange} />
+          <FormField
+            label="Permanent Address"
+            name="permanentAddress"
+            value={formData.permanentAddress || ""}
+            onChange={handleChange}
+          />
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormField label="City" name="permanentCity" value={formData.permanentCity || ""} onChange={handleChange} />
-            <FormField label="State" name="permanentState" value={formData.permanentState || ""} onChange={handleChange} />
+            <FormField
+              label="City"
+              name="permanentCity"
+              value={formData.permanentCity || ""}
+              onChange={handleChange}
+            />
+            <FormField
+              label="State"
+              name="permanentState"
+              value={formData.permanentState || ""}
+              onChange={handleChange}
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormField label="Zip Code" name="permanentZip" value={formData.permanentZip || ""} onChange={handleChange} />
-            <FormField label="Country" name="permanentCountry" value={formData.permanentCountry || ""} onChange={handleChange} />
+            <FormField
+              label="Zip Code"
+              name="permanentZip"
+              value={formData.permanentZip || ""}
+              onChange={handleChange}
+            />
+            <FormField
+              label="Country"
+              name="permanentCountry"
+              value={formData.permanentCountry || ""}
+              onChange={handleChange}
+            />
           </div>
 
-          <FormField label="Signature (Full Name) *" name="signature" value={formData.signature || ""} onChange={handleChange} error={errors.signature}
-            placeholder="Type your full name as signature" />
+          <FormField
+            label="Signature (Full Name) *"
+            name="signature"
+            value={formData.signature || ""}
+            onChange={handleChange}
+            error={errors.signature}
+            placeholder="Type your full name as signature"
+          />
 
-          <button type="submit" disabled={submit.isPending}
+          <button
+            type="submit"
+            disabled={submit.isPending}
             className="inline-flex w-full items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-60"
             style={{
               background: theme.ink,
               color: "#fff",
               borderRadius: theme.btnRadius,
-            }}>
-            {submit.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
+            }}
+          >
+            {submit.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : null}
             {submit.isPending ? "Submitting..." : "Submit Application"}
           </button>
 
@@ -986,16 +1860,36 @@ function ApplicationForm({ uniName, uniId }: { uniName: string; uniId: string })
 }
 
 function FormField({
-  label, name, type = "text", value, onChange, error, placeholder,
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  error,
+  placeholder,
 }: {
-  label: string; name: string; type?: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  error?: string; placeholder?: string;
+  label: string;
+  name: string;
+  type?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  error?: string;
+  placeholder?: string;
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-medium" style={{ color: theme.inkMuted }}>{label}</label>
+      <label
+        className="mb-1 block text-xs font-medium"
+        style={{ color: theme.inkMuted }}
+      >
+        {label}
+      </label>
       <input
-        name={name} type={type} value={value} onChange={onChange} placeholder={placeholder}
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
         className="w-full rounded-lg px-3 py-2 text-sm outline-none transition-all duration-200"
         style={{
           background: theme.canvas,
@@ -1007,6 +1901,5 @@ function FormField({
     </div>
   );
 }
-
 
 

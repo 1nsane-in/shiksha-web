@@ -346,6 +346,7 @@ interface University {
   website: string;
   logo: string;
   bannerImage: string;
+  brochureUrl?: string; // PDF only
   
   // Location
   location: {

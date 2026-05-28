@@ -15,7 +15,7 @@ export default function StudentLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#F8F6FC] pb-20 md:pb-0">
+    <div className="min-h-screen bg-[#FAF9F6] pb-20 md:pb-0">
       <Header />
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6">
         <main>{children}</main>

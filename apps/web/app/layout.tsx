@@ -22,7 +22,7 @@ export default function RootLayout({
         <Providers>
           <AuthProvider>
             <TooltipProvider>
-              {children}
+              <div className="bg-[#FAF9F6]">{children}</div>
             </TooltipProvider>
           </AuthProvider>
         </Providers>
@@ -30,4 +30,3 @@ export default function RootLayout({
     </html>
   );
 }
-

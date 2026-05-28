@@ -2,7 +2,9 @@ import {
   IsString,
   IsNumber,
   IsEnum,
+  IsOptional,
   IsUrl,
+  Matches,
   Min,
   Max,
   ValidateNested,
@@ -30,6 +32,8 @@ export class CreateUniversityDto {
   @IsUrl() website: string;
   @IsUrl() logo: string;
   @IsUrl() bannerImage: string;
+  @IsOptional() @IsUrl() @Matches(/\.pdf$/i, { message: "brochureUrl must point to a PDF file" })
+  brochureUrl?: string;
 
   @ValidateNested() @Type(() => UniversityLocationDto) location: UniversityLocationDto;
   @ValidateNested() @Type(() => UniversityContactDto) contact: UniversityContactDto;
@@ -42,3 +46,5 @@ export class CreateUniversityDto {
   @ValidateNested() @Type(() => UniversityContentDto) content: UniversityContentDto;
   @ValidateNested() @Type(() => UniversityAdminDto) admin: UniversityAdminDto;
 }
+
+

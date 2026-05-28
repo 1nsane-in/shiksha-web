@@ -95,6 +95,7 @@ export class UniversitiesService {
           status: true,
           logo: true,
           bannerImage: true,
+          brochureUrl: true,
           location: {
             select: {
               country: true,
@@ -178,6 +179,7 @@ export class UniversitiesService {
         status: true,
         logo: true,
         bannerImage: true,
+        brochureUrl: true,
         location: {
           select: {
             country: true,
@@ -319,6 +321,7 @@ export class UniversitiesService {
         website: dto.website,
         logo: dto.logo,
         bannerImage: dto.bannerImage,
+        brochureUrl: dto.brochureUrl,
         status: UniversityStatus.DRAFT,
         location: { create: dto.location },
         contact: { create: dto.contact },
@@ -392,6 +395,7 @@ export class UniversitiesService {
       'website',
       'logo',
       'bannerImage',
+      'brochureUrl',
       'status',
     ];
 
@@ -610,3 +614,4 @@ export class UniversitiesService {
     };
   }
 }
+
