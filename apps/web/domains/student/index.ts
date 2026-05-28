@@ -1,2 +1,17 @@
-export { useStudentProfile, useStageInfo, useMyApplications, useMyApplicationById } from "./student.queries";
-export type { StudentProfile, StudentApplication, StageInfo, StageRequirement, StudentDocument, PaymentSummary } from "./student.types";
+export {
+  useStudentProfile,
+  useStageInfo,
+  useMyApplications,
+  useMyApplicationById,
+  useCheckApplication,
+} from "./student.queries";
+export type {
+  StudentProfile,
+  StudentApplication,
+  StageInfo,
+  StageRequirement,
+  StudentDocument,
+  PaymentSummary,
+  ApplicationCheckResult,
+  ApplicationDetail,
+} from "./student.types";

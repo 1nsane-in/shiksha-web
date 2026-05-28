@@ -90,6 +90,10 @@ model Student {
   state                   String?
   country                 String?
   pincode                 String?
+  passportNumber          String?
+  passportExpiry          DateTime?
+  passportIssueDate       DateTime?
+  passportIssueCountry    String?
   neetScore               Int?
   neetRank                Int?
   twelfthPercentage       Float?

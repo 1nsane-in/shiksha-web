@@ -69,6 +69,12 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
+
+  // Persist redirect for Google OAuth callback page
+  if (typeof window !== "undefined" && redirect !== "/") {
+    sessionStorage.setItem("postLoginRedirect", redirect);
+  }
+
   const initialTab = (
     redirect.includes("admin")
       ? "admin"
@@ -197,7 +203,7 @@ function LoginContent() {
                 </Field>
                 <FieldSeparator>Or continue with</FieldSeparator>
                 <Field>
-                  <GoogleLoginButton />
+                  <GoogleLoginButton redirectTo={redirect !== "/" ? redirect : null} />
                   <FieldDescription className="text-center">
                     Don&apos;t have an account?{" "}
                     <a

@@ -46,13 +46,74 @@ export function useMyApplicationById(id: string) {
 export function useSubmitApplication() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: import("./student.types").SubmitApplicationFormData) => {
+    mutationFn: async (
+      data: import("./student.types").SubmitApplicationFormData,
+    ) => {
       const { submitApplication } = await import("./student.api");
       return submitApplication(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.student.applications() });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.student.applications(),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.student.stage() });
+    },
+  });
+}
+
+export function useCheckApplication(universityId: string) {
+  return useQuery({
+    queryKey: [...queryKeys.student.applications(), "check", universityId],
+    queryFn: async () => {
+      const { checkApplication } = await import("./student.api");
+      return checkApplication(universityId);
+    },
+    enabled: !!universityId,
+  });
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      const { updateStudentProfile } = await import("./student.api");
+      return updateStudentProfile(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.student.profile() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.student.dashboardOverview() });
+    },
+  });
+}
+
+
+export function useDashboardOverview() {
+  return useQuery({
+    queryKey: queryKeys.student.dashboardOverview(),
+    queryFn: async () => {
+      const { getDashboardOverview } = await import("./student.api");
+      return getDashboardOverview();
+    },
+  });
+}
+
+export function useDashboardActivity() {
+  return useQuery({
+    queryKey: queryKeys.student.dashboardActivity(),
+    queryFn: async () => {
+      const { getDashboardActivity } = await import("./student.api");
+      return getDashboardActivity();
+    },
+    refetchInterval: 60000,
+  });
+}
+
+export function useDashboardNextSteps() {
+  return useQuery({
+    queryKey: queryKeys.student.dashboardNextSteps(),
+    queryFn: async () => {
+      const { getDashboardNextSteps } = await import("./student.api");
+      return getDashboardNextSteps();
     },
   });
 }

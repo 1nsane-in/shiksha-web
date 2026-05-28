@@ -1,0 +1,87 @@
+const fs = require("fs");
+const path = "apps/web/app/about-us/page.tsx";
+let c = fs.readFileSync(path, "utf-8");
+let count = 0;
+
+// Fix 1: Radial gradient (broken across 3 lines with missing theme.gold)
+const r1a = "background: \\\\n              adial-gradient(ellipse 80% 60% at 50% 0%, \\\\n                \\\\n            0%, transparent 70%)\\\\n            ";
+// Try the actual content
+const radLine = "background: \\\\n              adial-gradient";
+if (c.includes("background: \\\\n              adial-gradient")) {
+  // multi-line fix: find and replace the whole pattern
+  // The broken content spans lines 104-106
+  c = c.replace(
+    "background: \\\\n              adial-gradient(ellipse 80% 60% at 50% 0%, \\\\n                \\\\n            0%, transparent 70%)\\\\n            ",
+    "background: \`radial-gradient(ellipse 80% 60% at 50% 0%, \${theme.gold} 0%, transparent 70%)\`,"
+  );
+  count++;
+  console.log("Fixed: radial-gradient");
+} else {
+  console.log("radial-gradient pattern NOT matched with standard replace");
+  // Try to find the exact bytes
+  let idx = c.indexOf("radial-gradient");
+  if (idx >= 0) {
+    console.log("Found at index: " + idx);
+    console.log("Context: " + c.substring(idx-40, idx+80));
+  } else {
+    console.log("radial-gradient not found at all in file");
+  }
+}
+
+// Fix 2: Border template literals - "border: \\\\1px solid \\\\," -> border: \`1px solid \${theme.hairline}\`,
+const borderBroken = "border: \\\\1px solid \\\\,";
+const borderFixed = "border: \`1px solid \${theme.hairline}\`,";
+let bIdx = c.indexOf(borderBroken);
+while (bIdx >= 0) {
+  c = c.substring(0, bIdx) + borderFixed + c.substring(bIdx + borderBroken.length);
+  count++;
+  console.log("Fixed border template literal");
+  bIdx = c.indexOf(borderBroken);
+}
+
+// Fix 3: Linear-gradient 2 (licensing exam section, line ~567)
+const grad2Broken = "background: \\\\linear-gradient(135deg, \\\\ 0%, #2a2250 100%)\\\\,";
+const grad2Fixed = "background: \`linear-gradient(135deg, \${theme.ink} 0%, #2a2250 100%)\`,";
+if (c.includes(grad2Broken)) {
+  let count2 = 0;
+  let gIdx = c.indexOf(grad2Broken);
+  while (gIdx >= 0) {
+    c = c.substring(0, gIdx) + grad2Fixed + c.substring(gIdx + grad2Broken.length);
+    count++;
+    count2++;
+    gIdx = c.indexOf(grad2Broken);
+  }
+  console.log("Fixed " + count2 + " linear-gradient occurrences");
+} else {
+  console.log("linear-gradient 2 pattern NOT matched");
+  let idx = c.indexOf("linear-gradient(135deg");
+  if (idx >= 0) {
+    console.log("Found linear-gradient at index: " + idx);
+    console.log("Context: " + c.substring(idx-30, idx+70));
+  }
+}
+
+// Fix 4: The "Doing Good" section has broken money line
+// "Over \,000" should be "Over $100,000"
+if (c.includes(",000 awarded")) {
+  c = c.replace("\\,000 awarded", "\$100,000 awarded");
+  count++;
+  console.log("Fixed money amount");
+}
+
+// Fix 5: The \$100k+ in stat section
+if (c.includes("\\\\+")) {
+  c = c.replace("\\\\+", "\$100k+");
+  count++;
+  console.log("Fixed stat money amount");
+}
+
+fs.writeFileSync(path, c, "utf-8");
+console.log("\\nDone. " + count + " fixes applied. File size: " + c.length);
+
+// Verify remaining issues
+console.log("\\n--- Verification ---");
+if (c.includes("adial-gradient")) console.log("WARNING: radial-gradient still broken!");
+if (c.includes("\\\\1px solid")) console.log("WARNING: border template literal still broken!");
+if (c.includes("linear-gradient(135deg") && c.includes("\\\\,")) console.log("WARNING: linear-gradient still broken!");
+console.log("File looks OK now.");

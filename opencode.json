@@ -42,6 +42,11 @@
         "@modelcontextprotocol/server-sequential-thinking"
       ],
       "enabled": true
+    },
+    "postman": {
+      "type": "remote",
+      "url": "https://mcp.postman.com/mcp",
+      "enabled": true
     }
   }
 }

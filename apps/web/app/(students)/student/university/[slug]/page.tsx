@@ -4,7 +4,10 @@ import { useState } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useUniversity } from "@/domains/universities/universities.queries";
-import { useSubmitApplication } from "@/domains/student/student.queries";
+import {
+  useSubmitApplication,
+  useCheckApplication,
+} from "@/domains/student/student.queries";
 import { useAuth } from "@/hooks/useAuth";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type { SubmitApplicationFormData } from "@/domains/student/student.types";
@@ -411,7 +414,6 @@ function UniversityContent({
           </div>
         </div>
       </section>
-
 
       {/* ── content grid ── */}
       <div className="mx-auto mt-10 grid max-w-6xl grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
@@ -1135,7 +1137,10 @@ function UniversityContent({
             </p>
             <ApplicationForm uniName={uni.name} uniId={uni.id} />
             {uni.brochureUrl && (
-              <div className="mt-4 pt-4" style={{ borderTop: "1px solid " + theme.hairline }}>
+              <div
+                className="mt-4 pt-4"
+                style={{ borderTop: "1px solid " + theme.hairline }}
+              >
                 <a
                   href={uni.brochureUrl}
                   target="_blank"
@@ -1143,7 +1148,7 @@ function UniversityContent({
                   className="group flex w-full items-center justify-center gap-2.5 rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.97]"
                   style={{
                     background: theme.gold,
-                    color: '#fff',
+                    color: "#fff",
                     borderRadius: theme.btnRadius,
                   }}
                 >
@@ -1647,7 +1652,16 @@ function ApplicationForm({
   const pathname = usePathname();
   const { isAuthenticated, isStudent } = useAuth();
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+  // Check if student already applied to this university
+  const {
+    data: checkResult,
+    isLoading: isCheckLoading,
+    isError: isCheckError,
+  } = useCheckApplication(isAuthenticated && isStudent ? uniId : "");
+
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
   }
@@ -1680,32 +1694,45 @@ function ApplicationForm({
     const today = new Date().toISOString().split("T")[0];
     const payload: SubmitApplicationFormData = {
       universityId: uniId,
-      firstName: formData.firstName || '',
-      lastName: formData.lastName || '',
-      email: formData.email || '',
-      dateOfBirth: formData.dateOfBirth || '',
-      citizenship: formData.citizenship || '',
-      gender: formData.gender as 'male' | 'female' | 'other',
-      maritalStatus: formData.maritalStatus as 'single' | 'married',
-      selectedProgram: formData.selectedProgram as 'pre-medical' | 'general-medicine' | 'dentistry' | 'post-graduate',
-      permanentAddress: formData.permanentAddress || '',
-      permanentCity: formData.permanentCity || '',
-      permanentState: formData.permanentState || '',
-      permanentZip: formData.permanentZip || '',
-      permanentCountry: formData.permanentCountry || '',
-      embassyLocation: formData.embassyLocation || '',
-      signature: formData.signature || '',
+      firstName: formData.firstName || "",
+      lastName: formData.lastName || "",
+      email: formData.email || "",
+      dateOfBirth: formData.dateOfBirth || "",
+      citizenship: formData.citizenship || "",
+      gender: formData.gender as "male" | "female" | "other",
+      maritalStatus: formData.maritalStatus as "single" | "married",
+      selectedProgram: formData.selectedProgram as
+        | "pre-medical"
+        | "general-medicine"
+        | "dentistry"
+        | "post-graduate",
+      permanentAddress: formData.permanentAddress || "",
+      permanentCity: formData.permanentCity || "",
+      permanentState: formData.permanentState || "",
+      permanentZip: formData.permanentZip || "",
+      permanentCountry: formData.permanentCountry || "",
+      embassyLocation: formData.embassyLocation || "",
+      signature: formData.signature || "",
       signatureDate: formData.signatureDate || today,
       placeOfBirth: {
-        city: formData.birthCity || '',
-        state: formData.birthState || '',
-        country: formData.birthCountry || '',
+        city: formData.birthCity || "",
+        state: formData.birthState || "",
+        country: formData.birthCountry || "",
       },
       language1: {
-        name: formData.lang1Name || '',
-        speaking: (formData.lang1Speaking || 'moderate') as 'high' | 'moderate' | 'low',
-        reading: (formData.lang1Reading || 'moderate') as 'high' | 'moderate' | 'low',
-        writing: (formData.lang1Writing || 'moderate') as 'high' | 'moderate' | 'low',
+        name: formData.lang1Name || "",
+        speaking: (formData.lang1Speaking || "moderate") as
+          | "high"
+          | "moderate"
+          | "low",
+        reading: (formData.lang1Reading || "moderate") as
+          | "high"
+          | "moderate"
+          | "low",
+        writing: (formData.lang1Writing || "moderate") as
+          | "high"
+          | "moderate"
+          | "low",
       },
     };
     try {
@@ -1718,7 +1745,7 @@ function ApplicationForm({
     }
   }
 
-  // ── Not authenticated → redirect to login ──
+  // ── Not authenticated → prompt to login ──
   if (!isAuthenticated) {
     return (
       <Link
@@ -1730,7 +1757,7 @@ function ApplicationForm({
           borderRadius: theme.btnRadius,
         }}
       >
-        Apply Now
+        Login to Apply
       </Link>
     );
   }
@@ -1751,7 +1778,71 @@ function ApplicationForm({
     );
   }
 
-  // ── Authenticated student → show form ──
+  // ── Loading check application status ──
+  if (isCheckLoading) {
+    return (
+      <div className="flex items-center justify-center py-3">
+        <Loader2
+          className="size-5 animate-spin"
+          style={{ color: theme.gold }}
+        />
+      </div>
+    );
+  }
+
+  // ── Already applied → show status card ──
+  if (!isCheckError && checkResult?.applied && checkResult.application) {
+    const app = checkResult.application;
+    const statusColors: Record<string, string> = {
+      pending: "#CA8A04",
+      in_review: "#2563EB",
+      approved: "#16A34A",
+      rejected: "#DC2626",
+    };
+    const statusColor = statusColors[app.status] || theme.inkMuted;
+
+    return (
+      <div
+        className="rounded-xl px-4 py-4 text-left"
+        style={{
+          background: theme.canvas,
+          border: "1px solid " + theme.hairline,
+        }}
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <Check className="size-4" style={{ color: "#16A34A" }} />
+          <p className="text-sm font-semibold" style={{ color: theme.ink }}>
+            Already Applied
+          </p>
+        </div>
+        <p className="text-xs mb-1" style={{ color: theme.inkMuted }}>
+          Program: {app.selectedProgram}
+        </p>
+        <p className="text-xs mb-3" style={{ color: theme.inkMuted }}>
+          Status:{" "}
+          <span className="font-medium" style={{ color: statusColor }}>
+            {app.status
+              .replace(/_/g, " ")
+              .replace(/\b\w/g, (c) => c.toUpperCase())}
+          </span>
+        </p>
+        <Link
+          href={`/student/applications/${app.id}`}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200"
+          style={{
+            background: theme.ink,
+            color: "#fff",
+            borderRadius: theme.btnRadius,
+          }}
+        >
+          View Application
+          <ChevronRight className="size-3.5" />
+        </Link>
+      </div>
+    );
+  }
+
+  // ── Authenticated student, not applied (or check failed) → show form ──
   return (
     <div>
       <button
@@ -1846,12 +1937,31 @@ function ApplicationForm({
               placeholder="e.g. Indian"
             />
             <FormField
+              label="Marital Status *"
+              name="maritalStatus"
+              value={formData.maritalStatus || ""}
+              onChange={handleChange}
+              error={errors.maritalStatus}
+              placeholder="single / married"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3">
+            <FormField
               label="Selected Program *"
               name="selectedProgram"
               value={formData.selectedProgram || ""}
               onChange={handleChange}
               error={errors.selectedProgram}
-              placeholder="e.g. MBBS"
+              placeholder="e.g. pre-medical / general-medicine / dentistry / post-graduate"
+            />
+            <FormField
+              label="Embassy Location *"
+              name="embassyLocation"
+              value={formData.embassyLocation || ""}
+              onChange={handleChange}
+              error={errors.embassyLocation}
+              placeholder="e.g. New Delhi"
             />
           </div>
 
@@ -2008,11 +2118,7 @@ function SelectField({
           </option>
         ))}
       </select>
-      {error && (
-        <p className="mt-0.5 text-xs text-red-500">{error}</p>
-      )}
+      {error && <p className="mt-0.5 text-xs text-red-500">{error}</p>}
     </div>
   );
 }
-
-

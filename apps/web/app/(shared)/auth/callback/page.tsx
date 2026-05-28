@@ -25,7 +25,13 @@ function AuthCallbackContent() {
         if (data.accessToken) {
           useAuthStore.getState().login(data.user, data.accessToken);
         }
-        if (data.user?.role === 'ADMIN' || data.user?.role === 'SUPER_ADMIN') {
+
+        // Use stored redirect or fall back to role-based default
+        const storedRedirect = sessionStorage.getItem("postLoginRedirect");
+        sessionStorage.removeItem("postLoginRedirect");
+        if (storedRedirect && storedRedirect !== "/") {
+          router.push(storedRedirect);
+        } else if (data.user?.role === 'ADMIN' || data.user?.role === 'SUPER_ADMIN') {
           router.push('/admin/dashboard');
         } else {
           router.push('/student/dashboard');

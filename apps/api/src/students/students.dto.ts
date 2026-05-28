@@ -36,6 +36,22 @@ export class UpdateStudentProfileDto {
   @IsOptional()
   @IsString()
   pincode?: string;
+
+  @IsOptional()
+  @IsString()
+  passportNumber?: string;
+
+  @IsOptional()
+  @IsDateString()
+  passportExpiry?: string;
+
+  @IsOptional()
+  @IsDateString()
+  passportIssueDate?: string;
+
+  @IsOptional()
+  @IsString()
+  passportIssueCountry?: string;
 }
 
 export class UpdateAcademicDto {

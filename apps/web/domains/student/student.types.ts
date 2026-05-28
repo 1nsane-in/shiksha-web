@@ -74,9 +74,50 @@ export interface PlaceOfBirth {
 
 export interface LanguageAbility {
   name: string;
-  speaking: 'high' | 'moderate' | 'low';
-  reading: 'high' | 'moderate' | 'low';
-  writing: 'high' | 'moderate' | 'low';
+  speaking: "high" | "moderate" | "low";
+  reading: "high" | "moderate" | "low";
+  writing: "high" | "moderate" | "low";
+}
+
+export interface ApplicationCheckResult {
+  applied: boolean;
+  application?: {
+    id: string;
+    selectedProgram: string;
+    status: string;
+    submittedAt: string;
+  };
+}
+
+export interface ApplicationDetail {
+  id: string;
+  studentId: string;
+  universityId: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  selectedProgram: string | null;
+  status: string;
+  submittedAt: string | null;
+  formData: SubmitApplicationFormData | null;
+  createdAt: string;
+  updatedAt: string;
+  university: {
+    id: string;
+    name: string;
+    shortName: string;
+    slug: string;
+    type: string;
+    status: string;
+    location: {
+      country: string;
+      city: string;
+    } | null;
+    contact: {
+      email: string;
+      phone: string;
+    } | null;
+  };
 }
 
 export interface SubmitApplicationFormData {
@@ -87,8 +128,8 @@ export interface SubmitApplicationFormData {
   dateOfBirth: string;
   placeOfBirth: PlaceOfBirth;
   citizenship: string;
-  maritalStatus: 'single' | 'married';
-  gender: 'male' | 'female' | 'other';
+  maritalStatus: "single" | "married";
+  gender: "male" | "female" | "other";
   permanentAddress: string;
   permanentCity: string;
   permanentState: string;
@@ -99,8 +140,98 @@ export interface SubmitApplicationFormData {
   language1: LanguageAbility;
   language2?: LanguageAbility;
   otherLanguages?: string[];
-  selectedProgram: 'pre-medical' | 'general-medicine' | 'dentistry' | 'post-graduate';
+  selectedProgram:
+    | "pre-medical"
+    | "general-medicine"
+    | "dentistry"
+    | "post-graduate";
   postGraduateDetail?: string;
   signature: string;
   signatureDate: string;
+}
+
+// Dashboard Types
+export interface DashboardOverview {
+  profile: {
+    studentId: string;
+    id: string;
+    email: string;
+    name: string;
+    phone?: string;
+    avatarUrl?: string;
+    fatherName?: string;
+    motherName?: string;
+    dob?: string;
+    gender?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    pincode?: string;
+    passportNumber?: string;
+    passportExpiry?: string;
+    passportIssueDate?: string;
+    passportIssueCountry?: string;
+    neetScore?: number;
+    neetRank?: number;
+    twelfthPercentage?: number;
+    tenthPercentage?: number;
+  };
+  stage: { currentStage: number; applicationStatus: string };
+  documentStats: {
+    total: number;
+    approved: number;
+    pending: number;
+    rejected: number;
+  };
+  paymentStats: {
+    totalPaid: number;
+    pendingAmount: number;
+    totalPayments: number;
+  };
+  applicationSummary: {
+    total: number;
+    applications: {
+      id: string;
+      status: string;
+      selectedProgram?: string;
+      submittedAt?: string;
+      university: { id: string; name: string; shortName: string };
+    }[];
+  };
+  examSummary: { id: string; examDate?: string; result?: string } | null;
+  lettersAvailability: { admissionLetter: boolean; invitationLetter: boolean };
+}
+
+export interface DashboardActivity {
+  recentEvents: {
+    id: string;
+    stage: number;
+    event: string;
+    title: string;
+    description?: string;
+    occurredAt: string;
+  }[];
+  unreadNotifications: number;
+  upcomingDeadlines: {
+    type: "exam" | "visa";
+    date: string;
+    title: string;
+    detail?: string;
+  }[];
+}
+
+export interface NextAction {
+  type: string;
+  title: string;
+  description: string;
+  actionUrl: string;
+  priority: "high" | "medium" | "low";
+  completed: boolean;
+}
+
+export interface DashboardNextSteps {
+  nextActions: NextAction[];
+  completionPercentage: number;
+  pendingItems: string[];
 }

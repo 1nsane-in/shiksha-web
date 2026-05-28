@@ -2,20 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { useLogout } from "@/domains/auth";
 import { Avatar, AvatarFallback } from "@repo/ui";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@repo/ui";
 import { motion, AnimatePresence } from "motion/react";
 
 /* ─── brand tokens (matching UniversityCards) ─── */
@@ -30,7 +21,7 @@ const theme = {
 
 const navLinks = [
   { name: "Home", href: "/" },
-  { name: "About Us", href: "#" },
+  { name: "About Us", href: "/about-us" },
   { name: "Our Universities", href: "#" },
   { name: "Gallery", href: "#" },
   { name: "Online Payment", href: "#" },
@@ -40,9 +31,10 @@ const navLinks = [
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
   const { isAuthenticated, user } = useAuth();
-  const logoutMutation = useLogout();
   const initials = user?.name?.charAt(0)?.toUpperCase() || "U";
+  const loginUrl = `/login${pathname !== "/" ? `?redirect=${encodeURIComponent(pathname)}` : ""}`;
 
   return (
     <header
@@ -88,62 +80,26 @@ export function Header() {
         {/* ─── Right: auth + mobile toggle ─── */}
         <div className="flex items-center gap-3">
           {isAuthenticated && user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <button
-                    type="button"
-                    className="flex cursor-pointer items-center gap-2"
-                  />
-                }
-              >
-                <Avatar className="size-8">
-                  <AvatarFallback
-                    style={{
-                      background: theme.goldLight,
-                      color: theme.gold,
-                      fontSize: 13,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <ChevronDown
-                  className="hidden size-4 md:block"
-                  style={{ color: theme.inkMuted }}
-                />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" sideOffset={8}>
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col">
-                      <span className="font-medium" style={{ color: theme.ink }}>
-                        {user.name}
-                      </span>
-                      <span
-                        className="text-xs"
-                        style={{ color: theme.inkMuted }}
-                      >
-                        {user.email}
-                      </span>
-                    </div>
-                  </DropdownMenuLabel>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => logoutMutation.mutate()}
-                  className="cursor-pointer"
+            <Link
+              href={user.role === "ADMIN" || user.role === "SUPER_ADMIN" ? "/admin/profile" : "/student/profile"}
+            >
+              <Avatar className="size-8 cursor-pointer transition-opacity hover:opacity-80">
+                <AvatarFallback
+                  style={{
+                    background: theme.goldLight,
+                    color: theme.gold,
+                    fontSize: 13,
+                    fontWeight: 600,
+                  }}
                 >
-                  <LogOut className="size-4" />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
           ) : (
             <div className="hidden md:block">
               <Link
-                href="/login"
+                href={loginUrl}
                 className="inline-flex items-center justify-center px-5 py-2 text-sm font-medium transition-all duration-200 active:scale-[0.97]"
                 style={{
                   background: theme.ink,
@@ -195,7 +151,7 @@ export function Header() {
               {!isAuthenticated && (
                 <div className="pt-3">
                   <Link
-                    href="/login"
+                    href={loginUrl}
                     className="flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium"
                     style={{
                       background: theme.gold,

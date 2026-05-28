@@ -69,5 +69,8 @@ export const queryKeys = {
     stage: () => [...queryKeys.student.all, "stage"] as const,
     applications: () => [...queryKeys.student.all, "applications"] as const,
     applicationDetail: (id: string) => [...queryKeys.student.all, "application", id] as const,
+    dashboardOverview: () => [...queryKeys.student.all, "dashboard", "overview"] as const,
+    dashboardActivity: () => [...queryKeys.student.all, "dashboard", "activity"] as const,
+    dashboardNextSteps: () => [...queryKeys.student.all, "dashboard", "next-steps"] as const,
   },
 };
