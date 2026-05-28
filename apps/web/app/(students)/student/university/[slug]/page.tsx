@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import { useUniversity } from "@/domains/universities/universities.queries";
 import { useSubmitApplication } from "@/domains/student/student.queries";
+import { useAuth } from "@/hooks/useAuth";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type { SubmitApplicationFormData } from "@/domains/student/student.types";
 import {
@@ -1642,8 +1644,10 @@ function ApplicationForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const submit = useSubmitApplication();
   const router = useRouter();
+  const pathname = usePathname();
+  const { isAuthenticated, isStudent } = useAuth();
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
   }
@@ -1654,11 +1658,12 @@ function ApplicationForm({
       "firstName",
       "lastName",
       "email",
-      "phone",
       "dateOfBirth",
       "citizenship",
       "gender",
+      "maritalStatus",
       "selectedProgram",
+      "embassyLocation",
       "signature",
     ];
     const newErrors: Record<string, string> = {};
@@ -1672,11 +1677,39 @@ function ApplicationForm({
       setErrors(newErrors);
       return;
     }
+    const today = new Date().toISOString().split("T")[0];
+    const payload: SubmitApplicationFormData = {
+      universityId: uniId,
+      firstName: formData.firstName || '',
+      lastName: formData.lastName || '',
+      email: formData.email || '',
+      dateOfBirth: formData.dateOfBirth || '',
+      citizenship: formData.citizenship || '',
+      gender: formData.gender as 'male' | 'female' | 'other',
+      maritalStatus: formData.maritalStatus as 'single' | 'married',
+      selectedProgram: formData.selectedProgram as 'pre-medical' | 'general-medicine' | 'dentistry' | 'post-graduate',
+      permanentAddress: formData.permanentAddress || '',
+      permanentCity: formData.permanentCity || '',
+      permanentState: formData.permanentState || '',
+      permanentZip: formData.permanentZip || '',
+      permanentCountry: formData.permanentCountry || '',
+      embassyLocation: formData.embassyLocation || '',
+      signature: formData.signature || '',
+      signatureDate: formData.signatureDate || today,
+      placeOfBirth: {
+        city: formData.birthCity || '',
+        state: formData.birthState || '',
+        country: formData.birthCountry || '',
+      },
+      language1: {
+        name: formData.lang1Name || '',
+        speaking: (formData.lang1Speaking || 'moderate') as 'high' | 'moderate' | 'low',
+        reading: (formData.lang1Reading || 'moderate') as 'high' | 'moderate' | 'low',
+        writing: (formData.lang1Writing || 'moderate') as 'high' | 'moderate' | 'low',
+      },
+    };
     try {
-      await submit.mutateAsync({
-        universityId: uniId,
-        data: formData as unknown as SubmitApplicationFormData,
-      });
+      await submit.mutateAsync(payload);
       router.push("/student/dashboard");
     } catch (err) {
       setErrors({
@@ -1685,6 +1718,40 @@ function ApplicationForm({
     }
   }
 
+  // ── Not authenticated → redirect to login ──
+  if (!isAuthenticated) {
+    return (
+      <Link
+        href={`/login?redirectUrl=${encodeURIComponent(pathname)}`}
+        className="inline-flex w-full items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold transition-all duration-200"
+        style={{
+          background: theme.gold,
+          color: "#fff",
+          borderRadius: theme.btnRadius,
+        }}
+      >
+        Apply Now
+      </Link>
+    );
+  }
+
+  // ── Authenticated but not a student ──
+  if (!isStudent) {
+    return (
+      <div
+        className="rounded-lg px-4 py-3 text-sm text-center"
+        style={{
+          background: "rgba(196, 149, 59, 0.08)",
+          border: "1px solid rgba(196, 149, 59, 0.2)",
+          color: theme.inkMuted,
+        }}
+      >
+        Only students can apply for admission.
+      </div>
+    );
+  }
+
+  // ── Authenticated student → show form ──
   return (
     <div>
       <button
@@ -1714,7 +1781,7 @@ function ApplicationForm({
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3">
             <FormField
               label="First Name *"
               name="firstName"
@@ -1731,7 +1798,7 @@ function ApplicationForm({
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3">
             <FormField
               label="Email *"
               name="email"
@@ -1750,7 +1817,7 @@ function ApplicationForm({
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3">
             <FormField
               label="Date of Birth *"
               name="dateOfBirth"
@@ -1769,7 +1836,7 @@ function ApplicationForm({
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3">
             <FormField
               label="Citizenship *"
               name="citizenship"
@@ -1795,7 +1862,7 @@ function ApplicationForm({
             onChange={handleChange}
           />
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3">
             <FormField
               label="City"
               name="permanentCity"
@@ -1810,7 +1877,7 @@ function ApplicationForm({
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3">
             <FormField
               label="Zip Code"
               name="permanentZip"
@@ -1858,7 +1925,6 @@ function ApplicationForm({
     </div>
   );
 }
-
 function FormField({
   label,
   name,
@@ -1898,6 +1964,53 @@ function FormField({
         }}
       />
       {error && <p className="mt-0.5 text-xs text-red-500">{error}</p>}
+    </div>
+  );
+}
+
+function SelectField({
+  label,
+  name,
+  value,
+  onChange,
+  error,
+  options,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  error?: string;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div>
+      <label
+        className="mb-1 block text-xs font-medium"
+        style={{ color: theme.inkMuted }}
+      >
+        {label}
+      </label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full rounded-lg px-3 py-2 text-sm outline-none transition-all duration-200"
+        style={{
+          background: theme.canvas,
+          color: theme.ink,
+          border: "1px solid " + (error ? "#EF4444" : theme.hairline),
+        }}
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      {error && (
+        <p className="mt-0.5 text-xs text-red-500">{error}</p>
+      )}
     </div>
   );
 }

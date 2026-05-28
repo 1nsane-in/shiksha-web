@@ -1,5 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { storage } from "@/shared/api/storage";
+import { STORAGE_KEYS } from "@/shared/api/constants";
+import { queryClient } from "@/shared/api/queryClient";
 
 function setTokenCookie(token: string) {
   if (typeof document === "undefined") return;
@@ -9,6 +12,11 @@ function setTokenCookie(token: string) {
 function clearTokenCookie() {
   if (typeof document === "undefined") return;
   document.cookie = "token=; path=/; max-age=0";
+}
+
+function clearRefreshTokenCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie = "refreshToken=; path=/; max-age=0";
 }
 
 export interface User {
@@ -48,6 +56,9 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         set({ user: null, access_token: null });
         clearTokenCookie();
+        clearRefreshTokenCookie();
+        storage.remove(STORAGE_KEYS.AUTH_STORAGE);
+        queryClient.clear();
       },
     }),
     {
