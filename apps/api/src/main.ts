@@ -1,5 +1,5 @@
-import { NestFactory } from "@nestjs/core";
-import { ValidationPipe, Logger, VersioningType } from "@nestjs/common";
+﻿import { NestFactory } from "@nestjs/core";
+import { ValidationPipe, Logger } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { ConfigService } from "@nestjs/config";
 import { join } from "path";
@@ -18,22 +18,12 @@ async function bootstrap() {
   const analyticsService = app.get(AnalyticsService);
   const logger = new Logger("Bootstrap");
 
-  app.enableVersioning({
-    type: VersioningType.HEADER,
-    header: "X-Api-Version",
-    defaultVersion: "1",
-  });
-
   const swaggerConfig = new DocumentBuilder()
     .setTitle("Shiksha API")
     .setDescription("Medical Admission Management Platform")
     .setVersion("1.0")
     .addBearerAuth()
     .addCookieAuth("refreshToken")
-    .addApiKey(
-      { type: "apiKey", name: "X-Api-Version", in: "header" },
-      "X-Api-Version",
-    )
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup("api/docs", app, document);
