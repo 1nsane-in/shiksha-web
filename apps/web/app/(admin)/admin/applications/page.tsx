@@ -124,7 +124,8 @@ export default function AdminApplicationsPage() {
               return (
                 <Card
                   key={app.id}
-                  className="p-4 border-border hover:border-[#F0A030]/50 transition-colors"
+                  className="cursor-pointer p-4 border-border hover:border-[#F0A030]/50 transition-colors"
+                  onClick={() => router.push(`/admin/applications/${app.id}`)}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
@@ -153,35 +154,24 @@ export default function AdminApplicationsPage() {
                       </span>
                       {app.status === 'pending' && (
                         <>
-                          <Button
-                            size="sm"
-                            variant="default"
-                            className="bg-green-600 hover:bg-green-700 h-7 text-xs"
-                            onClick={() => handleApprove(app.id)}
+                          <button
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-50"
+                            onClick={(e) => { e.stopPropagation(); handleApprove(app.id); }}
                             disabled={updateStatus.isPending}
                           >
-                            <CheckCircle2 className="size-3 mr-1" />
+                            <CheckCircle2 className="size-3.5" />
                             Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="h-7 text-xs"
-                            onClick={() => handleReject(app.id)}
+                          </button>
+                          <button
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 shadow-sm transition-colors hover:bg-red-100 disabled:opacity-50"
+                            onClick={(e) => { e.stopPropagation(); handleReject(app.id); }}
                             disabled={updateStatus.isPending}
                           >
-                            <XCircle className="size-3 mr-1" />
+                            <XCircle className="size-3.5" />
                             Reject
-                          </Button>
+                          </button>
                         </>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => router.push(`/admin/applications/${app.id}`)}
-                      >
-                        <ExternalLink className="size-4" />
-                      </Button>
                     </div>
                   </div>
                 </Card>
