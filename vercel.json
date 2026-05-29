@@ -1,5 +1,5 @@
 {
-  "installCommand": "cd ../.. && pnpm install --filter @repo/web...",
+  "installCommand": "npm i -g pnpm@9 && cd ../.. && pnpm install --filter @repo/web --filter @repo/ui --filter @repo/shared-types --filter @repo/config",
   "buildCommand": "pnpm build",
   "framework": "nextjs"
 }
