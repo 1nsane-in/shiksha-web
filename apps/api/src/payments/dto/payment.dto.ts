@@ -1,4 +1,10 @@
-import { IsString, IsNumber, IsUUID, IsOptional, IsEmail } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsUUID,
+  IsOptional,
+  IsEmail,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class InitiatePayUPaymentDto {
@@ -6,7 +12,10 @@ export class InitiatePayUPaymentDto {
   @IsUUID()
   applicationId: string;
 
-  @ApiProperty({ description: 'Stage number (2 for admission fee, 3 for exam fee)', example: 2 })
+  @ApiProperty({
+    description: 'Stage number (2 for admission fee, 3 for exam fee)',
+    example: 2,
+  })
   @IsNumber()
   stage: number;
 
@@ -45,28 +54,36 @@ export class PayUHashResponseDto {
 
 export class VerifyPayUPaymentDto {
   @ApiProperty()
-  status: string;  // 'success' or 'failure'
+  @IsString()
+  status: string;
 
   @ApiProperty()
+  @IsString()
   txnid: string;
 
   @ApiProperty()
+  @IsString()
   mihpayid: string;
 
   @ApiProperty()
+  @IsString()
   amount: string;
 
   @ApiProperty()
+  @IsString()
   productinfo: string;
 
   @ApiProperty()
+  @IsString()
   firstname: string;
 
   @ApiProperty()
+  @IsString()
   email: string;
 
   @ApiProperty()
-  hash: string;  // PayU response hash
+  @IsString()
+  hash: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -111,6 +128,10 @@ export class VerifyPayUPaymentDto {
   @ApiProperty({ required: false })
   @IsOptional()
   mode?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  additionalCharges?: string;
 }
 
 export class ManualPaymentApprovalDto {
@@ -122,9 +143,20 @@ export class ManualPaymentApprovalDto {
   note?: string;
 }
 
-export const STAGE_PAYMENT_CONFIG: Record<number, { label: string; amount: number; description: string }> = {
-  2: { label: 'Admission Fee', amount: 5000, description: 'Admission letter processing fee' },
-  3: { label: 'Exam Fee', amount: 10000, description: 'Entrance examination fee' },
+export const STAGE_PAYMENT_CONFIG: Record<
+  number,
+  { label: string; amount: number; description: string }
+> = {
+  2: {
+    label: 'Admission Fee',
+    amount: 5000,
+    description: 'Admission letter processing fee',
+  },
+  3: {
+    label: 'Exam Fee',
+    amount: 10000,
+    description: 'Entrance examination fee',
+  },
 };
 
 export function generatePayUHash(data: {
@@ -161,7 +193,11 @@ export function generatePayUHash(data: {
     '',
     data.salt,
   ].join('|');
-  return crypto.createHash('sha512').update(hashString).digest('hex').toLowerCase();
+  return crypto
+    .createHash('sha512')
+    .update(hashString)
+    .digest('hex')
+    .toLowerCase();
 }
 
 export function verifyPayUResponse(params: {
@@ -178,29 +214,64 @@ export function verifyPayUResponse(params: {
   udf3?: string;
   udf4?: string;
   udf5?: string;
+  additionalCharges?: string;
 }): string {
   const crypto = require('crypto');
-  const hashString = [
-    params.salt,
-    params.status,
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    params.udf5 || '',
-    params.udf4 || '',
-    params.udf3 || '',
-    params.udf2 || '',
-    params.udf1 || '',
-    params.email,
-    params.firstname,
-    params.productinfo,
-    params.amount,
-    params.txnid,
-    params.key,
-  ].join('|');
-  return crypto.createHash('sha512').update(hashString).digest('hex').toLowerCase();
+  // PayU reverse hash: salt|status|||||||||udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key
+  let hashString: string;
+  if (params.additionalCharges) {
+    hashString = [
+      params.additionalCharges,
+      params.salt,
+      params.status,
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      params.udf5 || '',
+      params.udf4 || '',
+      params.udf3 || '',
+      params.udf2 || '',
+      params.udf1 || '',
+      params.email,
+      params.firstname,
+      params.productinfo,
+      params.amount,
+      params.txnid,
+      params.key,
+    ].join('|');
+  } else {
+    hashString = [
+      params.salt,
+      params.status,
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      params.udf5 || '',
+      params.udf4 || '',
+      params.udf3 || '',
+      params.udf2 || '',
+      params.udf1 || '',
+      params.email,
+      params.firstname,
+      params.productinfo,
+      params.amount,
+      params.txnid,
+      params.key,
+    ].join('|');
+  }
+  return crypto
+    .createHash('sha512')
+    .update(hashString)
+    .digest('hex')
+    .toLowerCase();
 }

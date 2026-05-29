@@ -46,7 +46,7 @@ export class AuthController {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: (process.env.NODE_ENV === 'production' ? 'strict' : 'lax') as 'strict' | 'lax' | 'none',
-    path: '/api/auth',
+    path: '/auth',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   } as const;
 
