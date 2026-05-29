@@ -69,17 +69,13 @@ export class PaymentsService {
     let paymentId: string;
 
     if (existing) {
-      txnid =
-        existing.razorpayOrderId ||
-        'TXN' + randomUUID().replace(/-/g, '').substring(0, 20);
+      // Always generate a new txnid — PayU rejects reused captured txnids
+      txnid = 'TXN' + randomUUID().replace(/-/g, '').substring(0, 20);
       paymentId = existing.id;
-      // Update txnid if needed
-      if (!existing.razorpayOrderId) {
-        await this.prisma.payment.update({
-          where: { id: existing.id },
-          data: { razorpayOrderId: txnid },
-        });
-      }
+      await this.prisma.payment.update({
+        where: { id: existing.id },
+        data: { razorpayOrderId: txnid },
+      });
     } else {
       txnid = 'TXN' + randomUUID().replace(/-/g, '').substring(0, 20);
       const payment = await this.prisma.payment.create({

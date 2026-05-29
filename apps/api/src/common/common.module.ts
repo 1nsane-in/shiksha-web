@@ -18,6 +18,7 @@ import { ResponseWrapperInterceptor } from './interceptors/response-wrapper.inte
 import { IdempotencyInterceptor } from './idempotency/idempotency.interceptor';
 import { PaginatorService } from './services/paginator.service';
 import { TimelineService } from './services/timeline.service';
+import { StorageService } from './services/storage.service';
 
 @Global()
 @Module({
@@ -34,6 +35,7 @@ import { TimelineService } from './services/timeline.service';
     PaginatorService,
     TimelineService,
     TimelineService,
+    StorageService,
     {
       provide: APP_FILTER,
       useClass: SentryFilter,
@@ -61,6 +63,7 @@ import { TimelineService } from './services/timeline.service';
     PaginatorService,
     TimelineService,
     TimelineService,
+    StorageService,
   ],
 })
 export class CommonModule {}
