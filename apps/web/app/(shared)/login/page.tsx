@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@repo/ui";
 import { Input } from "@repo/ui";
-import { Tabs, TabsList, TabsTrigger } from "@repo/ui";
 import {
   Field,
   FieldDescription,
@@ -15,8 +14,8 @@ import {
   FieldSeparator,
 } from "@repo/ui";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
-import { useRouter, useSearchParams } from "next/navigation";
-import { AlertCircle, GraduationCap, Users, Shield } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useLogin } from "@/domains/auth";
 
 const loginSchema = z.object({
@@ -26,65 +25,15 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-type RoleTab = "student" | "parents" | "admin";
-
-const roleConfig: Record<
-  RoleTab,
-  {
-    label: string;
-    icon: React.ElementType;
-    title: string;
-    description: string;
-    emailPlaceholder: string;
-    buttonText: string;
-  }
-> = {
-  student: {
-    label: "Student",
-    icon: GraduationCap,
-    title: "Sign in as Student",
-    description: "Access your application dashboard",
-    emailPlaceholder: "student@example.com",
-    buttonText: "Sign in as Student",
-  },
-  parents: {
-    label: "Parents",
-    icon: Users,
-    title: "Sign in as Parent",
-    description: "Monitor your ward's application progress",
-    emailPlaceholder: "parent@example.com",
-    buttonText: "Sign in as Parent",
-  },
-  admin: {
-    label: "Admin",
-    icon: Shield,
-    title: "Sign in as Admin",
-    description: "Admin login or continue with Google",
-    emailPlaceholder: "admin@example.com",
-    buttonText: "Sign in as Admin",
-  },
-};
-
 function LoginContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
+  const [serverError, setServerError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Persist redirect for Google OAuth callback page
   if (typeof window !== "undefined" && redirect !== "/") {
     sessionStorage.setItem("postLoginRedirect", redirect);
   }
-
-  const initialTab = (
-    redirect.includes("admin")
-      ? "admin"
-      : redirect.includes("parents")
-        ? "parents"
-        : "student"
-  ) as RoleTab;
-
-  const [activeTab, setActiveTab] = useState<RoleTab>(initialTab);
-  const [serverError, setServerError] = useState("");
 
   const loginMutation = useLogin(redirect);
 
@@ -107,110 +56,129 @@ function LoginContent() {
           ? (err as { response: { data: { message?: string } } }).response?.data
               ?.message
           : undefined;
-      setServerError(apiError ?? (err instanceof Error ? err.message : "Invalid email or password"));
+      setServerError(
+        apiError ??
+          (err instanceof Error ? err.message : "Invalid email or password"),
+      );
     }
   };
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-center gap-2 md:justify-start">
-          <a href="/" className="flex items-center gap-2 font-medium">
-            <img src="/img/logo.png" alt="" className="h-8" />
-          </a>
-        </div>
+      {/* Left — Form */}
+      <div className="flex flex-col p-6 md:p-10">
         <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs flex flex-col gap-6">
-            <Tabs
-              value={activeTab}
-              onValueChange={(v) => setActiveTab(v as RoleTab)}
-            >
-              <TabsList className="w-full">
-                {(["student", "parents", "admin"] as const).map((tab) => {
-                  const Icon = roleConfig[tab].icon;
-                  return (
-                    <TabsTrigger key={tab} value={tab} className="flex-1 gap-2">
-                      <Icon className="h-4 w-4" />
-                      {roleConfig[tab].label}
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </Tabs>
+          <div className="w-full max-w-sm">
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-6"
             >
               <FieldGroup>
-                <div className="flex flex-col items-center gap-1 text-center">
-                  <h1 className="text-2xl font-bold">
-                    {roleConfig[activeTab].title}
-                  </h1>
-                  <p className="text-sm text-balance text-muted-foreground">
-                    {roleConfig[activeTab].description}
-                  </p>
+                {/* Logo + Header */}
+                <div className="flex flex-col items-center gap-4 mb-2">
+                  <a href="/">
+                    <img src="/img/logo.png" alt="Shiksha Health" className="h-8" />
+                  </a>
+                  <div className="text-center">
+                    <h1 className="text-2xl font-semibold tracking-tight text-[#111]">
+                      Welcome back
+                    </h1>
+                    <p className="text-sm text-[#626260] mt-1">
+                      Sign in to continue to your account
+                    </p>
+                  </div>
                 </div>
+
+                {/* Error */}
                 {serverError && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                  <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                     <AlertCircle className="h-4 w-4 shrink-0" />
-                    <span className="text-sm">{serverError}</span>
+                    <span>{serverError}</span>
                   </div>
                 )}
+
+                {/* Email */}
                 <Field>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <FieldLabel htmlFor="email">Email address</FieldLabel>
                   <Input
                     id="email"
                     type="email"
-                    placeholder={roleConfig[activeTab].emailPlaceholder}
+                    placeholder="you@example.com"
+                    autoComplete="email"
                     {...register("email")}
                   />
                   {errors.email && (
-                    <p className="text-sm text-red-600">
+                    <p className="text-xs text-red-600 mt-1">
                       {errors.email.message}
                     </p>
                   )}
                 </Field>
+
+                {/* Password */}
                 <Field>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-between">
                     <FieldLabel htmlFor="password">Password</FieldLabel>
                     <a
                       href="/forgot-password"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
+                      className="text-xs text-[#626260] hover:text-[#111] underline-offset-4 hover:underline transition-colors"
                     >
-                      Forgot your password?
+                      Forgot password?
                     </a>
                   </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    {...register("password")}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      {...register("password")}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9c9fa5] hover:text-[#626260] transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                   {errors.password && (
-                    <p className="text-sm text-red-600">
+                    <p className="text-xs text-red-600 mt-1">
                       {errors.password.message}
                     </p>
                   )}
                 </Field>
+
+                {/* Submit */}
                 <Field>
                   <Button
                     type="submit"
+                    className="w-full"
                     disabled={isSubmitting || loginMutation.isPending}
                   >
                     {isSubmitting || loginMutation.isPending
-                      ? "Logging in..."
-                      : roleConfig[activeTab].buttonText}
+                      ? "Signing in…"
+                      : "Sign in"}
                   </Button>
                 </Field>
-                <FieldSeparator>Or continue with</FieldSeparator>
+
+                <FieldSeparator>or</FieldSeparator>
+
+                {/* Google + Sign up */}
                 <Field>
-                  <GoogleLoginButton redirectTo={redirect !== "/" ? redirect : null} />
-                  <FieldDescription className="text-center">
+                  <GoogleLoginButton
+                    redirectTo={redirect !== "/" ? redirect : null}
+                  />
+                  <FieldDescription className="text-center mt-4">
                     Don&apos;t have an account?{" "}
                     <a
                       href="/register"
-                      className="underline underline-offset-4"
+                      className="font-medium text-[#111] underline underline-offset-4 hover:no-underline"
                     >
-                      Sign up
+                      Create account
                     </a>
                   </FieldDescription>
                 </Field>
@@ -219,12 +187,21 @@ function LoginContent() {
           </div>
         </div>
       </div>
-      <div className="relative hidden bg-muted lg:block">
+
+      {/* Right — Image */}
+      <div className="relative hidden lg:block overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1607013407627-6ee814329547?q=80&w=964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          alt="Image"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+        <div className="absolute bottom-10 left-10 right-10">
+          <p className="text-white/90 text-lg font-medium leading-snug">
+            &ldquo;The platform made my entire admission process stress-free. Everything was clear at every step.&rdquo;
+          </p>
+          <p className="text-white/60 text-sm mt-3">— Student, MBBS 2025 Batch</p>
+        </div>
       </div>
     </div>
   );
@@ -234,8 +211,8 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <p className="text-gray-600">Loading...</p>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="h-6 w-6 border-2 border-[#111] border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >
