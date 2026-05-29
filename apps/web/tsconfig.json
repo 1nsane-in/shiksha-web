@@ -21,7 +21,9 @@
     "paths": {
       "@/*": ["./*"],
       "@stores/*": ["./stores/*"],
-      "@providers/*": ["./lib/providers/*"]
+      "@providers/*": ["./lib/providers/*"],
+      "@repo/ui": ["./components/ui/index.ts"],
+      "@repo/shared-types": ["./types/shared.ts"]
     }
   },
   "include": [

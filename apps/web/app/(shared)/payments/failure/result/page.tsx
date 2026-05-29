@@ -1,10 +1,11 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@repo/ui";
-import { XCircle } from "lucide-react";
+import { XCircle, Loader2 } from "lucide-react";
 
-export default function PaymentFailurePage() {
+function PaymentFailureContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const error =
@@ -34,5 +35,13 @@ export default function PaymentFailurePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentFailurePage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-[70vh] items-center justify-center"><Loader2 className="size-12 animate-spin text-[#4B2D8E]" /></div>}>
+      <PaymentFailureContent />
+    </Suspense>
   );
 }

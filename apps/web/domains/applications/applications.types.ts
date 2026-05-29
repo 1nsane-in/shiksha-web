@@ -13,6 +13,12 @@ export interface ApplicationListItem {
     name: string;
     shortName: string | null;
     slug: string;
+    logo?: string;
+    type?: string;
+    establishedYear?: string;
+    country?: string;
+    city?: string;
+    website?: string;
   };
   student: {
     id: string;
@@ -58,6 +64,7 @@ export interface ApplicationDetail extends ApplicationListItem {
     }[];
   };
   timelineEvents: TimelineEvent[];
+  formData?: Record<string, unknown> | null;
   tickets: {
     id: string;
     subject: string;

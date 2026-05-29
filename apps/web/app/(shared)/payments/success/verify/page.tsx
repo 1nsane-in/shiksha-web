@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@repo/ui";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
@@ -8,7 +8,7 @@ import { verifyPayment } from "@/domains/payments/payments.api";
 
 type VerifyState = "loading" | "success" | "failed" | "error";
 
-export default function PaymentVerifyPage() {
+function PaymentVerifyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [state, setState] = useState<VerifyState>("loading");
@@ -141,5 +141,13 @@ export default function PaymentVerifyPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function PaymentVerifyPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-[70vh] items-center justify-center"><Loader2 className="size-12 animate-spin text-[#4B2D8E]" /></div>}>
+      <PaymentVerifyContent />
+    </Suspense>
   );
 }

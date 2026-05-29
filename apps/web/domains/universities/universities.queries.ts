@@ -37,6 +37,19 @@ export function useDeleteUniversity() {
   });
 }
 
+export function useCreateUniversity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      const { createUniversity } = await import("./universities.api");
+      return createUniversity(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+    },
+  });
+}
+
 export function useUpdateUniversityStatus() {
   const queryClient = useQueryClient();
   return useMutation({

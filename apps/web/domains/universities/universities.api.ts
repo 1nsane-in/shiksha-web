@@ -19,6 +19,10 @@ export function deleteUniversity(id: string) {
   return client.delete(`/admin/universities/${id}`);
 }
 
+export function createUniversity(data: Record<string, unknown>) {
+  return client.post("/admin/universities", data);
+}
+
 export function updateUniversityStatus(id: string, status: string) {
   return client.patch(`/admin/universities/${id}/status`, { status });
 }
