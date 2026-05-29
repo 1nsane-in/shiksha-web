@@ -1,23 +1,49 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@repo/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@repo/ui";
 import { Button } from "@repo/ui";
 import { Badge } from "@repo/ui";
 import { Skeleton } from "@repo/ui";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@repo/ui";
-import { usePaymentConfig, usePaymentHistory, useInitiatePayment, useVerifyPayment } from "@/domains/payments";
+import {
+  usePaymentConfig,
+  usePaymentHistory,
+  useInitiatePayment,
+  useVerifyPayment,
+} from "@/domains/payments";
 import { useAuth } from "@/hooks/useAuth";
-import { useStageInfo } from "@/domains/student";
+import { useStageInfo, useMyApplications } from "@/domains/student";
 import { toast } from "sonner";
 import {
-  CreditCard, AlertCircle, RefreshCw, Banknote, CheckCircle2,
-  XCircle, Clock, Ban, Inbox
+  CreditCard,
+  AlertCircle,
+  RefreshCw,
+  Banknote,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Ban,
+  Inbox,
 } from "lucide-react";
 
-const statusStyles: Record<string, "default" | "secondary" | "destructive" | "outline" | "ghost" | "link"> = {
+const statusStyles: Record<
+  string,
+  "default" | "secondary" | "destructive" | "outline" | "ghost" | "link"
+> = {
   PENDING: "secondary",
   SUCCESS: "default",
   FAILED: "destructive",
@@ -36,10 +62,12 @@ const statusIcons: Record<string, typeof Clock> = {
 function PayNowForm({
   stage,
   amount,
+  applicationId,
   onSuccess,
 }: {
   stage: number;
   amount: number;
+  applicationId: string;
   onSuccess: () => void;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -47,7 +75,9 @@ function PayNowForm({
   const initiatePayment = useInitiatePayment();
   const verifyPayment = useVerifyPayment();
   const { data: stageInfo } = useStageInfo();
-  const isPaid = stageInfo?.payments?.some((p) => p.stage === stage && p.status === "SUCCESS");
+  const isPaid = stageInfo?.payments?.some(
+    (p) => p.stage === stage && p.status === "SUCCESS",
+  );
   const isLocked = (stageInfo?.currentStage ?? 1) < stage;
 
   const handlePay = useCallback(async () => {
@@ -58,7 +88,7 @@ function PayNowForm({
 
     try {
       const hashData = await initiatePayment.mutateAsync({
-        applicationId: "",
+        applicationId,
         stage,
         firstName: user.name ?? "Student",
         email: user.email,
@@ -68,7 +98,7 @@ function PayNowForm({
       if (!formRef.current) return;
 
       const form = formRef.current;
-      form.action = hashData.surl;
+      form.action = hashData.payuBaseUrl;
       form.method = "POST";
 
       const fields: Record<string, string> = {
@@ -91,7 +121,9 @@ function PayNowForm({
       };
 
       Object.entries(fields).forEach(([name, value]) => {
-        let input = form.querySelector(`input[name="${name}"]`) as HTMLInputElement;
+        let input = form.querySelector(
+          `input[name="${name}"]`,
+        ) as HTMLInputElement;
         if (!input) {
           input = document.createElement("input");
           input.type = "hidden";
@@ -105,11 +137,14 @@ function PayNowForm({
     } catch {
       toast.error("Failed to initiate payment. Please try again.");
     }
-  }, [user, stage, initiatePayment]);
+  }, [user, stage, applicationId, initiatePayment]);
 
   if (isPaid) {
     return (
-      <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100 gap-1">
+      <Badge
+        variant="default"
+        className="bg-green-100 text-green-700 hover:bg-green-100 gap-1"
+      >
         <CheckCircle2 className="size-3" />
         Paid
       </Badge>
@@ -134,7 +169,9 @@ function PayNowForm({
         )}
       </Button>
       {isLocked && (
-        <p className="text-xs text-gray-400 mt-1">Complete previous stages first</p>
+        <p className="text-xs text-gray-400 mt-1">
+          Complete previous stages first
+        </p>
       )}
       <form ref={formRef} style={{ display: "none" }} />
     </>
@@ -142,18 +179,33 @@ function PayNowForm({
 }
 
 export default function PaymentsPage() {
-  const { data: config, isLoading: configLoading, isError: configError, refetch: refetchConfig } = usePaymentConfig();
+  const {
+    data: config,
+    isLoading: configLoading,
+    isError: configError,
+    refetch: refetchConfig,
+  } = usePaymentConfig();
   const { data: history, isLoading: historyLoading } = usePaymentHistory();
+  const { data: appsData } = useMyApplications();
 
+  const applicationId = appsData?.data?.[0]?.id ?? "";
   const allLoading = configLoading && historyLoading;
 
   if (configError) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#2D2154]">Failed to load payments</h2>
-        <p className="text-sm text-gray-500 mt-1 mb-6">Something went wrong. Please try again.</p>
-        <Button onClick={() => refetchConfig()} variant="outline" className="gap-2">
+        <h2 className="text-lg font-semibold text-[#2D2154]">
+          Failed to load payments
+        </h2>
+        <p className="text-sm text-gray-500 mt-1 mb-6">
+          Something went wrong. Please try again.
+        </p>
+        <Button
+          onClick={() => refetchConfig()}
+          variant="outline"
+          className="gap-2"
+        >
           <RefreshCw className="size-4" />
           Retry
         </Button>
@@ -165,7 +217,9 @@ export default function PaymentsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-[#2D2154]">Payments</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage your admission and exam fees</p>
+        <p className="text-sm text-gray-500 mt-1">
+          Manage your admission and exam fees
+        </p>
       </div>
 
       {/* Payment Config Cards */}
@@ -183,12 +237,23 @@ export default function PaymentsPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <CreditCard className="size-4 text-[#4B2D8E]" />
-                      <h3 className="font-semibold text-sm text-[#2D2154]">{item.label}</h3>
+                      <h3 className="font-semibold text-sm text-[#2D2154]">
+                        {item.label}
+                      </h3>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">{item.description}</p>
-                    <p className="text-lg font-bold text-[#4B2D8E] mt-2">₹{item.amount?.toLocaleString("en-IN")}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {item.description}
+                    </p>
+                    <p className="text-lg font-bold text-[#4B2D8E] mt-2">
+                      ₹{item.amount?.toLocaleString("en-IN")}
+                    </p>
                   </div>
-                  <PayNowForm stage={item.stage} amount={item.amount} onSuccess={() => refetchConfig()} />
+                  <PayNowForm
+                    stage={item.stage}
+                    amount={item.amount}
+                    applicationId={applicationId}
+                    onSuccess={() => refetchConfig()}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -196,7 +261,9 @@ export default function PaymentsPage() {
         ) : (
           <Card size="sm" className="md:col-span-2">
             <CardContent className="py-8 text-center">
-              <p className="text-sm text-gray-500">No payment stages configured</p>
+              <p className="text-sm text-gray-500">
+                No payment stages configured
+              </p>
             </CardContent>
           </Card>
         )}
@@ -217,8 +284,12 @@ export default function PaymentsPage() {
           ) : !history || history.length === 0 ? (
             <div className="flex flex-col items-center py-10 text-center">
               <Inbox className="size-12 text-gray-300 mb-3" />
-              <p className="text-sm font-medium text-gray-500">No payments yet</p>
-              <p className="text-xs text-gray-400 mt-1">Your payment history will appear here</p>
+              <p className="text-sm font-medium text-gray-500">
+                No payments yet
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Your payment history will appear here
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -237,12 +308,19 @@ export default function PaymentsPage() {
                     const StatusIcon = statusIcons[payment.status] ?? Clock;
                     return (
                       <TableRow key={payment.id}>
-                        <TableCell className="text-sm">Stage {payment.stage}</TableCell>
+                        <TableCell className="text-sm">
+                          Stage {payment.stage}
+                        </TableCell>
                         <TableCell className="font-medium">
                           ₹{payment.amount?.toLocaleString("en-IN")}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={statusStyles[payment.status] ?? "secondary"} className="gap-1 text-xs">
+                          <Badge
+                            variant={
+                              statusStyles[payment.status] ?? "secondary"
+                            }
+                            className="gap-1 text-xs"
+                          >
                             <StatusIcon className="size-3" />
                             {payment.status}
                           </Badge>
@@ -252,17 +330,23 @@ export default function PaymentsPage() {
                         </TableCell>
                         <TableCell className="text-sm text-gray-500">
                           {payment.paidAt
-                            ? new Date(payment.paidAt).toLocaleDateString("en-IN", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })
-                            : payment.createdAt
-                              ? new Date(payment.createdAt).toLocaleDateString("en-IN", {
+                            ? new Date(payment.paidAt).toLocaleDateString(
+                                "en-IN",
+                                {
                                   day: "numeric",
                                   month: "short",
                                   year: "numeric",
-                                })
+                                },
+                              )
+                            : payment.createdAt
+                              ? new Date(payment.createdAt).toLocaleDateString(
+                                  "en-IN",
+                                  {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  },
+                                )
                               : "—"}
                         </TableCell>
                       </TableRow>
@@ -277,4 +361,3 @@ export default function PaymentsPage() {
     </div>
   );
 }
-

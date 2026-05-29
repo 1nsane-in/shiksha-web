@@ -1679,6 +1679,10 @@ function ApplicationForm({
       "selectedProgram",
       "embassyLocation",
       "signature",
+      "birthCity",
+      "birthState",
+      "birthCountry",
+      "lang1Name",
     ];
     const newErrors: Record<string, string> = {};
     for (const field of required) {
@@ -1740,7 +1744,10 @@ function ApplicationForm({
       router.push("/student/dashboard");
     } catch (err) {
       setErrors({
-        _form: getApiErrorMessage(err) || "Submission failed. Try again.",
+        _form: getApiErrorMessage(
+          err,
+          "Something went wrong. Please check your details and try again.",
+        ),
       });
     }
   }
@@ -1862,13 +1869,14 @@ function ApplicationForm({
         <form onSubmit={handleSubmit} className="mt-4 space-y-4 text-left">
           {errors._form && (
             <div
-              className="rounded-lg px-4 py-3 text-sm text-red-700"
+              className="flex items-start gap-2 rounded-lg px-4 py-3 text-sm text-red-700"
               style={{
                 background: "rgba(239,68,68,0.08)",
                 border: "1px solid rgba(239,68,68,0.2)",
               }}
             >
-              {errors._form}
+              <X className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>{errors._form}</span>
             </div>
           )}
 
@@ -1917,13 +1925,18 @@ function ApplicationForm({
               onChange={handleChange}
               error={errors.dateOfBirth}
             />
-            <FormField
+            <SelectField
               label="Gender *"
               name="gender"
               value={formData.gender || ""}
               onChange={handleChange}
               error={errors.gender}
-              placeholder="Male / Female / Other"
+              options={[
+                { value: "", label: "Select gender" },
+                { value: "male", label: "Male" },
+                { value: "female", label: "Female" },
+                { value: "other", label: "Other" },
+              ]}
             />
           </div>
 
@@ -1936,24 +1949,34 @@ function ApplicationForm({
               error={errors.citizenship}
               placeholder="e.g. Indian"
             />
-            <FormField
+            <SelectField
               label="Marital Status *"
               name="maritalStatus"
               value={formData.maritalStatus || ""}
               onChange={handleChange}
               error={errors.maritalStatus}
-              placeholder="single / married"
+              options={[
+                { value: "", label: "Select status" },
+                { value: "single", label: "Single" },
+                { value: "married", label: "Married" },
+              ]}
             />
           </div>
 
           <div className="grid grid-cols-1 gap-3">
-            <FormField
+            <SelectField
               label="Selected Program *"
               name="selectedProgram"
               value={formData.selectedProgram || ""}
               onChange={handleChange}
               error={errors.selectedProgram}
-              placeholder="e.g. pre-medical / general-medicine / dentistry / post-graduate"
+              options={[
+                { value: "", label: "Select program" },
+                { value: "pre-medical", label: "Pre-Medical" },
+                { value: "general-medicine", label: "General Medicine" },
+                { value: "dentistry", label: "Dentistry" },
+                { value: "post-graduate", label: "Post Graduate" },
+              ]}
             />
             <FormField
               label="Embassy Location *"
@@ -1999,6 +2022,89 @@ function ApplicationForm({
               name="permanentCountry"
               value={formData.permanentCountry || ""}
               onChange={handleChange}
+            />
+          </div>
+
+          <p
+            className="text-xs font-medium uppercase tracking-wider pt-2"
+            style={{ color: theme.inkSubtle }}
+          >
+            Place of Birth *
+          </p>
+          <div className="grid grid-cols-1 gap-3">
+            <FormField
+              label="Birth City *"
+              name="birthCity"
+              value={formData.birthCity || ""}
+              onChange={handleChange}
+              error={errors.birthCity}
+              placeholder="e.g. Mumbai"
+            />
+            <FormField
+              label="Birth State *"
+              name="birthState"
+              value={formData.birthState || ""}
+              onChange={handleChange}
+              error={errors.birthState}
+              placeholder="e.g. Maharashtra"
+            />
+            <FormField
+              label="Birth Country *"
+              name="birthCountry"
+              value={formData.birthCountry || ""}
+              onChange={handleChange}
+              error={errors.birthCountry}
+              placeholder="e.g. India"
+            />
+          </div>
+
+          <p
+            className="text-xs font-medium uppercase tracking-wider pt-2"
+            style={{ color: theme.inkSubtle }}
+          >
+            Language Ability *
+          </p>
+          <div className="grid grid-cols-1 gap-3">
+            <FormField
+              label="Language Name *"
+              name="lang1Name"
+              value={formData.lang1Name || ""}
+              onChange={handleChange}
+              error={errors.lang1Name}
+              placeholder="e.g. English"
+            />
+            <SelectField
+              label="Speaking Level"
+              name="lang1Speaking"
+              value={formData.lang1Speaking || "moderate"}
+              onChange={handleChange}
+              options={[
+                { value: "high", label: "High" },
+                { value: "moderate", label: "Moderate" },
+                { value: "low", label: "Low" },
+              ]}
+            />
+            <SelectField
+              label="Reading Level"
+              name="lang1Reading"
+              value={formData.lang1Reading || "moderate"}
+              onChange={handleChange}
+              options={[
+                { value: "high", label: "High" },
+                { value: "moderate", label: "Moderate" },
+                { value: "low", label: "Low" },
+              ]}
+            />
+            <SelectField
+              label="Writing Level"
+              name="lang1Writing"
+              value={formData.lang1Writing || "moderate"}
+              onChange={handleChange}
+              options={[
+                { value: "high", label: "High" },
+                { value: "moderate", label: "Moderate" },
+                { value: "low", label: "Low" },
+              ]}
             />
           </div>
 

@@ -187,31 +187,24 @@ export default function ApplicationDetailPage({
 
       {/* Stage Action Card */}
       {currentAction && (
-        <Card className="mb-6 border-[#4B2D8E]/20 bg-[#4B2D8E]/5">
-          <CardContent className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-[#4B2D8E]/10 p-2">
-                <currentAction.icon className="size-5 text-[#4B2D8E]" />
-              </div>
-              <div>
-                <p className="font-medium text-[#2D2154]">
-                  {currentAction.label}
-                </p>
-                <p className="text-sm text-[#6B6B6B]">
-                  {currentAction.description}
-                </p>
-              </div>
+        <div className="mb-6 flex items-center justify-between rounded-xl border border-[#4B2D8E]/20 bg-[#4B2D8E]/5 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-[#4B2D8E]/10 p-2.5">
+              <currentAction.icon className="size-5 text-[#4B2D8E]" />
             </div>
-            <Button
-              size="sm"
-              onClick={() => router.push(currentAction.href)}
-              className="bg-[#4B2D8E] hover:bg-[#3D2475]"
-            >
-              Proceed
-              <ArrowRight className="size-4 ml-1" />
-            </Button>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="font-semibold text-[#2D2154]">{currentAction.label}</p>
+              <p className="text-sm text-[#6B6B6B]">{currentAction.description}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => router.push(currentAction.href)}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#4B2D8E] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#3D2475]"
+          >
+            Proceed
+            <ArrowRight className="size-4" />
+          </button>
+        </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -230,16 +223,9 @@ export default function ApplicationDetailPage({
                 <InfoField
                   label="Full Name"
                   value={
-                    formData
-                      ? [
-                          formData.firstName,
-                          formData.middleName,
-                          formData.lastName,
-                        ]
-                          .filter(Boolean)
-                          .join(" ")
-                      : `${app.firstName || ""} ${app.lastName || ""}`.trim() ||
-                        "N/A"
+                    [app.firstName, formData?.middleName, app.lastName]
+                      .filter(Boolean)
+                      .join(" ") || "N/A"
                   }
                 />
                 <InfoField
@@ -270,6 +256,26 @@ export default function ApplicationDetailPage({
                   label="Email"
                   value={formData?.email || app.email || "N/A"}
                 />
+                {formData?.placeOfBirth && (
+                  <InfoField
+                    label="Place of Birth"
+                    value={
+                      [
+                        formData.placeOfBirth.city,
+                        formData.placeOfBirth.state,
+                        formData.placeOfBirth.country,
+                      ]
+                        .filter(Boolean)
+                        .join(", ") || "N/A"
+                    }
+                  />
+                )}
+                {formData?.embassyLocation && (
+                  <InfoField
+                    label="Embassy Location"
+                    value={formData.embassyLocation}
+                  />
+                )}
               </div>
             </CardContent>
           </Card>
@@ -351,22 +357,33 @@ export default function ApplicationDetailPage({
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
-              <InfoField
-                label="Selected Program"
-                value={
-                  formData?.selectedProgram
-                    ? formatProgram(formData.selectedProgram)
-                    : app.selectedProgram || "N/A"
-                }
-              />
-              {formData?.postGraduateDetail && (
-                <div className="mt-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <InfoField
+                  label="Selected Program"
+                  value={
+                    formData?.selectedProgram
+                      ? formatProgram(formData.selectedProgram)
+                      : app.selectedProgram || "N/A"
+                  }
+                />
+                {formData?.postGraduateDetail && (
                   <InfoField
                     label="Post-Graduate Detail"
                     value={formData.postGraduateDetail}
                   />
-                </div>
-              )}
+                )}
+                {formData?.signature && (
+                  <InfoField label="Signature" value={formData.signature} />
+                )}
+                {formData?.signatureDate && (
+                  <InfoField
+                    label="Signature Date"
+                    value={new Date(
+                      formData.signatureDate,
+                    ).toLocaleDateString()}
+                  />
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -458,34 +475,21 @@ export default function ApplicationDetailPage({
 
           {/* Next Step Card (sidebar) */}
           {currentAction && (
-            <Card className="border-[#4B2D8E]/20">
-              <CardHeader>
-                <CardTitle className="text-base text-[#2D2154]">
-                  Next Step
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <currentAction.icon className="size-4 text-[#4B2D8E]" />
-                    <span className="font-medium text-sm">
-                      {currentAction.label}
-                    </span>
-                  </div>
-                  <p className="text-sm text-[#6B6B6B]">
-                    {currentAction.description}
-                  </p>
-                  <Button
-                    size="sm"
-                    className="w-full bg-[#4B2D8E] hover:bg-[#3D2475]"
-                    onClick={() => router.push(currentAction.href)}
-                  >
-                    Proceed
-                    <ArrowRight className="size-4 ml-1" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="rounded-xl border border-[#4B2D8E]/20 bg-white p-5">
+              <p className="mb-3 text-sm font-semibold text-[#2D2154]">Next Step</p>
+              <div className="flex items-center gap-2 mb-1">
+                <currentAction.icon className="size-4 text-[#4B2D8E]" />
+                <span className="text-sm font-medium text-[#2D2154]">{currentAction.label}</span>
+              </div>
+              <p className="mb-4 text-sm text-[#6B6B6B]">{currentAction.description}</p>
+              <button
+                onClick={() => router.push(currentAction.href)}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#4B2D8E] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#3D2475]"
+              >
+                Proceed
+                <ArrowRight className="size-4" />
+              </button>
+            </div>
           )}
         </div>
       </div>
