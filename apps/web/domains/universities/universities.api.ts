@@ -15,3 +15,11 @@ export function getUniversityCountries() {
   return client.get<{ countries: string[] }>("/universities/countries");
 }
 
+export function deleteUniversity(id: string) {
+  return client.delete(`/admin/universities/${id}`);
+}
+
+export function updateUniversityStatus(id: string, status: string) {
+  return client.patch(`/admin/universities/${id}/status`, { status });
+}
+

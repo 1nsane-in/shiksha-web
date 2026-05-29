@@ -24,6 +24,7 @@ export interface PayUHashResponse {
   udf3: string;
   udf4: string;
   udf5: string;
+  payuBaseUrl: string;
 }
 
 export interface VerifyPaymentDto {
@@ -46,6 +47,7 @@ export interface VerifyPaymentDto {
   payumoney_id?: string;
   card_type?: string;
   mode?: string;
+  additionalCharges?: string;
 }
 
 export interface PaymentHistoryItem {
@@ -55,7 +57,7 @@ export interface PaymentHistoryItem {
   stage: number;
   amount: number;
   currency: string;
-  status: 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED' | 'MANUALLY_APPROVED';
+  status: "PENDING" | "SUCCESS" | "FAILED" | "REFUNDED" | "MANUALLY_APPROVED";
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
   paymentMethod?: string;

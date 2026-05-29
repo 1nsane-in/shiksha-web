@@ -1,11 +1,24 @@
 import { client } from "@/shared/api/client";
 import type { PaymentResponse, ManualApprovePayload } from "./payments.types";
-import type { PaginatedResponse } from "../documents/documents.types";
 
 export function getPendingPayments(page = 1, limit = 20) {
-  return client.get<PaginatedResponse<PaymentResponse>>("/payments/admin/pending", {
-    params: { page, limit },
-  });
+  return client
+    .get<{
+      items: PaymentResponse[];
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }>("/payments/admin/pending", {
+      params: { page, limit },
+    })
+    .then((res) => ({
+      data: res.items,
+      total: res.total,
+      page: res.page,
+      limit: res.limit,
+      totalPages: res.totalPages,
+    }));
 }
 
 export function manualApprovePayment(data: ManualApprovePayload) {

@@ -45,7 +45,11 @@ type AuthStorage = {
 api.interceptors.response.use((response) => {
   if (response.data && typeof response.data === 'object' && 'ok' in response.data) {
     if (response.data.ok === true) {
-      response.data = response.data.data;
+      const { ok: _, ...rest } = response.data;
+      // If the payload has a nested `data` key AND nothing else meaningful, unwrap it.
+      // Otherwise keep the full body (e.g. paginated { data: [], meta: {} }).
+      const keys = Object.keys(rest);
+      response.data = keys.length === 1 && keys[0] === 'data' ? rest.data : rest;
     }
   }
   return response;

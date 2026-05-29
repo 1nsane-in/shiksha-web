@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
 import type { UniversityFilters } from "./universities.types";
 
@@ -23,3 +23,29 @@ export function useUniversity(identifier: string) {
   });
 }
 
+
+export function useDeleteUniversity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { deleteUniversity } = await import("./universities.api");
+      return deleteUniversity(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+    },
+  });
+}
+
+export function useUpdateUniversityStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { updateUniversityStatus } = await import("./universities.api");
+      return updateUniversityStatus(id, status);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+    },
+  });
+}
