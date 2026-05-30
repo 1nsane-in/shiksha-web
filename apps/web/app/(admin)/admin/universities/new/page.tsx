@@ -217,20 +217,38 @@ export default function NewUniversityPage() {
               />
             </div>
             <div>
-              <Label>Logo URL *</Label>
+              <Label>Logo *</Label>
               <Input
-                value={formData.logo}
-                onChange={(e) => updateRootField("logo", e.target.value)}
-                placeholder="https://cdn.example.com/logo.png"
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const { uploadFile } = await import("@/domains/documents/documents.api");
+                    const res = await uploadFile(file);
+                    updateRootField("logo", res.url);
+                  } catch { alert("Logo upload failed"); }
+                }}
               />
+              {formData.logo && <img src={formData.logo} alt="Logo" className="mt-2 h-16 w-16 rounded object-cover" />}
             </div>
             <div>
-              <Label>Banner Image URL *</Label>
+              <Label>Banner Image *</Label>
               <Input
-                value={formData.bannerImage}
-                onChange={(e) => updateRootField("bannerImage", e.target.value)}
-                placeholder="https://cdn.example.com/banner.jpg"
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const { uploadFile } = await import("@/domains/documents/documents.api");
+                    const res = await uploadFile(file);
+                    updateRootField("bannerImage", res.url);
+                  } catch { alert("Banner upload failed"); }
+                }}
               />
+              {formData.bannerImage && <img src={formData.bannerImage} alt="Banner" className="mt-2 h-24 w-full rounded object-cover" />}
             </div>
           </div>
         );
