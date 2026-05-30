@@ -218,10 +218,32 @@ export default function NewUniversityPage() {
             </div>
             <div>
               <Label>Logo *</Label>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={async (e) => {
+              <div
+                className="group relative mt-1.5 flex h-32 w-32 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#E5E0F6] bg-[#FDFCFF] transition-colors hover:border-[#4B2D8E] hover:bg-[#F8F5FF]"
+                onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("border-[#4B2D8E]", "bg-[#F8F5FF]"); }}
+                onDragLeave={(e) => { e.currentTarget.classList.remove("border-[#4B2D8E]", "bg-[#F8F5FF]"); }}
+                onDrop={async (e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove("border-[#4B2D8E]", "bg-[#F8F5FF]");
+                  const file = e.dataTransfer.files?.[0];
+                  if (!file || !file.type.startsWith("image/")) return;
+                  try {
+                    const { uploadFile } = await import("@/domains/documents/documents.api");
+                    const res = await uploadFile(file);
+                    updateRootField("logo", res.url);
+                  } catch { alert("Logo upload failed"); }
+                }}
+                onClick={() => document.getElementById("logo-upload")?.click()}
+              >
+                {formData.logo ? (
+                  <img src={formData.logo} alt="Logo" className="h-full w-full rounded-lg object-cover" />
+                ) : (
+                  <>
+                    <svg className="mb-1 h-6 w-6 text-[#9590B5] group-hover:text-[#4B2D8E]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" /></svg>
+                    <span className="text-xs text-[#9590B5] group-hover:text-[#4B2D8E]">Drop or click</span>
+                  </>
+                )}
+                <input id="logo-upload" type="file" accept="image/*" className="hidden" onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
                   try {
@@ -229,16 +251,38 @@ export default function NewUniversityPage() {
                     const res = await uploadFile(file);
                     updateRootField("logo", res.url);
                   } catch { alert("Logo upload failed"); }
-                }}
-              />
-              {formData.logo && <img src={formData.logo} alt="Logo" className="mt-2 h-16 w-16 rounded object-cover" />}
+                }} />
+              </div>
             </div>
             <div>
               <Label>Banner Image *</Label>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={async (e) => {
+              <div
+                className="group relative mt-1.5 flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#E5E0F6] bg-[#FDFCFF] transition-colors hover:border-[#4B2D8E] hover:bg-[#F8F5FF]"
+                onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("border-[#4B2D8E]", "bg-[#F8F5FF]"); }}
+                onDragLeave={(e) => { e.currentTarget.classList.remove("border-[#4B2D8E]", "bg-[#F8F5FF]"); }}
+                onDrop={async (e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove("border-[#4B2D8E]", "bg-[#F8F5FF]");
+                  const file = e.dataTransfer.files?.[0];
+                  if (!file || !file.type.startsWith("image/")) return;
+                  try {
+                    const { uploadFile } = await import("@/domains/documents/documents.api");
+                    const res = await uploadFile(file);
+                    updateRootField("bannerImage", res.url);
+                  } catch { alert("Banner upload failed"); }
+                }}
+                onClick={() => document.getElementById("banner-upload")?.click()}
+              >
+                {formData.bannerImage ? (
+                  <img src={formData.bannerImage} alt="Banner" className="h-full w-full rounded-lg object-cover" />
+                ) : (
+                  <>
+                    <svg className="mb-1 h-8 w-8 text-[#9590B5] group-hover:text-[#4B2D8E]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4-4a2 2 0 012.8 0L16 17m-2-2l1.6-1.6a2 2 0 012.8 0L20 15M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <span className="text-sm font-medium text-[#9590B5] group-hover:text-[#4B2D8E]">Drop banner image or click to upload</span>
+                    <span className="mt-0.5 text-xs text-[#B8B3D0]">Recommended: 1200×400px</span>
+                  </>
+                )}
+                <input id="banner-upload" type="file" accept="image/*" className="hidden" onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
                   try {
@@ -246,9 +290,8 @@ export default function NewUniversityPage() {
                     const res = await uploadFile(file);
                     updateRootField("bannerImage", res.url);
                   } catch { alert("Banner upload failed"); }
-                }}
-              />
-              {formData.bannerImage && <img src={formData.bannerImage} alt="Banner" className="mt-2 h-24 w-full rounded object-cover" />}
+                }} />
+              </div>
             </div>
           </div>
         );
