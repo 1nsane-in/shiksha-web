@@ -266,8 +266,8 @@ function ErrorState({
 /* ─── main component ─── */
 export function UniversityCards() {
   const router = useRouter();
-  const { data, isLoading, error, refetch } = useUniversities({ limit: 10 });
-  const universities = data?.length ? data : seedUniversities;
+  const { data: response, isLoading, error, refetch } = useUniversities({ limit: 10 });
+  const universities = response?.data?.length ? response.data : seedUniversities;
 
   if (isLoading) return <Skeleton />;
   if (error && !universities.length)
