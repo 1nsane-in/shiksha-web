@@ -145,8 +145,8 @@ model University {
   establishedYear Int
   type            UniversityType
   website         String
-  logo            String
-  bannerImage     String
+  logo            String?
+  bannerImage     String?
   brochureUrl     String?
   status          UniversityStatus          @default(DRAFT)
   createdAt       DateTime                  @default(now())

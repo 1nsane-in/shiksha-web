@@ -29,8 +29,8 @@ export class CreateUniversityDto {
   @IsNumber() @Min(1800) @Max(new Date().getFullYear()) establishedYear: number;
   @IsEnum(UniversityType) type: UniversityType;
   @IsUrl() website: string;
-  @IsUrl() logo: string;
-  @IsUrl() bannerImage: string;
+  @IsOptional() @IsUrl() logo?: string;
+  @IsOptional() @IsUrl() bannerImage?: string;
   @IsOptional() @IsUrl()
   brochureUrl?: string;
 
