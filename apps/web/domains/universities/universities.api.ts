@@ -7,8 +7,18 @@ export function getUniversities(filters: UniversityFilters = {}) {
   });
 }
 
+export function getAdminUniversities(filters: UniversityFilters = {}) {
+  return client.get<PaginatedResponse<UniversityListItem>>("/admin/universities", {
+    params: filters,
+  });
+}
+
 export function getUniversity(identifier: string) {
   return client.get<UniversityDetail>(`/universities/${identifier}`);
+}
+
+export function getAdminUniversity(identifier: string) {
+  return client.get<UniversityDetail>(`/admin/universities/${identifier}`);
 }
 
 export function getUniversityCountries() {

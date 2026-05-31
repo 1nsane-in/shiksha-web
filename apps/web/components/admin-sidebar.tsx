@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
+import { useSidebarStore } from "@/stores/sidebar-store";
 import {
   LayoutDashboard,
   FileText,
@@ -32,6 +33,7 @@ const nav = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
+  const { open, close } = useSidebarStore();
 
   const initials = user?.name
     ?.split(" ")
@@ -41,7 +43,20 @@ export function AdminSidebar() {
     .toUpperCase() || "AD";
 
   return (
-    <aside className="flex h-screen w-56 shrink-0 flex-col border-r border-[#ECEAE6] bg-[#FAFAF8]">
+    <>
+      {/* Mobile backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          onClick={close}
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-56 shrink-0 flex-col border-r border-[#ECEAE6] bg-[#FAFAF8] transition-transform duration-200 md:static md:translate-x-0 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
       {/* Logo */}
       <div className="flex h-14 items-center gap-2.5 border-b border-[#ECEAE6] px-4">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#3730A3]">
@@ -60,6 +75,7 @@ export function AdminSidebar() {
               <li key={href}>
                 <Link
                   href={href}
+                  onClick={close}
                   className={`group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
                     active
                       ? "bg-[#3730A3] text-white"
@@ -96,5 +112,6 @@ export function AdminSidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }

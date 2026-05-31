@@ -50,6 +50,7 @@ export interface UploadDocumentPayload {
 
 export interface UploadResponse {
   url: string;
+  key: string;
   fileName: string;
   fileSize: number;
   mimeType: string;

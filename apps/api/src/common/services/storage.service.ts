@@ -4,6 +4,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { randomUUID } from 'crypto';
@@ -31,6 +32,7 @@ export class StorageService {
 
   async upload(
     file: Express.Multer.File,
+    folder = 'uploads',
   ): Promise<{
     url: string;
     key: string;
@@ -39,7 +41,7 @@ export class StorageService {
     mimeType: string;
   }> {
     const ext = extname(file.originalname);
-    const key = `uploads/${randomUUID()}${ext}`;
+    const key = `${folder}/${randomUUID()}${ext}`;
 
     await this.s3.send(
       new PutObjectCommand({
@@ -69,5 +71,14 @@ export class StorageService {
       Key: key,
     });
     return getSignedUrl(this.s3, command, { expiresIn });
+  }
+
+  async delete(key: string): Promise<void> {
+    await this.s3.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      }),
+    );
   }
 }

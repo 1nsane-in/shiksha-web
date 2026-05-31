@@ -10,6 +10,7 @@ const roleDefaults: Record<string, string> = {
   parents: "/parents/dashboard",
 };
 
+
 function decodeToken(token: string): { role?: string } | null {
   try {
     const payload = token.split(".")[1];

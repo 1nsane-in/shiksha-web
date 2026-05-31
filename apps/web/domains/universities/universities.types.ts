@@ -129,6 +129,7 @@ export interface UniversityFilters {
   limit?: number;
   country?: string;
   type?: string;
+  status?: string;
   search?: string;
 }
 

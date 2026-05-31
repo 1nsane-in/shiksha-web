@@ -1,6 +1,8 @@
 import {
   Controller,
   Post,
+  Delete,
+  Query,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
@@ -46,10 +48,22 @@ export class UploadController {
       },
     }),
   )
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Query('folder') folder?: string) {
     if (!file) {
       throw new BadRequestException('No file provided');
     }
-    return this.storage.upload(file);
+    const allowed = ['logos', 'banners', 'brochures', 'documents', 'gallery', 'avatars', 'uploads'];
+    const target = allowed.includes(folder || '') ? folder! : 'uploads';
+    return this.storage.upload(file, target);
+  }
+
+  @Delete()
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  async deleteFile(@Query('key') key: string) {
+    if (!key) {
+      throw new BadRequestException('No key provided');
+    }
+    await this.storage.delete(key);
+    return { success: true };
   }
 }

@@ -5,6 +5,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../common/services/storage.service';
 import {
   CreateUniversityDto,
   UpdateUniversityDto,
@@ -45,6 +46,7 @@ export class UniversitiesService {
   constructor(
     private prisma: PrismaService,
     private paginator: PaginatorService,
+    private storage: StorageService,
   ) {}
 
   private generateSlug(name: string): string {
@@ -76,7 +78,7 @@ export class UniversitiesService {
       .where('status', query.status)
       .whereNested('location', 'country', query.country)
       .where('type', query.type)
-      .search(query.search, ['name', 'shortName'])
+      .search(query.search, ['name', 'shortName', 'slug'])
       .build();
 
     const [universities, total] = await Promise.all([
@@ -138,7 +140,7 @@ export class UniversitiesService {
       .where('status', query.status)
       .whereNested('location', 'country', query.country)
       .where('type', query.type)
-      .search(query.search, ['name', 'shortName'])
+      .search(query.search, ['name', 'shortName', 'slug'])
       .build();
 
     const [universities, total] = await Promise.all([
@@ -575,6 +577,21 @@ export class UniversitiesService {
     });
 
     return locations.map((l) => l.country);
+  }
+
+  async getSignedBrochureUrl(identifier: string) {
+    const university = await this.prisma.university.findFirst({
+      where: { OR: [{ id: identifier }, { slug: identifier }] },
+      select: { brochureUrl: true },
+    });
+    if (!university?.brochureUrl) {
+      throw new NotFoundException('Brochure not found');
+    }
+    // Extract key from the public URL (e.g. "https://pub-xxx.r2.dev/brochures/uuid.pdf" → "brochures/uuid.pdf")
+    const url = new URL(university.brochureUrl);
+    const key = url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname;
+    const signedUrl = await this.storage.getSignedUrl(key, 900); // 15 min
+    return { url: signedUrl, expiresIn: 900 };
   }
 
   async getStatistics() {

@@ -4,7 +4,6 @@ import {
   IsEnum,
   IsOptional,
   IsUrl,
-  Matches,
   Min,
   Max,
   ValidateNested,
@@ -32,7 +31,7 @@ export class CreateUniversityDto {
   @IsUrl() website: string;
   @IsUrl() logo: string;
   @IsUrl() bannerImage: string;
-  @IsOptional() @IsUrl() @Matches(/\.pdf$/i, { message: "brochureUrl must point to a PDF file" })
+  @IsOptional() @IsUrl()
   brochureUrl?: string;
 
   @ValidateNested() @Type(() => UniversityLocationDto) location: UniversityLocationDto;

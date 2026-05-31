@@ -1,7 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, Menu } from "lucide-react";
+import { useSidebarStore } from "@/stores/sidebar-store";
 
 const pageTitles: Record<string, string> = {
   "/admin/dashboard": "Dashboard",
@@ -17,11 +18,21 @@ const pageTitles: Record<string, string> = {
 
 export function AdminHeader() {
   const pathname = usePathname();
+  const toggle = useSidebarStore((s) => s.toggle);
   const title = Object.entries(pageTitles).find(([key]) => pathname === key || pathname.startsWith(key + "/"))?.[1] || "Admin";
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b border-[#ECEAE6] bg-white px-6">
-      <h1 className="text-sm font-semibold text-[#111] tracking-tight">{title}</h1>
+    <header className="flex h-14 shrink-0 items-center justify-between border-b border-[#ECEAE6] bg-white px-4 sm:px-6">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={toggle}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#6B6B6B] transition-colors hover:bg-[#F5F4F2] hover:text-[#111] md:hidden"
+          aria-label="Toggle menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <h1 className="text-sm font-semibold text-[#111] tracking-tight">{title}</h1>
+      </div>
       <div className="flex items-center gap-1">
         <button className="flex h-8 w-8 items-center justify-center rounded-lg text-[#9CA3AF] transition-colors hover:bg-[#F5F4F2] hover:text-[#111]">
           <Search className="h-4 w-4" />

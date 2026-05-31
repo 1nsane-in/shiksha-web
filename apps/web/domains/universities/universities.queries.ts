@@ -12,12 +12,33 @@ export function useUniversities(filters: UniversityFilters = {}) {
   });
 }
 
+export function useAdminUniversities(filters: UniversityFilters = {}) {
+  return useQuery({
+    queryKey: ["admin", ...queryKeys.universities.list(filters as Record<string, unknown>)],
+    queryFn: async () => {
+      const { getAdminUniversities } = await import("./universities.api");
+      return getAdminUniversities(filters);
+    },
+  });
+}
+
 export function useUniversity(identifier: string) {
   return useQuery({
     queryKey: queryKeys.universities.detail(identifier),
     queryFn: async () => {
       const { getUniversity } = await import("./universities.api");
       return getUniversity(identifier);
+    },
+    enabled: !!identifier,
+  });
+}
+
+export function useAdminUniversity(identifier: string) {
+  return useQuery({
+    queryKey: ["admin", ...queryKeys.universities.detail(identifier)],
+    queryFn: async () => {
+      const { getAdminUniversity } = await import("./universities.api");
+      return getAdminUniversity(identifier);
     },
     enabled: !!identifier,
   });
@@ -33,6 +54,7 @@ export function useDeleteUniversity() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
   });
 }
@@ -46,6 +68,7 @@ export function useCreateUniversity() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
   });
 }
@@ -59,6 +82,7 @@ export function useUpdateUniversityStatus() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
   });
 }

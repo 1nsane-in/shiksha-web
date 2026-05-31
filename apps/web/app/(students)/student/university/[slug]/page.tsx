@@ -60,8 +60,6 @@ function typeBadgeStyle(type: string) {
   const map: Record<string, { label: string; cls: string }> = {
     GOVERNMENT: { label: "Government", cls: "bg-emerald-50 text-emerald-700" },
     PRIVATE: { label: "Private", cls: "bg-violet-50 text-violet-700" },
-    DEEMED: { label: "Deemed", cls: "bg-amber-50 text-amber-700" },
-    AUTONOMOUS: { label: "Autonomous", cls: "bg-blue-50 text-blue-700" },
   };
   return map[type] ?? { label: type, cls: "bg-gray-50 text-gray-600" };
 }
@@ -1141,10 +1139,14 @@ function UniversityContent({
                 className="mt-4 pt-4"
                 style={{ borderTop: "1px solid " + theme.hairline }}
               >
-                <a
-                  href={uni.brochureUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={async () => {
+                    try {
+                      const { client } = await import("@/shared/api/client");
+                      const res = await client.get<{ url: string }>(`/universities/${uni.slug || uni.id}/brochure`);
+                      window.open(res.url, "_blank");
+                    } catch { alert("Unable to download brochure"); }
+                  }}
                   className="group flex w-full items-center justify-center gap-2.5 rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.97]"
                   style={{
                     background: theme.gold,
@@ -1154,7 +1156,7 @@ function UniversityContent({
                 >
                   <FileDown className="size-4 transition-transform duration-200 group-hover:-translate-y-0.5" />
                   Download Brochure (PDF)
-                </a>
+                </button>
               </div>
             )}
           </div>

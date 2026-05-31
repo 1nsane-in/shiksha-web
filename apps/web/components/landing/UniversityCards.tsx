@@ -122,14 +122,6 @@ function universityTypeBadge(type: string) {
       label: "Private",
       style: "bg-violet-50 text-violet-700 ring-violet-200",
     },
-    DEEMED: {
-      label: "Deemed",
-      style: "bg-amber-50 text-amber-700 ring-amber-200",
-    },
-    AUTONOMOUS: {
-      label: "Autonomous",
-      style: "bg-blue-50 text-blue-700 ring-blue-200",
-    },
   };
   return (
     map[type] ?? {

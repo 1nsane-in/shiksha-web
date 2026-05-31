@@ -12,14 +12,6 @@ import {
   TableRow,
 } from "@repo/ui";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@repo/ui";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -30,18 +22,9 @@ import { Badge } from "@repo/ui";
 import {
   Plus,
   Search,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Eye,
-  CheckCircle,
-  XCircle,
-  Clock,
-  FileText,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useUniversities, useDeleteUniversity, useUpdateUniversityStatus } from "@/domains/universities";
+import { useAdminUniversities, useUpdateUniversityStatus } from "@/domains/universities";
 
 interface University {
   id: string;
@@ -62,6 +45,11 @@ interface University {
   createdAt: string;
 }
 
+const typeColors: Record<string, string> = {
+  GOVERNMENT: "bg-blue-50 text-blue-700 border-blue-200",
+  PRIVATE: "bg-purple-50 text-purple-700 border-purple-200",
+};
+
 const statusColors = {
   DRAFT: "bg-gray-500",
   UNDER_REVIEW: "bg-yellow-500",
@@ -79,64 +67,52 @@ export default function UniversitiesPage() {
 
   const filters = {
     page,
-    limit: 10,
-    ...(search && { search }),
+    limit: 50,
     ...(statusFilter !== "all" && { status: statusFilter }),
     ...(typeFilter !== "all" && { type: typeFilter }),
   };
 
-  const { data: universitiesData, isLoading } = useUniversities(filters);
-  const universities = universitiesData?.data ?? [];
-  const totalPages = universitiesData?.totalPages ?? 1;
-
-  const deleteMutation = useDeleteUniversity();
-  const statusMutation = useUpdateUniversityStatus();
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this university?")) return;
-    try {
-      await deleteMutation.mutateAsync(id);
-    } catch (error) {
-      console.error("Failed to delete university:", error);
-    }
-  };
-
-  const handleStatusChange = async (id: string, status: string) => {
-    try {
-      await statusMutation.mutateAsync({ id, status });
-    } catch (error) {
-      console.error("Failed to update status:", error);
-    }
-  };
+  const { data: universitiesData, isLoading } = useAdminUniversities(filters);
+  const updateStatus = useUpdateUniversityStatus();
+  const allUniversities = universitiesData?.data ?? [];
+  const universities = search.trim()
+    ? allUniversities.filter((uni) => {
+        const q = search.trim().toLowerCase();
+        return uni.name.toLowerCase().includes(q) || uni.shortName.toLowerCase().includes(q);
+      })
+    : allUniversities;
+  const totalPages = universitiesData?.meta?.totalPages ?? 1;
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-1 flex-col gap-4">
+      {/* Header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#2D2154]">Universities</h1>
-          <p className="text-sm text-[#6B6B6B]">
+          <h1 className="text-xl font-bold text-[#2D2154] sm:text-2xl">Universities</h1>
+          <p className="text-xs text-[#6B6B6B] sm:text-sm">
             Manage university onboarding and information
           </p>
         </div>
-        <Button onClick={() => router.push("/admin/universities/new")}>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button onClick={() => router.push("/admin/universities/new")} size="sm" className="w-fit">
+          <Plus className="mr-1.5 h-4 w-4" />
           Add University
         </Button>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="relative flex-1 max-w-sm">
+      {/* Filters */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1 sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B6B6B]" />
           <Input
             placeholder="Search universities..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="pl-10"
           />
         </div>
         <div className="flex gap-2">
           <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? "all")}>
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-full sm:w-[140px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -149,50 +125,87 @@ export default function UniversitiesPage() {
             </SelectContent>
           </Select>
           <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value ?? "all")}>
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-full sm:w-[140px]">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="GOVERNMENT">Government</SelectItem>
               <SelectItem value="PRIVATE">Private</SelectItem>
-              <SelectItem value="DEEMED">Deemed</SelectItem>
-              <SelectItem value="AUTONOMOUS">Autonomous</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      <div className="rounded-lg border bg-white">
+      {/* Mobile card list */}
+      <div className="flex flex-col gap-2.5 md:hidden">
+        {isLoading ? (
+          <div className="py-8 text-center text-sm text-[#6B6B6B]">Loading...</div>
+        ) : universities.length === 0 ? (
+          <div className="py-8 text-center text-sm text-[#6B6B6B]">No universities found</div>
+        ) : (
+          universities.map((uni) => (
+            <div
+              key={uni.id}
+              className="cursor-pointer rounded-lg border border-[#ECEAE6] bg-white p-3.5 transition-colors active:bg-[#F5F4F2] sm:p-4"
+              onClick={() => router.push(`/admin/universities/${uni.id}`)}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-[#2D2154]">{uni.name}</p>
+                  <p className="text-xs text-[#6B6B6B]">{uni.shortName}</p>
+                </div>
+                <Badge
+                  className={`shrink-0 text-[10px] ${
+                    statusColors[uni.status as keyof typeof statusColors]
+                  } text-white`}
+                >
+                  {uni.status.replace("_", " ")}
+                </Badge>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#6B6B6B]">
+                <span>{uni.type}</span>
+                {uni.location && <span>{uni.location.city}, {uni.location.country}</span>}
+                <span>Est. {uni.establishedYear}</span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden overflow-hidden rounded-lg border border-[#ECEAE6] bg-white md:block">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>University</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Courses</TableHead>
-              <TableHead>Applications</TableHead>
-              <TableHead>Established</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="bg-[#FAFAF8]">
+              <TableHead className="text-xs font-medium text-[#6B6B6B]">University</TableHead>
+              <TableHead className="text-xs font-medium text-[#6B6B6B]">Type</TableHead>
+              <TableHead className="text-xs font-medium text-[#6B6B6B]">Location</TableHead>
+              <TableHead className="text-xs font-medium text-[#6B6B6B]">Status</TableHead>
+              <TableHead className="text-xs font-medium text-[#6B6B6B]">Est.</TableHead>
+              <TableHead className="text-xs font-medium text-[#6B6B6B] text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8 text-sm text-[#6B6B6B]">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : universities.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8 text-sm text-[#6B6B6B]">
                   No universities found
                 </TableCell>
               </TableRow>
             ) : (
               universities.map((uni) => (
-                <TableRow key={uni.id}>
+                <TableRow
+                  key={uni.id}
+                  className="cursor-pointer transition-colors hover:bg-[#F9F8F6]"
+                  onClick={() => router.push(`/admin/universities/${uni.id}`)}
+                >
                   <TableCell>
                     <div>
                       <div className="font-medium text-[#2D2154]">
@@ -204,7 +217,7 @@ export default function UniversitiesPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{uni.type}</Badge>
+                    <Badge className={`border ${typeColors[uni.type] || "bg-gray-50 text-gray-700 border-gray-200"}`}>{uni.type}</Badge>
                   </TableCell>
                   <TableCell>
                     {uni.location ? (
@@ -215,7 +228,7 @@ export default function UniversitiesPage() {
                         </div>
                       </div>
                     ) : (
-                      "-"
+                      "—"
                     )}
                   </TableCell>
                   <TableCell>
@@ -227,67 +240,20 @@ export default function UniversitiesPage() {
                       {uni.status.replace("_", " ")}
                     </Badge>
                   </TableCell>
-                  <TableCell>{uni._count?.courses || 0}</TableCell>
-                  <TableCell>{uni._count?.applications || 0}</TableCell>
                   <TableCell>{uni.establishedYear}</TableCell>
                   <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() =>
-                            router.push(`/admin/universities/${uni.id}`)
-                          }
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            router.push(`/admin/universities/${uni.id}/edit`)
-                          }
-                        >
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            router.push(`/admin/universities/${uni.id}/documents`)
-                          }
-                        >
-                          <FileText className="mr-2 h-4 w-4" />
-                          Documents
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        {uni.status !== "ACTIVE" && (
-                          <DropdownMenuItem
-                            onClick={() => handleStatusChange(uni.id, "ACTIVE")}
-                          >
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            Activate
-                          </DropdownMenuItem>
-                        )}
-                        {uni.status === "ACTIVE" && (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleStatusChange(uni.id, "SUSPENDED")
-                            }
-                          >
-                            <Clock className="mr-2 h-4 w-4" />
-                            Suspend
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(uni.id)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button
+                      variant={uni.status === "ACTIVE" ? "outline" : "default"}
+                      size="sm"
+                      className={uni.status === "ACTIVE" ? "text-amber-700 border-amber-300 hover:bg-amber-50" : "bg-emerald-600 hover:bg-emerald-700 text-white"}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateStatus.mutate({ id: uni.id, status: uni.status === "ACTIVE" ? "INACTIVE" : "ACTIVE" });
+                      }}
+                      disabled={updateStatus.isPending}
+                    >
+                      {uni.status === "ACTIVE" ? "Deactivate" : "Activate"}
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -296,14 +262,16 @@ export default function UniversitiesPage() {
         </Table>
       </div>
 
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-[#6B6B6B]">
+          <p className="text-xs text-[#6B6B6B] sm:text-sm">
             Page {page} of {totalPages}
           </p>
           <div className="flex gap-2">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => setPage(page - 1)}
               disabled={page === 1}
             >
@@ -311,6 +279,7 @@ export default function UniversitiesPage() {
             </Button>
             <Button
               variant="outline"
+              size="sm"
               onClick={() => setPage(page + 1)}
               disabled={page === totalPages}
             >

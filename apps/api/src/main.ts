@@ -48,6 +48,8 @@ async function bootstrap() {
     next();
   });
 
+  app.set('etag', false);
+
   app.enableCors({
     origin: configService.get<string>('FRONTEND_URL')?.split(',') || [
       'http://localhost:3000',

@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Patch,
+  NotFoundException,
 } from '@nestjs/common';
 import { UniversitiesService } from './universities.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -236,6 +237,15 @@ export class UniversitiesController {
     return this.universitiesService.getCountries();
   }
 
+  @Get(':identifier/brochure')
+  @ApiOperation({ summary: 'Get signed brochure download URL (Authenticated)' })
+  @ApiParam({ name: 'identifier', description: 'University ID or slug' })
+  @ApiResponse({ status: 200, description: 'Signed brochure URL' })
+  @ApiResponse({ status: 404, description: 'University or brochure not found' })
+  async getBrochureUrl(@Param('identifier') identifier: string) {
+    return this.universitiesService.getSignedBrochureUrl(identifier);
+  }
+
   @Public()
   @Get(':identifier')
   @ApiOperation({ summary: 'Get university details by ID or slug (Public)' })
@@ -245,7 +255,7 @@ export class UniversitiesController {
   async findOne(@Param('identifier') identifier: string) {
     const university = await this.universitiesService.findOne(identifier);
     if (university.status !== UniversityStatus.ACTIVE) {
-      throw new Error('University not available');
+      throw new NotFoundException('University not found');
     }
     return university;
   }

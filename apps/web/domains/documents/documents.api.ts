@@ -24,12 +24,17 @@ export function getDocumentTypes() {
 
 /* ---- File Upload ---- */
 
-export function uploadFile(file: File) {
+export function uploadFile(file: File, folder?: string) {
   const formData = new FormData();
   formData.append("file", file);
-  return client.post<UploadResponse>("/upload", formData, {
+  const params = folder ? `?folder=${folder}` : '';
+  return client.post<UploadResponse>(`/upload${params}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+}
+
+export function deleteFile(key: string) {
+  return client.delete(`/upload?key=${encodeURIComponent(key)}`);
 }
 
 /* ---- Admin Endpoints ---- */

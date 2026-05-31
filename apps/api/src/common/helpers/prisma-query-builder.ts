@@ -38,8 +38,9 @@ export class PrismaQueryBuilder {
 
     for (const condition of this.conditions) {
       if (condition.nestedPath) {
+        const existing = (where[condition.nestedPath] as PrismaQuery) || {};
         where[condition.nestedPath] = {
-          ...(where[condition.nestedPath] as PrismaQuery || {}),
+          ...existing,
           [condition.field]: condition.value,
         };
       } else if (condition.operator === 'contains') {
