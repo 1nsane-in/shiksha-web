@@ -76,6 +76,10 @@ export default function ContactUsPage() {
       toast.error("Please enter your Email Id");
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      toast.error("Please enter a valid Email Id");
+      return;
+    }
     if (!form.phone.trim()) {
       toast.error("Please enter your Mobile No.");
       return;
@@ -372,8 +376,8 @@ export default function ContactUsPage() {
                   <div className="pt-2">
                     <button
                       type="submit"
-                      disabled={createMutation.isPending}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+                      disabled={!form.name.trim() || !form.email.trim() || !form.phone.trim() || !form.country.trim() || createMutation.isPending}
+                      className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                       style={{ background: theme.ink }}
                     >
                       {createMutation.isPending ? (
