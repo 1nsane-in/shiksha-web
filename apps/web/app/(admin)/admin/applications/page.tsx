@@ -148,65 +148,65 @@ export default function AdminApplicationsPage() {
           <Card className="border" style={{ borderColor: theme.hairline }}>
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader>
-                  <TableRow className="border-b" style={{ borderColor: theme.hairline }}>
-                    <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider py-4 px-6">Student</TableHead>
-                    <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider py-4 px-6">University & Program</TableHead>
-                    <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider py-4 px-6">Submitted Date</TableHead>
-                    <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider text-center py-4 px-6">Status</TableHead>
-                    <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider text-right py-4 px-6">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.data.map((app) => {
-                    const status = statusConfig[app.status] || statusConfig.pending;
-                    const StatusIcon = status.icon;
-                    return (
-                      <TableRow
-                        key={app.id}
-                        className="hover:bg-gray-50/50 transition-colors border-b cursor-pointer"
-                        style={{ borderColor: theme.hairline }}
-                        onClick={() => router.push(`/admin/applications/${app.id}`)}
-                      >
-                        {/* Student Info */}
-                        <TableCell className="py-4 px-6">
-                          <div>
-                            <p className="font-bold text-sm text-[#1A153A]">
-                              {app.firstName} {app.lastName}
-                            </p>
-                            <p className="text-xs text-gray-400 font-mono mt-0.5">{app.email}</p>
-                          </div>
-                        </TableCell>
+              <TableHeader>
+                <TableRow className="border-b" style={{ borderColor: theme.hairline }}>
+                  <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider py-3 px-4">Student</TableHead>
+                  <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider py-3 px-4">University & Program</TableHead>
+                  <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider py-3 px-4">Submitted Date</TableHead>
+                  <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider text-center py-3 px-4">Status</TableHead>
+                  <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider text-right py-3 px-4">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.data.map((app) => {
+                  const status = statusConfig[app.status] || statusConfig.pending;
+                  const StatusIcon = status.icon;
+                  return (
+                    <TableRow
+                      key={app.id}
+                      className="hover:bg-gray-50/50 transition-colors border-b cursor-pointer"
+                      style={{ borderColor: theme.hairline }}
+                      onClick={() => router.push(`/admin/applications/${app.id}`)}
+                    >
+                      {/* Student Info */}
+                      <TableCell className="py-3 px-4">
+                        <div>
+                          <p className="font-bold text-sm text-[#1A153A]">
+                            {app.firstName} {app.lastName}
+                          </p>
+                          <p className="text-xs text-gray-400 font-mono mt-0.5">{app.email}</p>
+                        </div>
+                      </TableCell>
 
-                        {/* University and Program */}
-                        <TableCell className="py-4 px-6">
-                          <div className="space-y-1">
-                            <p className="font-semibold text-sm text-[#1A153A] leading-tight">
-                              {app.university?.name || "Unknown University"}
-                            </p>
-                            <span className="inline-block font-bold text-gray-500 bg-gray-50 border rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wider">
-                              {app.selectedProgram || "Unknown program"}
-                            </span>
-                          </div>
-                        </TableCell>
-
-                        {/* Submitted Date */}
-                        <TableCell className="py-4 px-6 text-xs text-gray-400 font-semibold uppercase">
-                          {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : "Pending"}
-                        </TableCell>
-
-                        {/* Status */}
-                        <TableCell className="py-4 px-6 text-center">
-                          <span
-                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold ${status.bg} ${status.border} ${status.text}`}
-                          >
-                            <StatusIcon className="size-3.5" />
-                            {status.label}
+                      {/* University and Program */}
+                      <TableCell className="py-3 px-4">
+                        <div className="space-y-1">
+                          <p className="font-semibold text-sm text-[#1A153A] leading-tight">
+                            {app.university?.name || "Unknown University"}
+                          </p>
+                          <span className="inline-block font-bold text-gray-500 bg-gray-50 border rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wider">
+                            {app.selectedProgram || "Unknown program"}
                           </span>
-                        </TableCell>
+                        </div>
+                      </TableCell>
 
-                        {/* Actions */}
-                        <TableCell className="py-4 px-6 text-right" onClick={(e) => e.stopPropagation()}>
+                      {/* Submitted Date */}
+                      <TableCell className="py-3 px-4 text-xs text-gray-400 font-semibold uppercase">
+                        {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : "Pending"}
+                      </TableCell>
+
+                      {/* Status */}
+                      <TableCell className="py-3 px-4 text-center">
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold ${status.bg} ${status.border} ${status.text}`}
+                        >
+                          <StatusIcon className="size-3.5" />
+                          {status.label}
+                        </span>
+                      </TableCell>
+
+                      {/* Actions */}
+                      <TableCell className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-2">
                             {app.status === "pending" ? (
                               <>
