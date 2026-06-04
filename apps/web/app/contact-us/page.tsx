@@ -5,7 +5,8 @@ import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 import { useCreateConsultation } from "@/domains/consultations";
 import { toast } from "sonner";
-import { Phone, Mail, MapPin, Clock, Send, ShieldCheck, HelpCircle, Loader2 } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Send, ShieldCheck, Loader2 } from "lucide-react";
+import { Country, State } from "country-state-city";
 
 const theme = {
   ink: "#1A153A",
@@ -28,9 +29,40 @@ export default function ContactUsPage() {
     country: "",
   });
 
+  const [selectedCountryIso, setSelectedCountryIso] = useState("");
+  const [selectedCountryPhoneCode, setSelectedCountryPhoneCode] = useState("");
+
+  const countries = Country.getAllCountries();
+  const states = selectedCountryIso ? State.getStatesOfCountry(selectedCountryIso) : [];
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const isoCode = e.target.value;
+    const countryObj = countries.find((c) => c.isoCode === isoCode);
+    
+    setSelectedCountryIso(isoCode);
+    setSelectedCountryPhoneCode(countryObj ? `+${countryObj.phonecode.replace("+", "")}` : "");
+    setForm((prev) => ({
+      ...prev,
+      country: countryObj ? countryObj.name : "",
+      state: "", // reset state when country changes
+    }));
+  };
+
+  const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setForm((prev) => ({ ...prev, state: e.target.value }));
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, ""); // strip non-digits
+    if (selectedCountryIso) {
+      value = value.slice(0, 10); // limit to 10 digits
+    }
+    setForm((prev) => ({ ...prev, phone: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,11 +80,19 @@ export default function ContactUsPage() {
       toast.error("Please enter your Mobile No.");
       return;
     }
+    if (selectedCountryIso && form.phone.trim().length !== 10) {
+      toast.error("Please enter a valid 10-digit Mobile No.");
+      return;
+    }
+
+    const fullPhone = selectedCountryPhoneCode 
+      ? `${selectedCountryPhoneCode} ${form.phone.trim()}`
+      : form.phone.trim();
 
     const payload: any = {
       name: form.name.trim(),
       email: form.email.trim(),
-      phone: form.phone.trim(),
+      phone: fullPhone,
       state: form.state.trim() || undefined,
       country: form.country.trim() || undefined,
     };
@@ -77,6 +117,8 @@ export default function ContactUsPage() {
         state: "",
         country: "",
       });
+      setSelectedCountryIso("");
+      setSelectedCountryPhoneCode("");
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to submit request. Please try again.");
     }
@@ -93,7 +135,7 @@ export default function ContactUsPage() {
             <img
               alt="Medical counseling consultation"
               src="https://images.unsplash.com/photo-1516841273335-e39b37888115?auto=format&fit=crop&w=1920&q=80"
-              className="size-full object-cover"
+              className="size-full object-cover select-none"
             />
             <div className="absolute inset-0 bg-[#1A153A]/95" />
           </div>
@@ -237,22 +279,75 @@ export default function ContactUsPage() {
                     </div>
                   </div>
 
+                  {/* Country & State Select Dropdowns */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="space-y-1.5">
+                      <label htmlFor="country" className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                        Country <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        id="country"
+                        name="country"
+                        value={selectedCountryIso}
+                        onChange={handleCountryChange}
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm bg-white"
+                        required
+                      >
+                        <option value="">Select Country</option>
+                        {countries.map((c) => (
+                          <option key={c.isoCode} value={c.isoCode}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label htmlFor="state" className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                        State
+                      </label>
+                      <select
+                        id="state"
+                        name="state"
+                        value={form.state}
+                        onChange={handleStateChange}
+                        disabled={!selectedCountryIso}
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm bg-white disabled:opacity-60"
+                      >
+                        <option value="">Select State</option>
+                        {states.map((s) => (
+                          <option key={s.isoCode} value={s.name}>
+                            {s.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
                   {/* Mobile No & NEET Score */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-1.5">
                       <label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
                         Mobile No. <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        placeholder="e.g., +91 9876543210"
-                        value={form.phone}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm"
-                        required
-                      />
+                      <div className="relative flex rounded-lg border border-gray-300 overflow-hidden focus-within:ring-1 focus-within:ring-[#3730A3] focus-within:border-[#3730A3]">
+                        {selectedCountryPhoneCode && (
+                          <span className="bg-gray-50 border-r border-gray-300 px-3 py-2 text-sm font-semibold text-[#1A153A] flex items-center select-none shrink-0">
+                            {selectedCountryPhoneCode}
+                          </span>
+                        )}
+                        <input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          placeholder={selectedCountryPhoneCode ? "10-digit number" : "e.g., 9876543210"}
+                          value={form.phone}
+                          onChange={handlePhoneChange}
+                          className="w-full px-4 py-2.5 text-sm outline-none border-none bg-white"
+                          maxLength={selectedCountryIso ? 10 : undefined}
+                          required
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-1.5">
@@ -268,39 +363,6 @@ export default function ContactUsPage() {
                         onChange={handleChange}
                         min="0"
                         max="720"
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  {/* State & Country */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div className="space-y-1.5">
-                      <label htmlFor="state" className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
-                        State
-                      </label>
-                      <input
-                        id="state"
-                        name="state"
-                        type="text"
-                        placeholder="Enter Your State"
-                        value={form.state}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label htmlFor="country" className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
-                        Country
-                      </label>
-                      <input
-                        id="country"
-                        name="country"
-                        type="text"
-                        placeholder="Enter Your country"
-                        value={form.country}
-                        onChange={handleChange}
                         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm"
                       />
                     </div>
