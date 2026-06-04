@@ -73,6 +73,20 @@ export function useCreateUniversity() {
   });
 }
 
+export function useUpdateUniversity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) => {
+      const { updateUniversity } = await import("./universities.api");
+      return updateUniversity(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+  });
+}
+
 export function useUpdateUniversityStatus() {
   const queryClient = useQueryClient();
   return useMutation({

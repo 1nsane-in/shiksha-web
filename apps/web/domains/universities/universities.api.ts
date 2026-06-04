@@ -33,6 +33,10 @@ export function createUniversity(data: Record<string, unknown>) {
   return client.post("/admin/universities", data);
 }
 
+export function updateUniversity(id: string, data: Record<string, unknown>) {
+  return client.put(`/admin/universities/${id}`, data);
+}
+
 export function updateUniversityStatus(id: string, status: string) {
   return client.patch(`/admin/universities/${id}/status`, { status });
 }
