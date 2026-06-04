@@ -62,8 +62,6 @@ export default function ConsultationsAdminPage() {
   const [filterState, setFilterState] = useState("");
   const [filterCountry, setFilterCountry] = useState("");
   const [filterDate, setFilterDate] = useState("");
-  const [filterMinScore, setFilterMinScore] = useState("");
-  const [filterMaxScore, setFilterMaxScore] = useState("");
 
   const handleStatusChange = async (id: string, currentStatus: string) => {
     const nextStatus =
@@ -119,22 +117,6 @@ export default function ConsultationsAdminPage() {
     if (filterDate) {
       const itemDateStr = new Date(item.createdAt).toISOString().split("T")[0];
       if (itemDateStr !== filterDate) {
-        return false;
-      }
-    }
-    if (filterMinScore) {
-      if (
-        item.neetScore === null ||
-        item.neetScore < parseInt(filterMinScore, 10)
-      ) {
-        return false;
-      }
-    }
-    if (filterMaxScore) {
-      if (
-        item.neetScore === null ||
-        item.neetScore > parseInt(filterMaxScore, 10)
-      ) {
         return false;
       }
     }
@@ -227,8 +209,6 @@ export default function ConsultationsAdminPage() {
               setFilterState("");
               setFilterCountry("");
               setFilterDate("");
-              setFilterMinScore("");
-              setFilterMaxScore("");
             }}
             className="text-[11px] font-bold text-gray-400 hover:text-[#1A153A] uppercase tracking-wider transition-all select-none cursor-pointer"
           >
@@ -236,7 +216,7 @@ export default function ConsultationsAdminPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Email Address</label>
             <Input
@@ -280,26 +260,6 @@ export default function ConsultationsAdminPage() {
               value={filterDate}
               onChange={(e) => setFilterDate(e.target.value)}
               className="text-xs py-2 bg-gray-50/30 border-gray-200 block w-full"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">NEET Score (Min)</label>
-            <Input
-              type="number"
-              placeholder="e.g. 0"
-              value={filterMinScore}
-              onChange={(e) => setFilterMinScore(e.target.value)}
-              className="text-xs py-2 bg-gray-50/30 border-gray-200"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">NEET Score (Max)</label>
-            <Input
-              type="number"
-              placeholder="e.g. 720"
-              value={filterMaxScore}
-              onChange={(e) => setFilterMaxScore(e.target.value)}
-              className="text-xs py-2 bg-gray-50/30 border-gray-200"
             />
           </div>
         </div>
