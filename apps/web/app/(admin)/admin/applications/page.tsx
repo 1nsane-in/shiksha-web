@@ -145,7 +145,7 @@ export default function AdminApplicationsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          <Card className="border" style={{ borderColor: theme.hairline }}>
+          <Card className="border p-1" style={{ borderColor: theme.hairline }}>
             <div className="overflow-x-auto">
               <Table>
               <TableHeader>
