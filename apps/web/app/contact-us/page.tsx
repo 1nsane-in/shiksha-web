@@ -376,7 +376,7 @@ export default function ContactUsPage() {
                   <div className="pt-2">
                     <button
                       type="submit"
-                      disabled={!form.name.trim() || !form.email.trim() || !form.phone.trim() || !form.country.trim() || createMutation.isPending}
+                      disabled={!form.name.trim() || !form.email.trim() || !form.phone.trim() || !form.country.trim() || !form.state.trim() || !form.neetScore.trim() || createMutation.isPending}
                       className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                       style={{ background: theme.ink }}
                     >
