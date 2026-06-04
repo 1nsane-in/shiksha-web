@@ -3,6 +3,7 @@
 
 import { use, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@repo/ui";
 import {
   useApplication,
   useUpdateApplicationStatus,
@@ -25,30 +26,45 @@ import {
   GraduationCap,
   Globe,
   Upload,
+  AlertCircle,
+  ShieldCheck,
 } from "lucide-react";
 
 const statusConfig: Record<
   string,
-  { label: string; bg: string; text: string; icon: React.ElementType }
+  { label: string; border: string; text: string; bg: string; icon: React.ElementType }
 > = {
   pending: {
     label: "Pending Review",
-    bg: "bg-amber-50",
-    text: "text-amber-700",
+    border: "border-amber-200",
+    text: "text-amber-800",
+    bg: "bg-amber-50/50",
     icon: Clock,
   },
   approved: {
     label: "Approved",
-    bg: "bg-emerald-50",
-    text: "text-emerald-700",
+    border: "border-emerald-200",
+    text: "text-emerald-800",
+    bg: "bg-emerald-50/50",
     icon: CheckCircle2,
   },
   rejected: {
     label: "Rejected",
-    bg: "bg-red-50",
-    text: "text-red-700",
+    border: "border-red-200",
+    text: "text-red-800",
+    bg: "bg-red-50/50",
     icon: XCircle,
   },
+};
+
+const theme = {
+  ink: "#1A153A",
+  inkMuted: "#6B6599",
+  gold: "#C4953B",
+  goldLight: "rgba(196, 149, 59, 0.08)",
+  canvas: "#FAF9F6",
+  surface: "#FFFFFF",
+  hairline: "rgba(26, 21, 58, 0.08)",
 };
 
 function Field({
@@ -60,10 +76,10 @@ function Field({
 }) {
   return (
     <div>
-      <p className="text-[11px] font-medium uppercase tracking-wide text-[#9CA3AF]">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
         {label}
       </p>
-      <p className="mt-0.5 text-sm text-[#111]">{value || "—"}</p>
+      <p className="mt-1 text-sm font-semibold text-[#1A153A] break-words">{value || ":"}</p>
     </div>
   );
 }
@@ -78,10 +94,15 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-[#ECEAE6] bg-white p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <Icon className="h-4 w-4 text-[#3730A3]" />
-        <h2 className="text-sm font-semibold text-[#111]">{title}</h2>
+    <div
+      className="rounded-xl border bg-white p-6 transition-all"
+      style={{ borderColor: theme.hairline }}
+    >
+      <div className="mb-5 flex items-center gap-2 border-b pb-3" style={{ borderColor: theme.hairline }}>
+        <div className="rounded-lg bg-gray-50 p-1.5">
+          <Icon className="h-4 w-4" style={{ color: theme.gold }} />
+        </div>
+        <h2 className="text-sm font-bold text-[#1A153A]">{title}</h2>
       </div>
       <div className="grid grid-cols-2 gap-x-6 gap-y-4">{children}</div>
     </div>
@@ -101,20 +122,21 @@ export default function AdminApplicationDetailPage({
   if (isLoading)
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-[#9CA3AF]" />
+        <Loader2 className="h-6 w-6 animate-spin" style={{ color: theme.gold }} />
       </div>
     );
 
   if (error || !app)
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
-        <p className="text-sm text-red-600">Application not found</p>
-        <button
+        <AlertCircle className="size-10 text-red-500" />
+        <p className="text-sm font-medium text-[#1A153A]">Application not found</p>
+        <Button
           onClick={() => router.push("/admin/applications")}
-          className="text-sm text-[#3730A3] underline"
+          variant="outline"
         >
           Back to Applications
-        </button>
+        </Button>
       </div>
     );
 
@@ -125,77 +147,78 @@ export default function AdminApplicationDetailPage({
   const uni = app.university;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4 border-b pb-5" style={{ borderColor: theme.hairline }}>
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/admin/applications")}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#ECEAE6] bg-white text-[#6B7280] hover:bg-[#F5F4F2]"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border bg-white text-gray-500 hover:bg-gray-50 transition-all"
+            style={{ borderColor: theme.hairline }}
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
-            <h1 className="text-base font-semibold text-[#111]">
+            <h1 className="text-lg font-bold text-[#1A153A]">
               {app.firstName} {app.lastName}
             </h1>
-            <p className="text-xs text-[#9CA3AF]">
-              Application #{id.slice(0, 8)}
+            <p className="text-xs text-gray-400">
+              Application ID: <span className="font-mono text-gray-500">{id}</span>
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${status.bg} ${status.text}`}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${status.bg} ${status.border} ${status.text}`}
           >
             <StatusIcon className="h-3.5 w-3.5" />
             {status.label}
           </span>
           {app.status === "pending" && (
-            <>
+            <div className="flex items-center gap-2">
               <button
-                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-all disabled:opacity-50"
                 onClick={() => updateStatus.mutate({ id, status: "approved" })}
                 disabled={updateStatus.isPending}
               >
                 <CheckCircle2 className="h-3.5 w-3.5" /> Approve
               </button>
               <button
-                className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-xs font-bold text-red-700 hover:bg-red-100 transition-all disabled:opacity-50"
                 onClick={() => updateStatus.mutate({ id, status: "rejected" })}
                 disabled={updateStatus.isPending}
               >
                 <XCircle className="h-3.5 w-3.5" /> Reject
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        {/* Left column */}
-        <div className="space-y-5 lg:col-span-2">
-          {/* Applicant */}
-          <Section title="Applicant Info" icon={User}>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Left Column */}
+        <div className="space-y-6 lg:col-span-2">
+          {/* Applicant info */}
+          <Section title="Applicant Demographics" icon={User}>
             <Field
               label="Full Name"
               value={`${app.firstName} ${app.lastName}`}
             />
             <Field label="Email" value={app.email} />
             <Field label="Gender" value={fd?.gender} />
-            <Field label="Date of Birth" value={fd?.dateOfBirth} />
+            <Field label="Date of Birth" value={fd?.dateOfBirth ? new Date(fd.dateOfBirth).toLocaleDateString() : null} />
             <Field label="Citizenship" value={fd?.citizenship} />
             <Field label="Marital Status" value={fd?.maritalStatus} />
             <Field label="Embassy Location" value={fd?.embassyLocation} />
-            <Field label="Program" value={app.selectedProgram} />
+            <Field label="Selected Program" value={app.selectedProgram} />
           </Section>
 
           {/* Place of Birth */}
           {fd?.placeOfBirth && (
             <Section title="Place of Birth" icon={MapPin}>
-              <Field label="City" value={fd.placeOfBirth.city} />
-              <Field label="State" value={fd.placeOfBirth.state} />
-              <Field label="Country" value={fd.placeOfBirth.country} />
+              <Field label="Birth City" value={fd.placeOfBirth.city} />
+              <Field label="Birth State" value={fd.placeOfBirth.state} />
+              <Field label="Birth Country" value={fd.placeOfBirth.country} />
             </Section>
           )}
 
@@ -205,39 +228,51 @@ export default function AdminApplicationDetailPage({
               <Field label="Address" value={fd.permanentAddress} />
               <Field label="City" value={fd.permanentCity} />
               <Field label="State" value={fd.permanentState} />
-              <Field label="ZIP" value={fd.permanentZip} />
+              <Field label="ZIP Code" value={fd.permanentZip} />
               <Field label="Country" value={fd.permanentCountry} />
             </Section>
           )}
 
-          {/* Language */}
+          {/* Language prof */}
           {fd?.language1 && (
             <Section title="Language Proficiency" icon={Globe}>
-              <Field label="Language" value={fd.language1.name} />
-              <Field label="Speaking" value={fd.language1.speaking} />
-              <Field label="Reading" value={fd.language1.reading} />
-              <Field label="Writing" value={fd.language1.writing} />
+              <Field label="Primary Language" value={fd.language1.name} />
+              <Field label="Speaking Level" value={fd.language1.speaking} />
+              <Field label="Reading Level" value={fd.language1.reading} />
+              <Field label="Writing Level" value={fd.language1.writing} />
             </Section>
           )}
 
-          {/* Documents */}
-          <div className="rounded-xl border border-[#ECEAE6] bg-white p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <FileText className="h-4 w-4 text-[#3730A3]" />
-              <h2 className="text-sm font-semibold text-[#111]">Documents</h2>
+          {/* Documents Checklist Card */}
+          <div
+            className="rounded-xl border bg-white p-6"
+            style={{ borderColor: theme.hairline }}
+          >
+            <div className="mb-5 flex items-center gap-2 border-b pb-3" style={{ borderColor: theme.hairline }}>
+              <div className="rounded-lg bg-gray-50 p-1.5">
+                <FileText className="h-4 w-4" style={{ color: theme.gold }} />
+              </div>
+              <h2 className="text-sm font-bold text-[#1A153A]">Submitted Documents</h2>
             </div>
             {student?.documents?.length ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {student.documents.map((doc: any) => (
                   <div
                     key={doc.id}
-                    className="flex items-center justify-between rounded-lg bg-[#F7F5F2] px-3 py-2 text-sm"
+                    className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3 border border-gray-100"
                   >
-                    <span className="text-[#111]">
-                      {doc.documentType?.name}
-                    </span>
+                    <div>
+                      <p className="font-semibold text-sm text-[#1A153A]">{doc.documentType?.name}</p>
+                      <p className="text-[10px] text-gray-400">Code: {doc.documentType?.code}</p>
+                    </div>
                     <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${doc.status === "APPROVED" ? "bg-emerald-50 text-emerald-700" : doc.status === "REJECTED" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-bold border ${
+                        doc.status === "APPROVED"
+                          ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                          : doc.status === "REJECTED"
+                            ? "bg-red-50 border-red-200 text-red-700"
+                            : "bg-amber-50 border-amber-200 text-amber-700"
+                      }`}
                     >
                       {doc.status}
                     </span>
@@ -245,33 +280,43 @@ export default function AdminApplicationDetailPage({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-[#9CA3AF]">No documents uploaded</p>
+              <p className="text-sm text-gray-400 py-3 text-center">No documents uploaded yet</p>
             )}
           </div>
 
-          {/* Upload Admission Letter — shown when application is approved */}
+          {/* Conditional Admission Letter Upload Panel */}
           {app.status === "approved" && (
             <AdmissionLetterUpload applicationId={id} />
           )}
 
-          {/* Payments */}
-          <div className="rounded-xl border border-[#ECEAE6] bg-white p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-[#3730A3]" />
-              <h2 className="text-sm font-semibold text-[#111]">Payments</h2>
+          {/* Payments checklist card */}
+          <div
+            className="rounded-xl border bg-white p-6"
+            style={{ borderColor: theme.hairline }}
+          >
+            <div className="mb-5 flex items-center gap-2 border-b pb-3" style={{ borderColor: theme.hairline }}>
+              <div className="rounded-lg bg-gray-50 p-1.5">
+                <CreditCard className="h-4 w-4" style={{ color: theme.gold }} />
+              </div>
+              <h2 className="text-sm font-bold text-[#1A153A]">Payment Tracking</h2>
             </div>
             {student?.payments?.length ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {student.payments.map((p: any) => (
                   <div
                     key={p.id}
-                    className="flex items-center justify-between rounded-lg bg-[#F7F5F2] px-3 py-2 text-sm"
+                    className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3 border border-gray-100"
                   >
-                    <span className="text-[#111]">
-                      Stage {p.stage} — ₹{p.amount.toLocaleString()}
-                    </span>
+                    <div>
+                      <p className="font-semibold text-sm text-[#1A153A]">Stage {p.stage} Admission Fee</p>
+                      <p className="text-xs text-gray-400">Amount: ₹{p.amount.toLocaleString("en-IN")}</p>
+                    </div>
                     <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${p.status === "SUCCESS" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-bold border ${
+                        p.status === "SUCCESS"
+                          ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                          : "bg-amber-50 border-amber-200 text-amber-700"
+                      }`}
                     >
                       {p.status}
                     </span>
@@ -279,94 +324,102 @@ export default function AdminApplicationDetailPage({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-[#9CA3AF]">No payments recorded</p>
+              <p className="text-sm text-gray-400 py-3 text-center">No payments recorded yet</p>
             )}
           </div>
 
-          {/* Timeline */}
-          <div className="rounded-xl border border-[#ECEAE6] bg-white p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <History className="h-4 w-4 text-[#3730A3]" />
-              <h2 className="text-sm font-semibold text-[#111]">Timeline</h2>
+          {/* Timeline Tracking Card */}
+          <div
+            className="rounded-xl border bg-white p-6"
+            style={{ borderColor: theme.hairline }}
+          >
+            <div className="mb-5 flex items-center gap-2 border-b pb-3" style={{ borderColor: theme.hairline }}>
+              <div className="rounded-lg bg-gray-50 p-1.5">
+                <History className="h-4 w-4" style={{ color: theme.gold }} />
+              </div>
+              <h2 className="text-sm font-bold text-[#1A153A]">Application History</h2>
             </div>
             {app.timelineEvents?.length ? (
-              <div className="space-y-3">
+              <div className="relative pl-4 space-y-6 before:absolute before:left-[4px] before:top-2 before:bottom-2 before:w-[1px] before:bg-gray-200">
                 {app.timelineEvents.map((e: any) => (
-                  <div key={e.id} className="flex gap-3">
-                    <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#3730A3]" />
-                    <div>
-                      <p className="text-sm font-medium text-[#111]">
-                        {e.title}
-                      </p>
-                      {e.description && (
-                        <p className="text-xs text-[#9CA3AF]">
-                          {e.description}
-                        </p>
-                      )}
-                      <p className="text-xs text-[#9CA3AF]">
-                        {new Date(e.occurredAt).toLocaleString()}
-                      </p>
-                    </div>
+                  <div key={e.id} className="relative space-y-1">
+                    <div className="absolute -left-[16px] top-1.5 h-2 w-2 shrink-0 rounded-full bg-[#1A153A]" />
+                    <p className="text-sm font-bold text-[#1A153A]">{e.title}</p>
+                    {e.description && (
+                      <p className="text-xs text-gray-400">{e.description}</p>
+                    )}
+                    <p className="text-[10px] font-semibold text-gray-400 font-mono">
+                      {new Date(e.occurredAt).toLocaleString()}
+                    </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-[#9CA3AF]">No events yet</p>
+              <p className="text-sm text-gray-400 py-3 text-center">No timeline events recorded yet</p>
             )}
           </div>
         </div>
 
-        {/* Right column */}
-        <div className="space-y-5">
-          {/* University */}
-          <div className="rounded-xl border border-[#ECEAE6] bg-white p-5">
-            <div className="mb-3 flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-[#3730A3]" />
-              <h2 className="text-sm font-semibold text-[#111]">University</h2>
+        {/* Right Sidebar Column */}
+        <div className="space-y-6">
+          {/* University details Card */}
+          <div
+            className="rounded-xl border bg-white p-6"
+            style={{ borderColor: theme.hairline }}
+          >
+            <div className="mb-4 flex items-center gap-2 border-b pb-3" style={{ borderColor: theme.hairline }}>
+              <div className="rounded-lg bg-gray-50 p-1.5">
+                <Building2 className="h-4 w-4" style={{ color: theme.gold }} />
+              </div>
+              <h2 className="text-sm font-bold text-[#1A153A]">University Details</h2>
             </div>
-            {uni?.logo && (
-              <img
-                src={uni.logo}
-                alt={uni.name}
-                className="mb-3 h-10 w-10 rounded-lg object-contain"
-              />
-            )}
-            <p className="text-sm font-semibold text-[#111]">{uni?.name}</p>
-            <p className="text-xs text-[#9CA3AF]">
-              {uni?.shortName} · {uni?.type}
-            </p>
-            <p className="mt-1 text-xs text-[#9CA3AF]">
-              Est. {uni?.establishedYear}
-            </p>
-            {uni?.website && (
-              <a
-                href={uni.website}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-2 block text-xs text-[#3730A3] hover:underline"
-              >
-                {uni.website}
-              </a>
-            )}
+            <div className="space-y-4">
+              {uni?.logo && (
+                <img
+                  src={uni.logo}
+                  alt={uni.name}
+                  className="h-12 w-12 rounded-xl object-contain border p-1"
+                />
+              )}
+              <div>
+                <p className="font-bold text-sm text-[#1A153A] leading-snug">{uni?.name}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {uni?.shortName} : {uni?.type}
+                </p>
+                <p className="text-xs text-gray-400">Established {uni?.establishedYear}</p>
+              </div>
+              {uni?.website && (
+                <a
+                  href={uni.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline pt-2 border-t w-full"
+                  style={{ borderColor: theme.hairline }}
+                >
+                  Visit Website
+                </a>
+              )}
+            </div>
           </div>
 
-          {/* Student Profile */}
-          <div className="rounded-xl border border-[#ECEAE6] bg-white p-5">
-            <div className="mb-3 flex items-center gap-2">
-              <GraduationCap className="h-4 w-4 text-[#3730A3]" />
-              <h2 className="text-sm font-semibold text-[#111]">
-                Student Profile
-              </h2>
+          {/* Full Student profile Card */}
+          <div
+            className="rounded-xl border bg-white p-6"
+            style={{ borderColor: theme.hairline }}
+          >
+            <div className="mb-4 flex items-center gap-2 border-b pb-3" style={{ borderColor: theme.hairline }}>
+              <div className="rounded-lg bg-gray-50 p-1.5">
+                <GraduationCap className="h-4 w-4" style={{ color: theme.gold }} />
+              </div>
+              <h2 className="text-sm font-bold text-[#1A153A]">Full Student Profile</h2>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <Field label="Name" value={student?.user?.name} />
               <Field label="Email" value={student?.user?.email} />
               <Field label="Phone" value={student?.user?.phone} />
               <Field
                 label="Stage"
-                value={
-                  student?.currentStage ? `Stage ${student.currentStage}` : null
-                }
+                value={student?.currentStage ? `Stage ${student.currentStage}` : null}
               />
               <Field
                 label="Status"
@@ -376,7 +429,7 @@ export default function AdminApplicationDetailPage({
               <Field label="NEET Rank" value={student?.neetRank} />
               <Field label="12th %" value={student?.twelfthPercentage} />
               <Field label="10th %" value={student?.tenthPercentage} />
-              <Field label="Passport No." value={student?.passportNumber} />
+              <Field label="Passport Number" value={student?.passportNumber} />
               <Field
                 label="Passport Expiry"
                 value={
@@ -388,50 +441,53 @@ export default function AdminApplicationDetailPage({
             </div>
           </div>
 
-          {/* Submission Meta */}
-          <div className="rounded-xl border border-[#ECEAE6] bg-white p-5">
-            <div className="mb-3 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-[#3730A3]" />
-              <h2 className="text-sm font-semibold text-[#111]">Submission</h2>
+          {/* Submission metadata Card */}
+          <div
+            className="rounded-xl border bg-white p-6"
+            style={{ borderColor: theme.hairline }}
+          >
+            <div className="mb-4 flex items-center gap-2 border-b pb-3" style={{ borderColor: theme.hairline }}>
+              <div className="rounded-lg bg-gray-50 p-1.5">
+                <Clock className="h-4 w-4" style={{ color: theme.gold }} />
+              </div>
+              <h2 className="text-sm font-bold text-[#1A153A]">Submission Metadata</h2>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <Field
-                label="Submitted"
-                value={
-                  app.submittedAt
-                    ? new Date(app.submittedAt).toLocaleString()
-                    : null
-                }
+                label="Submitted Date"
+                value={app.submittedAt ? new Date(app.submittedAt).toLocaleString() : null}
               />
               <Field
-                label="Created"
+                label="Created Date"
                 value={new Date(app.createdAt).toLocaleString()}
               />
               <Field
-                label="Last Updated"
+                label="Last Updated Date"
                 value={new Date(app.updatedAt).toLocaleString()}
               />
             </div>
           </div>
 
-          {/* Tickets */}
+          {/* Tickets related Card */}
           {app.tickets?.length > 0 && (
-            <div className="rounded-xl border border-[#ECEAE6] bg-white p-5">
-              <div className="mb-3 flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-[#3730A3]" />
-                <h2 className="text-sm font-semibold text-[#111]">
-                  Support Tickets
-                </h2>
+            <div
+              className="rounded-xl border bg-white p-6"
+              style={{ borderColor: theme.hairline }}
+            >
+              <div className="mb-4 flex items-center gap-2 border-b pb-3" style={{ borderColor: theme.hairline }}>
+                <div className="rounded-lg bg-gray-50 p-1.5">
+                  <MessageSquare className="h-4 w-4" style={{ color: theme.gold }} />
+                </div>
+                <h2 className="text-sm font-bold text-[#1A153A]">Related Support Tickets</h2>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {app.tickets.map((t: any) => (
-                  <div key={t.id} className="rounded-lg bg-[#F7F5F2] px-3 py-2">
-                    <p className="text-xs font-medium text-[#111]">
-                      {t.subject}
-                    </p>
-                    <p className="text-xs text-[#9CA3AF]">
-                      {t.status} · {t.priority}
-                    </p>
+                  <div key={t.id} className="rounded-lg bg-gray-50 p-3 border border-gray-100">
+                    <p className="text-xs font-bold text-[#1A153A]">{t.subject}</p>
+                    <div className="flex items-center justify-between text-[10px] text-gray-400 mt-2 border-t pt-1">
+                      <span>Status: {t.status}</span>
+                      <span>Priority: {t.priority}</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -479,22 +535,22 @@ function AdmissionLetterUpload({ applicationId }: { applicationId: string }) {
   };
 
   return (
-    <div className="rounded-xl border border-[#3730A3]/20 bg-[#3730A3]/5 p-5">
+    <div
+      className="rounded-xl border bg-[#3730A3]/5 p-6"
+      style={{ borderColor: "rgba(55,48,163,0.15)" }}
+    >
       <div className="mb-3 flex items-center gap-2">
         <Upload className="h-4 w-4 text-[#3730A3]" />
-        <h2 className="text-sm font-semibold text-[#111]">
-          Upload Admission Letter
-        </h2>
+        <h2 className="text-sm font-bold text-[#1A153A]">Upload Admission Letter</h2>
       </div>
-      <p className="text-xs text-[#9CA3AF] mb-4">
-        Upload the admission letter PDF. This will notify the student and
-        advance them to Stage 2 (payment of ₹5,000).
+      <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+        Upload the official university admission letter PDF. This action will notify the student and automatically unlock Stage 2, enabling them to complete the initial payment of ₹5,000.
       </p>
 
       {success ? (
-        <div className="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm text-emerald-700">
-          <CheckCircle2 className="h-4 w-4" />
-          Admission letter uploaded. Student notified and advanced to Stage 2.
+        <div className="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-xs font-semibold text-emerald-700">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          Admission letter uploaded. Student has been notified and advanced to Stage 2.
         </div>
       ) : (
         <>
@@ -508,7 +564,7 @@ function AdmissionLetterUpload({ applicationId }: { applicationId: string }) {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#3730A3] px-4 py-2 text-xs font-medium text-white hover:bg-[#2D2880] disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#3730A3] px-4 py-2 text-xs font-semibold text-white hover:bg-[#2D2880] transition-all disabled:opacity-50"
           >
             {uploading ? (
               <>
@@ -523,7 +579,7 @@ function AdmissionLetterUpload({ applicationId }: { applicationId: string }) {
             )}
           </button>
           {uploadError && (
-            <p className="mt-2 text-xs text-red-600">{uploadError}</p>
+            <p className="mt-2 text-xs text-red-600 font-semibold">{uploadError}</p>
           )}
         </>
       )}

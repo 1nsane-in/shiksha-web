@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
+  Button,
+  Badge,
+  Skeleton,
 } from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Badge } from "@repo/ui";
-import { Skeleton } from "@repo/ui";
-import { Input } from "@repo/ui";
 import {
   Select,
   SelectContent,
@@ -32,14 +32,12 @@ import {
   GraduationCap,
   ArrowRight,
   User,
-  Search,
   CheckCircle2,
   AlertCircle,
   Clock,
   ChevronLeft,
   ChevronRight,
   MapPin,
-  FileText,
 } from "lucide-react";
 import {
   useAdminStudents,
@@ -48,11 +46,11 @@ import {
 } from "@/domains/admin";
 
 const stageNames: Record<number, string> = {
-  1: "Application",
-  2: "Admission Fee",
-  3: "Entrance Exam",
-  4: "Invitation Letter",
-  5: "Visa Support",
+  1: "Application Submission",
+  2: "Admission Fee Payment",
+  3: "Entrance Exam Process",
+  4: "Invitation Letter Issue",
+  5: "Visa Support & Processing",
 };
 
 const statusColors: Record<string, string> = {
@@ -70,6 +68,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function AdminStudentsPage() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [stage, setStage] = useState<number | undefined>(undefined);
   const [status, setStatus] = useState<string | undefined>(undefined);
@@ -118,7 +117,7 @@ export default function AdminStudentsPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#2D2154]">Failed to load student profiles</h2>
+        <h2 className="text-lg font-semibold text-[#111]">Failed to load student profiles</h2>
         <Button onClick={() => refetch()} variant="outline" className="gap-2 mt-4">
           Retry
         </Button>
@@ -130,59 +129,59 @@ export default function AdminStudentsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 max-w-7xl mx-auto">
-      <div>
-        <h1 className="text-xl font-bold text-[#2D2154]">Student Management</h1>
-        <p className="text-sm text-gray-500">Track and manage student enrollment and admission progression</p>
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight text-[#111]">Student Management</h1>
+        <p className="text-sm text-[#666]">Track, manage, and progress prospective students through key admission milestones.</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
           <CardContent className="pt-4 flex items-center gap-4">
-            <div className="rounded-full bg-violet-100 p-2.5">
+            <div className="rounded-lg bg-violet-100 p-2.5">
               <Users className="size-5 text-violet-600" />
             </div>
             <div>
-              <p className="text-xs text-gray-400">Total Registered</p>
-              <p className="text-xl font-bold text-[#2D2154]">{stats?.total ?? 0}</p>
+              <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Total Registered</p>
+              <p className="text-xl font-bold text-[#111] mt-0.5">{stats?.total ?? 0}</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
           <CardContent className="pt-4 flex items-center gap-4">
-            <div className="rounded-full bg-yellow-100 p-2.5">
+            <div className="rounded-lg bg-yellow-100 p-2.5">
               <Clock className="size-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-xs text-gray-400">In Stage 1 & 2</p>
-              <p className="text-xl font-bold text-[#2D2154]">
+              <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">In Stage 1 & 2</p>
+              <p className="text-xl font-bold text-[#111] mt-0.5">
                 {stats?.byStage ? ((stats.byStage[1] ?? 0) + (stats.byStage[2] ?? 0)) : 0}
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
           <CardContent className="pt-4 flex items-center gap-4">
-            <div className="rounded-full bg-blue-100 p-2.5">
+            <div className="rounded-lg bg-blue-100 p-2.5">
               <GraduationCap className="size-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-xs text-gray-400">In Entrance Exam</p>
-              <p className="text-xl font-bold text-[#2D2154]">{stats?.byStage ? (stats.byStage[3] ?? 0) : 0}</p>
+              <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">In Entrance Exam</p>
+              <p className="text-xl font-bold text-[#111] mt-0.5">{stats?.byStage ? (stats.byStage[3] ?? 0) : 0}</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
           <CardContent className="pt-4 flex items-center gap-4">
-            <div className="rounded-full bg-emerald-100 p-2.5">
+            <div className="rounded-lg bg-emerald-100 p-2.5">
               <CheckCircle2 className="size-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-xs text-gray-400">Visa & Completed</p>
-              <p className="text-xl font-bold text-[#2D2154]">
+              <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Visa & Completed</p>
+              <p className="text-xl font-bold text-[#111] mt-0.5">
                 {stats?.byStage ? ((stats.byStage[5] ?? 0) + (stats.byStatus?.["COMPLETED"] ?? 0)) : 0}
               </p>
             </div>
@@ -191,17 +190,21 @@ export default function AdminStudentsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
         {/* Students Table Section */}
         <div className="lg:col-span-2 space-y-4">
-          <Card size="xl">
+          <Card size="xl" className="border-[#ECEAE6] bg-[#FAFAF8]">
             <CardHeader className="flex flex-row items-center justify-between pb-2 flex-wrap gap-2">
-              <CardTitle>All Student Accounts</CardTitle>
+              <div>
+                <CardTitle className="text-base font-semibold">All Student Accounts</CardTitle>
+                <CardDescription className="text-xs">Browse list or select a row for immediate actions.</CardDescription>
+              </div>
               <div className="flex gap-2">
                 <Select
                   value={stage === undefined ? "all" : stage.toString()}
                   onValueChange={(val) => setStage(val === "all" ? undefined : parseInt(val))}
                 >
-                  <SelectTrigger className="w-[130px]">
+                  <SelectTrigger className="w-[130px] bg-white border-[#E5E7EB] text-xs">
                     <SelectValue placeholder="Stage" />
                   </SelectTrigger>
                   <SelectContent>
@@ -218,7 +221,7 @@ export default function AdminStudentsPage() {
                   value={status === undefined ? "all" : status}
                   onValueChange={(val) => setStatus(val === "all" ? undefined : val)}
                 >
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="w-[140px] bg-white border-[#E5E7EB] text-xs">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -241,7 +244,7 @@ export default function AdminStudentsPage() {
               {isLoading ? (
                 <div className="space-y-3">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
+                    <Skeleton key={i} className="h-12 w-full rounded-md" />
                   ))}
                 </div>
               ) : students.length === 0 ? (
@@ -253,28 +256,28 @@ export default function AdminStudentsPage() {
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>Student</TableHead>
-                        <TableHead>Current Stage</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Action</TableHead>
+                      <TableRow className="border-[#ECEAE6]">
+                        <TableHead className="font-semibold text-xs text-[#666] uppercase tracking-wider">Student</TableHead>
+                        <TableHead className="font-semibold text-xs text-[#666] uppercase tracking-wider">Current Stage</TableHead>
+                        <TableHead className="font-semibold text-xs text-[#666] uppercase tracking-wider">Status</TableHead>
+                        <TableHead className="font-semibold text-xs text-[#666] uppercase tracking-wider text-right">Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {students.map((student) => (
                         <TableRow
                           key={student.id}
-                          className="hover:bg-gray-50 cursor-pointer"
+                          className="hover:bg-[#F2F1ED] cursor-pointer border-[#ECEAE6] transition-colors"
                           onClick={() => selectStudent(student)}
                         >
                           <TableCell>
                             <div>
-                              <p className="font-semibold text-sm text-[#2D2154]">{student.user?.name ?? "N/A"}</p>
-                              <p className="text-xs text-gray-400">{student.user?.email}</p>
+                              <p className="font-semibold text-sm text-[#111]">{student.user?.name ?? "N/A"}</p>
+                              <p className="text-xs text-gray-400 font-mono">{student.user?.email}</p>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <span className="text-sm font-medium">
+                            <span className="text-xs font-semibold text-[#555]">
                               Stage {student.currentStage}: {stageNames[student.currentStage] ?? "N/A"}
                             </span>
                           </TableCell>
@@ -289,8 +292,16 @@ export default function AdminStudentsPage() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button size="sm" variant="ghost">
-                              View
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/admin/students/${student.id}`);
+                              }}
+                              className="text-[#3730A3] hover:text-indigo-900 font-semibold text-xs cursor-pointer"
+                            >
+                              Details
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -312,6 +323,7 @@ export default function AdminStudentsPage() {
                       variant="outline"
                       disabled={page <= 1}
                       onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                      className="cursor-pointer"
                     >
                       <ChevronLeft className="size-4" />
                     </Button>
@@ -320,6 +332,7 @@ export default function AdminStudentsPage() {
                       variant="outline"
                       disabled={page >= data.totalPages}
                       onClick={() => setPage((prev) => Math.min(prev + 1, data.totalPages))}
+                      className="cursor-pointer"
                     >
                       <ChevronRight className="size-4" />
                     </Button>
@@ -333,40 +346,50 @@ export default function AdminStudentsPage() {
         {/* Selected Student Details Panel */}
         <div>
           {selectedStudent ? (
-            <Card className="sticky top-6">
-              <CardHeader className="pb-3 border-b border-gray-100">
-                <CardTitle className="text-base text-[#2D2154]">Student Detail</CardTitle>
-                <CardDescription>Verify documents, details and progress stage.</CardDescription>
+            <Card className="sticky top-6 border-[#ECEAE6] bg-[#FAFAF8]">
+              <CardHeader className="pb-3 border-b border-[#ECEAE6]">
+                <CardTitle className="text-base font-semibold text-[#111]">Student Overview</CardTitle>
+                <CardDescription className="text-xs">Quick progress controls & credentials.</CardDescription>
               </CardHeader>
               <CardContent className="pt-4 space-y-5">
                 {/* Basic info */}
                 <div>
-                  <h3 className="font-bold text-sm text-[#2D2154] mb-1">{selectedStudent.user?.name}</h3>
+                  <h3 className="font-bold text-sm text-[#111] mb-1">{selectedStudent.user?.name}</h3>
                   <p className="text-xs text-gray-400">Email: {selectedStudent.user?.email}</p>
                   <p className="text-xs text-gray-400">Phone: {selectedStudent.user?.phone ?? "N/A"}</p>
                 </div>
 
+                {/* More Details CTA */}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => router.push(`/admin/students/${selectedStudent.id}`)}
+                  className="w-full border-[#3730A3] text-[#3730A3] hover:bg-[#EEF2FF] font-semibold flex items-center justify-center gap-1.5 cursor-pointer h-9 text-xs"
+                >
+                  Full Profile & Documents <ArrowRight className="size-4" />
+                </Button>
+
                 {/* Academic results */}
-                <div className="bg-[#F8F6FC] rounded-lg p-3 space-y-2">
-                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Academics</h4>
+                <div className="bg-white border border-[#ECEAE6] rounded-xl p-3.5 space-y-2">
+                  <h4 className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Academics</h4>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
                       <p className="text-gray-400">NEET Score</p>
-                      <p className="font-bold text-sm text-[#2D2154]">{selectedStudent.neetScore ?? "N/A"}</p>
+                      <p className="font-bold text-sm text-[#111]">{selectedStudent.neetScore ?? "N/A"}</p>
                     </div>
                     <div>
                       <p className="text-gray-400">NEET Rank</p>
-                      <p className="font-bold text-sm text-[#2D2154]">{selectedStudent.neetRank ?? "N/A"}</p>
+                      <p className="font-bold text-sm text-[#111]">{selectedStudent.neetRank ?? "N/A"}</p>
                     </div>
                     <div>
-                      <p className="text-gray-400">12th Percentage</p>
-                      <p className="font-bold text-sm text-[#2D2154]">
+                      <p className="text-gray-400">12th Grade %</p>
+                      <p className="font-bold text-sm text-[#111]">
                         {selectedStudent.twelfthPercentage ? `${selectedStudent.twelfthPercentage}%` : "N/A"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-400">10th Percentage</p>
-                      <p className="font-bold text-sm text-[#2D2154]">
+                      <p className="text-gray-400">10th Grade %</p>
+                      <p className="font-bold text-sm text-[#111]">
                         {selectedStudent.tenthPercentage ? `${selectedStudent.tenthPercentage}%` : "N/A"}
                       </p>
                     </div>
@@ -375,25 +398,20 @@ export default function AdminStudentsPage() {
 
                 {/* Additional Details */}
                 <div className="space-y-2 text-xs">
-                  <h4 className="font-bold text-gray-500 uppercase tracking-wider text-[10px]">Demographics</h4>
+                  <h4 className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Demographics</h4>
                   <div className="space-y-1">
-                    <p className="text-gray-400 flex items-center gap-1">
-                      <MapPin className="size-3 shrink-0" />
-                      {selectedStudent.address ? `${selectedStudent.address}, ${selectedStudent.city ?? ""}, ${selectedStudent.state ?? ""}, ${selectedStudent.country ?? ""}` : "No address specified"}
+                    <p className="text-gray-400 flex items-start gap-1">
+                      <MapPin className="size-3.5 shrink-0 mt-0.5" />
+                      <span>
+                        {selectedStudent.address ? `${selectedStudent.address}, ${selectedStudent.city ?? ""}, ${selectedStudent.state ?? ""}, ${selectedStudent.country ?? ""}` : "No address specified"}
+                      </span>
                     </p>
-                    {selectedStudent.fatherName && <p className="text-gray-500">Father: {selectedStudent.fatherName}</p>}
-                    {selectedStudent.motherName && <p className="text-gray-500">Mother: {selectedStudent.motherName}</p>}
-                    {selectedStudent.dob && (
-                      <p className="text-gray-500">
-                        DOB: {new Date(selectedStudent.dob).toLocaleDateString()}
-                      </p>
-                    )}
                   </div>
                 </div>
 
                 {/* Action - Update Stage/Status */}
-                <div className="border-t border-gray-100 pt-4 space-y-3">
-                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Update Stage Progression</h4>
+                <div className="border-t border-[#ECEAE6] pt-4 space-y-3">
+                  <h4 className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Update Progression</h4>
                   
                   <div className="space-y-2">
                     <div>
@@ -402,7 +420,7 @@ export default function AdminStudentsPage() {
                         value={editStage?.toString() ?? ""}
                         onValueChange={(val) => setEditStage(parseInt(val))}
                       >
-                        <SelectTrigger className="w-full text-xs">
+                        <SelectTrigger className="w-full text-xs bg-white border-[#E5E7EB]">
                           <SelectValue placeholder="Select stage" />
                         </SelectTrigger>
                         <SelectContent>
@@ -421,7 +439,7 @@ export default function AdminStudentsPage() {
                         value={editStatus ?? ""}
                         onValueChange={(val) => setEditStatus(val)}
                       >
-                        <SelectTrigger className="w-full text-xs">
+                        <SelectTrigger className="w-full text-xs bg-white border-[#E5E7EB]">
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -442,7 +460,7 @@ export default function AdminStudentsPage() {
 
                     <Button
                       size="sm"
-                      className="w-full"
+                      className="w-full bg-[#3730A3] hover:bg-[#2e288a] text-white font-medium text-xs h-9"
                       disabled={updateStageMutation.isPending || (editStage === selectedStudent.currentStage && editStatus === selectedStudent.applicationStatus)}
                       onClick={() => handleUpdateStage(selectedStudent.id)}
                     >
@@ -453,7 +471,7 @@ export default function AdminStudentsPage() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="h-full flex items-center justify-center p-6 text-center text-gray-400 border-dashed border-2 border-gray-100">
+            <Card className="h-full flex items-center justify-center p-6 text-center text-gray-400 border-dashed border-2 border-[#ECEAE6] bg-[#FAFAF8]">
               <div>
                 <User className="size-8 mx-auto text-gray-300 mb-2" />
                 <p className="text-sm font-medium">Select student from list</p>

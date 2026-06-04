@@ -98,3 +98,14 @@ export function useCreateDocumentType() {
     },
   });
 }
+
+export function useStudentDocuments(studentId: string) {
+  return useQuery({
+    queryKey: queryKeys.documents.student(studentId),
+    queryFn: async () => {
+      const { getStudentDocuments } = await import("./documents.api");
+      return getStudentDocuments(studentId);
+    },
+    enabled: !!studentId,
+  });
+}
