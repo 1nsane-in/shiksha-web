@@ -333,16 +333,16 @@ export default function ConsultationsAdminPage() {
                           <span className={`size-1.5 rounded-full shrink-0 ${statusDetails[item.status]?.dot || "bg-gray-400"}`} />
                           <span>{statusDetails[item.status]?.label || item.status}</span>
                         </SelectTrigger>
-                        <SelectContent className="border-[#ECEAE6] bg-white rounded-xl shadow-lg min-w-[125px]">
-                          <SelectItem value="PENDING" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2">
+                        <SelectContent className="border-[#ECEAE6] bg-white rounded-xl shadow-lg min-w-[135px] p-1.5">
+                          <SelectItem value="PENDING" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2 py-2.5 px-4 rounded-lg">
                             <span className="size-1.5 rounded-full bg-amber-500 inline-block mr-1.5" />
                             Pending
                           </SelectItem>
-                          <SelectItem value="CONTACTED" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2">
+                          <SelectItem value="CONTACTED" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2 py-2.5 px-4 rounded-lg">
                             <span className="size-1.5 rounded-full bg-blue-500 inline-block mr-1.5" />
                             Contacted
                           </SelectItem>
-                          <SelectItem value="CLOSED" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2">
+                          <SelectItem value="CLOSED" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2 py-2.5 px-4 rounded-lg">
                             <span className="size-1.5 rounded-full bg-emerald-500 inline-block mr-1.5" />
                             Resolved
                           </SelectItem>
