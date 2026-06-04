@@ -226,20 +226,11 @@ export default function UniversityDetailPage() {
 
   // New Management Mutations
   const updateUniversityMut = useUpdateUniversity();
-  const addCourseMut = useAddUniversityCourse();
-  const deleteCourseMut = useDeleteUniversityCourse();
   const uploadDocMut = useUploadUniversityDocument();
   const deleteDocMut = useDeleteUniversityDocument();
 
   // Management State
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
-  
-  const [courseForm, setCourseForm] = useState({
-    name: "",
-    duration: 5,
-    fees: 0,
-    seats: 100,
-  });
 
   const [docForm, setDocForm] = useState({
     type: "PROSPECTUS",
@@ -325,44 +316,6 @@ export default function UniversityDetailPage() {
       refetch();
     } catch (err) {
       toast.error("Failed to update gallery");
-    }
-  };
-
-  // Course Handlers
-  const handleAddCourse = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!courseForm.name.trim() || courseForm.fees <= 0) {
-      toast.error("Please enter a valid course name and tuition fee");
-      return;
-    }
-    try {
-      await addCourseMut.mutateAsync({
-        uniId,
-        data: {
-          name: courseForm.name.trim(),
-          duration: Number(courseForm.duration),
-          fees: Number(courseForm.fees),
-          seats: Number(courseForm.seats),
-          availableSeats: Number(courseForm.seats),
-          isActive: true,
-        },
-      });
-      toast.success("Course added successfully!");
-      setCourseForm({ name: "", duration: 5, fees: 0, seats: 100 });
-      refetch();
-    } catch (err) {
-      toast.error("Failed to add course");
-    }
-  };
-
-  const handleDeleteCourse = async (courseId: string) => {
-    if (!confirm("Are you sure you want to delete this course?")) return;
-    try {
-      await deleteCourseMut.mutateAsync(courseId);
-      toast.success("Course deleted successfully!");
-      refetch();
-    } catch (err) {
-      toast.error("Failed to delete course");
     }
   };
 
@@ -1106,7 +1059,7 @@ export default function UniversityDetailPage() {
 
           {/* ===== 🛠️ Interactive Management Tab ===== */}
           <TabsContent value="management" className="mt-4 space-y-6 sm:mt-6 sm:space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               
               {/* Column 1: Campus Gallery Manager */}
               <div className="lg:col-span-1 space-y-6">
@@ -1167,104 +1120,7 @@ export default function UniversityDetailPage() {
                 </Card>
               </div>
 
-              {/* Column 2: Course Management */}
-              <div className="lg:col-span-1 space-y-6">
-                <Card className="border-[#ECEAE6]">
-                  <CardContent className="p-4 sm:p-5 space-y-4">
-                    <SectionHeading icon={GraduationCap} title="Manage Courses" />
-                    
-                    <form onSubmit={handleAddCourse} className="space-y-3 bg-[#FAFAF8] p-3 border rounded-xl">
-                      <h4 className="text-xs font-bold text-[#111] uppercase tracking-wider">Add Course</h4>
-                      <div className="space-y-1">
-                        <label className="text-[10px] text-gray-500 font-semibold uppercase">Course Name</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. MBBS, MD Pediatrics"
-                          value={courseForm.name}
-                          onChange={(e) => setCourseForm({ ...courseForm, name: e.target.value })}
-                          className="w-full px-3 py-1.5 text-xs border rounded-lg bg-white"
-                          required
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
-                          <label className="text-[10px] text-gray-500 font-semibold uppercase">Duration (years)</label>
-                          <input
-                            type="number"
-                            min="1"
-                            max="8"
-                            value={courseForm.duration}
-                            onChange={(e) => setCourseForm({ ...courseForm, duration: parseInt(e.target.value) || 5 })}
-                            className="w-full px-3 py-1.5 text-xs border rounded-lg bg-white"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[10px] text-gray-500 font-semibold uppercase">Total Seats</label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={courseForm.seats}
-                            onChange={(e) => setCourseForm({ ...courseForm, seats: parseInt(e.target.value) || 100 })}
-                            className="w-full px-3 py-1.5 text-xs border rounded-lg bg-white"
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] text-gray-500 font-semibold uppercase">Annual Tuition Fee (USD)</label>
-                        <input
-                          type="number"
-                          min="1"
-                          placeholder="e.g. 4500"
-                          value={courseForm.fees}
-                          onChange={(e) => setCourseForm({ ...courseForm, fees: parseFloat(e.target.value) || 0 })}
-                          className="w-full px-3 py-1.5 text-xs border rounded-lg bg-white"
-                          required
-                        />
-                      </div>
-                      <Button
-                        type="submit"
-                        disabled={addCourseMut.isPending}
-                        className="w-full bg-[#3730A3] text-white text-xs h-8 font-semibold mt-2 cursor-pointer"
-                      >
-                        {addCourseMut.isPending ? "Adding..." : "Add Course"}
-                      </Button>
-                    </form>
-
-                    {/* Courses list */}
-                    <div className="border-t pt-4">
-                      <h4 className="text-xs font-bold text-[#666] mb-3 uppercase tracking-wider">Active Courses ({university.courses?.length || 0})</h4>
-                      {university.courses && university.courses.length > 0 ? (
-                        <div className="space-y-2">
-                          {university.courses.map((course) => (
-                            <div key={course.id} className="p-3 bg-white border border-[#ECEAE6] rounded-xl flex items-center justify-between">
-                              <div className="min-w-0 flex-1">
-                                <h5 className="text-xs font-bold text-[#111] truncate">{course.name}</h5>
-                                <p className="text-[10px] text-gray-400 mt-0.5">{course.duration} years · ${course.fees.toLocaleString()}/yr · {course.seats} seats</p>
-                              </div>
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="icon"
-                                onClick={() => handleDeleteCourse(course.id)}
-                                disabled={deleteCourseMut.isPending}
-                                className="h-7 w-7 text-white bg-red-600 hover:bg-red-700"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-gray-400 italic">No custom courses added.</p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Column 3: Official Document Manager */}
+              {/* Column 2: Official Document Manager */}
               <div className="lg:col-span-1 space-y-6">
                 <Card className="border-[#ECEAE6]">
                   <CardContent className="p-4 sm:p-5 space-y-4">
