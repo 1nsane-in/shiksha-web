@@ -160,7 +160,7 @@ export default function ConsultationsAdminPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6" style={{ background: theme.canvas }}>
+    <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6">
       {/* Title Header */}
       <div className="border-b pb-5" style={{ borderColor: theme.hairline }}>
         <h1 className="text-xl font-bold tracking-tight text-[#1A153A]">Consultation Desk</h1>
