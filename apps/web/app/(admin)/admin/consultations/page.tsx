@@ -50,10 +50,10 @@ const theme = {
   hairline: "rgba(26, 21, 58, 0.08)",
 };
 
-const statusColors: Record<string, string> = {
-  PENDING: "text-amber-800 bg-amber-50 border-amber-200",
-  CONTACTED: "text-blue-800 bg-blue-50 border-blue-200",
-  CLOSED: "text-emerald-800 bg-emerald-50 border-emerald-200",
+const statusDetails: Record<string, { label: string; dot: string; cls: string }> = {
+  PENDING: { label: "Pending", dot: "bg-amber-500", cls: "text-amber-800 bg-amber-50/50 border-amber-200" },
+  CONTACTED: { label: "Contacted", dot: "bg-blue-500", cls: "text-blue-800 bg-blue-50/50 border-blue-200" },
+  CLOSED: { label: "Resolved", dot: "bg-emerald-500", cls: "text-emerald-800 bg-emerald-50/50 border-emerald-200" },
 };
 
 export default function ConsultationsAdminPage() {
@@ -327,15 +327,25 @@ export default function ConsultationsAdminPage() {
                         value={item.status}
                         onValueChange={(val) => handleStatusChange(item.id, val)}
                       >
-                        <SelectTrigger className={`w-[120px] text-[10px] font-bold py-1 px-2.5 h-8 select-none border rounded-full transition-all duration-200 uppercase tracking-wider mx-auto ${
-                          statusColors[item.status] || "text-gray-600 bg-gray-50 border-gray-200"
+                        <SelectTrigger className={`w-[125px] h-8 text-[11px] font-bold px-3 select-none border rounded-full transition-all duration-200 tracking-wide mx-auto flex items-center justify-center gap-1.5 focus:ring-0 ${
+                          statusDetails[item.status]?.cls || "text-gray-600 bg-gray-50 border-gray-200"
                         }`}>
-                          <SelectValue />
+                          <span className={`size-1.5 rounded-full shrink-0 ${statusDetails[item.status]?.dot || "bg-gray-400"}`} />
+                          <span>{statusDetails[item.status]?.label || item.status}</span>
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="PENDING" className="text-xs font-bold text-amber-700">PENDING</SelectItem>
-                          <SelectItem value="CONTACTED" className="text-xs font-bold text-blue-700">CONTACTED</SelectItem>
-                          <SelectItem value="CLOSED" className="text-xs font-bold text-emerald-700">CLOSED</SelectItem>
+                        <SelectContent className="border-[#ECEAE6] bg-white rounded-xl shadow-lg min-w-[125px]">
+                          <SelectItem value="PENDING" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2">
+                            <span className="size-1.5 rounded-full bg-amber-500 inline-block mr-1.5" />
+                            Pending
+                          </SelectItem>
+                          <SelectItem value="CONTACTED" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2">
+                            <span className="size-1.5 rounded-full bg-blue-500 inline-block mr-1.5" />
+                            Contacted
+                          </SelectItem>
+                          <SelectItem value="CLOSED" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2">
+                            <span className="size-1.5 rounded-full bg-emerald-500 inline-block mr-1.5" />
+                            Resolved
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
