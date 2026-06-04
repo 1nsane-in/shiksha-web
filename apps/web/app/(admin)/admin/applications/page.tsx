@@ -63,8 +63,10 @@ export default function AdminApplicationsPage() {
   const { data, isLoading, error, refetch } = useApplications(filters);
   const updateStatus = useUpdateApplicationStatus();
 
-  const handleSearch = () => {
-    setFilters((prev) => ({ ...prev, search, page: 1 }));
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearch(val);
+    setFilters((prev) => ({ ...prev, search: val, page: 1 }));
   };
 
   const handleStatusFilter = (status: string) => {
@@ -96,31 +98,22 @@ export default function AdminApplicationsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
             <Input
               placeholder="Search student by name or email..."
-              className="pl-9 text-xs bg-gray-50/30 border-gray-200 py-2.5"
+              className="pl-9 text-xs bg-white border-gray-200 h-10 w-full"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              onChange={handleSearchChange}
             />
           </div>
           <Select onValueChange={(value: string | null) => handleStatusFilter(value ?? "all")} defaultValue="all">
             <SelectTrigger className="w-[150px] text-xs h-10 border-gray-200 bg-white">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent className="border-gray-150 rounded-xl bg-white shadow-md">
-              <SelectItem value="all" className="text-xs">All Statuses</SelectItem>
-              <SelectItem value="pending" className="text-xs">Pending</SelectItem>
-              <SelectItem value="approved" className="text-xs">Approved</SelectItem>
-              <SelectItem value="rejected" className="text-xs">Rejected</SelectItem>
+            <SelectContent className="border-gray-150 rounded-xl bg-white shadow-md p-1.5 min-w-[150px]">
+              <SelectItem value="all" className="text-xs py-2.5 px-4 rounded-lg cursor-pointer hover:bg-gray-50">All Statuses</SelectItem>
+              <SelectItem value="pending" className="text-xs py-2.5 px-4 rounded-lg cursor-pointer hover:bg-gray-50">Pending</SelectItem>
+              <SelectItem value="approved" className="text-xs py-2.5 px-4 rounded-lg cursor-pointer hover:bg-gray-50">Approved</SelectItem>
+              <SelectItem value="rejected" className="text-xs py-2.5 px-4 rounded-lg cursor-pointer hover:bg-gray-50">Rejected</SelectItem>
             </SelectContent>
           </Select>
-          <Button
-            onClick={handleSearch}
-            className="text-xs font-semibold text-white cursor-pointer px-5 py-2.5 rounded-lg h-10 flex items-center justify-center gap-1"
-            style={{ background: theme.ink }}
-          >
-            <Search className="size-3.5" />
-            Filter
-          </Button>
         </div>
       </Card>
 
