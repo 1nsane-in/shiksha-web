@@ -7,6 +7,14 @@ import { Card } from "@repo/ui";
 import { Input } from "@repo/ui";
 import { Skeleton } from "@repo/ui";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@repo/ui";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -120,7 +128,7 @@ export default function AdminApplicationsPage() {
       {isLoading ? (
         <div className="space-y-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            <Skeleton key={i} className="h-16 w-full rounded-xl" />
           ))}
         </div>
       ) : error ? (
@@ -137,88 +145,104 @@ export default function AdminApplicationsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="space-y-3">
-            {data.data.map((app) => {
-              const status = statusConfig[app.status] || statusConfig.pending;
-              const StatusIcon = status.icon;
-              return (
-                <div
-                  key={app.id}
-                  className="cursor-pointer p-5 bg-white border rounded-xl hover:shadow-sm hover:border-[#1A153A]/20 transition-all flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-                  style={{ borderColor: theme.hairline }}
-                  onClick={() => router.push(`/admin/applications/${app.id}`)}
-                >
-                  <div className="min-w-0 flex-1 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <div className="rounded-lg bg-gray-50 p-1 shrink-0">
-                        <Building2 className="size-4" style={{ color: theme.gold }} />
-                      </div>
-                      <h3 className="font-bold text-[#1A153A] truncate text-sm sm:text-base leading-snug">
-                        {app.university?.name || "Unknown University"}
-                      </h3>
-                    </div>
-                    
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <User className="size-3.5 text-gray-400" />
-                        <span className="font-semibold text-gray-700">{app.firstName} {app.lastName}</span>
-                      </div>
-                      <span className="text-gray-300 hidden sm:inline">|</span>
-                      <div className="flex items-center gap-1">
-                        <Mail className="size-3.5 text-gray-400" />
-                        <span className="font-mono">{app.email}</span>
-                      </div>
-                      <span className="text-gray-300 hidden sm:inline">|</span>
-                      <span className="font-semibold text-gray-600 bg-gray-50 border rounded px-2 py-0.5 text-[10px] uppercase tracking-wide">
-                        {app.selectedProgram || "Unknown program"}
-                      </span>
-                    </div>
+          <Card className="border" style={{ borderColor: theme.hairline }}>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b" style={{ borderColor: theme.hairline }}>
+                    <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider py-4 px-6">Student</TableHead>
+                    <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider py-4 px-6">University & Program</TableHead>
+                    <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider py-4 px-6">Submitted Date</TableHead>
+                    <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider text-center py-4 px-6">Status</TableHead>
+                    <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider text-right py-4 px-6">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.data.map((app) => {
+                    const status = statusConfig[app.status] || statusConfig.pending;
+                    const StatusIcon = status.icon;
+                    return (
+                      <TableRow
+                        key={app.id}
+                        className="hover:bg-gray-50/50 transition-colors border-b cursor-pointer"
+                        style={{ borderColor: theme.hairline }}
+                        onClick={() => router.push(`/admin/applications/${app.id}`)}
+                      >
+                        {/* Student Info */}
+                        <TableCell className="py-4 px-6">
+                          <div>
+                            <p className="font-bold text-sm text-[#1A153A]">
+                              {app.firstName} {app.lastName}
+                            </p>
+                            <p className="text-xs text-gray-400 font-mono mt-0.5">{app.email}</p>
+                          </div>
+                        </TableCell>
 
-                    <div className="flex items-center gap-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
-                      <Calendar className="size-3 text-gray-300" />
-                      <span>Submitted: {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : "Pending"}</span>
-                    </div>
-                  </div>
+                        {/* University and Program */}
+                        <TableCell className="py-4 px-6">
+                          <div className="space-y-1">
+                            <p className="font-semibold text-sm text-[#1A153A] leading-tight">
+                              {app.university?.name || "Unknown University"}
+                            </p>
+                            <span className="inline-block font-bold text-gray-500 bg-gray-50 border rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wider">
+                              {app.selectedProgram || "Unknown program"}
+                            </span>
+                          </div>
+                        </TableCell>
 
-                  <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${status.bg} ${status.border} ${status.text}`}
-                    >
-                      <StatusIcon className="size-3.5" />
-                      {status.label}
-                    </span>
+                        {/* Submitted Date */}
+                        <TableCell className="py-4 px-6 text-xs text-gray-400 font-semibold uppercase">
+                          {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : "Pending"}
+                        </TableCell>
 
-                    {app.status === "pending" && (
-                      <div className="flex items-center gap-2">
-                        <button
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white transition-all hover:bg-emerald-700 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleApprove(app.id);
-                          }}
-                          disabled={updateStatus.isPending}
-                        >
-                          <CheckCircle2 className="size-3.5" />
-                          Approve
-                        </button>
-                        <button
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3.5 py-1.5 text-xs font-bold text-red-700 transition-all hover:bg-red-100 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleReject(app.id);
-                          }}
-                          disabled={updateStatus.isPending}
-                        >
-                          <XCircle className="size-3.5" />
-                          Reject
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                        {/* Status */}
+                        <TableCell className="py-4 px-6 text-center">
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold ${status.bg} ${status.border} ${status.text}`}
+                          >
+                            <StatusIcon className="size-3.5" />
+                            {status.label}
+                          </span>
+                        </TableCell>
+
+                        {/* Actions */}
+                        <TableCell className="py-4 px-6 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-2">
+                            {app.status === "pending" ? (
+                              <>
+                                <button
+                                  className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition-all hover:bg-emerald-700 cursor-pointer"
+                                  onClick={() => handleApprove(app.id)}
+                                  disabled={updateStatus.isPending}
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 transition-all hover:bg-red-100 cursor-pointer"
+                                  onClick={() => handleReject(app.id)}
+                                  disabled={updateStatus.isPending}
+                                >
+                                  Reject
+                                </button>
+                              </>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => router.push(`/admin/applications/${app.id}`)}
+                              >
+                                View
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </Card>
 
           {data.meta && data.meta.totalPages > 1 && (
             <div className="flex items-center justify-between pt-5 border-t" style={{ borderColor: theme.hairline }}>
