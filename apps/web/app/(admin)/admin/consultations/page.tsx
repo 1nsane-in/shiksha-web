@@ -142,12 +142,6 @@ export default function ConsultationsAdminPage() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6">
-      {/* Title Header */}
-      <div className="border-b pb-5" style={{ borderColor: theme.hairline }}>
-        <h1 className="text-xl font-bold tracking-tight text-[#1A153A]">Consultation Desk</h1>
-        <p className="text-sm text-gray-500">Assess, trace and resolve career counselling registrations submitted by prospective applicants.</p>
-      </div>
-
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <div className="rounded-xl border bg-white p-5 flex items-center gap-4" style={{ borderColor: theme.hairline }}>
