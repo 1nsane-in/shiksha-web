@@ -1,11 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Badge } from "@repo/ui";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui";
-import { Plus, Search, Building2, MapPin, ChevronLeft, ChevronRight, Eye, ShieldAlert, CheckCircle, Loader2 } from "lucide-react";
+import {
+  Button,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Badge,
+} from "@repo/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui";
+import {
+  Plus,
+  Search,
+  Building2,
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  ShieldAlert,
+  CheckCircle,
+  Loader2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useAdminUniversities, useUpdateUniversityStatus } from "@/domains/universities";
+import {
+  useAdminUniversities,
+  useUpdateUniversityStatus,
+} from "@/domains/universities";
 
 const typeColors: Record<string, string> = {
   GOVERNMENT: "bg-blue-50 text-blue-700 border-blue-200",
@@ -40,12 +70,19 @@ export default function UniversitiesPage() {
   const universities = search.trim()
     ? allUniversities.filter((uni) => {
         const q = search.trim().toLowerCase();
-        return uni.name.toLowerCase().includes(q) || uni.shortName.toLowerCase().includes(q);
+        return (
+          uni.name.toLowerCase().includes(q) ||
+          uni.shortName.toLowerCase().includes(q)
+        );
       })
     : allUniversities;
   const totalPages = universitiesData?.meta?.totalPages ?? 1;
 
-  const handleStatusToggle = (e: React.MouseEvent, uniId: string, currentStatus: string) => {
+  const handleStatusToggle = (
+    e: React.MouseEvent,
+    uniId: string,
+    currentStatus: string,
+  ) => {
     e.stopPropagation();
     const nextStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
     updateStatus.mutate({ id: uniId, status: nextStatus });
@@ -56,8 +93,13 @@ export default function UniversitiesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight text-[#111]">Universities</h1>
-          <p className="text-sm text-[#666]">Onboard and manage medical school information, academic courses, and admissions.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-[#111]">
+            Universities
+          </h1>
+          <p className="text-sm text-[#666]">
+            Onboard and manage medical school information, academic courses, and
+            admissions.
+          </p>
         </div>
         <Button
           onClick={() => router.push("/admin/universities/new")}
@@ -84,7 +126,10 @@ export default function UniversitiesPage() {
           />
         </div>
         <div className="flex flex-wrap gap-2">
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? "all")}>
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => setStatusFilter(value ?? "all")}
+          >
             <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-10">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -97,8 +142,11 @@ export default function UniversitiesPage() {
               <SelectItem value="SUSPENDED">Suspended</SelectItem>
             </SelectContent>
           </Select>
-          
-          <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value ?? "all")}>
+
+          <Select
+            value={typeFilter}
+            onValueChange={(value) => setTypeFilter(value ?? "all")}
+          >
             <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-10">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
@@ -130,8 +178,12 @@ export default function UniversitiesPage() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <h4 className="truncate text-base font-bold text-[#111]">{uni.name}</h4>
-                  <p className="text-xs text-gray-400 font-medium">{uni.shortName}</p>
+                  <h4 className="truncate text-base font-bold text-[#111]">
+                    {uni.name}
+                  </h4>
+                  <p className="text-xs text-gray-400 font-medium">
+                    {uni.shortName}
+                  </p>
                 </div>
                 <Badge
                   className={`shrink-0 text-[10px] uppercase font-bold py-0.5 px-2 border ${
@@ -147,10 +199,13 @@ export default function UniversitiesPage() {
                 </span>
                 {uni.location && (
                   <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" /> {uni.location.city}, {uni.location.country}
+                    <MapPin className="h-3 w-3" /> {uni.location.city},{" "}
+                    {uni.location.country}
                   </span>
                 )}
-                <span className="text-[10px] font-mono">Est. {uni.establishedYear}</span>
+                <span className="text-[10px] font-mono">
+                  Est. {uni.establishedYear}
+                </span>
               </div>
             </div>
           ))
@@ -158,16 +213,28 @@ export default function UniversitiesPage() {
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block overflow-hidden rounded-xl border border-[#ECEAE6] bg-white">
+      <div className="hidden md:block overflow-hidden rounded-xl border p-2 border-[#ECEAE6] bg-white">
         <Table>
           <TableHeader>
             <TableRow className="bg-[#FAFAF8] border-[#ECEAE6]">
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">University</TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">Type</TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">Location</TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-center">Status</TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-center">Est.</TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-right">Actions</TableHead>
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+                University
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+                Type
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+                Location
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-center">
+                Status
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-center">
+                Est.
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-right">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -179,7 +246,10 @@ export default function UniversitiesPage() {
               </TableRow>
             ) : universities.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-sm text-[#888]">
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-12 text-sm text-[#888]"
+                >
                   No universities found matching current filters.
                 </TableCell>
               </TableRow>
@@ -192,20 +262,30 @@ export default function UniversitiesPage() {
                 >
                   <TableCell className="py-4">
                     <div>
-                      <div className="font-bold text-sm text-[#111]">{uni.name}</div>
-                      <div className="text-xs text-gray-400 font-medium mt-0.5">{uni.shortName}</div>
+                      <div className="font-bold text-sm text-[#111]">
+                        {uni.name}
+                      </div>
+                      <div className="text-xs text-gray-400 font-medium mt-0.5">
+                        {uni.shortName}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={`border uppercase text-[10px] font-bold ${typeColors[uni.type] || "bg-gray-50 text-gray-700 border-gray-200"}`}>
+                    <Badge
+                      className={`border uppercase text-[10px] font-bold ${typeColors[uni.type] || "bg-gray-50 text-gray-700 border-gray-200"}`}
+                    >
                       {uni.type}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     {uni.location ? (
                       <div className="text-sm">
-                        <div className="font-medium text-[#111]">{uni.location.city}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">{uni.location.country}</div>
+                        <div className="font-medium text-[#111]">
+                          {uni.location.city}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-0.5">
+                          {uni.location.country}
+                        </div>
                       </div>
                     ) : (
                       "—"
@@ -223,12 +303,17 @@ export default function UniversitiesPage() {
                   <TableCell className="text-center font-mono text-sm font-medium text-[#111]">
                     {uni.establishedYear}
                   </TableCell>
-                  <TableCell className="text-right py-4" onClick={(e) => e.stopPropagation()}>
+                  <TableCell
+                    className="text-right py-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div className="flex items-center justify-end gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => router.push(`/admin/universities/${uni.id}`)}
+                        onClick={() =>
+                          router.push(`/admin/universities/${uni.id}`)
+                        }
                         className="text-[#3730A3] hover:text-[#2e288a] font-semibold text-xs cursor-pointer"
                       >
                         <Eye className="h-4 w-4 mr-1" /> View
@@ -241,7 +326,9 @@ export default function UniversitiesPage() {
                             ? "text-red-700 border-red-200 hover:bg-red-50 bg-white"
                             : "text-green-700 border-green-200 hover:bg-green-50 bg-white"
                         }`}
-                        onClick={(e) => handleStatusToggle(e, uni.id, uni.status)}
+                        onClick={(e) =>
+                          handleStatusToggle(e, uni.id, uni.status)
+                        }
                         disabled={updateStatus.isPending}
                       >
                         {uni.status === "ACTIVE" ? (

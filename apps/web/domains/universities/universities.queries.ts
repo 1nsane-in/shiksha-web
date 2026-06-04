@@ -100,3 +100,59 @@ export function useUpdateUniversityStatus() {
     },
   });
 }
+
+export function useAddUniversityCourse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ uniId, data }: { uniId: string; data: Record<string, unknown> }) => {
+      const { addUniversityCourse } = await import("./universities.api");
+      return addUniversityCourse(uniId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+  });
+}
+
+export function useDeleteUniversityCourse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (courseId: string) => {
+      const { deleteUniversityCourse } = await import("./universities.api");
+      return deleteUniversityCourse(courseId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+  });
+}
+
+export function useUploadUniversityDocument() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ uniId, data }: { uniId: string; data: Record<string, unknown> }) => {
+      const { uploadUniversityDocument } = await import("./universities.api");
+      return uploadUniversityDocument(uniId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+  });
+}
+
+export function useDeleteUniversityDocument() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (docId: string) => {
+      const { deleteUniversityDocument } = await import("./universities.api");
+      return deleteUniversityDocument(docId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+  });
+}

@@ -122,6 +122,14 @@ export interface UniversityDetail extends UniversityListItem {
     lastReviewedAt: string;
     notes: string;
   } | null;
+  documents?: {
+    id: string;
+    type: string;
+    fileUrl: string;
+    fileName: string;
+    fileSize: number;
+    uploadedAt: string;
+  }[];
 }
 
 export interface UniversityFilters {

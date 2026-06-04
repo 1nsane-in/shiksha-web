@@ -1,11 +1,23 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useAdminUniversity, useUpdateUniversityStatus, useDeleteUniversity } from "@/domains/universities";
+import React, { useState } from "react";
+import {
+  useAdminUniversity,
+  useUpdateUniversityStatus,
+  useDeleteUniversity,
+  useUpdateUniversity,
+  useAddUniversityCourse,
+  useDeleteUniversityCourse,
+  useUploadUniversityDocument,
+  useDeleteUniversityDocument,
+} from "@/domains/universities";
+import { uploadFile } from "@/domains/documents/documents.api";
 import { Button } from "@repo/ui";
 import { Card, CardContent } from "@repo/ui";
 import { Badge } from "@repo/ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Edit,
@@ -40,15 +52,16 @@ import {
   ScrollText,
   Banknote,
   Trash2,
+  Upload,
+  Plus,
+  Loader2,
+  ImageIcon,
 } from "lucide-react";
 import Image from "next/image";
 
 type IconComponent = React.ComponentType<{ className?: string }>;
 
-const statusConfig: Record<
-  string,
-  { label: string; className: string }
-> = {
+const statusConfig: Record<string, { label: string; className: string }> = {
   ACTIVE: {
     label: "Active",
     className: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -87,7 +100,9 @@ function StatCard({
       </div>
       <div className="min-w-0">
         <p className="text-[10px] text-[#9CA3AF] sm:text-xs">{label}</p>
-        <p className="truncate text-xs font-medium text-[#111] sm:text-sm">{value}</p>
+        <p className="truncate text-xs font-medium text-[#111] sm:text-sm">
+          {value}
+        </p>
       </div>
     </div>
   );
@@ -104,9 +119,7 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-start gap-2.5">
-      {Icon && (
-        <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#9CA3AF]" />
-      )}
+      {Icon && <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#9CA3AF]" />}
       <div className="min-w-0 flex-1">
         <p className="text-xs text-[#9CA3AF]">{label}</p>
         <div className="text-sm text-[#111]">{value}</div>
@@ -149,7 +162,7 @@ function BadgeList({ items }: { items: string[] }) {
 }
 
 function GalleryGrid({ images }: { images: string[] }) {
-  if (!images?.length) return null;
+  if (!images?.length) return <p className="text-xs text-gray-400">No images in gallery yet.</p>;
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {images.map((src, i) => (
@@ -186,7 +199,10 @@ function LoadingSkeleton() {
         </div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-14 rounded-lg border border-[#ECEAE6] bg-white sm:h-16" />
+            <div
+              key={i}
+              className="h-14 rounded-lg border border-[#ECEAE6] bg-white sm:h-16"
+            />
           ))}
         </div>
         <div className="h-9 w-72 max-w-full rounded-lg bg-[#F5F4F2] sm:w-96" />
@@ -202,9 +218,34 @@ function LoadingSkeleton() {
 export default function UniversityDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { data: university, isLoading } = useAdminUniversity(params.id as string);
+  const uniId = params.id as string;
+
+  const { data: university, isLoading, refetch } = useAdminUniversity(uniId);
   const updateStatus = useUpdateUniversityStatus();
   const deleteUniversity = useDeleteUniversity();
+
+  // New Management Mutations
+  const updateUniversityMut = useUpdateUniversity();
+  const addCourseMut = useAddUniversityCourse();
+  const deleteCourseMut = useDeleteUniversityCourse();
+  const uploadDocMut = useUploadUniversityDocument();
+  const deleteDocMut = useDeleteUniversityDocument();
+
+  // Management State
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+  
+  const [courseForm, setCourseForm] = useState({
+    name: "",
+    duration: 5,
+    fees: 0,
+    seats: 100,
+  });
+
+  const [docForm, setDocForm] = useState({
+    type: "PROSPECTUS",
+    file: null as File | null,
+  });
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
 
   if (isLoading) return <LoadingSkeleton />;
   if (!university) {
@@ -236,6 +277,135 @@ export default function UniversityDetailPage() {
   const adm = university.admission;
   const supp = university.support;
 
+  // Gallery Handlers
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setIsUploadingGallery(true);
+    try {
+      const file = e.target.files[0];
+      const res = await uploadFile(file, "gallery");
+      
+      const currentGallery = university.content?.gallery || [];
+      const updatedGallery = [...currentGallery, res.url];
+      
+      await updateUniversityMut.mutateAsync({
+        id: uniId,
+        data: {
+          content: {
+            ...university.content,
+            gallery: updatedGallery,
+          },
+        },
+      });
+      toast.success("Image added to campus gallery");
+      refetch();
+    } catch (err) {
+      toast.error("Failed to upload gallery image");
+    } finally {
+      setIsUploadingGallery(false);
+    }
+  };
+
+  const handleGalleryDelete = async (indexToDelete: number) => {
+    if (!confirm("Remove this image from gallery?")) return;
+    try {
+      const currentGallery = university.content?.gallery || [];
+      const updatedGallery = currentGallery.filter((_, idx) => idx !== indexToDelete);
+      
+      await updateUniversityMut.mutateAsync({
+        id: uniId,
+        data: {
+          content: {
+            ...university.content,
+            gallery: updatedGallery,
+          },
+        },
+      });
+      toast.success("Image removed from gallery");
+      refetch();
+    } catch (err) {
+      toast.error("Failed to update gallery");
+    }
+  };
+
+  // Course Handlers
+  const handleAddCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!courseForm.name.trim() || courseForm.fees <= 0) {
+      toast.error("Please enter a valid course name and tuition fee");
+      return;
+    }
+    try {
+      await addCourseMut.mutateAsync({
+        uniId,
+        data: {
+          name: courseForm.name.trim(),
+          duration: Number(courseForm.duration),
+          fees: Number(courseForm.fees),
+          seats: Number(courseForm.seats),
+          availableSeats: Number(courseForm.seats),
+          isActive: true,
+        },
+      });
+      toast.success("Course added successfully!");
+      setCourseForm({ name: "", duration: 5, fees: 0, seats: 100 });
+      refetch();
+    } catch (err) {
+      toast.error("Failed to add course");
+    }
+  };
+
+  const handleDeleteCourse = async (courseId: string) => {
+    if (!confirm("Are you sure you want to delete this course?")) return;
+    try {
+      await deleteCourseMut.mutateAsync(courseId);
+      toast.success("Course deleted successfully!");
+      refetch();
+    } catch (err) {
+      toast.error("Failed to delete course");
+    }
+  };
+
+  // Document Handlers
+  const handleDocUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!docForm.file) {
+      toast.error("Please select a document file to upload");
+      return;
+    }
+    setIsUploadingDoc(true);
+    try {
+      const res = await uploadFile(docForm.file, "documents");
+      await uploadDocMut.mutateAsync({
+        uniId,
+        data: {
+          type: docForm.type,
+          fileUrl: res.url,
+          fileName: docForm.file.name,
+          fileSize: docForm.file.size,
+        },
+      });
+      toast.success("Document uploaded successfully!");
+      setDocForm({ type: "PROSPECTUS", file: null });
+      refetch();
+    } catch (err) {
+      toast.error("Failed to upload document");
+    } finally {
+      setIsUploadingDoc(false);
+    }
+  };
+
+  const handleDeleteDoc = async (docId: string) => {
+    if (!confirm("Delete this document?")) return;
+    try {
+      await deleteDocMut.mutateAsync(docId);
+      toast.success("Document deleted!");
+      refetch();
+    } catch (err) {
+      toast.error("Failed to delete document");
+    }
+  };
+
   return (
     <div className="-m-4 sm:-m-6 flex flex-1 flex-col overflow-hidden">
       {/* Banner hero */}
@@ -257,7 +427,7 @@ export default function UniversityDetailPage() {
         )}
       </div>
 
-      <div className="w-full space-y-4 px-4 pb-6 sm:space-y-6 sm:px-6 sm:pb-8">
+      <div className="w-full space-y-4 px-4 pb-6 sm:space-y-6 sm:px-6 sm:pb-8 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col gap-3 pt-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:pt-4">
           <div className="flex items-start gap-3 sm:gap-4">
@@ -281,7 +451,9 @@ export default function UniversityDetailPage() {
                 <h1 className="text-base font-semibold tracking-tight text-[#111] sm:text-xl md:text-2xl">
                   {university.name}
                 </h1>
-                <Badge className={`border text-[10px] sm:text-xs ${status.className}`}>
+                <Badge
+                  className={`border text-[10px] sm:text-xs ${status.className}`}
+                >
                   {status.label}
                 </Badge>
               </div>
@@ -292,20 +464,17 @@ export default function UniversityDetailPage() {
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.back()}
-            >
+            <Button variant="outline" size="sm" onClick={() => router.back()} className="cursor-pointer bg-white border-[#ECEAE6]">
               <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
               Back
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push(
-                `/admin/universities/${params.id}/edit`
-              )}
+              onClick={() =>
+                router.push(`/admin/universities/${params.id}/edit`)
+              }
+              className="cursor-pointer hover:bg-[#FAFAF8]"
             >
               <Edit className="mr-1.5 h-3.5 w-3.5" />
               Edit
@@ -313,9 +482,14 @@ export default function UniversityDetailPage() {
             {university.status !== "ACTIVE" ? (
               <Button
                 size="sm"
-                onClick={() => updateStatus.mutate({ id: params.id as string, status: "ACTIVE" })}
+                onClick={() =>
+                  updateStatus.mutate({
+                    id: params.id as string,
+                    status: "ACTIVE",
+                  })
+                }
                 disabled={updateStatus.isPending}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
               >
                 <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
                 {updateStatus.isPending ? "Activating..." : "Activate"}
@@ -324,9 +498,14 @@ export default function UniversityDetailPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => updateStatus.mutate({ id: params.id as string, status: "INACTIVE" })}
+                onClick={() =>
+                  updateStatus.mutate({
+                    id: params.id as string,
+                    status: "INACTIVE",
+                  })
+                }
                 disabled={updateStatus.isPending}
-                className="text-amber-700 border-amber-300 hover:bg-amber-50"
+                className="text-amber-700 border-amber-300 hover:bg-amber-50 cursor-pointer bg-white"
               >
                 {updateStatus.isPending ? "Deactivating..." : "Deactivate"}
               </Button>
@@ -334,10 +513,13 @@ export default function UniversityDetailPage() {
             <Button
               variant="outline"
               size="sm"
-              className="text-red-600 border-red-200 hover:bg-red-50"
+              className="text-red-600 border-red-200 hover:bg-red-50 cursor-pointer bg-white"
               disabled={deleteUniversity.isPending}
               onClick={async () => {
-                if (!confirm("Are you sure you want to delete this university?")) return;
+                if (
+                  !confirm("Are you sure you want to delete this university?")
+                )
+                  return;
                 await deleteUniversity.mutateAsync(params.id as string);
                 router.push("/admin/universities");
               }}
@@ -360,36 +542,31 @@ export default function UniversityDetailPage() {
             label="Est."
             value={university.establishedYear ?? "—"}
           />
-          <StatCard
-            icon={Globe}
-            label="Country"
-            value={loc?.country ?? "—"}
-          />
+          <StatCard icon={Globe} label="Country" value={loc?.country ?? "—"} />
           <StatCard
             icon={GraduationCap}
             label="Programs"
             value={a?.programs?.length ?? 0}
           />
-          <StatCard
-            icon={Users}
-            label="Seats"
-            value={a?.totalSeats ?? "—"}
-          />
+          <StatCard icon={Users} label="Seats" value={a?.totalSeats ?? "—"} />
         </div>
 
         {/* Tabs */}
-        <Tabs
-          defaultValue="overview"
-          className="w-full min-w-0"
-        >
-          <TabsList variant="line" className="h-9 w-full justify-start gap-0 overflow-x-auto border-b border-[#ECEAE6]">
+        <Tabs defaultValue="overview" className="w-full min-w-0">
+          <TabsList
+            variant="line"
+            className="h-9 w-full justify-start gap-0 overflow-x-auto border-b border-[#ECEAE6]"
+          >
             <TabsTrigger value="overview" className="px-4 text-xs font-medium">
               Overview
             </TabsTrigger>
             <TabsTrigger value="academic" className="px-4 text-xs font-medium">
               Academic
             </TabsTrigger>
-            <TabsTrigger value="infrastructure" className="px-4 text-xs font-medium">
+            <TabsTrigger
+              value="infrastructure"
+              className="px-4 text-xs font-medium"
+            >
               Infrastructure
             </TabsTrigger>
             <TabsTrigger value="admission" className="px-4 text-xs font-medium">
@@ -398,19 +575,41 @@ export default function UniversityDetailPage() {
             <TabsTrigger value="support" className="px-4 text-xs font-medium">
               Support
             </TabsTrigger>
+            <TabsTrigger value="management" className="px-4 text-xs font-bold text-[#3730A3]">
+              🛠️ Manage Resources
+            </TabsTrigger>
           </TabsList>
 
           {/* ===== Overview Tab ===== */}
-          <TabsContent value="overview" className="mt-4 space-y-4 sm:mt-6 sm:space-y-5">
+          <TabsContent
+            value="overview"
+            className="mt-4 space-y-4 sm:mt-6 sm:space-y-5"
+          >
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               {/* Basic Info */}
               <Card size="sm" className="border-[#ECEAE6]">
                 <CardContent className="space-y-3 p-4 sm:p-5">
                   <SectionHeading icon={Building2} title="Basic Information" />
-                  <InfoRow icon={School} label="Full Name" value={university.name} />
-                  <InfoRow icon={BookOpen} label="Short Name" value={university.shortName} />
-                  <InfoRow icon={Building2} label="Type" value={university.type?.replace("_", " ")} />
-                  <InfoRow icon={Calendar} label="Established" value={university.establishedYear} />
+                  <InfoRow
+                    icon={School}
+                    label="Full Name"
+                    value={university.name}
+                  />
+                  <InfoRow
+                    icon={BookOpen}
+                    label="Short Name"
+                    value={university.shortName}
+                  />
+                  <InfoRow
+                    icon={Building2}
+                    label="Type"
+                    value={university.type?.replace("_", " ")}
+                  />
+                  <InfoRow
+                    icon={Calendar}
+                    label="Established"
+                    value={university.establishedYear}
+                  />
                   {university.brochureUrl && (
                     <InfoRow
                       icon={Download}
@@ -438,11 +637,7 @@ export default function UniversityDetailPage() {
                     <SectionHeading icon={MapPin} title="Location" />
                     <InfoRow icon={Globe} label="Country" value={loc.country} />
                     <InfoRow icon={MapPin} label="State" value={loc.state} />
-                    <InfoRow
-                      icon={MapPin}
-                      label="City"
-                      value={loc.city}
-                    />
+                    <InfoRow icon={MapPin} label="City" value={loc.city} />
                     <InfoRow
                       icon={MapPin}
                       label="Address"
@@ -496,7 +691,10 @@ export default function UniversityDetailPage() {
               {a && (
                 <Card size="sm" className="border-[#ECEAE6]">
                   <CardContent className="space-y-3 p-4 sm:p-5">
-                    <SectionHeading icon={GraduationCap} title="Academic Snapshot" />
+                    <SectionHeading
+                      icon={GraduationCap}
+                      title="Academic Snapshot"
+                    />
                     <InfoRow
                       icon={BookOpen}
                       label="Programs"
@@ -526,20 +724,30 @@ export default function UniversityDetailPage() {
           </TabsContent>
 
           {/* ===== Academic Tab ===== */}
-          <TabsContent value="academic" className="mt-4 space-y-4 sm:mt-6 sm:space-y-5">
+          <TabsContent
+            value="academic"
+            className="mt-4 space-y-4 sm:mt-6 sm:space-y-5"
+          >
             {a ? (
               <>
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   {/* Programs & Duration */}
                   <Card size="sm" className="border-[#ECEAE6]">
                     <CardContent className="space-y-3 p-4 sm:p-5">
-                      <SectionHeading icon={BookOpen} title="Programs & Duration" />
+                      <SectionHeading
+                        icon={BookOpen}
+                        title="Programs & Duration"
+                      />
                       <InfoRow
                         icon={GraduationCap}
                         label="Programs"
                         value={<BadgeList items={a.programs} />}
                       />
-                      <InfoRow icon={Clock} label="Duration" value={a.duration} />
+                      <InfoRow
+                        icon={Clock}
+                        label="Duration"
+                        value={a.duration}
+                      />
                       <InfoRow icon={Globe} label="Medium" value={a.medium} />
                       <InfoRow
                         icon={Calendar}
@@ -553,7 +761,11 @@ export default function UniversityDetailPage() {
                   <Card size="sm" className="border-[#ECEAE6]">
                     <CardContent className="space-y-3 p-4 sm:p-5">
                       <SectionHeading icon={Users} title="Seat Distribution" />
-                      <InfoRow icon={Users} label="Total Seats" value={a.totalSeats} />
+                      <InfoRow
+                        icon={Users}
+                        label="Total Seats"
+                        value={a.totalSeats}
+                      />
                       <InfoRow
                         icon={Users}
                         label="Government"
@@ -572,10 +784,7 @@ export default function UniversityDetailPage() {
                   {a.specializations?.length > 0 && (
                     <Card size="sm" className="border-[#ECEAE6]">
                       <CardContent className="space-y-3 p-4 sm:p-5">
-                        <SectionHeading
-                          icon={Medal}
-                          title="Specializations"
-                        />
+                        <SectionHeading icon={Medal} title="Specializations" />
                         <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                           {a.specializations.map((spec) => (
                             <div
@@ -583,7 +792,9 @@ export default function UniversityDetailPage() {
                               className="flex items-center gap-2 rounded-md border border-[#ECEAE6] bg-[#FAFAF9] px-3 py-2"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
-                              <span className="text-sm text-[#111]">{spec}</span>
+                              <span className="text-sm text-[#111]">
+                                {spec}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -594,22 +805,51 @@ export default function UniversityDetailPage() {
               </>
             ) : (
               <div className="flex items-center justify-center rounded-lg border border-dashed border-[#ECEAE6] py-16">
-                <p className="text-sm text-[#9CA3AF]">No academic details available</p>
+                <p className="text-sm text-[#9CA3AF]">
+                  No academic details available
+                </p>
               </div>
             )}
           </TabsContent>
 
           {/* ===== Infrastructure Tab ===== */}
-          <TabsContent value="infrastructure" className="mt-4 space-y-4 sm:mt-6 sm:space-y-5">
+          <TabsContent
+            value="infrastructure"
+            className="mt-4 space-y-4 sm:mt-6 sm:space-y-5"
+          >
             {infra ? (
               <>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">
-                  <InfraStat icon={Stethoscope} label="Hospital Beds" value={infra.hospitalBeds} />
-                  <InfraStat icon={School} label="Departments" value={infra.departments} />
-                  <InfraStat icon={FlaskConical} label="Laboratories" value={infra.laboratories} />
-                  <InfraStat icon={Bed} label="Hostel (Boys)" value={infra.hostelBoys} />
-                  <InfraStat icon={Bed} label="Hostel (Girls)" value={infra.hostelGirls} />
-                  <InfraStat icon={MapPin} label="Campus (acres)" value={infra.campusArea} />
+                  <InfraStat
+                     icon={Stethoscope}
+                     label="Hospital Beds"
+                     value={infra.hospitalBeds}
+                  />
+                  <InfraStat
+                     icon={School}
+                     label="Departments"
+                     value={infra.departments}
+                  />
+                  <InfraStat
+                     icon={FlaskConical}
+                     label="Laboratories"
+                     value={infra.laboratories}
+                  />
+                  <InfraStat
+                     icon={Bed}
+                     label="Hostel (Boys)"
+                     value={infra.hostelBoys}
+                  />
+                  <InfraStat
+                     icon={Bed}
+                     label="Hostel (Girls)"
+                     value={infra.hostelGirls}
+                  />
+                  <InfraStat
+                     icon={MapPin}
+                     label="Campus (acres)"
+                     value={infra.campusArea}
+                  />
                 </div>
 
                 {/* Facilities */}
@@ -617,27 +857,67 @@ export default function UniversityDetailPage() {
                   <CardContent className="p-4 sm:p-5">
                     <SectionHeading icon={Building2} title="Facilities" />
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                      <AmenityCheck icon={Library} label="Library" checked={infra.facilities?.includes("Library")} />
-                      <AmenityCheck icon={FlaskConical} label="Computer Lab" checked={infra.facilities?.includes("Computer Lab")} />
-                      <AmenityCheck icon={Dumbbell} label="Sports Complex" checked={infra.facilities?.includes("Sports Complex")} />
-                      <AmenityCheck icon={Coffee} label="Cafeteria" checked={infra.facilities?.includes("Cafeteria") ?? infra.cafeteria} />
-                      <AmenityCheck icon={Bed} label="Hostel" checked={infra.facilities?.includes("Hostel")} />
-                      <AmenityCheck icon={Stethoscope} label="Hospital" checked={infra.facilities?.includes("Hospital")} />
-                      <AmenityCheck icon={Wifi} label="WiFi Campus" checked={infra.wifiCampus} />
-                      <AmenityCheck icon={Bus} label="Transport" checked={infra.transportation} />
+                      <AmenityCheck
+                        icon={Library}
+                        label="Library"
+                        checked={infra.facilities?.includes("Library")}
+                      />
+                      <AmenityCheck
+                        icon={FlaskConical}
+                        label="Computer Lab"
+                        checked={infra.facilities?.includes("Computer Lab")}
+                      />
+                      <AmenityCheck
+                        icon={Dumbbell}
+                        label="Sports Complex"
+                        checked={infra.facilities?.includes("Sports Complex")}
+                      />
+                      <AmenityCheck
+                        icon={Coffee}
+                        label="Cafeteria"
+                        checked={
+                          infra.facilities?.includes("Cafeteria") ??
+                          infra.cafeteria
+                        }
+                      />
+                      <AmenityCheck
+                        icon={Bed}
+                        label="Hostel"
+                        checked={infra.facilities?.includes("Hostel")}
+                      />
+                      <AmenityCheck
+                        icon={Stethoscope}
+                        label="Hospital"
+                        checked={infra.facilities?.includes("Hospital")}
+                      />
+                      <AmenityCheck
+                        icon={Wifi}
+                        label="WiFi Campus"
+                        checked={infra.wifiCampus}
+                      />
+                      <AmenityCheck
+                        icon={Bus}
+                        label="Transport"
+                        checked={infra.transportation}
+                      />
                     </div>
                   </CardContent>
                 </Card>
               </>
             ) : (
               <div className="flex items-center justify-center rounded-lg border border-dashed border-[#ECEAE6] py-16">
-                <p className="text-sm text-[#9CA3AF]">No infrastructure details available</p>
+                <p className="text-sm text-[#9CA3AF]">
+                  No infrastructure details available
+                </p>
               </div>
             )}
           </TabsContent>
 
           {/* ===== Admission Tab ===== */}
-          <TabsContent value="admission" className="mt-4 space-y-4 sm:mt-6 sm:space-y-5">
+          <TabsContent
+            value="admission"
+            className="mt-4 space-y-4 sm:mt-6 sm:space-y-5"
+          >
             {adm ? (
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {/* Requirements */}
@@ -654,15 +934,26 @@ export default function UniversityDetailPage() {
                       label="Minimum Marks"
                       value={adm.minimumMarks}
                     />
-                    <InfoRow icon={Calendar} label="Age Criteria" value={adm.ageCriteria} />
-                    <InfoRow icon={FileText} label="Eligibility" value={adm.eligibility} />
+                    <InfoRow
+                      icon={Calendar}
+                      label="Age Criteria"
+                      value={adm.ageCriteria}
+                    />
+                    <InfoRow
+                      icon={FileText}
+                      label="Eligibility"
+                      value={adm.eligibility}
+                    />
                   </CardContent>
                 </Card>
 
                 {/* Documents & Fees */}
                 <Card size="sm" className="border-[#ECEAE6]">
                   <CardContent className="space-y-3 p-4 sm:p-5">
-                    <SectionHeading icon={ScrollText} title="Documents & Fees" />
+                    <SectionHeading
+                      icon={ScrollText}
+                      title="Documents & Fees"
+                    />
                     <InfoRow
                       icon={Banknote}
                       label="Application Fee"
@@ -674,7 +965,7 @@ export default function UniversityDetailPage() {
                       value={
                         adm.applicationDeadline
                           ? new Date(
-                              adm.applicationDeadline
+                              adm.applicationDeadline,
                             ).toLocaleDateString("en-IN", {
                               day: "numeric",
                               month: "long",
@@ -716,13 +1007,18 @@ export default function UniversityDetailPage() {
               </div>
             ) : (
               <div className="flex items-center justify-center rounded-lg border border-dashed border-[#ECEAE6] py-16">
-                <p className="text-sm text-[#9CA3AF]">No admission details available</p>
+                <p className="text-sm text-[#9CA3AF]">
+                  No admission details available
+                </p>
               </div>
             )}
           </TabsContent>
 
           {/* ===== Support Tab ===== */}
-          <TabsContent value="support" className="mt-4 space-y-4 sm:mt-6 sm:space-y-5">
+          <TabsContent
+            value="support"
+            className="mt-4 space-y-4 sm:mt-6 sm:space-y-5"
+          >
             {supp ? (
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {/* Placement */}
@@ -755,9 +1051,21 @@ export default function UniversityDetailPage() {
                   <CardContent className="space-y-3 p-4 sm:p-5">
                     <SectionHeading icon={Heart} title="Student Services" />
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                      <AmenityCheck icon={VisaIcon} label="Visa Assistance" checked={supp.visaAssistance} />
-                      <AmenityCheck icon={MessageSquare} label="Counseling" checked={supp.counselingServices} />
-                      <AmenityCheck icon={Briefcase} label="Career Guidance" checked={supp.careerGuidance} />
+                      <AmenityCheck
+                        icon={VisaIcon}
+                        label="Visa Assistance"
+                        checked={supp.visaAssistance}
+                      />
+                      <AmenityCheck
+                        icon={MessageSquare}
+                        label="Counseling"
+                        checked={supp.counselingServices}
+                      />
+                      <AmenityCheck
+                        icon={Briefcase}
+                        label="Career Guidance"
+                        checked={supp.careerGuidance}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -766,7 +1074,10 @@ export default function UniversityDetailPage() {
                 {supp.languageSupport?.length > 0 && (
                   <Card size="sm" className="border-[#ECEAE6] md:col-span-2">
                     <CardContent className="p-4 sm:p-5">
-                      <SectionHeading icon={Languages} title="Language Support" />
+                      <SectionHeading
+                        icon={Languages}
+                        title="Language Support"
+                      />
                       <div className="flex flex-wrap gap-2">
                         {supp.languageSupport.map((lang) => (
                           <div
@@ -786,9 +1097,266 @@ export default function UniversityDetailPage() {
               </div>
             ) : (
               <div className="flex items-center justify-center rounded-lg border border-dashed border-[#ECEAE6] py-16">
-                <p className="text-sm text-[#9CA3AF]">No support details available</p>
+                <p className="text-sm text-[#9CA3AF]">
+                  No support details available
+                </p>
               </div>
             )}
+          </TabsContent>
+
+          {/* ===== 🛠️ Interactive Management Tab ===== */}
+          <TabsContent value="management" className="mt-4 space-y-6 sm:mt-6 sm:space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+              
+              {/* Column 1: Campus Gallery Manager */}
+              <div className="lg:col-span-1 space-y-6">
+                <Card className="border-[#ECEAE6]">
+                  <CardContent className="p-4 sm:p-5 space-y-4">
+                    <SectionHeading icon={ImageIcon} title="Campus Gallery Manager" />
+                    <p className="text-xs text-gray-500">Upload campus environment, library, or anatomy lab images directly to S3/R2 storage.</p>
+                    
+                    <div className="relative pt-2">
+                      <label className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#ECEAE6] bg-white hover:bg-[#FAFAF8] text-xs font-semibold text-gray-700 cursor-pointer shadow-sm select-none transition-all active:scale-[0.98]">
+                        {isUploadingGallery ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin text-[#3730A3]" /> Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="h-4 w-4 text-[#3730A3]" /> Select Image File
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleGalleryUpload}
+                          disabled={isUploadingGallery}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+
+                    {/* Current Gallery Grid with Delete */}
+                    <div className="border-t pt-4">
+                      <h4 className="text-xs font-bold text-[#666] mb-3 uppercase tracking-wider">Current Images ({university.content?.gallery?.length || 0})</h4>
+                      {university.content?.gallery && university.content.gallery.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          {university.content.gallery.map((src, idx) => (
+                            <div key={idx} className="group relative aspect-video rounded-lg overflow-hidden border border-[#ECEAE6] bg-[#FAFAF8]">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={src} alt="Campus" className="h-full w-full object-cover" />
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  onClick={() => handleGalleryDelete(idx)}
+                                  className="h-7 w-7 rounded bg-red-600 hover:bg-red-700 text-white"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-400 italic">No gallery images uploaded yet.</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Column 2: Course Management */}
+              <div className="lg:col-span-1 space-y-6">
+                <Card className="border-[#ECEAE6]">
+                  <CardContent className="p-4 sm:p-5 space-y-4">
+                    <SectionHeading icon={GraduationCap} title="Manage Courses" />
+                    
+                    <form onSubmit={handleAddCourse} className="space-y-3 bg-[#FAFAF8] p-3 border rounded-xl">
+                      <h4 className="text-xs font-bold text-[#111] uppercase tracking-wider">Add Course</h4>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-gray-500 font-semibold uppercase">Course Name</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. MBBS, MD Pediatrics"
+                          value={courseForm.name}
+                          onChange={(e) => setCourseForm({ ...courseForm, name: e.target.value })}
+                          className="w-full px-3 py-1.5 text-xs border rounded-lg bg-white"
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <label className="text-[10px] text-gray-500 font-semibold uppercase">Duration (years)</label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="8"
+                            value={courseForm.duration}
+                            onChange={(e) => setCourseForm({ ...courseForm, duration: parseInt(e.target.value) || 5 })}
+                            className="w-full px-3 py-1.5 text-xs border rounded-lg bg-white"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] text-gray-500 font-semibold uppercase">Total Seats</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={courseForm.seats}
+                            onChange={(e) => setCourseForm({ ...courseForm, seats: parseInt(e.target.value) || 100 })}
+                            className="w-full px-3 py-1.5 text-xs border rounded-lg bg-white"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-gray-500 font-semibold uppercase">Annual Tuition Fee (USD)</label>
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder="e.g. 4500"
+                          value={courseForm.fees}
+                          onChange={(e) => setCourseForm({ ...courseForm, fees: parseFloat(e.target.value) || 0 })}
+                          className="w-full px-3 py-1.5 text-xs border rounded-lg bg-white"
+                          required
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        disabled={addCourseMut.isPending}
+                        className="w-full bg-[#3730A3] text-white text-xs h-8 font-semibold mt-2 cursor-pointer"
+                      >
+                        {addCourseMut.isPending ? "Adding..." : "Add Course"}
+                      </Button>
+                    </form>
+
+                    {/* Courses list */}
+                    <div className="border-t pt-4">
+                      <h4 className="text-xs font-bold text-[#666] mb-3 uppercase tracking-wider">Active Courses ({university.courses?.length || 0})</h4>
+                      {university.courses && university.courses.length > 0 ? (
+                        <div className="space-y-2">
+                          {university.courses.map((course) => (
+                            <div key={course.id} className="p-3 bg-white border border-[#ECEAE6] rounded-xl flex items-center justify-between">
+                              <div className="min-w-0 flex-1">
+                                <h5 className="text-xs font-bold text-[#111] truncate">{course.name}</h5>
+                                <p className="text-[10px] text-gray-400 mt-0.5">{course.duration} years · ${course.fees.toLocaleString()}/yr · {course.seats} seats</p>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                onClick={() => handleDeleteCourse(course.id)}
+                                disabled={deleteCourseMut.isPending}
+                                className="h-7 w-7 text-white bg-red-600 hover:bg-red-700"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-400 italic">No custom courses added.</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Column 3: Official Document Manager */}
+              <div className="lg:col-span-1 space-y-6">
+                <Card className="border-[#ECEAE6]">
+                  <CardContent className="p-4 sm:p-5 space-y-4">
+                    <SectionHeading icon={FileText} title="Document Manager" />
+                    
+                    <form onSubmit={handleDocUpload} className="space-y-3 bg-[#FAFAF8] p-3 border rounded-xl">
+                      <h4 className="text-xs font-bold text-[#111] uppercase tracking-wider">Upload Document</h4>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-gray-500 font-semibold uppercase">Document Category</label>
+                        <select
+                          value={docForm.type}
+                          onChange={(e) => setDocForm({ ...docForm, type: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs border rounded-lg bg-white"
+                        >
+                          <option value="PROSPECTUS">Prospectus Booklet</option>
+                          <option value="FEE_STRUCTURE">Detailed Fee Structure</option>
+                          <option value="ADMISSION_FORM">Admission Form Template</option>
+                          <option value="HOSTEL_RULES">Hostel Rules & Regulations</option>
+                          <option value="ANTI_RAGGING_POLICY">Anti-Ragging Compliance</option>
+                          <option value="AGREEMENT">Legal Student Agreement</option>
+                          <option value="DEGREE_SAMPLE">Degree Certificate Sample</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-gray-500 font-semibold uppercase">PDF / Image File</label>
+                        <input
+                          type="file"
+                          accept=".pdf,image/*"
+                          onChange={(e) => setDocForm({ ...docForm, file: e.target.files?.[0] || null })}
+                          className="w-full px-2 py-1 text-xs border rounded-lg bg-white"
+                          required
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        disabled={isUploadingDoc}
+                        className="w-full bg-[#3730A3] text-white text-xs h-8 font-semibold mt-2 cursor-pointer"
+                      >
+                        {isUploadingDoc ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> Uploading...
+                          </>
+                        ) : (
+                          "Upload Document"
+                        )}
+                      </Button>
+                    </form>
+
+                    {/* Document list */}
+                    <div className="border-t pt-4">
+                      <h4 className="text-xs font-bold text-[#666] mb-3 uppercase tracking-wider">Uploaded Files ({university.documents?.length || 0})</h4>
+                      {university.documents && university.documents.length > 0 ? (
+                        <div className="space-y-2">
+                          {university.documents.map((doc: any) => (
+                            <div key={doc.id} className="p-3 bg-white border border-[#ECEAE6] rounded-xl flex items-center justify-between">
+                              <div className="min-w-0 flex-1 pr-2">
+                                <h5 className="text-xs font-bold text-[#111] truncate">{doc.type.replace(/_/g, " ")}</h5>
+                                <p className="text-[10px] text-gray-400 mt-0.5 truncate" title={doc.fileName}>{doc.fileName}</p>
+                              </div>
+                              <div className="flex gap-1.5 shrink-0">
+                                <a
+                                  href={doc.fileUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="h-7 w-7 rounded bg-gray-100 hover:bg-gray-200 border flex items-center justify-center text-gray-700"
+                                  title="View document"
+                                >
+                                  <Download className="h-3.5 w-3.5" />
+                                </a>
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  onClick={() => handleDeleteDoc(doc.id)}
+                                  disabled={deleteDocMut.isPending}
+                                  className="h-7 w-7 text-white bg-red-600 hover:bg-red-700"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-400 italic">No university documents uploaded.</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+            </div>
           </TabsContent>
         </Tabs>
       </div>
@@ -835,7 +1403,9 @@ function AmenityCheck({
     >
       <div
         className={`flex h-6 w-6 items-center justify-center rounded-full ${
-          checked ? "bg-emerald-100 text-emerald-600" : "bg-[#F5F4F2] text-[#9CA3AF]"
+          checked
+            ? "bg-emerald-100 text-emerald-600"
+            : "bg-[#F5F4F2] text-[#9CA3AF]"
         }`}
       >
         {checked ? (
@@ -868,8 +1438,8 @@ function XIcon({ className }: { className?: string }) {
       strokeLinejoin="round"
       className={className}
     >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   );
 }
@@ -894,25 +1464,6 @@ function Building2({ className }: { className?: string }) {
       <path d="M10 10h4" />
       <path d="M10 14h4" />
       <path d="M10 18h4" />
-    </svg>
-  );
-}
-
-function ImageIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-      <circle cx="9" cy="9" r="2" />
-      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
     </svg>
   );
 }

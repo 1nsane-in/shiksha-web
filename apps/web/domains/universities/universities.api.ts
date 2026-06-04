@@ -41,3 +41,19 @@ export function updateUniversityStatus(id: string, status: string) {
   return client.patch(`/admin/universities/${id}/status`, { status });
 }
 
+export function addUniversityCourse(uniId: string, data: Record<string, unknown>) {
+  return client.post(`/admin/universities/${uniId}/courses`, data);
+}
+
+export function deleteUniversityCourse(courseId: string) {
+  return client.delete(`/admin/universities/courses/${courseId}`);
+}
+
+export function uploadUniversityDocument(uniId: string, data: Record<string, unknown>) {
+  return client.post(`/admin/universities/${uniId}/documents`, data);
+}
+
+export function deleteUniversityDocument(docId: string) {
+  return client.delete(`/admin/universities/documents/${docId}`);
+}
+
