@@ -77,13 +77,7 @@ export default function AdminApplicationsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6" style={{ background: theme.canvas }}>
-      {/* Title Header */}
-      <div className="border-b pb-5" style={{ borderColor: theme.hairline }}>
-        <h1 className="text-xl font-bold tracking-tight text-[#1A153A]">University Applications</h1>
-        <p className="text-sm text-gray-500">Assess, verify, and manage stage 1 admissions submitted by overseas applicants.</p>
-      </div>
-
+    <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6">
       {/* Advanced Filters */}
       <Card
         className="p-4 bg-white border"

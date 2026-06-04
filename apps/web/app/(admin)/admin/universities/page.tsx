@@ -1,61 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@repo/ui";
-import { Input } from "@repo/ui";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@repo/ui";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui";
-import { Badge } from "@repo/ui";
-import {
-  Plus,
-  Search,
-} from "lucide-react";
+import { Button, Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Badge } from "@repo/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui";
+import { Plus, Search, Building2, MapPin, ChevronLeft, ChevronRight, Eye, ShieldAlert, CheckCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAdminUniversities, useUpdateUniversityStatus } from "@/domains/universities";
-
-interface University {
-  id: string;
-  slug: string;
-  name: string;
-  shortName: string;
-  type: string;
-  status: string;
-  establishedYear: number;
-  location?: {
-    country: string;
-    city: string;
-  };
-  _count?: {
-    courses: number;
-    applications: number;
-  };
-  createdAt: string;
-}
 
 const typeColors: Record<string, string> = {
   GOVERNMENT: "bg-blue-50 text-blue-700 border-blue-200",
   PRIVATE: "bg-purple-50 text-purple-700 border-purple-200",
 };
 
-const statusColors = {
-  DRAFT: "bg-gray-500",
-  UNDER_REVIEW: "bg-yellow-500",
-  ACTIVE: "bg-green-500",
-  INACTIVE: "bg-red-500",
-  SUSPENDED: "bg-orange-500",
+const statusColors: Record<string, string> = {
+  ACTIVE: "bg-green-50 text-green-700 border-green-200",
+  DRAFT: "bg-gray-50 text-gray-700 border-gray-200",
+  UNDER_REVIEW: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  INACTIVE: "bg-red-50 text-red-700 border-red-200",
+  SUSPENDED: "bg-orange-50 text-orange-700 border-orange-200",
 };
 
 export default function UniversitiesPage() {
@@ -83,40 +45,51 @@ export default function UniversitiesPage() {
     : allUniversities;
   const totalPages = universitiesData?.meta?.totalPages ?? 1;
 
+  const handleStatusToggle = (e: React.MouseEvent, uniId: string, currentStatus: string) => {
+    e.stopPropagation();
+    const nextStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    updateStatus.mutate({ id: uniId, status: nextStatus });
+  };
+
   return (
-    <div className="flex flex-1 flex-col gap-4">
+    <div className="flex flex-1 flex-col gap-6 max-w-7xl mx-auto p-4 md:p-6">
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-[#2D2154] sm:text-2xl">Universities</h1>
-          <p className="text-xs text-[#6B6B6B] sm:text-sm">
-            Manage university onboarding and information
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight text-[#111]">Universities</h1>
+          <p className="text-sm text-[#666]">Onboard and manage medical school information, academic courses, and admissions.</p>
         </div>
-        <Button onClick={() => router.push("/admin/universities/new")} size="sm" className="w-fit">
-          <Plus className="mr-1.5 h-4 w-4" />
+        <Button
+          onClick={() => router.push("/admin/universities/new")}
+          size="sm"
+          className="bg-[#3730A3] hover:bg-[#2e288a] text-white font-medium cursor-pointer flex items-center gap-1.5 h-10 px-4"
+        >
+          <Plus className="h-4 w-4" />
           Add University
         </Button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      {/* Filters bar */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center bg-[#FAFAF8] border border-[#ECEAE6] rounded-xl p-4">
         <div className="relative flex-1 sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B6B6B]" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
-            placeholder="Search universities..."
+            placeholder="Search by name or abbreviation..."
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="pl-10"
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="pl-10 bg-white border-[#E5E7EB] text-sm h-10"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? "all")}>
-            <SelectTrigger className="w-full sm:w-[140px]">
+            <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-10">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="DRAFT">Draft</SelectItem>
               <SelectItem value="UNDER_REVIEW">Under Review</SelectItem>
               <SelectItem value="ACTIVE">Active</SelectItem>
@@ -124,8 +97,9 @@ export default function UniversitiesPage() {
               <SelectItem value="SUSPENDED">Suspended</SelectItem>
             </SelectContent>
           </Select>
+          
           <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value ?? "all")}>
-            <SelectTrigger className="w-full sm:w-[140px]">
+            <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-10">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
@@ -137,123 +111,150 @@ export default function UniversitiesPage() {
         </div>
       </div>
 
-      {/* Mobile card list */}
-      <div className="flex flex-col gap-2.5 md:hidden">
+      {/* Mobile Card List */}
+      <div className="flex flex-col gap-3 md:hidden">
         {isLoading ? (
-          <div className="py-8 text-center text-sm text-[#6B6B6B]">Loading...</div>
+          <div className="py-12 flex justify-center items-center">
+            <Loader2 className="h-6 w-6 text-[#3730A3] animate-spin" />
+          </div>
         ) : universities.length === 0 ? (
-          <div className="py-8 text-center text-sm text-[#6B6B6B]">No universities found</div>
+          <div className="text-center py-12 text-sm text-gray-500 bg-white border border-[#ECEAE6] rounded-xl">
+            No universities matched your search.
+          </div>
         ) : (
           universities.map((uni) => (
             <div
               key={uni.id}
-              className="cursor-pointer rounded-lg border border-[#ECEAE6] bg-white p-3.5 transition-colors active:bg-[#F5F4F2] sm:p-4"
+              className="cursor-pointer rounded-xl border border-[#ECEAE6] bg-white p-4 transition-all hover:shadow-md active:bg-[#FAFAF8]"
               onClick={() => router.push(`/admin/universities/${uni.id}`)}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-[#2D2154]">{uni.name}</p>
-                  <p className="text-xs text-[#6B6B6B]">{uni.shortName}</p>
+                  <h4 className="truncate text-base font-bold text-[#111]">{uni.name}</h4>
+                  <p className="text-xs text-gray-400 font-medium">{uni.shortName}</p>
                 </div>
                 <Badge
-                  className={`shrink-0 text-[10px] ${
-                    statusColors[uni.status as keyof typeof statusColors]
-                  } text-white`}
+                  className={`shrink-0 text-[10px] uppercase font-bold py-0.5 px-2 border ${
+                    statusColors[uni.status] || "bg-gray-100 text-gray-800"
+                  }`}
                 >
                   {uni.status.replace("_", " ")}
                 </Badge>
               </div>
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#6B6B6B]">
-                <span>{uni.type}</span>
-                {uni.location && <span>{uni.location.city}, {uni.location.country}</span>}
-                <span>Est. {uni.establishedYear}</span>
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-gray-500 border-t pt-3 border-gray-100">
+                <span className="flex items-center gap-1 font-semibold text-[10px] text-[#3730A3]">
+                  <Building2 className="h-3 w-3" /> {uni.type}
+                </span>
+                {uni.location && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" /> {uni.location.city}, {uni.location.country}
+                  </span>
+                )}
+                <span className="text-[10px] font-mono">Est. {uni.establishedYear}</span>
               </div>
             </div>
           ))
         )}
       </div>
 
-      {/* Desktop table */}
-      <div className="hidden overflow-hidden rounded-lg border border-[#ECEAE6] bg-white md:block">
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-hidden rounded-xl border border-[#ECEAE6] bg-white">
         <Table>
           <TableHeader>
-            <TableRow className="bg-[#FAFAF8]">
-              <TableHead className="text-xs font-medium text-[#6B6B6B]">University</TableHead>
-              <TableHead className="text-xs font-medium text-[#6B6B6B]">Type</TableHead>
-              <TableHead className="text-xs font-medium text-[#6B6B6B]">Location</TableHead>
-              <TableHead className="text-xs font-medium text-[#6B6B6B]">Status</TableHead>
-              <TableHead className="text-xs font-medium text-[#6B6B6B]">Est.</TableHead>
-              <TableHead className="text-xs font-medium text-[#6B6B6B] text-right">Actions</TableHead>
+            <TableRow className="bg-[#FAFAF8] border-[#ECEAE6]">
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">University</TableHead>
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">Type</TableHead>
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">Location</TableHead>
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-center">Status</TableHead>
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-center">Est.</TableHead>
+              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-sm text-[#6B6B6B]">
-                  Loading...
+                <TableCell colSpan={6} className="text-center py-12">
+                  <Loader2 className="h-6 w-6 text-[#3730A3] animate-spin mx-auto" />
                 </TableCell>
               </TableRow>
             ) : universities.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-sm text-[#6B6B6B]">
-                  No universities found
+                <TableCell colSpan={6} className="text-center py-12 text-sm text-[#888]">
+                  No universities found matching current filters.
                 </TableCell>
               </TableRow>
             ) : (
               universities.map((uni) => (
                 <TableRow
                   key={uni.id}
-                  className="cursor-pointer transition-colors hover:bg-[#F9F8F6]"
+                  className="cursor-pointer border-[#ECEAE6] hover:bg-[#F2F1ED] transition-colors"
                   onClick={() => router.push(`/admin/universities/${uni.id}`)}
                 >
-                  <TableCell>
+                  <TableCell className="py-4">
                     <div>
-                      <div className="font-medium text-[#2D2154]">
-                        {uni.name}
-                      </div>
-                      <div className="text-sm text-[#6B6B6B]">
-                        {uni.shortName}
-                      </div>
+                      <div className="font-bold text-sm text-[#111]">{uni.name}</div>
+                      <div className="text-xs text-gray-400 font-medium mt-0.5">{uni.shortName}</div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={`border ${typeColors[uni.type] || "bg-gray-50 text-gray-700 border-gray-200"}`}>{uni.type}</Badge>
+                    <Badge className={`border uppercase text-[10px] font-bold ${typeColors[uni.type] || "bg-gray-50 text-gray-700 border-gray-200"}`}>
+                      {uni.type}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     {uni.location ? (
                       <div className="text-sm">
-                        <div>{uni.location.city}</div>
-                        <div className="text-[#6B6B6B]">
-                          {uni.location.country}
-                        </div>
+                        <div className="font-medium text-[#111]">{uni.location.city}</div>
+                        <div className="text-xs text-gray-400 mt-0.5">{uni.location.country}</div>
                       </div>
                     ) : (
                       "—"
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-center">
                     <Badge
-                      className={`${
-                        statusColors[uni.status as keyof typeof statusColors]
-                      } text-white`}
+                      className={`uppercase text-[10px] font-bold py-0.5 px-2.5 rounded-full border ${
+                        statusColors[uni.status] || "bg-gray-100 text-gray-800"
+                      }`}
                     >
                       {uni.status.replace("_", " ")}
                     </Badge>
                   </TableCell>
-                  <TableCell>{uni.establishedYear}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant={uni.status === "ACTIVE" ? "outline" : "default"}
-                      size="sm"
-                      className={uni.status === "ACTIVE" ? "text-amber-700 border-amber-300 hover:bg-amber-50" : "bg-emerald-600 hover:bg-emerald-700 text-white"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        updateStatus.mutate({ id: uni.id, status: uni.status === "ACTIVE" ? "INACTIVE" : "ACTIVE" });
-                      }}
-                      disabled={updateStatus.isPending}
-                    >
-                      {uni.status === "ACTIVE" ? "Deactivate" : "Activate"}
-                    </Button>
+                  <TableCell className="text-center font-mono text-sm font-medium text-[#111]">
+                    {uni.establishedYear}
+                  </TableCell>
+                  <TableCell className="text-right py-4" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push(`/admin/universities/${uni.id}`)}
+                        className="text-[#3730A3] hover:text-[#2e288a] font-semibold text-xs cursor-pointer"
+                      >
+                        <Eye className="h-4 w-4 mr-1" /> View
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`font-semibold text-xs cursor-pointer h-8 flex items-center gap-1 px-3 ${
+                          uni.status === "ACTIVE"
+                            ? "text-red-700 border-red-200 hover:bg-red-50 bg-white"
+                            : "text-green-700 border-green-200 hover:bg-green-50 bg-white"
+                        }`}
+                        onClick={(e) => handleStatusToggle(e, uni.id, uni.status)}
+                        disabled={updateStatus.isPending}
+                      >
+                        {uni.status === "ACTIVE" ? (
+                          <>
+                            <ShieldAlert className="h-3.5 w-3.5" /> Deactivate
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-3.5 w-3.5" /> Activate
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -264,9 +265,9 @@ export default function UniversitiesPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-[#6B6B6B] sm:text-sm">
-            Page {page} of {totalPages}
+        <div className="flex items-center justify-between mt-2">
+          <p className="text-xs text-gray-400">
+            Showing page {page} of {totalPages}
           </p>
           <div className="flex gap-2">
             <Button
@@ -274,16 +275,18 @@ export default function UniversitiesPage() {
               size="sm"
               onClick={() => setPage(page - 1)}
               disabled={page === 1}
+              className="cursor-pointer border-[#ECEAE6] hover:bg-[#FAFAF8] bg-white text-xs h-9"
             >
-              Previous
+              <ChevronLeft className="h-4 w-4 mr-1" /> Previous
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage(page + 1)}
               disabled={page === totalPages}
+              className="cursor-pointer border-[#ECEAE6] hover:bg-[#FAFAF8] bg-white text-xs h-9"
             >
-              Next
+              Next <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
         </div>
@@ -291,4 +294,3 @@ export default function UniversitiesPage() {
     </div>
   );
 }
-
