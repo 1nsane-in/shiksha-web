@@ -16,6 +16,11 @@ import {
   Badge,
   Skeleton,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@repo/ui";
 import { toast } from "sonner";
 import {
@@ -63,13 +68,7 @@ export default function ConsultationsAdminPage() {
   const [filterCountry, setFilterCountry] = useState("");
   const [filterDate, setFilterDate] = useState("");
 
-  const handleStatusChange = async (id: string, currentStatus: string) => {
-    const nextStatus =
-      currentStatus === "PENDING"
-        ? "CONTACTED"
-        : currentStatus === "CONTACTED"
-          ? "CLOSED"
-          : "PENDING";
+  const handleStatusChange = async (id: string, nextStatus: string) => {
     try {
       await updateStatusMutation.mutateAsync({ id, status: nextStatus });
       toast.success(`Status updated to ${nextStatus}`);
@@ -324,15 +323,21 @@ export default function ConsultationsAdminPage() {
                       {item.state || ":"}{item.country ? ` / ${item.country}` : ""}
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge
-                        onClick={() => handleStatusChange(item.id, item.status)}
-                        variant="outline"
-                        className={`cursor-pointer px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider select-none border transition-all duration-200 active:scale-[0.97] hover:brightness-95 ${
-                          statusColors[item.status] || "text-gray-600 bg-gray-50"
-                        }`}
+                      <Select
+                        value={item.status}
+                        onValueChange={(val) => handleStatusChange(item.id, val)}
                       >
-                        {item.status}
-                      </Badge>
+                        <SelectTrigger className={`w-[120px] text-[10px] font-bold py-1 px-2.5 h-8 select-none border rounded-full transition-all duration-200 uppercase tracking-wider mx-auto ${
+                          statusColors[item.status] || "text-gray-600 bg-gray-50 border-gray-200"
+                        }`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PENDING" className="text-xs font-bold text-amber-700">PENDING</SelectItem>
+                          <SelectItem value="CONTACTED" className="text-xs font-bold text-blue-700">CONTACTED</SelectItem>
+                          <SelectItem value="CLOSED" className="text-xs font-bold text-emerald-700">CLOSED</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
