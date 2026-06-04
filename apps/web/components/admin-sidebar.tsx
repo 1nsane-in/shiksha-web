@@ -25,7 +25,6 @@ const nav = [
   { label: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Students", href: "/admin/students", icon: Users },
   { label: "Applications", href: "/admin/applications", icon: FileText },
-  { label: "Documents", href: "/admin/documents", icon: ClipboardCheck },
   { label: "Payments", href: "/admin/payments", icon: CreditCard },
   { label: "Universities", href: "/admin/universities", icon: Building2 },
   { label: "Exams", href: "/admin/exams", icon: GraduationCap },
