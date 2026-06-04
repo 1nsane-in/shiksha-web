@@ -24,6 +24,7 @@ import { UniversityAdvantages } from "@/components/landing/UniversityAdvantages"
 import { UniversityCards } from "@/components/landing/UniversityCards";
 import { UniversityProcess } from "@/components/landing/UniversityProcess";
 import { UniversityCareer } from "@/components/landing/UniversityCareer";
+import { EligibilityCalculator } from "@/components/landing/EligibilityCalculator";
 
 export default function Home() {
   return (
@@ -36,12 +37,16 @@ export default function Home() {
         <HeroCarousel />
       </div>
       {/* Rest of the page */}
-      <div className="bg-[#F8F6FC]">
-        <main className=" max-w-6xl mx-auto">
-          <UniversityCards />
-        </main>
-      </div>
+      {/* <div className="bg-[#F8F6FC]"> */}
+      <main className=" max-w-6xl mx-auto">
+        <EligibilityCalculator />
+        <UniversityCards />
+        <UniversityComparison />
+        <UniversityAdvantages />
+        <WhyTrustUs />
+      </main>
+      {/* </div> */}
+      <Footer />
     </>
   );
 }
-

@@ -6,6 +6,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useSidebarStore } from "@/stores/sidebar-store";
 import {
   LayoutDashboard,
+  Users,
   FileText,
   ClipboardCheck,
   CreditCard,
@@ -16,10 +17,13 @@ import {
   Plane,
   LogOut,
   ChevronRight,
+  Image as ImageIcon,
+  PhoneCall,
 } from "lucide-react";
 
 const nav = [
   { label: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
+  { label: "Students", href: "/admin/students", icon: Users },
   { label: "Applications", href: "/admin/applications", icon: FileText },
   { label: "Documents", href: "/admin/documents", icon: ClipboardCheck },
   { label: "Payments", href: "/admin/payments", icon: CreditCard },
@@ -28,6 +32,8 @@ const nav = [
   { label: "Letters", href: "/admin/letters", icon: Mail },
   { label: "Tickets", href: "/admin/tickets", icon: MessageSquare },
   { label: "Visa Support", href: "/admin/visa-support", icon: Plane },
+  { label: "Gallery", href: "/admin/gallery", icon: ImageIcon },
+  { label: "Consultation", href: "/admin/consultations", icon: PhoneCall },
 ];
 
 export function AdminSidebar() {

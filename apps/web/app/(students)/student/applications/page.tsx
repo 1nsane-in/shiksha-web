@@ -66,7 +66,7 @@ export default function MyApplicationsPage() {
         <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
           <FileText className="size-12 text-[#D0C8E0]" />
           <p className="text-[#6B6B6B]">No applications submitted yet</p>
-          <Button onClick={() => router.push('/student/university')}>
+          <Button onClick={() => router.push('/')}>
             Browse Universities
           </Button>
         </div>

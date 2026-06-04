@@ -73,4 +73,10 @@ export const queryKeys = {
     dashboardActivity: () => [...queryKeys.student.all, "dashboard", "activity"] as const,
     dashboardNextSteps: () => [...queryKeys.student.all, "dashboard", "next-steps"] as const,
   },
+  gallery: {
+    all: ["gallery"] as const,
+  },
+  consultations: {
+    all: ["consultations"] as const,
+  },
 };

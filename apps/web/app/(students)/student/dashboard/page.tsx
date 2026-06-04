@@ -29,6 +29,28 @@ export default function StudentDashboardPage() {
         )}
       </div>
 
+      {/* Scholarship Banner */}
+      <div className="p-5 border rounded-2xl bg-gradient-to-r from-[#FAF9F6] to-amber-50/30 border-amber-200/40 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="space-y-1 text-center sm:text-left">
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#C4953B] bg-amber-100/60 px-2 py-0.5 rounded">
+            🏆 Scholarship Alert
+          </span>
+          <h2 className="text-base font-bold text-[#1A153A] mt-1.5">
+            WCIEC Doing Good Merit Scholarship Board
+          </h2>
+          <p className="text-xs text-slate-500 leading-relaxed max-w-xl">
+            Up to <strong>$100,000+</strong> total funding available! Awarded automatically based on your NEET score (&gt;450) and 12th PCB marks (&gt;85%). Waiver values range from $500 to $1,500.
+          </p>
+        </div>
+        <Link
+          href="/student/tickets/new?subject=Scholarship%20Inquiry"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider py-2.5 px-4 rounded-xl transition-all duration-150 active:scale-[0.97] bg-[#C4953B] text-[#1A153A] shrink-0"
+        >
+          Check Eligibility
+          <ArrowRight className="size-3.5" />
+        </Link>
+      </div>
+
       {/* Stage Progress */}
       {l1 ? <Skeleton className="h-20 w-full" /> : overview && <StageProgress stage={overview.stage.currentStage} status={overview.stage.applicationStatus} />}
 

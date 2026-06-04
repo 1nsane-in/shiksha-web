@@ -1360,3 +1360,25 @@ enum VisaApplicationStatus {
   APPROVED
   REJECTED
 }
+
+model GalleryImage {
+  id        String   @id @default(uuid())
+  title     String?
+  url       String
+  key       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Consultation {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String
+  neetScore Int?
+  state     String?
+  country   String?
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

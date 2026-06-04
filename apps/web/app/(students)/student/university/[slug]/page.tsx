@@ -1685,6 +1685,11 @@ function ApplicationForm({
       "birthState",
       "birthCountry",
       "lang1Name",
+      "permanentAddress",
+      "permanentCity",
+      "permanentState",
+      "permanentZip",
+      "permanentCountry",
     ];
     const newErrors: Record<string, string> = {};
     for (const field of required) {
@@ -1740,6 +1745,10 @@ function ApplicationForm({
           | "moderate"
           | "low",
       },
+      postGraduateDetail:
+        formData.selectedProgram === "post-graduate"
+          ? formData.postGraduateDetail || ""
+          : undefined,
     };
     try {
       await submit.mutateAsync(payload);
@@ -1990,40 +1999,55 @@ function ApplicationForm({
             />
           </div>
 
-          <FormField
-            label="Permanent Address"
+          {formData.selectedProgram === "post-graduate" && (
+            <FormField
+              label="Post Graduate Details (Specialization/Experience)"
+              name="postGraduateDetail"
+              value={formData.postGraduateDetail || ""}
+              onChange={handleChange}
+              placeholder="e.g. Completed residency in internal medicine, 2 years clinical experience"
+            />
+          )}
+
+           <FormField
+            label="Permanent Address *"
             name="permanentAddress"
             value={formData.permanentAddress || ""}
             onChange={handleChange}
+            error={errors.permanentAddress}
           />
 
           <div className="grid grid-cols-1 gap-3">
             <FormField
-              label="City"
+              label="City *"
               name="permanentCity"
               value={formData.permanentCity || ""}
               onChange={handleChange}
+              error={errors.permanentCity}
             />
             <FormField
-              label="State"
+              label="State *"
               name="permanentState"
               value={formData.permanentState || ""}
               onChange={handleChange}
+              error={errors.permanentState}
             />
           </div>
 
           <div className="grid grid-cols-1 gap-3">
             <FormField
-              label="Zip Code"
+              label="Zip Code *"
               name="permanentZip"
               value={formData.permanentZip || ""}
               onChange={handleChange}
+              error={errors.permanentZip}
             />
             <FormField
-              label="Country"
+              label="Country *"
               name="permanentCountry"
               value={formData.permanentCountry || ""}
               onChange={handleChange}
+              error={errors.permanentCountry}
             />
           </div>
 

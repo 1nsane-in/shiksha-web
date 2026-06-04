@@ -215,16 +215,6 @@ export function HeroCarousel() {
           />
         ))}
       </div>
-
-      {/* ─── Bottom fade to cream ─── */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-32"
-        style={{
-          background:
-            "linear-gradient(to top, " + theme.canvas + ", transparent)",
-        }}
-      />
     </section>
   );
 }
-

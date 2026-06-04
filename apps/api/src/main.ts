@@ -50,11 +50,54 @@ async function bootstrap() {
 
   app.set('etag', false);
 
+  const allowedOrigins = configService.get<string>('FRONTEND_URL')
+    ?.split(',')
+    .map(url => url.trim())
+    .filter(Boolean) || ['http://localhost:3000'];
+
+  // Add 127.0.0.1 and localhost by default in development mode
+  if (configService.get<string>('NODE_ENV') === 'development') {
+    if (!allowedOrigins.includes('http://127.0.0.1:3000')) {
+      allowedOrigins.push('http://127.0.0.1:3000');
+    }
+    if (!allowedOrigins.includes('http://localhost:3000')) {
+      allowedOrigins.push('http://localhost:3000');
+    }
+  }
+
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL')?.split(',') || [
-      'http://localhost:3000',
-    ],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, postman or curl)
+      if (!origin) {
+        return callback(null, true);
+      }
+      
+      const isAllowed = allowedOrigins.some(allowedOrigin => {
+        // Handle exact match
+        if (allowedOrigin === origin) return true;
+        // Handle trailing slash mismatch (e.g. http://localhost:3000/ vs http://localhost:3000)
+        if (allowedOrigin.replace(/\/$/, '') === origin.replace(/\/$/, '')) return true;
+        return false;
+      });
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        logger.warn(`CORS blocked for origin: ${origin}`);
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
     credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: [
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'X-Requested-With',
+      'X-Api-Version',
+      'X-CSRF-Token',
+    ],
+    exposedHeaders: ['Set-Cookie'],
   });
 
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
