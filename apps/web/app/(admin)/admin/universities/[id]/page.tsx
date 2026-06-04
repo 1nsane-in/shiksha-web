@@ -233,7 +233,7 @@ export default function UniversityDetailPage() {
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
 
   const [docForm, setDocForm] = useState({
-    type: "PROSPECTUS",
+    type: "BROCHURE",
     file: null as File | null,
   });
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
@@ -339,7 +339,7 @@ export default function UniversityDetailPage() {
         },
       });
       toast.success("Document uploaded successfully!");
-      setDocForm({ type: "PROSPECTUS", file: null });
+      setDocForm({ type: "BROCHURE", file: null });
       refetch();
     } catch (err) {
       toast.error("Failed to upload document");
@@ -1135,6 +1135,7 @@ export default function UniversityDetailPage() {
                           onChange={(e) => setDocForm({ ...docForm, type: e.target.value })}
                           className="w-full px-2.5 py-1.5 text-xs border rounded-lg bg-white"
                         >
+                          <option value="BROCHURE">Official University Brochure</option>
                           <option value="PROSPECTUS">Prospectus Booklet</option>
                           <option value="FEE_STRUCTURE">Detailed Fee Structure</option>
                           <option value="ADMISSION_FORM">Admission Form Template</option>
