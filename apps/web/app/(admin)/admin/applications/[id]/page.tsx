@@ -28,6 +28,7 @@ import {
   Upload,
   AlertCircle,
   ShieldCheck,
+  ExternalLink,
 } from "lucide-react";
 
 const statusConfig: Record<
@@ -309,10 +310,21 @@ export default function AdminApplicationDetailPage({
                   </button>
 
                   {uploadedFile && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d3cec6] bg-[#f5f1ec] px-3 py-1 text-xs font-medium text-[#111111]">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                      File: {uploadedFile.fileName}
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d3cec6] bg-[#f5f1ec] px-3 py-1 text-xs font-medium text-[#111111]">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                        File Selected: {uploadedFile.fileName}
+                      </span>
+                      <a
+                        href={uploadedFile.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f5f1ec] transition-all"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Preview Document
+                      </a>
+                    </div>
                   )}
                 </div>
 
@@ -353,7 +365,7 @@ export default function AdminApplicationDetailPage({
 
             {/* Applicant Demographics */}
             <Section title="Applicant Demographics" icon={User}>
-              <Field label="Full Name" value={`${app.firstName} {app.lastName}`} />
+              <Field label="Full Name" value={`${app.firstName} ${app.lastName}`} />
               <Field label="Email Address" value={app.email} />
               <Field label="Gender" value={fd?.gender} />
               <Field
@@ -415,17 +427,30 @@ export default function AdminApplicationDetailPage({
                         <p className="font-medium text-sm text-[#111111]">{doc.documentType?.name}</p>
                         <p className="text-[10px] text-[#626260] mt-0.5">Code: {doc.documentType?.code}</p>
                       </div>
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium border ${
-                          doc.status === "APPROVED"
-                            ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                            : doc.status === "REJECTED"
-                              ? "bg-red-50 border-red-200 text-red-700"
-                              : "bg-amber-50 border-amber-200 text-amber-700"
-                        }`}
-                      >
-                        {doc.status}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        {doc.fileUrl && (
+                          <a
+                            href={doc.fileUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 rounded-lg border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-[#f5f1ec] transition-all"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            View
+                          </a>
+                        )}
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium border ${
+                            doc.status === "APPROVED"
+                              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                              : doc.status === "REJECTED"
+                                ? "bg-red-50 border-red-200 text-red-700"
+                                : "bg-amber-50 border-amber-200 text-amber-700"
+                          }`}
+                        >
+                          {doc.status}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -436,7 +461,7 @@ export default function AdminApplicationDetailPage({
 
             {/* Post-Approval Letter Panel */}
             {app.status === "approved" && (
-              <AdmissionLetterUpload applicationId={id} />
+              <AdmissionLetterUpload applicationId={id} existingLetter={app.admissionLetter} />
             )}
 
             {/* Payments */}
@@ -635,10 +660,17 @@ export default function AdminApplicationDetailPage({
 }
 
 /* ─── Admission Letter Upload Component ─── */
-function AdmissionLetterUpload({ applicationId }: { applicationId: string }) {
+function AdmissionLetterUpload({
+  applicationId,
+  existingLetter,
+}: {
+  applicationId: string;
+  existingLetter?: { fileUrl: string; fileName: string } | null;
+}) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [latestLetter, setLatestLetter] = useState<{ fileUrl: string; fileName: string } | null>(null);
   const [uploadError, setUploadError] = useState("");
   const uploadFile = useUploadFile();
   const uploadLetter = useUploadAdmissionLetter();
@@ -658,6 +690,7 @@ function AdmissionLetterUpload({ applicationId }: { applicationId: string }) {
         fileUrl: uploadResult.url,
         fileName: file.name,
       });
+      setLatestLetter({ fileUrl: uploadResult.url, fileName: file.name });
       setSuccess(true);
     } catch (err: any) {
       setUploadError(
@@ -669,15 +702,35 @@ function AdmissionLetterUpload({ applicationId }: { applicationId: string }) {
     }
   };
 
+  const letterToDisplay = latestLetter || existingLetter;
+
   return (
     <div className="rounded-xl border border-[#d3cec6] bg-white p-6 space-y-4">
       <div className="flex items-center gap-2">
         <Upload className="h-4 w-4 text-[#111111]" />
-        <h2 className="text-sm font-medium text-[#111111] tracking-tight">Upload Official Admission Letter</h2>
+        <h2 className="text-sm font-medium text-[#111111] tracking-tight">Official Admission Letter</h2>
       </div>
       <p className="text-xs text-[#626260] leading-relaxed">
         Upload the official university admission letter PDF. This action notifies the student, automatically unlocks Stage 2, and prompts for payment of the admission letter processing fee.
       </p>
+
+      {letterToDisplay && (
+        <div className="flex items-center justify-between rounded-lg border border-[#d3cec6] bg-[#f5f1ec]/50 px-4 py-3 text-xs font-medium text-[#111111] flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <span className="truncate max-w-[280px]">Letter active: {letterToDisplay.fileName || "Admission_Letter.pdf"}</span>
+          </div>
+          <a
+            href={letterToDisplay.fileUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 rounded-md border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-[#f5f1ec] transition-all"
+          >
+            <ExternalLink className="h-3 w-3" />
+            View Letter
+          </a>
+        </div>
+      )}
 
       {success ? (
         <div className="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-xs font-medium text-emerald-800">
@@ -706,7 +759,7 @@ function AdmissionLetterUpload({ applicationId }: { applicationId: string }) {
             ) : (
               <>
                 <Upload className="h-3.5 w-3.5" />
-                Select PDF Letter File
+                Upload New Letter PDF
               </>
             )}
           </button>

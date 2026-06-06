@@ -80,6 +80,7 @@ export class ApplicationsService {
       where: { id },
       include: {
         university: true,
+        admissionLetter: true,
         student: {
           include: {
             user: {
