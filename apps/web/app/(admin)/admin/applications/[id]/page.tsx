@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 
-import { use, useState, useRef } from "react";
+import { use, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@repo/ui";
 import {
@@ -119,6 +119,8 @@ export default function AdminApplicationDetailPage({
   const updateStatus = useUpdateApplicationStatus();
 
   // Integrated states for pre-approval PDF upload
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<{ url: string; fileName: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [approving, setApproving] = useState(false);
@@ -128,21 +130,54 @@ export default function AdminApplicationDetailPage({
   const uploadFileMutation = useUploadFile();
   const uploadLetterMutation = useUploadAdmissionLetter();
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Cleanup Object URL on unmount or on localPreviewUrl changes
+  useEffect(() => {
+    return () => {
+      if (localPreviewUrl) {
+        URL.revokeObjectURL(localPreviewUrl);
+      }
+    };
+  }, [localPreviewUrl]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setSelectedFile(file);
+    setActionError("");
+    setUploadedFile(null); // Reset uploaded server file state
+    
+    // Revoke any existing Object URL before creating a new one
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl);
+    }
+    const objectUrl = URL.createObjectURL(file);
+    setLocalPreviewUrl(objectUrl);
+  };
+
+  const handleUploadFile = async () => {
+    if (!selectedFile) return;
     setUploading(true);
     setActionError("");
     try {
-      const result = await uploadFileMutation.mutateAsync({ file, folder: "admission-letters" });
-      setUploadedFile({ url: result.url, fileName: file.name });
+      const result = await uploadFileMutation.mutateAsync({ file: selectedFile, folder: "admission-letters" });
+      setUploadedFile({ url: result.url, fileName: selectedFile.name });
     } catch (err: any) {
       setActionError(err?.message || "File upload failed");
     } finally {
       setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  };
+
+  const handleRemoveSelectedFile = () => {
+    setSelectedFile(null);
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl);
+      setLocalPreviewUrl(null);
+    }
+    setUploadedFile(null);
+    setActionError("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleApproveCoordinated = async () => {
@@ -159,6 +194,7 @@ export default function AdminApplicationDetailPage({
         fileName: uploadedFile.fileName,
       });
       setUploadedFile(null); // Clear local state
+      setSelectedFile(null);
       router.refresh();
     } catch (err: any) {
       setActionError(err?.message || "Approval flow failed");
@@ -289,41 +325,98 @@ export default function AdminApplicationDetailPage({
                   className="hidden"
                 />
 
-                <div className="flex flex-wrap items-center gap-3 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading || approving}
-                    className="inline-flex items-center gap-2 rounded-lg border border-[#d3cec6] bg-zinc-50 px-4 py-2 text-xs font-medium text-[#111111] hover:bg-zinc-100 transition-all cursor-pointer disabled:opacity-50"
-                  >
-                    {uploading ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        Uploading Letter...
-                      </>
-                    ) : (
-                      <>
+                <div className="flex flex-col gap-4 pt-1">
+                  {/* State A: No file selected and no file uploaded */}
+                  {!selectedFile && !uploadedFile && (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="inline-flex items-center gap-2 rounded-lg border border-[#d3cec6] bg-zinc-50 px-4 py-2 text-xs font-medium text-[#111111] hover:bg-zinc-100 transition-all cursor-pointer"
+                      >
                         <Upload className="h-3.5 w-3.5" />
                         Select Admission Letter (PDF)
-                      </>
-                    )}
-                  </button>
+                      </button>
+                    </div>
+                  )}
 
+                  {/* State B: Local file selected, but not uploaded to server yet */}
+                  {selectedFile && !uploadedFile && (
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d3cec6] bg-zinc-50 px-3 py-1 text-xs font-medium text-[#111111]">
+                          Selected: {selectedFile.name}
+                        </span>
+
+                        {localPreviewUrl && (
+                          <a
+                            href={localPreviewUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            Preview Selection
+                          </a>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={handleRemoveSelectedFile}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-all cursor-pointer"
+                        >
+                          <XCircle className="h-3 w-3" />
+                          Remove
+                        </button>
+                      </div>
+
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={handleUploadFile}
+                          disabled={uploading}
+                          className="inline-flex items-center gap-2 rounded-lg bg-[#111111] px-4 py-2 text-xs font-medium text-white hover:bg-black transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          {uploading ? (
+                            <>
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              Uploading to Server...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="h-3.5 w-3.5" />
+                              Upload File to Server
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* State C: File uploaded successfully to server */}
                   {uploadedFile && (
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d3cec6] bg-zinc-50 px-3 py-1 text-xs font-medium text-[#111111]">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800">
                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                        File Selected: {uploadedFile.fileName}
+                        Uploaded: {uploadedFile.fileName}
                       </span>
                       <a
                         href={uploadedFile.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f5f1ec] transition-all"
                       >
                         <ExternalLink className="h-3 w-3" />
-                        Preview Document
+                        Preview Upload
                       </a>
+                      <button
+                        type="button"
+                        onClick={handleRemoveSelectedFile}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-all cursor-pointer"
+                      >
+                        <XCircle className="h-3 w-3" />
+                        Remove & Re-select
+                      </button>
                     </div>
                   )}
                 </div>
@@ -668,6 +761,8 @@ function AdmissionLetterUpload({
   existingLetter?: { fileUrl: string; fileName: string } | null;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [latestLetter, setLatestLetter] = useState<{ fileUrl: string; fileName: string } | null>(null);
@@ -675,22 +770,45 @@ function AdmissionLetterUpload({
   const uploadFile = useUploadFile();
   const uploadLetter = useUploadAdmissionLetter();
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Cleanup local Object URL
+  useEffect(() => {
+    return () => {
+      if (localPreviewUrl) {
+        URL.revokeObjectURL(localPreviewUrl);
+      }
+    };
+  }, [localPreviewUrl]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    setSelectedFile(file);
+    setUploadError("");
+    setSuccess(false);
+
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl);
+    }
+    const objectUrl = URL.createObjectURL(file);
+    setLocalPreviewUrl(objectUrl);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) return;
 
     setUploading(true);
     setUploadError("");
     setSuccess(false);
 
     try {
-      const uploadResult = await uploadFile.mutateAsync(file);
+      const uploadResult = await uploadFile.mutateAsync(selectedFile);
       await uploadLetter.mutateAsync({
         applicationId,
         fileUrl: uploadResult.url,
-        fileName: file.name,
+        fileName: selectedFile.name,
       });
-      setLatestLetter({ fileUrl: uploadResult.url, fileName: file.name });
+      setLatestLetter({ fileUrl: uploadResult.url, fileName: selectedFile.name });
       setSuccess(true);
     } catch (err: any) {
       setUploadError(
@@ -698,8 +816,19 @@ function AdmissionLetterUpload({
       );
     } finally {
       setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  };
+
+  const handleRemove = () => {
+    setSelectedFile(null);
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl);
+      setLocalPreviewUrl(null);
+    }
+    setLatestLetter(null);
+    setSuccess(false);
+    setUploadError("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const letterToDisplay = latestLetter || existingLetter;
@@ -714,36 +843,114 @@ function AdmissionLetterUpload({
         Upload the official university admission letter PDF. This action notifies the student, automatically unlocks Stage 2, and prompts for payment of the admission letter processing fee.
       </p>
 
-      {letterToDisplay && (
+      {/* Show active letter from server if present and not in re-selection mode */}
+      {letterToDisplay && !selectedFile && (
         <div className="flex items-center justify-between rounded-lg border border-[#d3cec6] bg-zinc-50 px-4 py-3 text-xs font-medium text-[#111111] flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
             <span className="truncate max-w-[280px]">Letter active: {letterToDisplay.fileName || "Admission_Letter.pdf"}</span>
           </div>
-          <a
-            href={letterToDisplay.fileUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 rounded-md border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
-          >
-            <ExternalLink className="h-3 w-3" />
-            View Letter
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href={letterToDisplay.fileUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 rounded-md border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
+            >
+              <ExternalLink className="h-3 w-3" />
+              View Letter
+            </a>
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100 transition-all cursor-pointer"
+            >
+              <XCircle className="h-3 w-3" />
+              Remove
+            </button>
+          </div>
         </div>
       )}
 
-      {success ? (
-        <div className="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-xs font-medium text-emerald-800">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-          Admission letter uploaded successfully. Student has been transitioned to Stage 2.
+      {/* Show local file chosen state */}
+      {selectedFile && (
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d3cec6] bg-zinc-50 px-3 py-1 text-xs font-medium text-[#111111]">
+              Selected locally: {selectedFile.name}
+            </span>
+
+            {localPreviewUrl && (
+              <a
+                href={localPreviewUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
+              >
+                <ExternalLink className="h-3 w-3" />
+                Preview Local File
+              </a>
+            )}
+
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-all cursor-pointer"
+            >
+              <XCircle className="h-3 w-3" />
+              Remove
+            </button>
+          </div>
+
+          {!success && (
+            <div>
+              <button
+                type="button"
+                onClick={handleUpload}
+                disabled={uploading}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#111111] px-4 py-2 text-xs font-medium text-white hover:bg-black transition-all cursor-pointer disabled:opacity-50"
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-3.5 w-3.5" />
+                    Upload Chosen File
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
-      ) : (
+      )}
+
+      {success && (
+        <div className="flex items-center justify-between rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-xs font-medium text-emerald-800 flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <span>Admission letter uploaded successfully. Student transitioned to Stage 2.</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleRemove}
+            className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100 transition-all cursor-pointer"
+          >
+            <XCircle className="h-3 w-3" />
+            Remove / Replace
+          </button>
+        </div>
+      )}
+
+      {!letterToDisplay && !selectedFile && !success && (
         <>
           <input
             ref={fileInputRef}
             type="file"
             accept=".pdf,.doc,.docx"
-            onChange={handleUpload}
+            onChange={handleFileSelect}
             className="hidden"
           />
           <button
@@ -751,22 +958,14 @@ function AdmissionLetterUpload({
             disabled={uploading}
             className="inline-flex items-center gap-2 rounded-lg border border-[#d3cec6] bg-zinc-50 px-4 py-2 text-xs font-medium text-[#111111] hover:bg-zinc-100 transition-all disabled:opacity-50"
           >
-            {uploading ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Upload className="h-3.5 w-3.5" />
-                Upload New Letter PDF
-              </>
-            )}
+            <Upload className="h-3.5 w-3.5" />
+            Select Admission Letter PDF
           </button>
-          {uploadError && (
-            <p className="mt-2 text-xs text-red-600 font-semibold">{uploadError}</p>
-          )}
         </>
+      )}
+
+      {uploadError && (
+        <p className="mt-2 text-xs text-red-600 font-semibold">{uploadError}</p>
       )}
     </div>
   );
