@@ -98,7 +98,7 @@ function Section({
   return (
     <div className="rounded-xl border border-[#d3cec6] bg-white p-6 transition-all">
       <div className="mb-5 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-        <div className="rounded-lg bg-[#f5f1ec] p-1.5">
+        <div className="rounded-lg bg-zinc-100 p-1.5">
           <Icon className="h-4 w-4 text-[#111111]" />
         </div>
         <h2 className="text-sm font-medium text-[#111111] tracking-tight">{title}</h2>
@@ -179,20 +179,20 @@ export default function AdminApplicationDetailPage({
 
   if (isLoading)
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f5f1ec]">
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-[#111111]" />
       </div>
     );
 
   if (error || !app)
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#f5f1ec]">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4">
         <AlertCircle className="size-10 text-red-500" />
         <p className="text-sm font-medium text-[#111111]">Application not found</p>
         <Button
           onClick={() => router.push("/admin/applications")}
           variant="outline"
-          className="border-[#d3cec6] bg-white text-[#111111] hover:bg-[#f5f1ec]"
+          className="border-[#d3cec6] bg-white text-[#111111]"
         >
           Back to Applications
         </Button>
@@ -206,14 +206,14 @@ export default function AdminApplicationDetailPage({
   const uni = app.university;
 
   return (
-    <div className="min-h-screen bg-[#f5f1ec] text-[#111111] font-sans antialiased pb-12">
+    <div className="min-h-screen text-[#111111] font-sans antialiased pb-12">
       {/* Header Bar */}
-      <div className="sticky top-0 z-10 border-b border-[#d3cec6] bg-[#f5f1ec]/95 backdrop-blur-md">
+      <div className="border-b border-[#d3cec6] bg-transparent">
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push("/admin/applications")}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d3cec6] bg-white text-[#111111] hover:bg-[#f5f1ec] transition-all"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d3cec6] bg-white text-[#111111] hover:bg-zinc-50 transition-all"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
@@ -252,7 +252,7 @@ export default function AdminApplicationDetailPage({
                   Approve
                 </button>
                 <button
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-4 py-2 text-xs font-medium text-[#111111] hover:bg-[#f5f1ec] transition-all disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-4 py-2 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all disabled:opacity-50 cursor-pointer"
                   onClick={handleRejectWithPrompt}
                   disabled={updateStatus.isPending || uploading || approving}
                 >
@@ -294,7 +294,7 @@ export default function AdminApplicationDetailPage({
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading || approving}
-                    className="inline-flex items-center gap-2 rounded-lg border border-[#d3cec6] bg-[#f5f1ec] px-4 py-2 text-xs font-medium text-[#111111] hover:bg-[#ebe7e1] transition-all cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg border border-[#d3cec6] bg-zinc-50 px-4 py-2 text-xs font-medium text-[#111111] hover:bg-zinc-100 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {uploading ? (
                       <>
@@ -311,7 +311,7 @@ export default function AdminApplicationDetailPage({
 
                   {uploadedFile && (
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d3cec6] bg-[#f5f1ec] px-3 py-1 text-xs font-medium text-[#111111]">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d3cec6] bg-zinc-50 px-3 py-1 text-xs font-medium text-[#111111]">
                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                         File Selected: {uploadedFile.fileName}
                       </span>
@@ -319,7 +319,7 @@ export default function AdminApplicationDetailPage({
                         href={uploadedFile.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f5f1ec] transition-all"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
                       >
                         <ExternalLink className="h-3 w-3" />
                         Preview Document
@@ -355,7 +355,7 @@ export default function AdminApplicationDetailPage({
                   <button
                     onClick={handleRejectWithPrompt}
                     disabled={approving}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-4 py-2 text-xs font-medium text-[#111111] hover:bg-[#f5f1ec] transition-all cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-4 py-2 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer disabled:opacity-50"
                   >
                     <XCircle className="h-3.5 w-3.5" /> Reject Application
                   </button>
@@ -411,7 +411,7 @@ export default function AdminApplicationDetailPage({
             {/* Submitted Documents Checklist */}
             <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
               <div className="mb-5 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-                <div className="rounded-lg bg-[#f5f1ec] p-1.5">
+                <div className="rounded-lg bg-zinc-100 p-1.5">
                   <FileText className="h-4 w-4 text-[#111111]" />
                 </div>
                 <h2 className="text-sm font-medium text-[#111111] tracking-tight">Submitted Documents</h2>
@@ -433,7 +433,7 @@ export default function AdminApplicationDetailPage({
                             href={doc.fileUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 rounded-lg border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-[#f5f1ec] transition-all"
+                            className="inline-flex items-center gap-1 rounded-lg border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
                           >
                             <ExternalLink className="h-3 w-3" />
                             View
@@ -467,7 +467,7 @@ export default function AdminApplicationDetailPage({
             {/* Payments */}
             <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
               <div className="mb-5 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-                <div className="rounded-lg bg-[#f5f1ec] p-1.5">
+                <div className="rounded-lg bg-zinc-100 p-1.5">
                   <CreditCard className="h-4 w-4 text-[#111111]" />
                 </div>
                 <h2 className="text-sm font-medium text-[#111111] tracking-tight">Payment Ledger</h2>
@@ -503,7 +503,7 @@ export default function AdminApplicationDetailPage({
             {/* Timeline */}
             <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
               <div className="mb-5 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-                <div className="rounded-lg bg-[#f5f1ec] p-1.5">
+                <div className="rounded-lg bg-zinc-100 p-1.5">
                   <History className="h-4 w-4 text-[#111111]" />
                 </div>
                 <h2 className="text-sm font-medium text-[#111111] tracking-tight">Audit Trail & History</h2>
@@ -534,7 +534,7 @@ export default function AdminApplicationDetailPage({
             {/* University Details */}
             <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
               <div className="mb-4 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-                <div className="rounded-lg bg-[#f5f1ec] p-1.5">
+                <div className="rounded-lg bg-zinc-100 p-1.5">
                   <Building2 className="h-4 w-4 text-[#111111]" />
                 </div>
                 <h2 className="text-sm font-medium text-[#111111] tracking-tight">Selected Institution</h2>
@@ -570,7 +570,7 @@ export default function AdminApplicationDetailPage({
             {/* Academic profile */}
             <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
               <div className="mb-4 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-                <div className="rounded-lg bg-[#f5f1ec] p-1.5">
+                <div className="rounded-lg bg-zinc-100 p-1.5">
                   <GraduationCap className="h-4 w-4 text-[#111111]" />
                 </div>
                 <h2 className="text-sm font-medium text-[#111111] tracking-tight">Academic History</h2>
@@ -609,7 +609,7 @@ export default function AdminApplicationDetailPage({
             {/* Submission Dates */}
             <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
               <div className="mb-4 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-                <div className="rounded-lg bg-[#f5f1ec] p-1.5">
+                <div className="rounded-lg bg-zinc-100 p-1.5">
                   <Clock className="h-4 w-4 text-[#111111]" />
                 </div>
                 <h2 className="text-sm font-medium text-[#111111] tracking-tight">Timeline Info</h2>
@@ -634,14 +634,14 @@ export default function AdminApplicationDetailPage({
             {app.tickets?.length > 0 && (
               <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
                 <div className="mb-4 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-                  <div className="rounded-lg bg-[#f5f1ec] p-1.5">
+                  <div className="rounded-lg bg-zinc-100 p-1.5">
                     <MessageSquare className="h-4 w-4 text-[#111111]" />
                   </div>
                   <h2 className="text-sm font-medium text-[#111111] tracking-tight">Related Support</h2>
                 </div>
                 <div className="space-y-3">
                   {app.tickets.map((t: any) => (
-                    <div key={t.id} className="rounded-lg bg-[#f5f1ec] p-3 border border-[#ebe7e1]">
+                    <div key={t.id} className="rounded-lg bg-zinc-50 p-3 border border-[#ebe7e1]">
                       <p className="text-xs font-semibold text-[#111111]">{t.subject}</p>
                       <div className="flex items-center justify-between text-[10px] text-[#626260] mt-2 border-t border-[#ebe7e1] pt-1.5">
                         <span>Status: {t.status}</span>
@@ -715,7 +715,7 @@ function AdmissionLetterUpload({
       </p>
 
       {letterToDisplay && (
-        <div className="flex items-center justify-between rounded-lg border border-[#d3cec6] bg-[#f5f1ec]/50 px-4 py-3 text-xs font-medium text-[#111111] flex-wrap gap-2">
+        <div className="flex items-center justify-between rounded-lg border border-[#d3cec6] bg-zinc-50 px-4 py-3 text-xs font-medium text-[#111111] flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
             <span className="truncate max-w-[280px]">Letter active: {letterToDisplay.fileName || "Admission_Letter.pdf"}</span>
@@ -724,7 +724,7 @@ function AdmissionLetterUpload({
             href={letterToDisplay.fileUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 rounded-md border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-[#f5f1ec] transition-all"
+            className="inline-flex items-center gap-1 rounded-md border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
           >
             <ExternalLink className="h-3 w-3" />
             View Letter
@@ -749,7 +749,7 @@ function AdmissionLetterUpload({
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#d3cec6] bg-[#f5f1ec] px-4 py-2 text-xs font-medium text-[#111111] hover:bg-[#ebe7e1] transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#d3cec6] bg-zinc-50 px-4 py-2 text-xs font-medium text-[#111111] hover:bg-zinc-100 transition-all disabled:opacity-50"
           >
             {uploading ? (
               <>
