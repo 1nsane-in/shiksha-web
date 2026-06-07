@@ -121,6 +121,21 @@ function Field({
   );
 }
 
+function KeyValueRow({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | number | null;
+}) {
+  return (
+    <div className="flex justify-between items-center py-2.5 border-b border-zinc-100 last:border-0 text-sm">
+      <span className="text-[#626260] font-normal">{label}</span>
+      <span className="text-[#111111] font-medium text-right break-all pl-4">{value || "—"}</span>
+    </div>
+  );
+}
+
 function Section({
   title,
   icon: Icon,
@@ -521,26 +536,33 @@ export default function AdminApplicationDetailPage({
                 </div>
                 <div>
                   <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Applicant Demographics</h2>
-                  <p className="text-[11px] text-[#626260] mt-0.5">Verified profile details</p>
+                  <p className="text-[11px] text-[#626260] mt-0.5">Verified details and profile dossier</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6">
-                <Field label="Full Name" value={`${app.firstName} ${app.lastName}`} />
-                <Field label="Email Address" value={app.email} />
-                <Field label="Selected Program" value={formattedProgram} />
-                <Field
-                  label="Date of Birth"
-                  value={fd?.dateOfBirth ? new Date(fd.dateOfBirth).toLocaleDateString("en-US", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric"
-                  }) : null}
-                />
-                <Field label="Gender" value={formattedGender} />
-                <Field label="Citizenship" value={fd?.citizenship} />
-                <Field label="Marital Status" value={formattedMarital} />
-                <Field label="Embassy Location" value={fd?.embassyLocation} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                {/* Left Specification Column */}
+                <div className="divide-y divide-zinc-100">
+                  <KeyValueRow label="Full Name" value={`${app.firstName} ${app.lastName}`} />
+                  <KeyValueRow label="Email Address" value={app.email} />
+                  <KeyValueRow label="Selected Program" value={formattedProgram} />
+                  <KeyValueRow
+                    label="Date of Birth"
+                    value={fd?.dateOfBirth ? new Date(fd.dateOfBirth).toLocaleDateString("en-US", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric"
+                    }) : null}
+                  />
+                </div>
+
+                {/* Right Specification Column */}
+                <div className="divide-y divide-zinc-100">
+                  <KeyValueRow label="Gender" value={formattedGender} />
+                  <KeyValueRow label="Citizenship" value={fd?.citizenship} />
+                  <KeyValueRow label="Marital Status" value={formattedMarital} />
+                  <KeyValueRow label="Embassy Location" value={fd?.embassyLocation} />
+                </div>
               </div>
             </div>
 
