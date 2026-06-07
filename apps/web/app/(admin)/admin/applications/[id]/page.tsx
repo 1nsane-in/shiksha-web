@@ -719,37 +719,52 @@ export default function AdminApplicationDetailPage({
           {/* Sidebar Column */}
           <div className="space-y-6">
             {/* University Details */}
-            <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
-              <div className="mb-4 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-                <div className="rounded-lg bg-zinc-100 p-1.5">
-                  <Building2 className="h-4 w-4 text-[#111111]" />
+            <div className="rounded-xl border border-[#d3cec6] bg-white overflow-hidden">
+              {/* Optional Header Banner (can be gray if no bannerImage) */}
+              <div className="h-16 bg-zinc-100 border-b border-[#ebe7e1] w-full" />
+              
+              <div className="px-6 pb-6 relative">
+                {/* Logo overlapping banner */}
+                <div className="absolute -top-8 bg-white p-1 rounded-xl border border-[#d3cec6] shadow-sm">
+                  {uni?.logo ? (
+                    <img
+                      src={uni.logo}
+                      alt={uni.name}
+                      className="h-14 w-14 rounded-lg object-contain bg-white"
+                    />
+                  ) : (
+                    <div className="h-14 w-14 rounded-lg bg-zinc-50 flex items-center justify-center">
+                      <Building2 className="h-6 w-6 text-[#626260]" />
+                    </div>
+                  )}
                 </div>
-                <h2 className="text-sm font-medium text-[#111111] tracking-tight">Selected Institution</h2>
-              </div>
-              <div className="space-y-4">
-                {uni?.logo && (
-                  <img
-                    src={uni.logo}
-                    alt={uni.name}
-                    className="h-12 w-12 rounded-lg object-contain border border-[#d3cec6] p-1 bg-white"
-                  />
-                )}
-                <div>
-                  <p className="font-medium text-sm text-[#111111] leading-snug">{uni?.name}</p>
-                  <p className="text-xs text-[#626260] mt-1.5">
-                    {uni?.shortName} • {uni?.type}
-                  </p>
-                  <p className="text-xs text-[#626260] mt-0.5">Established {uni?.establishedYear}</p>
+
+                <div className="pt-10">
+                  <h2 className="text-[15px] font-semibold text-[#111111] leading-snug tracking-tight">
+                    {uni?.name || "Institution Name"}
+                  </h2>
+                  <div className="flex flex-col gap-1.5 mt-2">
+                    <p className="text-xs text-[#626260]">
+                      <span className="font-medium text-[#111111]">{uni?.shortName}</span> • {uni?.type?.replace(/_/g, " ")}
+                    </p>
+                    <p className="text-xs text-[#626260]">
+                      Est. {uni?.establishedYear}
+                    </p>
+                  </div>
                 </div>
+
                 {uni?.website && (
-                  <a
-                    href={uni.website}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-medium text-[#111111] hover:underline pt-3 border-t border-[#ebe7e1] w-full"
-                  >
-                    Official website &rarr;
-                  </a>
+                  <div className="mt-5 pt-4 border-t border-[#ebe7e1]">
+                    <a
+                      href={uni.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-[#626260] hover:text-[#111111] transition-all"
+                    >
+                      Official Website
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
                 )}
               </div>
             </div>
