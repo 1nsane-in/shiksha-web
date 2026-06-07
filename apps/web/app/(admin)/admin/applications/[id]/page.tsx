@@ -586,32 +586,86 @@ export default function AdminApplicationDetailPage({
 
             {/* Birthplace Info */}
             {fd?.placeOfBirth && (
-              <Section title="Birth Details" icon={MapPin}>
-                <Field label="City of Birth" value={fd.placeOfBirth.city} />
-                <Field label="State/Province" value={fd.placeOfBirth.state} />
-                <Field label="Country of Birth" value={fd.placeOfBirth.country} />
-              </Section>
+              <div className="rounded-xl border border-[#d3cec6] bg-white p-6 md:p-8 transition-all">
+                <div className="mb-6 flex items-center justify-between border-b border-[#ebe7e1] pb-4 flex-wrap gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-zinc-100 p-2 text-[#111111]">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Birth Details</h2>
+                      <p className="text-[11px] text-[#626260] mt-0.5">Recorded place of birth</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                  <div className="divide-y divide-zinc-100">
+                    <KeyValueRow label="City of Birth" value={fd.placeOfBirth.city} />
+                    <KeyValueRow label="State/Province" value={fd.placeOfBirth.state} />
+                  </div>
+                  <div className="divide-y divide-zinc-100">
+                    <KeyValueRow label="Country of Birth" value={fd.placeOfBirth.country} />
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* Permanent Address */}
             {fd?.permanentAddress && (
-              <Section title="Permanent Address" icon={MapPin}>
-                <Field label="Street Address" value={fd.permanentAddress} />
-                <Field label="City" value={fd.permanentCity} />
-                <Field label="State/Province" value={fd.permanentState} />
-                <Field label="Postal/ZIP Code" value={fd.permanentZip} />
-                <Field label="Country" value={fd.permanentCountry} />
-              </Section>
+              <div className="rounded-xl border border-[#d3cec6] bg-white p-6 md:p-8 transition-all">
+                <div className="mb-6 flex items-center justify-between border-b border-[#ebe7e1] pb-4 flex-wrap gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-zinc-100 p-2 text-[#111111]">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Permanent Address</h2>
+                      <p className="text-[11px] text-[#626260] mt-0.5">Primary residential address</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                  <div className="divide-y divide-zinc-100">
+                    <KeyValueRow label="Street Address" value={fd.permanentAddress} />
+                    <KeyValueRow label="City" value={fd.permanentCity} />
+                    <KeyValueRow label="State/Province" value={fd.permanentState} />
+                  </div>
+                  <div className="divide-y divide-zinc-100">
+                    <KeyValueRow label="Postal/ZIP Code" value={fd.permanentZip} />
+                    <KeyValueRow label="Country" value={fd.permanentCountry} />
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* Language Proficiency */}
             {fd?.language1 && (
-              <Section title="Language Proficiency" icon={Globe}>
-                <Field label="Primary Language" value={fd.language1.name} />
-                <Field label="Speaking Level" value={fd.language1.speaking} />
-                <Field label="Reading Level" value={fd.language1.reading} />
-                <Field label="Writing Level" value={fd.language1.writing} />
-              </Section>
+              <div className="rounded-xl border border-[#d3cec6] bg-white p-6 md:p-8 transition-all">
+                <div className="mb-6 flex items-center justify-between border-b border-[#ebe7e1] pb-4 flex-wrap gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-zinc-100 p-2 text-[#111111]">
+                      <Globe className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Language Proficiency</h2>
+                      <p className="text-[11px] text-[#626260] mt-0.5">Self-reported language skills</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                  <div className="divide-y divide-zinc-100">
+                    <KeyValueRow label="Primary Language" value={fd.language1.name} />
+                    <KeyValueRow label="Reading Level" value={fd.language1.reading} />
+                  </div>
+                  <div className="divide-y divide-zinc-100">
+                    <KeyValueRow label="Speaking Level" value={fd.language1.speaking} />
+                    <KeyValueRow label="Writing Level" value={fd.language1.writing} />
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* Submitted Documents Checklist */}
@@ -874,52 +928,65 @@ export default function AdminApplicationDetailPage({
               </div>
             </div>
 
-            {/* Submission Dates */}
-            <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
-              <div className="mb-4 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-                <div className="rounded-lg bg-zinc-100 p-1.5">
-                  <Clock className="h-4 w-4 text-[#111111]" />
+            {/* System & Audit Trail */}
+            <div className="rounded-xl border border-[#d3cec6] bg-white overflow-hidden transition-all mt-6">
+              <div className="p-6 md:p-8 pb-6">
+                <div className="mb-6 flex items-center justify-between border-b border-[#ebe7e1] pb-4 flex-wrap gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-zinc-100 p-2 text-[#111111]">
+                      <History className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">System & Audit Trail</h2>
+                      <p className="text-[11px] text-[#626260] mt-0.5">Application lifecycle and mutation record</p>
+                    </div>
+                  </div>
                 </div>
-                <h2 className="text-sm font-medium text-[#111111] tracking-tight">Timeline Info</h2>
-              </div>
-              <div className="space-y-4">
-                <Field
-                  label="Application Submitted"
-                  value={app.submittedAt ? new Date(app.submittedAt).toLocaleString() : null}
-                />
-                <Field
-                  label="System Creation"
-                  value={new Date(app.createdAt).toLocaleString()}
-                />
-                <Field
-                  label="Last Record Mutation"
-                  value={new Date(app.updatedAt).toLocaleString()}
-                />
+
+                {/* Primary Meta Dates */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 bg-zinc-50/50 p-4 rounded-lg border border-[#ebe7e1]">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">Application Submitted</p>
+                    <p className="text-xs font-medium text-[#111111] mt-1">{formatLedgerDate(app.submittedAt)}</p>
+                  </div>
+                  <div className="sm:border-l sm:border-[#ebe7e1] sm:pl-6">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">System Creation</p>
+                    <p className="text-xs font-medium text-[#111111] mt-1">{formatLedgerDate(app.createdAt)}</p>
+                  </div>
+                  <div className="sm:border-l sm:border-[#ebe7e1] sm:pl-6">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">Last Record Mutation</p>
+                    <p className="text-xs font-medium text-[#111111] mt-1">{formatLedgerDate(app.updatedAt)}</p>
+                  </div>
+                </div>
+
+                {/* Timeline Events */}
+                <div>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[#626260] mb-5">Chronological Events</h3>
+                  {app.timelineEvents?.length ? (
+                    <div className="relative pl-5 space-y-6 before:absolute before:left-[5px] before:top-2 before:bottom-2 before:w-[1px] before:bg-[#ebe7e1]">
+                      {app.timelineEvents.map((e: any) => (
+                        <div key={e.id} className="relative space-y-1 group">
+                          <div className="absolute -left-[22px] top-1.5 h-2.5 w-2.5 shrink-0 rounded-full border-2 border-white bg-[#111111] ring-1 ring-[#d3cec6] group-hover:ring-[#111111] transition-all" />
+                          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                            <p className="text-sm font-medium text-[#111111]">{e.title}</p>
+                            <p className="text-[10px] font-mono text-[#626260] sm:mt-0 mt-1 bg-white inline-block">
+                              {formatLedgerDate(e.occurredAt)}
+                            </p>
+                          </div>
+                          {e.description && (
+                            <p className="text-xs text-[#626260] leading-relaxed max-w-2xl">{e.description}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-6 text-center bg-zinc-50 rounded-lg border border-dashed border-[#d3cec6]">
+                      <p className="text-xs text-[#626260]">No chronological timeline events recorded yet.</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-
-            {/* Support Tickets */}
-            {app.tickets?.length > 0 && (
-              <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
-                <div className="mb-4 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-                  <div className="rounded-lg bg-zinc-100 p-1.5">
-                    <MessageSquare className="h-4 w-4 text-[#111111]" />
-                  </div>
-                  <h2 className="text-sm font-medium text-[#111111] tracking-tight">Related Support</h2>
-                </div>
-                <div className="space-y-3">
-                  {app.tickets.map((t: any) => (
-                    <div key={t.id} className="rounded-lg bg-zinc-50 p-3 border border-[#ebe7e1]">
-                      <p className="text-xs font-semibold text-[#111111]">{t.subject}</p>
-                      <div className="flex items-center justify-between text-[10px] text-[#626260] mt-2 border-t border-[#ebe7e1] pt-1.5">
-                        <span>Status: {t.status}</span>
-                        <span>Priority: {t.priority}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
