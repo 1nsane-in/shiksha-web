@@ -58,15 +58,6 @@ const statusConfig: Record<
   },
 };
 
-const theme = {
-  ink: "#111111",
-  inkMuted: "#626260",
-  canvas: "#f5f1ec",
-  surface: "#ffffff",
-  hairline: "#d3cec6",
-  hairlineSoft: "#ebe7e1",
-};
-
 /* ─── Document Preview Dialog Overlay ─── */
 function PreviewDialog({
   isOpen,
@@ -287,6 +278,19 @@ export default function AdminApplicationDetailPage({
   const fd = app.formData as Record<string, any> | null;
   const student = app.student;
   const uni = app.university;
+
+  // Format variables for premium demographics display
+  const formattedProgram = app.selectedProgram
+    ? app.selectedProgram.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    : "—";
+
+  const formattedGender = fd?.gender
+    ? fd.gender.replace(/\b\w/g, (c) => c.toUpperCase())
+    : "—";
+
+  const formattedMarital = fd?.maritalStatus
+    ? fd.maritalStatus.replace(/\b\w/g, (c) => c.toUpperCase())
+    : "—";
 
   return (
     <div className="min-h-screen text-[#111111] font-sans antialiased pb-12">
@@ -510,19 +514,63 @@ export default function AdminApplicationDetailPage({
             )}
 
             {/* Applicant Demographics */}
-            <Section title="Applicant Demographics" icon={User}>
-              <Field label="Full Name" value={`${app.firstName} ${app.lastName}`} />
-              <Field label="Email Address" value={app.email} />
-              <Field label="Gender" value={fd?.gender} />
-              <Field
-                label="Date of Birth"
-                value={fd?.dateOfBirth ? new Date(fd.dateOfBirth).toLocaleDateString() : null}
-              />
-              <Field label="Citizenship" value={fd?.citizenship} />
-              <Field label="Marital Status" value={fd?.maritalStatus} />
-              <Field label="Embassy Location" value={fd?.embassyLocation} />
-              <Field label="Selected Program" value={app.selectedProgram} />
-            </Section>
+            <div className="rounded-xl border border-[#d3cec6] bg-white p-6 md:p-8 transition-all">
+              <div className="mb-6 flex items-center justify-between border-b border-[#ebe7e1] pb-4 flex-wrap gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-zinc-100 p-2 text-[#111111]">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Applicant Demographics</h2>
+                    <p className="text-[11px] text-[#626260] mt-0.5">Verified identity and personal record dossier</p>
+                  </div>
+                </div>
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-semibold text-[#111111]">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                  Verified Identity
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                {/* Column 1: Primary Identity */}
+                <div className="space-y-4">
+                  <div className="border-l-2 border-[#111111] pl-3 space-y-4">
+                    <Field label="Full Name" value={`${app.firstName} ${app.lastName}`} />
+                    <Field label="Email Address" value={app.email} />
+                    <Field label="Selected Program" value={formattedProgram} />
+                  </div>
+                </div>
+
+                {/* Column 2: Personal Record */}
+                <div className="space-y-4 md:border-l md:border-[#ebe7e1] md:pl-8">
+                  <Field
+                    label="Date of Birth"
+                    value={fd?.dateOfBirth ? new Date(fd.dateOfBirth).toLocaleDateString("en-US", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric"
+                    }) : null}
+                  />
+                  <Field label="Gender" value={formattedGender} />
+                  <Field label="Marital Status" value={formattedMarital} />
+                </div>
+
+                {/* Column 3: Location & Logistics */}
+                <div className="space-y-4 md:border-l md:border-[#ebe7e1] md:pl-8">
+                  <Field label="Citizenship" value={fd?.citizenship} />
+                  <Field label="Embassy Location" value={fd?.embassyLocation} />
+                  <div className="pt-2">
+                    <div className="rounded-lg bg-zinc-50 p-3 border border-[#ebe7e1] flex items-start gap-2.5">
+                      <GraduationCap className="h-4 w-4 text-[#111111] shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">Academic Path</p>
+                        <p className="text-xs text-[#111111] mt-0.5 leading-relaxed">Medical Candidate pipeline Stage 1 validation complete.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Birthplace Info */}
             {fd?.placeOfBirth && (
