@@ -67,6 +67,50 @@ const theme = {
   hairlineSoft: "#ebe7e1",
 };
 
+/* ─── Document Preview Dialog Overlay ─── */
+function PreviewDialog({
+  isOpen,
+  onClose,
+  fileUrl,
+  fileName,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  fileUrl: string | null;
+  fileName?: string | null;
+}) {
+  if (!isOpen || !fileUrl) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+      <div className="relative bg-white rounded-xl border border-[#d3cec6] w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-[#ebe7e1] px-6 py-4 bg-zinc-50">
+          <div>
+            <h3 className="text-sm font-semibold text-[#111111] tracking-tight">Document Preview</h3>
+            {fileName && <p className="text-xs text-[#626260] mt-0.5 truncate max-w-[500px]">{fileName}</p>}
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer"
+          >
+            Close
+          </button>
+        </div>
+
+        {/* Content Body */}
+        <div className="flex-1 p-4 bg-zinc-100 min-h-[500px] flex items-center justify-center">
+          <iframe
+            src={fileUrl}
+            title="Document Preview"
+            className="w-full h-[65vh] border border-[#d3cec6] rounded-lg bg-white shadow-inner"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Field({
   label,
   value,
@@ -117,6 +161,9 @@ export default function AdminApplicationDetailPage({
   const router = useRouter();
   const { data: app, isLoading, error } = useApplication(id);
   const updateStatus = useUpdateApplicationStatus();
+
+  // Dialog Preview State
+  const [previewFile, setPreviewFile] = useState<{ url: string; name: string } | null>(null);
 
   // Integrated states for pre-approval PDF upload
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -243,6 +290,14 @@ export default function AdminApplicationDetailPage({
 
   return (
     <div className="min-h-screen text-[#111111] font-sans antialiased pb-12">
+      {/* Dialogue Preview Box */}
+      <PreviewDialog
+        isOpen={!!previewFile}
+        onClose={() => setPreviewFile(null)}
+        fileUrl={previewFile?.url || null}
+        fileName={previewFile?.name || null}
+      />
+
       {/* Header Bar */}
       <div className="border-b border-[#d3cec6] bg-transparent">
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between flex-wrap gap-4">
@@ -349,15 +404,14 @@ export default function AdminApplicationDetailPage({
                         </span>
 
                         {localPreviewUrl && (
-                          <a
-                            href={localPreviewUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
+                          <button
+                            type="button"
+                            onClick={() => setPreviewFile({ url: localPreviewUrl, name: selectedFile.name })}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer"
                           >
                             <ExternalLink className="h-3 w-3" />
                             Preview Selection
-                          </a>
+                          </button>
                         )}
 
                         <button
@@ -400,15 +454,14 @@ export default function AdminApplicationDetailPage({
                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                         Uploaded: {uploadedFile.fileName}
                       </span>
-                      <a
-                        href={uploadedFile.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f5f1ec] transition-all"
+                      <button
+                        type="button"
+                        onClick={() => setPreviewFile({ url: uploadedFile.url, name: uploadedFile.fileName })}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer"
                       >
                         <ExternalLink className="h-3 w-3" />
                         Preview Upload
-                      </a>
+                      </button>
                       <button
                         type="button"
                         onClick={handleRemoveSelectedFile}
@@ -522,15 +575,14 @@ export default function AdminApplicationDetailPage({
                       </div>
                       <div className="flex items-center gap-3">
                         {doc.fileUrl && (
-                          <a
-                            href={doc.fileUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 rounded-lg border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
+                          <button
+                            type="button"
+                            onClick={() => setPreviewFile({ url: doc.fileUrl, name: doc.documentType?.name })}
+                            className="inline-flex items-center gap-1 rounded-lg border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer"
                           >
                             <ExternalLink className="h-3 w-3" />
                             View
-                          </a>
+                          </button>
                         )}
                         <span
                           className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium border ${
@@ -770,6 +822,9 @@ function AdmissionLetterUpload({
   const uploadFile = useUploadFile();
   const uploadLetter = useUploadAdmissionLetter();
 
+  // Self-contained Preview Modal State
+  const [previewFile, setPreviewFile] = useState<{ url: string; name: string } | null>(null);
+
   // Cleanup local Object URL
   useEffect(() => {
     return () => {
@@ -835,6 +890,14 @@ function AdmissionLetterUpload({
 
   return (
     <div className="rounded-xl border border-[#d3cec6] bg-white p-6 space-y-4">
+      {/* Dialogue Preview Box */}
+      <PreviewDialog
+        isOpen={!!previewFile}
+        onClose={() => setPreviewFile(null)}
+        fileUrl={previewFile?.url || null}
+        fileName={previewFile?.name || null}
+      />
+
       <div className="flex items-center gap-2">
         <Upload className="h-4 w-4 text-[#111111]" />
         <h2 className="text-sm font-medium text-[#111111] tracking-tight">Official Admission Letter</h2>
@@ -851,15 +914,14 @@ function AdmissionLetterUpload({
             <span className="truncate max-w-[280px]">Letter active: {letterToDisplay.fileName || "Admission_Letter.pdf"}</span>
           </div>
           <div className="flex items-center gap-2">
-            <a
-              href={letterToDisplay.fileUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 rounded-md border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
+            <button
+              type="button"
+              onClick={() => setPreviewFile({ url: letterToDisplay.fileUrl, name: letterToDisplay.fileName || "Admission Letter" })}
+              className="inline-flex items-center gap-1 rounded-md border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer"
             >
               <ExternalLink className="h-3 w-3" />
               View Letter
-            </a>
+            </button>
             <button
               type="button"
               onClick={handleRemove}
@@ -881,15 +943,14 @@ function AdmissionLetterUpload({
             </span>
 
             {localPreviewUrl && (
-              <a
-                href={localPreviewUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all"
+              <button
+                type="button"
+                onClick={() => setPreviewFile({ url: localPreviewUrl, name: selectedFile.name })}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer"
               >
                 <ExternalLink className="h-3 w-3" />
                 Preview Local File
-              </a>
+              </button>
             )}
 
             <button
