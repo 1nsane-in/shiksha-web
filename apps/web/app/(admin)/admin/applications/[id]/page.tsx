@@ -721,7 +721,15 @@ export default function AdminApplicationDetailPage({
             {/* University Details */}
             <div className="rounded-xl border border-[#d3cec6] bg-white overflow-hidden">
               {/* Optional Header Banner (can be gray if no bannerImage) */}
-              <div className="h-16 bg-zinc-100 border-b border-[#ebe7e1] w-full" />
+              <div className="h-16 w-full border-b border-[#ebe7e1] relative bg-zinc-100">
+                {uni?.bannerImage && (
+                  <img 
+                    src={uni.bannerImage} 
+                    alt="University Banner" 
+                    className="absolute inset-0 h-full w-full object-cover" 
+                  />
+                )}
+              </div>
               
               <div className="px-6 pb-6 relative">
                 {/* Logo overlapping banner */}
