@@ -158,6 +158,24 @@ function Section({
   );
 }
 
+/**
+ * Utility for rendering human-readable dates inside the ledger.
+ * Demonstrates Single Responsibility Principle for formatting logic.
+ */
+function formatLedgerDate(dateString: string | null | undefined): string {
+  if (!dateString) return "—";
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 export default function AdminApplicationDetailPage({
   params,
 }: {
@@ -651,40 +669,80 @@ export default function AdminApplicationDetailPage({
               <AdmissionLetterUpload applicationId={id} existingLetter={app.admissionLetter} />
             )}
 
-            {/* Payments */}
-            <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
-              <div className="mb-5 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
-                <div className="rounded-lg bg-zinc-100 p-1.5">
-                  <CreditCard className="h-4 w-4 text-[#111111]" />
-                </div>
-                <h2 className="text-sm font-medium text-[#111111] tracking-tight">Payment Ledger</h2>
-              </div>
-              {student?.payments?.length ? (
-                <div className="divide-y divide-[#ebe7e1]">
-                  {student.payments.map((p: any) => (
-                    <div
-                      key={p.id}
-                      className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
-                    >
-                      <div>
-                        <p className="font-medium text-sm text-[#111111]">Stage {p.stage} Admission Fee</p>
-                        <p className="text-xs text-[#626260] mt-0.5">Amount: ₹{p.amount.toLocaleString("en-IN")}</p>
-                      </div>
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium border ${
-                          p.status === "SUCCESS"
-                            ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                            : "bg-amber-50 border-amber-200 text-amber-700"
-                        }`}
-                      >
-                        {p.status}
-                      </span>
+            {/* Payment Ledger */}
+            <div className="rounded-xl border border-[#d3cec6] bg-white transition-all overflow-hidden">
+              <div className="p-6 md:p-8 pb-4">
+                <div className="mb-6 flex items-center justify-between border-b border-[#ebe7e1] pb-4 flex-wrap gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-zinc-100 p-2 text-[#111111]">
+                      <CreditCard className="h-4 w-4" />
                     </div>
-                  ))}
+                    <div>
+                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Payment Ledger</h2>
+                      <p className="text-[11px] text-[#626260] mt-0.5">Transaction history and financial status</p>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <p className="text-xs text-[#626260] py-4 text-center">No payment records found</p>
-              )}
+
+                {student?.payments?.length ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm whitespace-nowrap">
+                      <thead>
+                        <tr className="border-b border-[#ebe7e1]">
+                          <th className="pb-3 text-[10px] font-semibold uppercase tracking-wider text-[#626260] font-sans w-1/3">Transaction</th>
+                          <th className="pb-3 text-[10px] font-semibold uppercase tracking-wider text-[#626260] font-sans w-1/3">Date & Time</th>
+                          <th className="pb-3 text-[10px] font-semibold uppercase tracking-wider text-[#626260] font-sans text-right">Amount & Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-100">
+                        {student.payments.map((p: any) => (
+                          <tr key={p.id} className="group">
+                            <td className="py-4 align-top">
+                              <p className="font-medium text-[#111111]">Stage {p.stage} Admission Fee</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] font-mono text-[#626260] bg-zinc-50 px-1.5 py-0.5 rounded border border-[#ebe7e1]">
+                                  {p.razorpayOrderId || p.id.split("-")[0].toUpperCase()}
+                                </span>
+                                {p.paymentMethod && (
+                                  <span className="text-[10px] text-[#626260]">{p.paymentMethod}</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-4 align-top">
+                              <p className="text-xs text-[#111111]">
+                                {formatLedgerDate(p.paidAt || p.createdAt)}
+                              </p>
+                              {p.manuallyApproved && (
+                                <p className="text-[10px] text-[#626260] mt-1 italic">Manually Approved</p>
+                              )}
+                            </td>
+                            <td className="py-4 align-top text-right">
+                              <p className="font-semibold text-[#111111] mb-1">
+                                {p.currency === "INR" ? "₹" : p.currency} {p.amount.toLocaleString("en-IN")}
+                              </p>
+                              <span
+                                className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
+                                  p.status === "SUCCESS" || p.status === "MANUALLY_APPROVED"
+                                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                                    : p.status === "FAILED" || p.status === "REFUNDED"
+                                      ? "bg-red-50 border-red-200 text-red-700"
+                                      : "bg-amber-50 border-amber-200 text-amber-700"
+                                }`}
+                              >
+                                {p.status.replace(/_/g, " ")}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="py-8 text-center bg-zinc-50 rounded-lg border border-dashed border-[#d3cec6] mt-4">
+                    <p className="text-xs text-[#626260]">No payment records found.</p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Timeline */}
