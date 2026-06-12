@@ -52,7 +52,7 @@ export class UploadController {
     if (!file) {
       throw new BadRequestException('No file provided');
     }
-    const allowed = ['logos', 'banners', 'brochures', 'documents', 'gallery', 'avatars', 'uploads'];
+    const allowed = ['logos', 'banners', 'brochures', 'documents', 'gallery', 'avatars', 'uploads', 'admission-letters', 'invitation-letters'];
     const target = allowed.includes(folder || '') ? folder! : 'uploads';
     return this.storage.upload(file, target);
   }

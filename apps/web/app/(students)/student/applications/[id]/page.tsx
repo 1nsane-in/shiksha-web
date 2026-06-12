@@ -16,6 +16,7 @@ import {
   useStageInfo,
 } from "@/domains/student/student.queries";
 import { useApplicationTimeline } from "@/domains/timeline";
+import { useMyAdmissionLetter } from "@/domains/letters";
 import type { TimelineEvent } from "@/domains/timeline";
 import {
   ArrowLeft,
@@ -27,8 +28,10 @@ import {
   FileText,
   Globe,
   GraduationCap,
+  IndianRupee,
   Languages,
   Loader2,
+  Lock,
   Mail,
   MapPin,
   Phone,
@@ -114,6 +117,7 @@ export default function ApplicationDetailPage({
   const { data: app, isLoading, error } = useMyApplicationById(id);
   const { data: stageInfo } = useStageInfo();
   const { data: timeline, isError: timelineError } = useApplicationTimeline(id);
+  const { data: admissionLetter } = useMyAdmissionLetter();
 
   if (isLoading) {
     return (
@@ -186,7 +190,29 @@ export default function ApplicationDetailPage({
       </div>
 
       {/* Stage Action Card */}
-      {currentAction && (
+      {currentAction && currentStage === 2 && admissionLetter?.isLocked ? (
+        <div className="mb-6 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50/50 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-amber-100 p-2.5">
+              <Lock className="size-5 text-amber-600" />
+            </div>
+            <div>
+              <p className="font-semibold text-[#2D2154]">Admission Letter Ready</p>
+              <p className="text-sm text-[#6B6B6B]">
+                Pay ₹5,000 admission fee to unlock and download
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => router.push("/student/payments")}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#4B2D8E] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#3D2475]"
+          >
+            <IndianRupee className="size-4" />
+            Pay ₹5,000 to Unlock
+            <ArrowRight className="size-4" />
+          </button>
+        </div>
+      ) : currentAction ? (
         <div className="mb-6 flex items-center justify-between rounded-xl border border-[#4B2D8E]/20 bg-[#4B2D8E]/5 px-5 py-4">
           <div className="flex items-center gap-3">
             <div className="rounded-full bg-[#4B2D8E]/10 p-2.5">
@@ -205,7 +231,7 @@ export default function ApplicationDetailPage({
             <ArrowRight className="size-4" />
           </button>
         </div>
-      )}
+      ) : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content - Left Column */}
@@ -474,7 +500,26 @@ export default function ApplicationDetailPage({
           </Card>
 
           {/* Next Step Card (sidebar) */}
-          {currentAction && (
+          {currentStage === 2 && admissionLetter?.isLocked ? (
+            <div className="rounded-xl border border-amber-200 bg-white p-5">
+              <p className="mb-3 text-sm font-semibold text-[#2D2154]">Next Step</p>
+              <div className="flex items-center gap-2 mb-1">
+                <Lock className="size-4 text-amber-600" />
+                <span className="text-sm font-medium text-[#2D2154]">Admission Letter Ready</span>
+              </div>
+              <p className="mb-4 text-sm text-[#6B6B6B]">
+                Your admission letter is ready. Pay ₹5,000 to unlock and download.
+              </p>
+              <button
+                onClick={() => router.push("/student/payments")}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#4B2D8E] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#3D2475]"
+              >
+                <IndianRupee className="size-4" />
+                Pay ₹5,000 to Unlock
+                <ArrowRight className="size-4" />
+              </button>
+            </div>
+          ) : currentAction ? (
             <div className="rounded-xl border border-[#4B2D8E]/20 bg-white p-5">
               <p className="mb-3 text-sm font-semibold text-[#2D2154]">Next Step</p>
               <div className="flex items-center gap-2 mb-1">
@@ -490,7 +535,7 @@ export default function ApplicationDetailPage({
                 <ArrowRight className="size-4" />
               </button>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

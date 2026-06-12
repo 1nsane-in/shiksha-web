@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/co
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
 import { InitiatePayUPaymentDto, VerifyPayUPaymentDto, ManualPaymentApprovalDto } from './dto/payment.dto';
+import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthUser } from '../auth/decorators/user.decorator';
@@ -21,6 +22,7 @@ export class PaymentsController {
     return this.paymentsService.initiatePayment(user.id, dto);
   }
 
+  @Public()
   @Post('verify')
   @ApiOperation({ summary: 'Verify PayU payment response' })
   async verify(@Body() dto: VerifyPayUPaymentDto) {

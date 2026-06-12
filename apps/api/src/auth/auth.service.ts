@@ -20,6 +20,7 @@ import {
   GoogleRegisterDto,
   ForgotPasswordDto,
   ResetPasswordDto,
+  SocialRole,
 } from "./auth.dto";
 
 @Injectable()
@@ -214,22 +215,25 @@ export class AuthService {
     });
 
     if (!user) {
-      this.logger.log(`User not found, auto-registering: ${userInfo.email}`);
+      const requestedRole: SocialRole = dto.role === "PARENT" ? "PARENT" : "STUDENT";
+      this.logger.log(
+        `User not found, auto-registering as ${requestedRole}: ${userInfo.email}`
+      );
       user = await this.prisma.user.create({
         data: {
           email: userInfo.email,
           name: userInfo.name || userInfo.email.split("@")[0],
           emailVerified: true,
-          role: "STUDENT",
+          role: requestedRole,
           isActive: true,
         },
       });
 
-      await this.prisma.student.create({
-        data: {
-          userId: user.id,
-        },
-      });
+      if (requestedRole === "PARENT") {
+        await this.prisma.parent.create({ data: { userId: user.id } });
+      } else {
+        await this.prisma.student.create({ data: { userId: user.id } });
+      }
 
       this.logger.log(`Auto-registered user: ${user.id}`);
     }
@@ -258,22 +262,24 @@ export class AuthService {
       throw new BadRequestException("User already registered with this email");
     }
 
+    const role: SocialRole = dto.role === "PARENT" ? "PARENT" : "STUDENT";
+
     const newUser = await this.prisma.user.create({
       data: {
         email: dto.email,
         name: dto.name,
         phone: dto.phone,
         emailVerified: true,
-        role: "STUDENT",
+        role,
         isActive: true,
       },
     });
 
-    await this.prisma.student.create({
-      data: {
-        userId: newUser.id,
-      },
-    });
+    if (role === "PARENT") {
+      await this.prisma.parent.create({ data: { userId: newUser.id } });
+    } else {
+      await this.prisma.student.create({ data: { userId: newUser.id } });
+    }
 
     const { accessToken, refreshToken } = await this.generateTokens(newUser);
     this.logger.log(`Registration successful for user: ${newUser.id}`);

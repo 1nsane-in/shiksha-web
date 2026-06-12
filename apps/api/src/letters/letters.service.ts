@@ -70,17 +70,44 @@ export class LettersService {
   }
 
   async getMyAdmissionLetter(userId: string) {
+    console.log('[getMyAdmissionLetter] userId:', userId);
     const student = await this.prisma.student.findUnique({ where: { userId } });
-    if (!student) throw new NotFoundException('Student profile not found');
+    if (!student) {
+      console.log('[getMyAdmissionLetter] Student not found for userId:', userId);
+      throw new NotFoundException('Student profile not found');
+    }
+    console.log('[getMyAdmissionLetter] student.id:', student.id);
     const letter = await this.prisma.admissionLetter.findFirst({
       where: { studentId: student.id },
     });
+    console.log('[getMyAdmissionLetter] Letter query result:', letter?.id ?? 'null');
     if (!letter) throw new NotFoundException('Admission letter not found');
+
+    // Check if stage 2 payment is completed
+    const payment = await this.prisma.payment.findFirst({
+      where: {
+        studentId: student.id,
+        stage: 2,
+        status: { in: ['SUCCESS', 'MANUALLY_APPROVED'] },
+      },
+    });
+    const isPaid = !!payment;
+
+    if (!isPaid) {
+      // Letter exists but locked behind payment - return metadata only, no fileUrl
+      const { fileUrl: _, ...rest } = letter;
+      return {
+        ...rest,
+        fileUrl: null,
+        isLocked: true as const,
+      };
+    }
+
     await this.prisma.admissionLetter.update({
       where: { id: letter.id },
       data: { viewCount: { increment: 1 } },
     });
-    return letter;
+    return { ...letter, isLocked: false as const };
   }
 
   async downloadAdmissionLetter(applicationId: string) {

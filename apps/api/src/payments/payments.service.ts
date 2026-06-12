@@ -92,8 +92,8 @@ export class PaymentsService {
       paymentId = payment.id;
     }
 
-    const productinfo = 'Stage_' + dto.stage + '_' + config.label;
-    const amount = config.amount.toString();
+    const productinfo = 'Stage_' + dto.stage + '_' + config.label.replace(/\s+/g, '_');
+    const amount = config.amount.toFixed(2);
 
     const hash = generatePayUHash({
       key: this.payuKey,

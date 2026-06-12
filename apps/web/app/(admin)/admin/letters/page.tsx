@@ -32,7 +32,8 @@ export default function AdminLettersPage() {
 
     setUploadStatus("uploading");
     try {
-      const uploadResult = await uploadFileMutation.mutateAsync(file);
+      const folderName = pendingUpload === "admission" ? "admission-letters" : "invitation-letters";
+      const uploadResult = await uploadFileMutation.mutateAsync({ file, folder: folderName });
       const appId = pendingUpload === "admission" ? admissionAppId : invitationAppId;
       if (!appId) {
         setUploadStatus("error");

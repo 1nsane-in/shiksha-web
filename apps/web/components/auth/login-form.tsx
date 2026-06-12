@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { cn } from "@repo/ui"
 import { Button } from "@repo/ui"
 import {
@@ -19,7 +18,6 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const router = useRouter();
   const loginMutation = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,14 +26,10 @@ export function LoginForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
+
     try {
-      const result = await loginMutation.mutateAsync({ email, password });
-      if (result.user.role === "ADMIN" || result.user.role === "SUPER_ADMIN") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/");
-      }
+      await loginMutation.mutateAsync({ email, password });
+      // The mutation's onSuccess handler handles role-based routing.
     } catch (err: unknown) {
       const apiError =
         err && typeof err === "object" && "response" in err
@@ -60,13 +54,13 @@ export function LoginForm({
         )}
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input 
-            id="email" 
-            type="email" 
-            placeholder="m@example.com" 
+          <Input
+            id="email"
+            type="email"
+            placeholder="m@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required 
+            required
           />
         </Field>
         <Field>
@@ -79,12 +73,12 @@ export function LoginForm({
               Forgot your password?
             </a>
           </div>
-          <Input 
-            id="password" 
-            type="password" 
+          <Input
+            id="password"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required 
+            required
           />
         </Field>
         <Field>
@@ -94,7 +88,7 @@ export function LoginForm({
         </Field>
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>
-          <GoogleLoginButton />
+          <GoogleLoginButton mode="login" />
           <FieldDescription className="text-center">
             Don&apos;t have an account?{" "}
             <a href="/register" className="underline underline-offset-4">

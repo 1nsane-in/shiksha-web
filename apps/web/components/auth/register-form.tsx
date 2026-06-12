@@ -270,7 +270,10 @@ export function RegisterForm({
 
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>
-          <GoogleLoginButton />
+          <GoogleLoginButton
+            mode="register"
+            defaultRole={role === "parents" ? "PARENT" : "STUDENT"}
+          />
           <FieldDescription className="text-center">
             Already have an account?{" "}
             <a href="/login" className="underline underline-offset-4">

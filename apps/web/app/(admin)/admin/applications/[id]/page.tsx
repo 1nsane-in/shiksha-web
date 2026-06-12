@@ -33,7 +33,13 @@ import {
 
 const statusConfig: Record<
   string,
-  { label: string; border: string; text: string; bg: string; icon: React.ElementType }
+  {
+    label: string;
+    border: string;
+    text: string;
+    bg: string;
+    icon: React.ElementType;
+  }
 > = {
   pending: {
     label: "Pending Review",
@@ -78,8 +84,14 @@ function PreviewDialog({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#ebe7e1] px-6 py-4 bg-zinc-50">
           <div>
-            <h3 className="text-sm font-semibold text-[#111111] tracking-tight">Document Preview</h3>
-            {fileName && <p className="text-xs text-[#626260] mt-0.5 truncate max-w-[500px]">{fileName}</p>}
+            <h3 className="text-sm font-semibold text-[#111111] tracking-tight">
+              Document Preview
+            </h3>
+            {fileName && (
+              <p className="text-xs text-[#626260] mt-0.5 truncate max-w-[500px]">
+                {fileName}
+              </p>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -131,7 +143,9 @@ function KeyValueRow({
   return (
     <div className="flex justify-between items-center py-2.5 border-b border-zinc-100 last:border-0 text-sm">
       <span className="text-[#626260] font-normal">{label}</span>
-      <span className="text-[#111111] font-medium text-right break-all pl-4">{value || "—"}</span>
+      <span className="text-[#111111] font-medium text-right break-all pl-4">
+        {value || "—"}
+      </span>
     </div>
   );
 }
@@ -151,7 +165,9 @@ function Section({
         <div className="rounded-lg bg-zinc-100 p-1.5">
           <Icon className="h-4 w-4 text-[#111111]" />
         </div>
-        <h2 className="text-sm font-medium text-[#111111] tracking-tight">{title}</h2>
+        <h2 className="text-sm font-medium text-[#111111] tracking-tight">
+          {title}
+        </h2>
       </div>
       <div className="grid grid-cols-2 gap-x-6 gap-y-4">{children}</div>
     </div>
@@ -187,12 +203,18 @@ export default function AdminApplicationDetailPage({
   const updateStatus = useUpdateApplicationStatus();
 
   // Dialog Preview State
-  const [previewFile, setPreviewFile] = useState<{ url: string; name: string } | null>(null);
+  const [previewFile, setPreviewFile] = useState<{
+    url: string;
+    name: string;
+  } | null>(null);
 
   // Integrated states for pre-approval PDF upload
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
-  const [uploadedFile, setUploadedFile] = useState<{ url: string; fileName: string } | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{
+    url: string;
+    fileName: string;
+  } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [approving, setApproving] = useState(false);
   const [actionError, setActionError] = useState("");
@@ -217,7 +239,7 @@ export default function AdminApplicationDetailPage({
     setSelectedFile(file);
     setActionError("");
     setUploadedFile(null); // Reset uploaded server file state
-    
+
     // Revoke any existing Object URL before creating a new one
     if (localPreviewUrl) {
       URL.revokeObjectURL(localPreviewUrl);
@@ -231,7 +253,10 @@ export default function AdminApplicationDetailPage({
     setUploading(true);
     setActionError("");
     try {
-      const result = await uploadFileMutation.mutateAsync({ file: selectedFile, folder: "admission-letters" });
+      const result = await uploadFileMutation.mutateAsync({
+        file: selectedFile,
+        folder: "admission-letters",
+      });
       setUploadedFile({ url: result.url, fileName: selectedFile.name });
     } catch (err: any) {
       setActionError(err?.message || "File upload failed");
@@ -295,7 +320,9 @@ export default function AdminApplicationDetailPage({
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4">
         <AlertCircle className="size-10 text-red-500" />
-        <p className="text-sm font-medium text-[#111111]">Application not found</p>
+        <p className="text-sm font-medium text-[#111111]">
+          Application not found
+        </p>
         <Button
           onClick={() => router.push("/admin/applications")}
           variant="outline"
@@ -314,7 +341,9 @@ export default function AdminApplicationDetailPage({
 
   // Format variables for premium demographics display
   const formattedProgram = app.selectedProgram
-    ? app.selectedProgram.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    ? app.selectedProgram
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
     : "—";
 
   const formattedGender = fd?.gender
@@ -369,8 +398,17 @@ export default function AdminApplicationDetailPage({
                 <button
                   className="inline-flex items-center gap-1.5 rounded-lg bg-[#111111] px-4 py-2 text-xs font-medium text-white hover:bg-black transition-all disabled:opacity-50 cursor-pointer"
                   onClick={handleApproveCoordinated}
-                  disabled={!uploadedFile || updateStatus.isPending || uploading || approving}
-                  title={!uploadedFile ? "Please upload an Admission Letter first" : "Click to Approve"}
+                  disabled={
+                    !uploadedFile ||
+                    updateStatus.isPending ||
+                    uploading ||
+                    approving
+                  }
+                  title={
+                    !uploadedFile
+                      ? "Please upload an Admission Letter first"
+                      : "Click to Approve"
+                  }
                 >
                   {approving ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -406,7 +444,10 @@ export default function AdminApplicationDetailPage({
                   </h2>
                 </div>
                 <p className="text-xs text-[#626260] leading-relaxed">
-                  Redesign of administrative pipeline. To approve {app.firstName}'s medical admission application, upload the official university Admission Letter PDF. Upload enables the "Approve" workflow action.
+                  Redesign of administrative pipeline. To approve{" "}
+                  {app.firstName}'s medical admission application, upload the
+                  official university Admission Letter PDF. Upload enables the
+                  "Approve" workflow action.
                 </p>
 
                 <input
@@ -443,7 +484,12 @@ export default function AdminApplicationDetailPage({
                         {localPreviewUrl && (
                           <button
                             type="button"
-                            onClick={() => setPreviewFile({ url: localPreviewUrl, name: selectedFile.name })}
+                            onClick={() =>
+                              setPreviewFile({
+                                url: localPreviewUrl,
+                                name: selectedFile.name,
+                              })
+                            }
                             className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer"
                           >
                             <ExternalLink className="h-3 w-3" />
@@ -493,7 +539,12 @@ export default function AdminApplicationDetailPage({
                       </span>
                       <button
                         type="button"
-                        onClick={() => setPreviewFile({ url: uploadedFile.url, name: uploadedFile.fileName })}
+                        onClick={() =>
+                          setPreviewFile({
+                            url: uploadedFile.url,
+                            name: uploadedFile.fileName,
+                          })
+                        }
                         className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer"
                       >
                         <ExternalLink className="h-3 w-3" />
@@ -531,7 +582,8 @@ export default function AdminApplicationDetailPage({
                       </>
                     ) : (
                       <>
-                        <CheckCircle2 className="h-3.5 w-3.5" /> Approve & Notify Applicant
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Approve &
+                        Notify Applicant
                       </>
                     )}
                   </button>
@@ -553,24 +605,38 @@ export default function AdminApplicationDetailPage({
                   <User className="h-4 w-4" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Applicant Demographics</h2>
-                  <p className="text-[11px] text-[#626260] mt-0.5">Verified details and profile dossier</p>
+                  <h2 className="text-sm font-semibold text-[#111111] tracking-tight">
+                    Applicant Demographics
+                  </h2>
+                  <p className="text-[11px] text-[#626260] mt-0.5">
+                    Verified details and profile dossier
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                 {/* Left Specification Column */}
                 <div className="divide-y divide-zinc-100">
-                  <KeyValueRow label="Full Name" value={`${app.firstName} ${app.lastName}`} />
+                  <KeyValueRow
+                    label="Full Name"
+                    value={`${app.firstName} ${app.lastName}`}
+                  />
                   <KeyValueRow label="Email Address" value={app.email} />
-                  <KeyValueRow label="Selected Program" value={formattedProgram} />
+                  <KeyValueRow
+                    label="Selected Program"
+                    value={formattedProgram}
+                  />
                   <KeyValueRow
                     label="Date of Birth"
-                    value={fd?.dateOfBirth ? new Date(fd.dateOfBirth).toLocaleDateString("en-US", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric"
-                    }) : null}
+                    value={
+                      fd?.dateOfBirth
+                        ? new Date(fd.dateOfBirth).toLocaleDateString("en-US", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })
+                        : null
+                    }
                   />
                 </div>
 
@@ -578,8 +644,14 @@ export default function AdminApplicationDetailPage({
                 <div className="divide-y divide-zinc-100">
                   <KeyValueRow label="Gender" value={formattedGender} />
                   <KeyValueRow label="Citizenship" value={fd?.citizenship} />
-                  <KeyValueRow label="Marital Status" value={formattedMarital} />
-                  <KeyValueRow label="Embassy Location" value={fd?.embassyLocation} />
+                  <KeyValueRow
+                    label="Marital Status"
+                    value={formattedMarital}
+                  />
+                  <KeyValueRow
+                    label="Embassy Location"
+                    value={fd?.embassyLocation}
+                  />
                 </div>
               </div>
             </div>
@@ -593,19 +665,32 @@ export default function AdminApplicationDetailPage({
                       <MapPin className="h-4 w-4" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Birth Details</h2>
-                      <p className="text-[11px] text-[#626260] mt-0.5">Recorded place of birth</p>
+                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">
+                        Birth Details
+                      </h2>
+                      <p className="text-[11px] text-[#626260] mt-0.5">
+                        Recorded place of birth
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                   <div className="divide-y divide-zinc-100">
-                    <KeyValueRow label="City of Birth" value={fd.placeOfBirth.city} />
-                    <KeyValueRow label="State/Province" value={fd.placeOfBirth.state} />
+                    <KeyValueRow
+                      label="City of Birth"
+                      value={fd.placeOfBirth.city}
+                    />
+                    <KeyValueRow
+                      label="State/Province"
+                      value={fd.placeOfBirth.state}
+                    />
                   </div>
                   <div className="divide-y divide-zinc-100">
-                    <KeyValueRow label="Country of Birth" value={fd.placeOfBirth.country} />
+                    <KeyValueRow
+                      label="Country of Birth"
+                      value={fd.placeOfBirth.country}
+                    />
                   </div>
                 </div>
               </div>
@@ -620,20 +705,33 @@ export default function AdminApplicationDetailPage({
                       <MapPin className="h-4 w-4" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Permanent Address</h2>
-                      <p className="text-[11px] text-[#626260] mt-0.5">Primary residential address</p>
+                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">
+                        Permanent Address
+                      </h2>
+                      <p className="text-[11px] text-[#626260] mt-0.5">
+                        Primary residential address
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                   <div className="divide-y divide-zinc-100">
-                    <KeyValueRow label="Street Address" value={fd.permanentAddress} />
+                    <KeyValueRow
+                      label="Street Address"
+                      value={fd.permanentAddress}
+                    />
                     <KeyValueRow label="City" value={fd.permanentCity} />
-                    <KeyValueRow label="State/Province" value={fd.permanentState} />
+                    <KeyValueRow
+                      label="State/Province"
+                      value={fd.permanentState}
+                    />
                   </div>
                   <div className="divide-y divide-zinc-100">
-                    <KeyValueRow label="Postal/ZIP Code" value={fd.permanentZip} />
+                    <KeyValueRow
+                      label="Postal/ZIP Code"
+                      value={fd.permanentZip}
+                    />
                     <KeyValueRow label="Country" value={fd.permanentCountry} />
                   </div>
                 </div>
@@ -649,20 +747,36 @@ export default function AdminApplicationDetailPage({
                       <Globe className="h-4 w-4" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Language Proficiency</h2>
-                      <p className="text-[11px] text-[#626260] mt-0.5">Self-reported language skills</p>
+                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">
+                        Language Proficiency
+                      </h2>
+                      <p className="text-[11px] text-[#626260] mt-0.5">
+                        Self-reported language skills
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                   <div className="divide-y divide-zinc-100">
-                    <KeyValueRow label="Primary Language" value={fd.language1.name} />
-                    <KeyValueRow label="Reading Level" value={fd.language1.reading} />
+                    <KeyValueRow
+                      label="Primary Language"
+                      value={fd.language1.name}
+                    />
+                    <KeyValueRow
+                      label="Reading Level"
+                      value={fd.language1.reading}
+                    />
                   </div>
                   <div className="divide-y divide-zinc-100">
-                    <KeyValueRow label="Speaking Level" value={fd.language1.speaking} />
-                    <KeyValueRow label="Writing Level" value={fd.language1.writing} />
+                    <KeyValueRow
+                      label="Speaking Level"
+                      value={fd.language1.speaking}
+                    />
+                    <KeyValueRow
+                      label="Writing Level"
+                      value={fd.language1.writing}
+                    />
                   </div>
                 </div>
               </div>
@@ -674,7 +788,9 @@ export default function AdminApplicationDetailPage({
                 <div className="rounded-lg bg-zinc-100 p-1.5">
                   <FileText className="h-4 w-4 text-[#111111]" />
                 </div>
-                <h2 className="text-sm font-medium text-[#111111] tracking-tight">Submitted Documents</h2>
+                <h2 className="text-sm font-medium text-[#111111] tracking-tight">
+                  Submitted Documents
+                </h2>
               </div>
               {student?.documents?.length ? (
                 <div className="divide-y divide-[#ebe7e1]">
@@ -684,14 +800,23 @@ export default function AdminApplicationDetailPage({
                       className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
                     >
                       <div>
-                        <p className="font-medium text-sm text-[#111111]">{doc.documentType?.name}</p>
-                        <p className="text-[10px] text-[#626260] mt-0.5">Code: {doc.documentType?.code}</p>
+                        <p className="font-medium text-sm text-[#111111]">
+                          {doc.documentType?.name}
+                        </p>
+                        <p className="text-[10px] text-[#626260] mt-0.5">
+                          Code: {doc.documentType?.code}
+                        </p>
                       </div>
                       <div className="flex items-center gap-3">
                         {doc.fileUrl && (
                           <button
                             type="button"
-                            onClick={() => setPreviewFile({ url: doc.fileUrl, name: doc.documentType?.name })}
+                            onClick={() =>
+                              setPreviewFile({
+                                url: doc.fileUrl,
+                                name: doc.documentType?.name,
+                              })
+                            }
                             className="inline-flex items-center gap-1 rounded-lg border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer"
                           >
                             <ExternalLink className="h-3 w-3" />
@@ -714,13 +839,18 @@ export default function AdminApplicationDetailPage({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-[#626260] py-4 text-center">No documents uploaded yet</p>
+                <p className="text-xs text-[#626260] py-4 text-center">
+                  No documents uploaded yet
+                </p>
               )}
             </div>
 
             {/* Post-Approval Letter Panel */}
             {app.status === "approved" && (
-              <AdmissionLetterUpload applicationId={id} existingLetter={app.admissionLetter} />
+              <AdmissionLetterUpload
+                applicationId={id}
+                existingLetter={app.admissionLetter}
+              />
             )}
 
             {/* Payment Ledger */}
@@ -732,8 +862,12 @@ export default function AdminApplicationDetailPage({
                       <CreditCard className="h-4 w-4" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Payment Ledger</h2>
-                      <p className="text-[11px] text-[#626260] mt-0.5">Transaction history and financial status</p>
+                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">
+                        Payment Ledger
+                      </h2>
+                      <p className="text-[11px] text-[#626260] mt-0.5">
+                        Transaction history and financial status
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -743,22 +877,33 @@ export default function AdminApplicationDetailPage({
                     <table className="w-full text-left text-sm whitespace-nowrap">
                       <thead>
                         <tr className="border-b border-[#ebe7e1]">
-                          <th className="pb-3 text-[10px] font-semibold uppercase tracking-wider text-[#626260] font-sans w-1/3">Transaction</th>
-                          <th className="pb-3 text-[10px] font-semibold uppercase tracking-wider text-[#626260] font-sans w-1/3">Date & Time</th>
-                          <th className="pb-3 text-[10px] font-semibold uppercase tracking-wider text-[#626260] font-sans text-right">Amount & Status</th>
+                          <th className="pb-3 text-[10px] font-semibold uppercase tracking-wider text-[#626260] font-sans w-1/3">
+                            Transaction
+                          </th>
+                          <th className="pb-3 text-[10px] font-semibold uppercase tracking-wider text-[#626260] font-sans w-1/3">
+                            Date & Time
+                          </th>
+                          <th className="pb-3 text-[10px] font-semibold uppercase tracking-wider text-[#626260] font-sans text-right">
+                            Amount & Status
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-100">
                         {student.payments.map((p: any) => (
                           <tr key={p.id} className="group">
                             <td className="py-4 align-top">
-                              <p className="font-medium text-[#111111]">Stage {p.stage} Admission Fee</p>
+                              <p className="font-medium text-[#111111]">
+                                Stage {p.stage} Admission Fee
+                              </p>
                               <div className="flex items-center gap-2 mt-1">
                                 <span className="text-[10px] font-mono text-[#626260] bg-zinc-50 px-1.5 py-0.5 rounded border border-[#ebe7e1]">
-                                  {p.razorpayOrderId || p.id.split("-")[0].toUpperCase()}
+                                  {p.razorpayOrderId ||
+                                    p.id.split("-")[0].toUpperCase()}
                                 </span>
                                 {p.paymentMethod && (
-                                  <span className="text-[10px] text-[#626260]">{p.paymentMethod}</span>
+                                  <span className="text-[10px] text-[#626260]">
+                                    {p.paymentMethod}
+                                  </span>
                                 )}
                               </div>
                             </td>
@@ -767,18 +912,23 @@ export default function AdminApplicationDetailPage({
                                 {formatLedgerDate(p.paidAt || p.createdAt)}
                               </p>
                               {p.manuallyApproved && (
-                                <p className="text-[10px] text-[#626260] mt-1 italic">Manually Approved</p>
+                                <p className="text-[10px] text-[#626260] mt-1 italic">
+                                  Manually Approved
+                                </p>
                               )}
                             </td>
                             <td className="py-4 align-top text-right">
                               <p className="font-semibold text-[#111111] mb-1">
-                                {p.currency === "INR" ? "₹" : p.currency} {p.amount.toLocaleString("en-IN")}
+                                {p.currency === "INR" ? "₹" : p.currency}{" "}
+                                {p.amount.toLocaleString("en-IN")}
                               </p>
                               <span
                                 className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
-                                  p.status === "SUCCESS" || p.status === "MANUALLY_APPROVED"
+                                  p.status === "SUCCESS" ||
+                                  p.status === "MANUALLY_APPROVED"
                                     ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                                    : p.status === "FAILED" || p.status === "REFUNDED"
+                                    : p.status === "FAILED" ||
+                                        p.status === "REFUNDED"
                                       ? "bg-red-50 border-red-200 text-red-700"
                                       : "bg-amber-50 border-amber-200 text-amber-700"
                                 }`}
@@ -793,7 +943,9 @@ export default function AdminApplicationDetailPage({
                   </div>
                 ) : (
                   <div className="py-8 text-center bg-zinc-50 rounded-lg border border-dashed border-[#d3cec6] mt-4">
-                    <p className="text-xs text-[#626260]">No payment records found.</p>
+                    <p className="text-xs text-[#626260]">
+                      No payment records found.
+                    </p>
                   </div>
                 )}
               </div>
@@ -805,16 +957,22 @@ export default function AdminApplicationDetailPage({
                 <div className="rounded-lg bg-zinc-100 p-1.5">
                   <History className="h-4 w-4 text-[#111111]" />
                 </div>
-                <h2 className="text-sm font-medium text-[#111111] tracking-tight">Audit Trail & History</h2>
+                <h2 className="text-sm font-medium text-[#111111] tracking-tight">
+                  Audit Trail & History
+                </h2>
               </div>
               {app.timelineEvents?.length ? (
                 <div className="relative pl-5 space-y-6 before:absolute before:left-[3px] before:top-2 before:bottom-2 before:w-[1px] before:bg-[#d3cec6]">
                   {app.timelineEvents.map((e: any) => (
                     <div key={e.id} className="relative space-y-1">
                       <div className="absolute -left-[19px] top-1.5 h-2 w-2 shrink-0 rounded-full bg-[#111111]" />
-                      <p className="text-sm font-medium text-[#111111]">{e.title}</p>
+                      <p className="text-sm font-medium text-[#111111]">
+                        {e.title}
+                      </p>
                       {e.description && (
-                        <p className="text-xs text-[#626260] leading-relaxed">{e.description}</p>
+                        <p className="text-xs text-[#626260] leading-relaxed">
+                          {e.description}
+                        </p>
                       )}
                       <p className="text-[10px] font-mono text-[#626260]">
                         {new Date(e.occurredAt).toLocaleString()}
@@ -823,7 +981,9 @@ export default function AdminApplicationDetailPage({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-[#626260] py-4 text-center">No timeline history recorded yet</p>
+                <p className="text-xs text-[#626260] py-4 text-center">
+                  No timeline history recorded yet
+                </p>
               )}
             </div>
           </div>
@@ -835,14 +995,14 @@ export default function AdminApplicationDetailPage({
               {/* Optional Header Banner (can be gray if no bannerImage) */}
               <div className="h-16 w-full border-b border-[#ebe7e1] relative bg-zinc-100">
                 {uni?.bannerImage && (
-                  <img 
-                    src={uni.bannerImage} 
-                    alt="University Banner" 
-                    className="absolute inset-0 h-full w-full object-cover" 
+                  <img
+                    src={uni.bannerImage}
+                    alt="University Banner"
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
                 )}
               </div>
-              
+
               <div className="px-6 pb-6 relative">
                 {/* Logo overlapping banner */}
                 <div className="absolute -top-8 bg-white p-1 rounded-xl border border-[#d3cec6] shadow-sm">
@@ -865,7 +1025,10 @@ export default function AdminApplicationDetailPage({
                   </h2>
                   <div className="flex flex-col gap-1.5 mt-2">
                     <p className="text-xs text-[#626260]">
-                      <span className="font-medium text-[#111111]">{uni?.shortName}</span> • {uni?.type?.replace(/_/g, " ")}
+                      <span className="font-medium text-[#111111]">
+                        {uni?.shortName}
+                      </span>{" "}
+                      • {uni?.type?.replace(/_/g, " ")}
                     </p>
                     <p className="text-xs text-[#626260]">
                       Est. {uni?.establishedYear}
@@ -895,14 +1058,20 @@ export default function AdminApplicationDetailPage({
                 <div className="rounded-lg bg-zinc-100 p-1.5">
                   <GraduationCap className="h-4 w-4 text-[#111111]" />
                 </div>
-                <h2 className="text-sm font-medium text-[#111111] tracking-tight">Academic History</h2>
+                <h2 className="text-sm font-medium text-[#111111] tracking-tight">
+                  Academic History
+                </h2>
               </div>
               <div className="space-y-4">
                 <Field label="Full Name" value={student?.user?.name} />
                 <Field label="Contact Phone" value={student?.user?.phone} />
                 <Field
                   label="Admission Pipeline Stage"
-                  value={student?.currentStage ? `Stage ${student.currentStage}` : "—"}
+                  value={
+                    student?.currentStage
+                      ? `Stage ${student.currentStage}`
+                      : "—"
+                  }
                 />
                 <Field
                   label="Student Pipeline Status"
@@ -911,11 +1080,20 @@ export default function AdminApplicationDetailPage({
                 <div className="grid grid-cols-2 gap-4 border-t border-[#ebe7e1] pt-4">
                   <Field label="NEET Score" value={student?.neetScore} />
                   <Field label="NEET Rank" value={student?.neetRank} />
-                  <Field label="Class 12th %" value={student?.twelfthPercentage} />
-                  <Field label="Class 10th %" value={student?.tenthPercentage} />
+                  <Field
+                    label="Class 12th %"
+                    value={student?.twelfthPercentage}
+                  />
+                  <Field
+                    label="Class 10th %"
+                    value={student?.tenthPercentage}
+                  />
                 </div>
                 <div className="border-t border-[#ebe7e1] pt-4 space-y-4">
-                  <Field label="Passport Number" value={student?.passportNumber} />
+                  <Field
+                    label="Passport Number"
+                    value={student?.passportNumber}
+                  />
                   <Field
                     label="Passport Expiry"
                     value={
@@ -937,8 +1115,12 @@ export default function AdminApplicationDetailPage({
                       <History className="h-4 w-4" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">System & Audit Trail</h2>
-                      <p className="text-[11px] text-[#626260] mt-0.5">Application lifecycle and mutation record</p>
+                      <h2 className="text-sm font-semibold text-[#111111] tracking-tight">
+                        System & Audit Trail
+                      </h2>
+                      <p className="text-[11px] text-[#626260] mt-0.5">
+                        Application lifecycle and mutation record
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -946,42 +1128,62 @@ export default function AdminApplicationDetailPage({
                 {/* Primary Meta Dates */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 bg-zinc-50/50 p-4 rounded-lg border border-[#ebe7e1]">
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">Application Submitted</p>
-                    <p className="text-xs font-medium text-[#111111] mt-1">{formatLedgerDate(app.submittedAt)}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">
+                      Application Submitted
+                    </p>
+                    <p className="text-xs font-medium text-[#111111] mt-1">
+                      {formatLedgerDate(app.submittedAt)}
+                    </p>
                   </div>
                   <div className="sm:border-l sm:border-[#ebe7e1] sm:pl-6">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">System Creation</p>
-                    <p className="text-xs font-medium text-[#111111] mt-1">{formatLedgerDate(app.createdAt)}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">
+                      System Creation
+                    </p>
+                    <p className="text-xs font-medium text-[#111111] mt-1">
+                      {formatLedgerDate(app.createdAt)}
+                    </p>
                   </div>
                   <div className="sm:border-l sm:border-[#ebe7e1] sm:pl-6">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">Last Record Mutation</p>
-                    <p className="text-xs font-medium text-[#111111] mt-1">{formatLedgerDate(app.updatedAt)}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">
+                      Last Record Mutation
+                    </p>
+                    <p className="text-xs font-medium text-[#111111] mt-1">
+                      {formatLedgerDate(app.updatedAt)}
+                    </p>
                   </div>
                 </div>
 
                 {/* Timeline Events */}
                 <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[#626260] mb-5">Chronological Events</h3>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[#626260] mb-5">
+                    Chronological Events
+                  </h3>
                   {app.timelineEvents?.length ? (
                     <div className="relative pl-5 space-y-6 before:absolute before:left-[5px] before:top-2 before:bottom-2 before:w-[1px] before:bg-[#ebe7e1]">
                       {app.timelineEvents.map((e: any) => (
                         <div key={e.id} className="relative space-y-1 group">
                           <div className="absolute -left-[22px] top-1.5 h-2.5 w-2.5 shrink-0 rounded-full border-2 border-white bg-[#111111] ring-1 ring-[#d3cec6] group-hover:ring-[#111111] transition-all" />
                           <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-                            <p className="text-sm font-medium text-[#111111]">{e.title}</p>
+                            <p className="text-sm font-medium text-[#111111]">
+                              {e.title}
+                            </p>
                             <p className="text-[10px] font-mono text-[#626260] sm:mt-0 mt-1 bg-white inline-block">
                               {formatLedgerDate(e.occurredAt)}
                             </p>
                           </div>
                           {e.description && (
-                            <p className="text-xs text-[#626260] leading-relaxed max-w-2xl">{e.description}</p>
+                            <p className="text-xs text-[#626260] leading-relaxed max-w-2xl">
+                              {e.description}
+                            </p>
                           )}
                         </div>
                       ))}
                     </div>
                   ) : (
                     <div className="py-6 text-center bg-zinc-50 rounded-lg border border-dashed border-[#d3cec6]">
-                      <p className="text-xs text-[#626260]">No chronological timeline events recorded yet.</p>
+                      <p className="text-xs text-[#626260]">
+                        No chronological timeline events recorded yet.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -1007,13 +1209,19 @@ function AdmissionLetterUpload({
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [latestLetter, setLatestLetter] = useState<{ fileUrl: string; fileName: string } | null>(null);
+  const [latestLetter, setLatestLetter] = useState<{
+    fileUrl: string;
+    fileName: string;
+  } | null>(null);
   const [uploadError, setUploadError] = useState("");
   const uploadFile = useUploadFile();
   const uploadLetter = useUploadAdmissionLetter();
 
   // Self-contained Preview Modal State
-  const [previewFile, setPreviewFile] = useState<{ url: string; name: string } | null>(null);
+  const [previewFile, setPreviewFile] = useState<{
+    url: string;
+    name: string;
+  } | null>(null);
 
   // Cleanup local Object URL
   useEffect(() => {
@@ -1053,7 +1261,10 @@ function AdmissionLetterUpload({
         fileUrl: uploadResult.url,
         fileName: selectedFile.name,
       });
-      setLatestLetter({ fileUrl: uploadResult.url, fileName: selectedFile.name });
+      setLatestLetter({
+        fileUrl: uploadResult.url,
+        fileName: selectedFile.name,
+      });
       setSuccess(true);
     } catch (err: any) {
       setUploadError(
@@ -1090,10 +1301,14 @@ function AdmissionLetterUpload({
 
       <div className="flex items-center gap-2">
         <Upload className="h-4 w-4 text-[#111111]" />
-        <h2 className="text-sm font-medium text-[#111111] tracking-tight">Official Admission Letter</h2>
+        <h2 className="text-sm font-medium text-[#111111] tracking-tight">
+          Official Admission Letter
+        </h2>
       </div>
       <p className="text-xs text-[#626260] leading-relaxed">
-        Upload the official university admission letter PDF. This action notifies the student, automatically unlocks Stage 2, and prompts for payment of the admission letter processing fee.
+        Upload the official university admission letter PDF. This action
+        notifies the student, automatically unlocks Stage 2, and prompts for
+        payment of the admission letter processing fee.
       </p>
 
       {/* Show active letter from server if present and not in re-selection mode */}
@@ -1101,12 +1316,20 @@ function AdmissionLetterUpload({
         <div className="flex items-center justify-between rounded-lg border border-[#d3cec6] bg-zinc-50 px-4 py-3 text-xs font-medium text-[#111111] flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            <span className="truncate max-w-[280px]">Letter active: {letterToDisplay.fileName || "Admission_Letter.pdf"}</span>
+            <span className="truncate max-w-[280px]">
+              Letter active:{" "}
+              {letterToDisplay.fileName || "Admission_Letter.pdf"}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setPreviewFile({ url: letterToDisplay.fileUrl, name: letterToDisplay.fileName || "Admission Letter" })}
+              onClick={() =>
+                setPreviewFile({
+                  url: letterToDisplay.fileUrl,
+                  name: letterToDisplay.fileName || "Admission Letter",
+                })
+              }
               className="inline-flex items-center gap-1 rounded-md border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer"
             >
               <ExternalLink className="h-3 w-3" />
@@ -1135,7 +1358,12 @@ function AdmissionLetterUpload({
             {localPreviewUrl && (
               <button
                 type="button"
-                onClick={() => setPreviewFile({ url: localPreviewUrl, name: selectedFile.name })}
+                onClick={() =>
+                  setPreviewFile({
+                    url: localPreviewUrl,
+                    name: selectedFile.name,
+                  })
+                }
                 className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer"
               >
                 <ExternalLink className="h-3 w-3" />
@@ -1182,7 +1410,10 @@ function AdmissionLetterUpload({
         <div className="flex items-center justify-between rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-xs font-medium text-emerald-800 flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            <span>Admission letter uploaded successfully. Student transitioned to Stage 2.</span>
+            <span>
+              Admission letter uploaded successfully. Student transitioned to
+              Stage 2.
+            </span>
           </div>
           <button
             type="button"

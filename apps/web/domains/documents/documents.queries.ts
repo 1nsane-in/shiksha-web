@@ -29,9 +29,12 @@ export function useUploadMyDocument() {
 
 export function useUploadFile() {
   return useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async (arg: File | { file: File; folder?: string }) => {
       const { uploadFile } = await import("./documents.api");
-      return uploadFile(file);
+      if (arg instanceof File) {
+        return uploadFile(arg);
+      }
+      return uploadFile(arg.file, arg.folder);
     },
   });
 }

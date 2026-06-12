@@ -1,6 +1,9 @@
-import { IsEmail, IsString, IsOptional, MinLength } from 'class-validator';
+import { IsEmail, IsString, IsOptional, MinLength, IsIn } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Match } from '../common/decorators/match.decorator';
+
+export const SOCIAL_ROLES = ['STUDENT', 'PARENT'] as const;
+export type SocialRole = (typeof SOCIAL_ROLES)[number];
 
 /* ---------- Request DTOs ---------- */
 
@@ -106,6 +109,15 @@ export class GoogleAuthDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Requested role for new accounts (STUDENT or PARENT). Defaults to STUDENT.',
+    enum: SOCIAL_ROLES,
+    example: 'STUDENT',
+  })
+  @IsOptional()
+  @IsIn(SOCIAL_ROLES as unknown as string[])
+  role?: SocialRole;
 }
 
 export class GoogleRegisterDto {
@@ -129,6 +141,14 @@ export class GoogleRegisterDto {
   @ApiProperty()
   @IsString()
   accessToken: string;
+
+  @ApiProperty({
+    description: 'Account role. STUDENT or PARENT only for social signup.',
+    enum: SOCIAL_ROLES,
+    example: 'STUDENT',
+  })
+  @IsIn(SOCIAL_ROLES as unknown as string[])
+  role: SocialRole;
 }
 
 export class ForgotPasswordDto {

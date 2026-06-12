@@ -37,7 +37,6 @@ export default function Home() {
         <HeroCarousel />
       </div>
       {/* Rest of the page */}
-      {/* <div className="bg-[#F8F6FC]"> */}
       <main className=" max-w-6xl mx-auto">
         <EligibilityCalculator />
         <UniversityCards />
@@ -45,7 +44,6 @@ export default function Home() {
         <UniversityAdvantages />
         <WhyTrustUs />
       </main>
-      {/* </div> */}
       <Footer />
     </>
   );

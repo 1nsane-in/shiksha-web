@@ -200,35 +200,14 @@ export default function AdminApplicationsPage() {
 
                       {/* Actions */}
                       <TableCell className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-end gap-2">
-                            {app.status === "pending" ? (
-                              <>
-                                <button
-                                  className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition-all hover:bg-emerald-700 cursor-pointer"
-                                  onClick={() => handleApprove(app.id)}
-                                  disabled={updateStatus.isPending}
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 transition-all hover:bg-red-100 cursor-pointer"
-                                  onClick={() => handleReject(app.id)}
-                                  disabled={updateStatus.isPending}
-                                >
-                                  Reject
-                                </button>
-                              </>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => router.push(`/admin/applications/${app.id}`)}
-                              >
-                                View
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => router.push(`/admin/applications/${app.id}`)}
+                        >
+                          View
+                        </Button>
+                      </TableCell>
                       </TableRow>
                     );
                   })}

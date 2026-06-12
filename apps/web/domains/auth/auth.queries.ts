@@ -1,10 +1,34 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
-import type { LoginDto, GoogleAuthDto, GoogleRegisterDto, AuthResponse } from "./auth.types";
+import type {
+  LoginDto,
+  GoogleAuthDto,
+  GoogleRegisterDto,
+  AuthResponse,
+  User,
+} from "./auth.types";
+
+function sanitizeUser(user: User): User {
+  // Drop sensitive fields that may leak via the auth response.
+  const safe = { ...user } as User & Record<string, unknown>;
+  delete safe.passwordHash;
+  delete safe.refreshToken;
+  return safe;
+}
+
+function getDashboardForRole(role: string, router: ReturnType<typeof useRouter>) {
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    router.push("/admin/dashboard");
+  } else if (role === "PARENT") {
+    router.push("/parents/dashboard");
+  } else {
+    router.push("/student/dashboard");
+  }
+}
 
 export function useLogin(redirectUrl?: string) {
-  const router = typeof window !== "undefined" ? useRouter() : null;
+  const router = useRouter();
   const loginStore = useAuthStore((s) => s.login);
   return useMutation<AuthResponse, Error, LoginDto>({
     mutationFn: async (dto: LoginDto) => {
@@ -12,48 +36,56 @@ export function useLogin(redirectUrl?: string) {
       return login(dto);
     },
     onSuccess: (data) => {
-      const { passwordHash, refreshToken, ...safeUser } = data.user as any;
-      loginStore(safeUser as any, data.accessToken);
-      
+      const safeUser = sanitizeUser(data.user);
+      loginStore(safeUser, data.accessToken);
+
       if (redirectUrl && redirectUrl !== "/") {
-        router?.push(redirectUrl);
+        router.push(redirectUrl);
         return;
       }
-      
-      const role = safeUser.role;
-      if (role === "ADMIN" || role === "SUPER_ADMIN") {
-        router?.push("/admin/dashboard");
-      } else if (role === "STUDENT") {
-        router?.push("/student/dashboard");
-      } else {
-        router?.push("/parents/dashboard");
-      }
+      getDashboardForRole(safeUser.role, router);
     },
   });
 }
 
-export function useGoogleLogin() {
+export function useGoogleLogin(redirectUrl?: string) {
+  const router = useRouter();
   const loginStore = useAuthStore((s) => s.login);
-  return useMutation({
+  return useMutation<AuthResponse, Error, GoogleAuthDto>({
     mutationFn: async (dto: GoogleAuthDto) => {
       const { googleLogin } = await import("./auth.api");
       return googleLogin(dto);
     },
     onSuccess: (data) => {
-      loginStore(data.user, data.accessToken);
+      const safeUser = sanitizeUser(data.user);
+      loginStore(safeUser, data.accessToken);
+
+      if (redirectUrl && redirectUrl !== "/") {
+        router.push(redirectUrl);
+        return;
+      }
+      getDashboardForRole(safeUser.role, router);
     },
   });
 }
 
-export function useGoogleRegister() {
+export function useGoogleRegister(redirectUrl?: string) {
+  const router = useRouter();
   const loginStore = useAuthStore((s) => s.login);
-  return useMutation({
+  return useMutation<AuthResponse, Error, GoogleRegisterDto>({
     mutationFn: async (dto: GoogleRegisterDto) => {
       const { googleRegister } = await import("./auth.api");
       return googleRegister(dto);
     },
     onSuccess: (data) => {
-      loginStore(data.user, data.accessToken);
+      const safeUser = sanitizeUser(data.user);
+      loginStore(safeUser, data.accessToken);
+
+      if (redirectUrl && redirectUrl !== "/") {
+        router.push(redirectUrl);
+        return;
+      }
+      getDashboardForRole(safeUser.role, router);
     },
   });
 }

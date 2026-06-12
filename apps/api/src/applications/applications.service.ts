@@ -94,7 +94,14 @@ export class ApplicationsService {
             documents: {
               include: { documentType: true },
             },
-            payments: true,
+            // Scope to this application only: Payment.studentId is shared
+            // across the student's applications, so without a filter every
+            // payment record (incl. pre-seeded or other applications)
+            // would surface in the per-application Payment Ledger.
+            payments: {
+              where: { applicationId: id },
+              orderBy: { createdAt: 'desc' },
+            },
           },
         },
         timelineEvents: {
