@@ -153,19 +153,20 @@ model University {
   updatedAt           DateTime                  @updatedAt
   verifiedAt          DateTime?
   studentDemographics Json?
+  socialLinks         Json?
   location            UniversityLocation?
-  contact         UniversityContact?
-  academic        UniversityAcademic?
-  recognition     UniversityRecognition?
-  fees            UniversityFees?
-  infrastructure  UniversityInfrastructure?
-  admission       UniversityAdmission?
-  support         UniversitySupport?
-  content         UniversityContent?
-  admin           UniversityAdmin?
-  courses         UniversityCourse[]
-  applications    UniversityApplication[]
-  documents       UniversityDocument[]
+  contact             UniversityContact?
+  academic            UniversityAcademic?
+  recognition         UniversityRecognition?
+  fees                UniversityFees?
+  infrastructure      UniversityInfrastructure?
+  admission           UniversityAdmission?
+  support             UniversitySupport?
+  content             UniversityContent?
+  admin               UniversityAdmin?
+  courses             UniversityCourse[]
+  applications        UniversityApplication[]
+  documents           UniversityDocument[]
 
   @@index([slug])
   @@index([name])
@@ -219,6 +220,11 @@ model UniversityRecognition {
   nbaAccredited  Boolean     @default(false)
   worldRank      Int?
   nationalRank   Int?
+  worldRankingSource  String?
+  nationalRankingSource String?
+  otherRankingSource String?
+  otherNationalRankingSource String?
+  subjectRankings Json?
   accreditations String[]
   university     University  @relation(fields: [universityId], references: [id], onDelete: Cascade)
 }

@@ -52,6 +52,11 @@ export class UniversityRecognitionDto {
   @IsBoolean() nbaAccredited: boolean;
   @IsOptional() @IsNumber() worldRank?: number;
   @IsOptional() @IsNumber() nationalRank?: number;
+  @IsOptional() @IsString() worldRankingSource?: string;
+  @IsOptional() @IsString() nationalRankingSource?: string;
+  @IsOptional() @IsString() otherRankingSource?: string;
+  @IsOptional() @IsString() otherNationalRankingSource?: string;
+  @IsOptional() @IsObject() subjectRankings?: Record<string, string>;
   @IsArray() @IsString({ each: true }) accreditations: string[];
 }
 
@@ -133,6 +138,15 @@ export class StudentDemographicsDto {
 export class ForeignStudentBreakdownDto {
   @IsString() country: string;
   @IsNumber() @Min(0) count: number;
+}
+
+export class SocialLinksDto {
+  @IsOptional() @IsUrl() facebook?: string;
+  @IsOptional() @IsUrl() instagram?: string;
+  @IsOptional() @IsUrl() youtube?: string;
+  @IsOptional() @IsUrl() linkedin?: string;
+  @IsOptional() @IsUrl() twitter?: string;
+  @IsOptional() @IsUrl() tiktok?: string;
 }
 
 export class UniversityAdminDto {

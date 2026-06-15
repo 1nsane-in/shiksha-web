@@ -102,6 +102,11 @@ export default function NewUniversityPage() {
       ecfmgStatus: "PENDING",
       nbaAccredited: false,
       accreditations: [],
+      worldRankingSource: "",
+      nationalRankingSource: "",
+      otherRankingSource: "",
+      otherNationalRankingSource: "",
+      subjectRankings: [] as Array<{ subject: string; ranking: string }>,
     },
     fees: {
       currency: "INR",
@@ -168,6 +173,14 @@ export default function NewUniversityPage() {
       localStudents: 0,
       foreignStudents: 0,
       foreignByCountry: [] as { country: string; count: number }[],
+    },
+    socialLinks: {
+      facebook: "",
+      instagram: "",
+      youtube: "",
+      linkedin: "",
+      twitter: "",
+      tiktok: "",
     },
   });
 
@@ -408,6 +421,14 @@ export default function NewUniversityPage() {
           }
         }
       }
+      // Transform subjectRankings array to Record for backend
+      const subjectRankingsRecord: Record<string, string> = {};
+      (payload.recognition.subjectRankings || []).forEach((item: { subject: string; ranking: string }) => {
+        if (item.subject?.trim()) {
+          subjectRankingsRecord[item.subject.trim()] = item.ranking || "";
+        }
+      });
+      payload.recognition.subjectRankings = subjectRankingsRecord;
       await createUniversity.mutateAsync(payload);
       localStorage.removeItem(STORAGE_KEY);
       router.push("/admin/universities");
@@ -482,6 +503,61 @@ export default function NewUniversityPage() {
                     value={formData.website}
                     onChange={(e) => updateRootField("website", e.target.value)}
                     placeholder="https://university.edu"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Social Media */}
+            <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
+              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Social Media</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Facebook</Label>
+                  <Input
+                    value={formData.socialLinks?.facebook || ""}
+                    onChange={(e) => updateField("socialLinks", "facebook", e.target.value)}
+                    placeholder="https://facebook.com/university"
+                  />
+                </div>
+                <div>
+                  <Label>Instagram</Label>
+                  <Input
+                    value={formData.socialLinks?.instagram || ""}
+                    onChange={(e) => updateField("socialLinks", "instagram", e.target.value)}
+                    placeholder="https://instagram.com/university"
+                  />
+                </div>
+                <div>
+                  <Label>YouTube</Label>
+                  <Input
+                    value={formData.socialLinks?.youtube || ""}
+                    onChange={(e) => updateField("socialLinks", "youtube", e.target.value)}
+                    placeholder="https://youtube.com/channel"
+                  />
+                </div>
+                <div>
+                  <Label>LinkedIn</Label>
+                  <Input
+                    value={formData.socialLinks?.linkedin || ""}
+                    onChange={(e) => updateField("socialLinks", "linkedin", e.target.value)}
+                    placeholder="https://linkedin.com/school/university"
+                  />
+                </div>
+                <div>
+                  <Label>Twitter / X</Label>
+                  <Input
+                    value={formData.socialLinks?.twitter || ""}
+                    onChange={(e) => updateField("socialLinks", "twitter", e.target.value)}
+                    placeholder="https://twitter.com/university"
+                  />
+                </div>
+                <div>
+                  <Label>TikTok</Label>
+                  <Input
+                    value={formData.socialLinks?.tiktok || ""}
+                    onChange={(e) => updateField("socialLinks", "tiktok", e.target.value)}
+                    placeholder="https://tiktok.com/@university"
                   />
                 </div>
               </div>
@@ -1277,6 +1353,116 @@ export default function NewUniversityPage() {
                     placeholder="e.g. 25"
                   />
                 </div>
+                <div>
+                  <Label>World Ranking Source</Label>
+                  <Select
+                    value={formData.recognition.worldRankingSource || ""}
+                    onValueChange={(v) => {
+                      updateField("recognition", "worldRankingSource", v || null);
+                      if (v !== "Other") {
+                        updateField("recognition", "otherRankingSource", null);
+                      }
+                    }}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select source" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="QS World">QS World Rankings</SelectItem>
+                      <SelectItem value="THE">Times Higher Education</SelectItem>
+                      <SelectItem value="US News">US News & World Report</SelectItem>
+                      <SelectItem value="Webometrics">Webometrics</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.recognition.worldRankingSource === "Other" && (
+                    <Input
+                      className="mt-2"
+                      value={formData.recognition.otherRankingSource || ""}
+                      onChange={(e) => updateField("recognition", "otherRankingSource", e.target.value || null)}
+                      placeholder="Enter ranking source name"
+                    />
+                  )}
+                </div>
+                <div>
+                  <Label>National Ranking Source</Label>
+                  <Select
+                    value={formData.recognition.nationalRankingSource || ""}
+                    onValueChange={(v) => updateField("recognition", "nationalRankingSource", v || null)}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select source" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="CUG Complete">CUG Complete University Guide (UK)</SelectItem>
+                      <SelectItem value="NIRF">NIRF (India)</SelectItem>
+                      <SelectItem value="Guardian">Guardian University Guide (UK)</SelectItem>
+                       <SelectItem value="Forbes">Forbes (US)</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.recognition.nationalRankingSource === "Other" && (
+                    <Input
+                      className="mt-2"
+                      value={formData.recognition.otherNationalRankingSource || ""}
+                      onChange={(e) => updateField("recognition", "otherNationalRankingSource", e.target.value || null)}
+                      placeholder="Enter national ranking source name"
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Subject Rankings */}
+              <div className="border-t border-border/40 pt-3 mt-2">
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-xs text-muted-foreground">Subject Rankings</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      updateField("recognition", "subjectRankings", [...(formData.recognition.subjectRankings || []), { subject: "", ranking: "" }])
+                    }
+                  >
+                    + Add Subject Ranking
+                  </Button>
+                </div>
+                {(formData.recognition.subjectRankings || []).length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No subject rankings listed yet.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {(formData.recognition.subjectRankings || []).map((item: { subject: string; ranking: string }, i: number) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <Input
+                          value={item.subject}
+                          onChange={(e) => {
+                            const updated = [...(formData.recognition.subjectRankings || [])];
+                            updated[i] = { ...updated[i], subject: e.target.value };
+                            updateField("recognition", "subjectRankings", updated);
+                          }}
+                          placeholder="e.g. Medicine"
+                          className="flex-1"
+                        />
+                        <Input
+                          value={item.ranking}
+                          onChange={(e) => {
+                            const updated = [...(formData.recognition.subjectRankings || [])];
+                            updated[i] = { ...updated[i], ranking: e.target.value };
+                            updateField("recognition", "subjectRankings", updated);
+                          }}
+                          placeholder="e.g. Top 100"
+                          className="flex-1"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = (formData.recognition.subjectRankings || []).filter((_: any, j: number) => j !== i);
+                            updateField("recognition", "subjectRankings", updated);
+                          }}
+                          className="text-destructive/70 hover:text-destructive text-lg leading-none flex-shrink-0"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

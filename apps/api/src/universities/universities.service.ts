@@ -330,6 +330,7 @@ export class UniversitiesService {
         content: { create: dto.content },
         admin: { create: dto.admin },
         studentDemographics: (dto.studentDemographics as any) ?? undefined,
+        socialLinks: (dto.socialLinks as any) ?? undefined,
       },
       include: {
         location: true,
@@ -390,6 +391,7 @@ export class UniversitiesService {
       'brochureUrl',
       'status',
       'studentDemographics',
+      'socialLinks',
     ];
 
     for (const field of scalarFields) {
