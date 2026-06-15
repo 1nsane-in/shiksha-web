@@ -196,7 +196,7 @@ model UniversityContact {
 model UniversityAcademic {
   id               String     @id @default(uuid())
   universityId     String     @unique
-  programs         String[]
+  programs         Json
   duration         String
   medium           String
   specializations  String[]
@@ -245,12 +245,12 @@ model UniversityFees {
 model UniversityInfrastructure {
   id             String     @id @default(uuid())
   universityId   String     @unique
-  hospitalBeds   Int
-  departments    Int
+  hospitalBeds   Int?
+  departments    String[]
   librarySize    String?
   hostelBoys     Int
   hostelGirls    Int
-  laboratories   Int
+  laboratories   String[]
   campusArea     Float?
   facilities     String[]
   cafeteria      Boolean    @default(false)

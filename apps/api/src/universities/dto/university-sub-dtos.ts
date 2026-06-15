@@ -32,15 +32,15 @@ export class UniversityContactDto {
 }
 
 export class UniversityAcademicDto {
-  @IsArray() @IsString({ each: true }) programs: string[];
+  @IsArray() programs: any[];
   @IsString() duration: string;
   @IsString() medium: string;
   @IsArray() @IsString({ each: true }) specializations: string[];
   @IsArray() @IsString({ each: true }) intakeMonths: string[];
-  @IsNumber() @Min(1) totalSeats: number;
-  @IsNumber() @Min(0) governmentSeats: number;
-  @IsNumber() @Min(0) managementSeats: number;
-  @IsNumber() @Min(0) nriSeats: number;
+  @IsOptional() @IsNumber() @Min(0) totalSeats?: number;
+  @IsOptional() @IsNumber() @Min(0) governmentSeats?: number;
+  @IsOptional() @IsNumber() @Min(0) managementSeats?: number;
+  @IsOptional() @IsNumber() @Min(0) nriSeats?: number;
   @IsOptional() @IsString() curriculumType?: string;
   @IsOptional() @IsString() clinicalTraining?: string;
 }
@@ -56,10 +56,10 @@ export class UniversityRecognitionDto {
 }
 
 export class UniversityFeesDto {
-  @IsNumber() @Min(0) tuitionAnnual: number;
+  @IsOptional() @IsNumber() @Min(0) tuitionAnnual?: number;
   @IsNumber() @Min(0) totalProgram: number;
   @IsOptional() @IsNumber() @Min(0) hostelAnnual?: number;
-  @IsNumber() @Min(0) registration: number;
+  @IsOptional() @IsNumber() @Min(0) registration?: number;
   @IsOptional() @IsNumber() @Min(0) examination?: number;
   @IsOptional() @IsNumber() @Min(0) library?: number;
   @IsOptional() @IsObject() otherFees?: Record<string, number>;
@@ -72,12 +72,12 @@ export class UniversityFeesDto {
 }
 
 export class UniversityInfrastructureDto {
-  @IsNumber() @Min(1) hospitalBeds: number;
-  @IsNumber() @Min(1) departments: number;
+  @IsOptional() @IsNumber() @Min(0) hospitalBeds?: number;
+  @IsArray() @IsString({ each: true }) departments: string[];
   @IsOptional() @IsString() librarySize?: string;
   @IsNumber() @Min(0) hostelBoys: number;
   @IsNumber() @Min(0) hostelGirls: number;
-  @IsNumber() @Min(1) laboratories: number;
+  @IsArray() @IsString({ each: true }) laboratories: string[];
   @IsOptional() @IsNumber() @Min(0) campusArea?: number;
   @IsArray() @IsString({ each: true }) facilities: string[];
   @IsBoolean() cafeteria: boolean;

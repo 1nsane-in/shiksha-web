@@ -132,18 +132,21 @@ function SectionHeading({
   );
 }
 
-function BadgeList({ items }: { items: string[] }) {
+function BadgeList({ items }: { items: (string | { name: string })[] }) {
   if (!items?.length) return <span className="text-sm text-[#9CA3AF]">—</span>;
   return (
     <div className="flex flex-wrap gap-1.5">
-      {items.map((item) => (
-        <span
-          key={item}
-          className="inline-flex items-center rounded-md border border-[#ECEAE6] bg-white px-2 py-0.5 text-xs text-[#6B6B6B]"
-        >
-          {item}
-        </span>
-      ))}
+      {items.map((item, i) => {
+        const name = typeof item === "string" ? item : item.name;
+        return (
+          <span
+            key={name || i}
+            className="inline-flex items-center rounded-md border border-[#ECEAE6] bg-white px-2 py-0.5 text-xs text-[#6B6B6B]"
+          >
+            {name}
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -373,7 +376,7 @@ export default function UniversityDetailPage() {
           <StatCard
             icon={Users}
             label="Seats"
-            value={a?.totalSeats ?? "—"}
+            value={(a?.programs || []).reduce((sum: number, p: any) => sum + (typeof p === "string" ? 0 : (p.totalSeats ?? 0)), 0) || "—"}
           />
         </div>
 
@@ -550,23 +553,33 @@ export default function UniversityDetailPage() {
                   </Card>
 
                   {/* Seat Distribution */}
-                  <Card size="sm" className="border-[#ECEAE6]">
-                    <CardContent className="space-y-3 p-4 sm:p-5">
-                      <SectionHeading icon={Users} title="Seat Distribution" />
-                      <InfoRow icon={Users} label="Total Seats" value={a.totalSeats} />
-                      <InfoRow
-                        icon={Users}
-                        label="Government"
-                        value={a.governmentSeats}
-                      />
-                      <InfoRow
-                        icon={Users}
-                        label="Management"
-                        value={a.managementSeats}
-                      />
-                      <InfoRow icon={Users} label="NRI" value={a.nriSeats} />
-                    </CardContent>
-                  </Card>
+                  {a.programs?.length > 0 && (
+                    <Card size="sm" className="border-[#ECEAE6]">
+                      <CardContent className="space-y-3 p-4 sm:p-5">
+                        <SectionHeading icon={Users} title="Seat Distribution" />
+                        <div className="divide-y divide-[#ECEAE6]">
+                          {a.programs.map((p: any, i: number) => {
+                            const name = typeof p === "string" ? p : p.name;
+                            const total = typeof p === "string" ? 0 : (p.totalSeats ?? 0);
+                            const govt = typeof p === "string" ? 0 : (p.governmentSeats ?? 0);
+                            const mgmt = typeof p === "string" ? 0 : (p.managementSeats ?? 0);
+                            const nri = typeof p === "string" ? 0 : (p.nriSeats ?? 0);
+                            return (
+                              <div key={name || i} className="py-2 first:pt-0 last:pb-0">
+                                <p className="text-xs font-medium text-[#292524] mb-1.5">{name}</p>
+                                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#6B6B6B]">
+                                  <span>Total: <strong>{total}</strong></span>
+                                  <span>Govt: <strong>{govt}</strong></span>
+                                  <span>Mgmt: <strong>{mgmt}</strong></span>
+                                  <span>NRI: <strong>{nri}</strong></span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {/* Student Demographics */}
                   {university.studentDemographics && (
@@ -627,14 +640,43 @@ export default function UniversityDetailPage() {
           <TabsContent value="infrastructure" className="mt-4 space-y-4 sm:mt-6 sm:space-y-5">
             {infra ? (
               <>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">
-                  <InfraStat icon={Stethoscope} label="Hospital Beds" value={infra.hospitalBeds} />
-                  <InfraStat icon={School} label="Departments" value={infra.departments} />
-                  <InfraStat icon={FlaskConical} label="Laboratories" value={infra.laboratories} />
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
                   <InfraStat icon={Bed} label="Hostel (Boys)" value={infra.hostelBoys} />
                   <InfraStat icon={Bed} label="Hostel (Girls)" value={infra.hostelGirls} />
                   <InfraStat icon={MapPin} label="Campus (acres)" value={infra.campusArea} />
                 </div>
+
+                {/* Departments */}
+                {infra.departments?.length > 0 && (
+                  <Card size="sm" className="border-[#ECEAE6]">
+                    <CardContent className="p-4 sm:p-5">
+                      <SectionHeading icon={School} title="Departments" />
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {infra.departments.map((d: string, i: number) => (
+                          <Badge key={i} variant="secondary" className="text-xs font-normal bg-[#F5F4F2] text-[#6B6B6B] border-0">
+                            {d}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Laboratories */}
+                {infra.laboratories?.length > 0 && (
+                  <Card size="sm" className="border-[#ECEAE6]">
+                    <CardContent className="p-4 sm:p-5">
+                      <SectionHeading icon={FlaskConical} title="Laboratories" />
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {infra.laboratories.map((l: string, i: number) => (
+                          <Badge key={i} variant="secondary" className="text-xs font-normal bg-[#F5F4F2] text-[#6B6B6B] border-0">
+                            {l}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Facilities */}
                 <Card size="sm" className="border-[#ECEAE6]">

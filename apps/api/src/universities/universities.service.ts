@@ -302,17 +302,6 @@ export class UniversitiesService {
       );
     }
 
-    const totalSeats =
-      dto.academic.governmentSeats +
-      dto.academic.managementSeats +
-      dto.academic.nriSeats;
-
-    if (totalSeats !== dto.academic.totalSeats) {
-      throw new BadRequestException(
-        'Seat distribution does not match total seats',
-      );
-    }
-
     const university = await this.prisma.university.create({
       data: {
         slug,
@@ -327,9 +316,9 @@ export class UniversitiesService {
         status: UniversityStatus.DRAFT,
         location: { create: dto.location },
         contact: { create: dto.contact },
-        academic: { create: dto.academic },
+        academic: { create: { totalSeats: 0, governmentSeats: 0, managementSeats: 0, nriSeats: 0, ...dto.academic } },
         recognition: { create: dto.recognition },
-        fees: { create: dto.fees },
+        fees: { create: { tuitionAnnual: 0, registration: 0, ...dto.fees } },
         infrastructure: { create: dto.infrastructure },
         admission: {
           create: {

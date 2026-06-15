@@ -39,76 +39,28 @@ const steps = [
 export default function NewUniversityPage() {
   const router = useRouter();
 
-  const COUNTRY_LANGUAGES: Record<string, string[]> = {
-    IN: ["English", "Hindi"],
-    RU: ["English", "Russian"],
-    KZ: ["English", "Kazakh", "Russian"],
-    KG: ["English", "Kyrgyz", "Russian"],
-    UZ: ["English", "Uzbek", "Russian"],
-    BD: ["English", "Bengali"],
-    GE: ["English", "Georgian"],
-    PH: ["English", "Filipino"],
-    NP: ["English", "Nepali"],
-    CN: ["English", "Chinese"],
-    US: ["English"],
-    GB: ["English"],
-    CA: ["English", "French"],
-    AU: ["English"],
-    DE: ["English", "German"],
-    UA: ["English", "Ukrainian"],
-    EG: ["English", "Arabic"],
-    AE: ["English", "Arabic"],
-    SA: ["English", "Arabic"],
-    MY: ["English", "Malay"],
-    SG: ["English", "Chinese", "Malay"],
-    LK: ["English", "Sinhala", "Tamil"],
-    KE: ["English", "Swahili"],
-    ZA: ["English", "Afrikaans", "Zulu"],
-    NG: ["English"],
-    GH: ["English"],
-    ET: ["English", "Amharic"],
-    NZ: ["English", "Maori"],
-    IE: ["English", "Irish"],
-    FR: ["English", "French"],
-    ES: ["English", "Spanish"],
-    IT: ["English", "Italian"],
-    PT: ["English", "Portuguese"],
-    NL: ["English", "Dutch"],
-    SE: ["English", "Swedish"],
-    NO: ["English", "Norwegian"],
-    DK: ["English", "Danish"],
-    FI: ["English", "Finnish"],
-    PL: ["English", "Polish"],
-    CZ: ["English", "Czech"],
-    SK: ["English", "Slovak"],
-    HU: ["English", "Hungarian"],
-    RO: ["English", "Romanian"],
-    BG: ["English", "Bulgarian"],
-    GR: ["English", "Greek"],
-    TR: ["English", "Turkish"],
-    IL: ["English", "Hebrew", "Arabic"],
-    JP: ["English", "Japanese"],
-    KR: ["English", "Korean"],
-    VN: ["English", "Vietnamese"],
-    TH: ["English", "Thai"],
-    ID: ["English", "Indonesian"],
-    PK: ["English", "Urdu"],
-    AF: ["English", "Pashto", "Dari"],
-    IR: ["English", "Persian"],
-    IQ: ["English", "Arabic", "Kurdish"],
-    SY: ["English", "Arabic"],
-    JO: ["English", "Arabic"],
-    LB: ["English", "Arabic", "French"],
-    MA: ["English", "Arabic", "French"],
-    TN: ["English", "Arabic", "French"],
-    DZ: ["English", "Arabic", "French"],
-    MX: ["English", "Spanish"],
-    BR: ["English", "Portuguese"],
-    AR: ["English", "Spanish"],
-    CL: ["English", "Spanish"],
-    CO: ["English", "Spanish"],
-    PE: ["English", "Spanish"],
-  };
+  const UNIVERSAL_MEDIUMS = [
+    "English",
+    "Hindi",
+    "Russian",
+    "French",
+    "Spanish",
+    "Arabic",
+    "Chinese",
+    "German",
+    "Portuguese",
+    "Japanese",
+    "Korean",
+    "Italian",
+    "Turkish",
+    "Bengali",
+    "Urdu",
+    "Kazakh",
+    "Uzbek",
+    "Ukrainian",
+    "Swahili",
+    "Amharic",
+  ];
 
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -117,6 +69,7 @@ export default function NewUniversityPage() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [locationCodes, setLocationCodes] = useState<{ countryCode: string; stateCode: string }>({ countryCode: "", stateCode: "" });
   const [selectedBankCountry, setSelectedBankCountry] = useState("");
+  const [extraBankFields, setExtraBankFields] = useState<Array<{ key: string; value: string }>>([]);
   const getDefaultFormData = () => ({
     name: "",
     shortName: "",
@@ -138,15 +91,11 @@ export default function NewUniversityPage() {
       admissionOfficeHours: "Mon-Fri 9AM-5PM",
     },
     academic: {
-      programs: ["MBBS"],
+      programs: [{ name: "MBBS", duration: "5.5 years", annualTuition: 0, registration: 0, totalSeats: 0, governmentSeats: 0, managementSeats: 0, nriSeats: 0, feeBreakdown: [] }],
       duration: "5.5 years",
       medium: "English",
       specializations: [],
       intakeMonths: ["August"],
-      totalSeats: 0,
-      governmentSeats: 0,
-      managementSeats: 0,
-      nriSeats: 0,
     },
     recognition: {
       bodies: [],
@@ -155,22 +104,18 @@ export default function NewUniversityPage() {
       accreditations: [],
     },
     fees: {
-      tuitionAnnual: 0,
-      totalProgram: 0,
-      registration: 0,
       currency: "INR",
       scholarshipAvailable: false,
+      scholarships: [] as string[],
       paymentSchedule: "",
       refundPolicy: "",
       feeBreakdown: [] as Array<{ id: string; name: string; amount: number }>,
-      programBreakdown: [] as Array<{ id: string; name: string; amount: number }>,
     },
     infrastructure: {
-      hospitalBeds: 0,
-      departments: 0,
+      departments: [] as string[],
       hostelBoys: 0,
       hostelGirls: 0,
-      laboratories: 0,
+      laboratories: [] as string[],
       facilities: [],
       cafeteria: false,
       wifiCampus: false,
@@ -192,6 +137,7 @@ export default function NewUniversityPage() {
       internationalStudentSupport: false,
       visaAssistance: false,
       languageSupport: [],
+      extraServices: [] as string[],
       counselingServices: false,
       careerGuidance: false,
     },
@@ -227,7 +173,6 @@ export default function NewUniversityPage() {
 
   const [formData, setFormData] = useState<any>(getDefaultFormData());
 
-  const languageOptions = COUNTRY_LANGUAGES[locationCodes.countryCode] || ["English", "Hindi", "English + Local"];
   const isOtherMedium = formData?.academic?.medium?.startsWith("Other:");
   const otherMediumValue = isOtherMedium ? formData.academic.medium.replace("Other:", "") : "";
 
@@ -256,6 +201,7 @@ export default function NewUniversityPage() {
         if (parsed.locationCodes) setLocationCodes(parsed.locationCodes);
         if (parsed.selectedBankCountry !== undefined) setSelectedBankCountry(parsed.selectedBankCountry);
         if (parsed.imageKeys) setImageKeys(parsed.imageKeys);
+        if (parsed.extraBankFields) setExtraBankFields(parsed.extraBankFields);
       }
     } catch {}
   }, []);
@@ -271,12 +217,13 @@ export default function NewUniversityPage() {
             locationCodes,
             selectedBankCountry,
             imageKeys,
+            extraBankFields,
           })
         );
       } catch {}
     }, 300);
     return () => clearTimeout(timer);
-  }, [formData, currentStep, locationCodes, selectedBankCountry, imageKeys]);
+  }, [formData, currentStep, locationCodes, selectedBankCountry, imageKeys, extraBankFields]);
 
   const updateField = (section: string, field: string, value: any) => {
     setFormData((prev: any) => ({
@@ -308,84 +255,96 @@ export default function NewUniversityPage() {
     }));
   };
 
-  const feeBreakdownTotal = (formData.fees.feeBreakdown || []).reduce((s: number, item: any) => s + (parseFloat(item.amount) || 0), 0);
-  const feeBreakdownOverCap = formData.fees.tuitionAnnual > 0 && feeBreakdownTotal > formData.fees.tuitionAnnual;
-
-  const programBreakdownTotal = (formData.fees.programBreakdown || []).reduce((s: number, item: any) => s + (parseFloat(item.amount) || 0), 0);
-  const programBreakdownOverCap = formData.fees.totalProgram > 0 && programBreakdownTotal > formData.fees.totalProgram;
-
-  const addFeeBreakdownItem = () => {
-    const uid = crypto.randomUUID?.() || Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    const item = { id: uid, name: "", amount: 0 };
-    updateField("fees", "feeBreakdown", [...(formData.fees.feeBreakdown || []), item]);
-  };
-
-  const removeFeeBreakdownItem = (id: string) => {
-    const list = (formData.fees.feeBreakdown || []).filter((item: any) => item.id !== id);
-    updateField("fees", "feeBreakdown", list);
-  };
-
-  const updateFeeBreakdownField = (id: string, field: "name" | "amount", value: any) => {
-    const list = (formData.fees.feeBreakdown || []).map((item: any) =>
-      item.id === id ? { ...item, [field]: field === "amount" ? (parseFloat(value) || 0) : value } : item
-    );
-    updateField("fees", "feeBreakdown", list);
-  };
-
-  const addProgramBreakdownItem = () => {
-    const uid = crypto.randomUUID?.() || Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    const item = { id: uid, name: "", amount: 0 };
-    updateField("fees", "programBreakdown", [...(formData.fees.programBreakdown || []), item]);
-  };
-
-  const removeProgramBreakdownItem = (id: string) => {
-    const list = (formData.fees.programBreakdown || []).filter((item: any) => item.id !== id);
-    updateField("fees", "programBreakdown", list);
-  };
-
-  const updateProgramBreakdownField = (id: string, field: "name" | "amount", value: any) => {
-    const list = (formData.fees.programBreakdown || []).map((item: any) =>
-      item.id === id ? { ...item, [field]: field === "amount" ? (parseFloat(value) || 0) : value } : item
-    );
-    updateField("fees", "programBreakdown", list);
-  };
-
   const renderBankFields = (countryCode: string) => {
     const config = getBankConfig(countryCode);
     if (!config) return null;
 
-    return config.fields.map((field: BankFieldConfig) => {
-      const val = formData.admin.bankDetails?.[field.name] || "";
-      const commonProps = {
-        value: val,
-        onChange: (e: any) => updateBankField(field.name, e.target.value),
-        placeholder: field.placeholder,
-      };
+    return (
+      <>
+        {config.fields.map((field: BankFieldConfig) => {
+          const val = formData.admin.bankDetails?.[field.name] || "";
+          const commonProps = {
+            value: val,
+            onChange: (e: any) => updateBankField(field.name, e.target.value),
+            placeholder: field.placeholder,
+          };
 
-      if (field.type === "textarea") {
-        return (
-          <div key={field.name} className="sm:col-span-2">
-            <Label>
-              {field.label}
-              {field.required && <span className="text-destructive ml-0.5">*</span>}
-            </Label>
-            <Textarea rows={2} {...commonProps} />
-            {field.hint && <p className="text-xs text-muted-foreground mt-1">{field.hint}</p>}
+          if (field.type === "textarea") {
+            return (
+              <div key={field.name} className="sm:col-span-2">
+                <Label>
+                  {field.label}
+                  {field.required && <span className="text-destructive ml-0.5">*</span>}
+                </Label>
+                <Textarea rows={2} {...commonProps} />
+                {field.hint && <p className="text-xs text-muted-foreground mt-1">{field.hint}</p>}
+              </div>
+            );
+          }
+
+          return (
+            <div key={field.name}>
+              <Label>
+                {field.label}
+                {field.required && <span className="text-destructive ml-0.5">*</span>}
+              </Label>
+              <Input {...commonProps} />
+              {field.hint && <p className="text-xs text-muted-foreground mt-1">{field.hint}</p>}
+            </div>
+          );
+        })}
+
+        {/* Extra key-value fields */}
+        {(extraBankFields || []).map((item, idx) => (
+          <div key={`extra-${idx}`} className="relative sm:col-span-2 flex items-start gap-2">
+            <div className="flex-1 grid grid-cols-2 gap-2">
+              <div>
+                <Label>Field Name</Label>
+                <Input
+                  value={item.key}
+                  onChange={(e) => {
+                    const copy = [...extraBankFields];
+                    copy[idx] = { ...copy[idx], key: e.target.value };
+                    setExtraBankFields(copy);
+                  }}
+                  placeholder="e.g. Routing Number"
+                />
+              </div>
+              <div>
+                <Label>Value</Label>
+                <Input
+                  value={item.value}
+                  onChange={(e) => {
+                    const copy = [...extraBankFields];
+                    copy[idx] = { ...copy[idx], value: e.target.value };
+                    setExtraBankFields(copy);
+                  }}
+                  placeholder="Field value"
+                />
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mt-6 shrink-0 h-9 w-9 text-destructive"
+              onClick={() => setExtraBankFields(extraBankFields.filter((_, i) => i !== idx))}
+            >
+              ✕
+            </Button>
           </div>
-        );
-      }
+        ))}
 
-      return (
-        <div key={field.name}>
-          <Label>
-            {field.label}
-            {field.required && <span className="text-destructive ml-0.5">*</span>}
-          </Label>
-          <Input {...commonProps} />
-          {field.hint && <p className="text-xs text-muted-foreground mt-1">{field.hint}</p>}
+        <div className="sm:col-span-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setExtraBankFields([...extraBankFields, { key: "", value: "" }])}
+          >
+            + Add Extra
+          </Button>
         </div>
-      );
-    });
+      </>
+    );
   };
 
   const removeImage = async (field: "logo" | "bannerImage" | "brochure") => {
@@ -407,12 +366,20 @@ export default function NewUniversityPage() {
     try {
       const phoneCode = Country.getCountryByCode(locationCodes.countryCode)?.phonecode || "";
       const otherFees: Record<string, number> = {};
-      (formData.fees.feeBreakdown || []).forEach((item: any) => {
-        if (item.name?.trim()) otherFees[item.name.trim()] = item.amount || 0;
+      // Per-program fee breakdowns (prefixed with program name)
+      (formData.academic.programs || []).forEach((prog: any) => {
+        if (prog.feeBreakdown && prog.name?.trim()) {
+          prog.feeBreakdown.forEach((item: any) => {
+            if (item.name?.trim()) {
+              const key = `${prog.name.trim()} - ${item.name.trim()}`;
+              otherFees[key] = item.amount || 0;
+            }
+          });
+        }
       });
-      (formData.fees.programBreakdown || []).forEach((item: any) => {
-        if (item.name?.trim()) otherFees[`Program - ${item.name.trim()}`] = item.amount || 0;
-      });
+      const scholarshipDetails = formData.fees.scholarships
+        .filter((s: string) => s.trim())
+        .join(", ");
       const payload = {
         ...formData,
         contact: {
@@ -420,11 +387,27 @@ export default function NewUniversityPage() {
           phone: `+${phoneCode}-${formData.contact.phone}`,
           admissionOfficeHours: formData.contact.admissionOfficeHours,
         },
-        fees: { ...formData.fees, otherFees },
+        fees: {
+          ...formData.fees,
+          otherFees,
+          ...(scholarshipDetails ? { scholarshipDetails } : {}),
+        },
         ...(formData.brochureUrl ? { brochureUrl: formData.brochureUrl } : { brochureUrl: undefined }),
       };
       delete payload.fees.feeBreakdown;
-      delete payload.fees.programBreakdown;
+      delete (payload.fees as any).scholarships;
+      // Merge extra services into languageSupport for backend
+      const extras = (payload.support as any).extraServices?.filter((s: string) => s.trim()) || [];
+      payload.support.languageSupport = [...(payload.support.languageSupport || []), ...extras];
+      delete (payload.support as any).extraServices;
+      // Merge extra bank fields into bankDetails
+      if (extraBankFields?.length) {
+        for (const item of extraBankFields) {
+          if (item.key?.trim()) {
+            payload.admin.bankDetails[item.key.trim()] = item.value;
+          }
+        }
+      }
       await createUniversity.mutateAsync(payload);
       localStorage.removeItem(STORAGE_KEY);
       router.push("/admin/universities");
@@ -470,10 +453,9 @@ export default function NewUniversityPage() {
                 <div>
                   <Label>Established Year *</Label>
                   <Input
-                    type="number"
-                    min={1800}
-                    max={new Date().getFullYear()}
-                    value={formData.establishedYear}
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.establishedYear || ""}
                     onChange={(e) =>
                       updateRootField("establishedYear", parseInt(e.target.value) || new Date().getFullYear())
                     }
@@ -795,133 +777,277 @@ export default function NewUniversityPage() {
       case 2:
         return (
           <div className="space-y-4 sm:space-y-6">
-            {/* Program Info */}
-            <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
-              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Program Information</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label>Duration *</Label>
-                  <Select
-                    value={formData.academic.duration}
-                    onValueChange={(v) => updateField("academic", "duration", v)}
-                  >
-                    <SelectTrigger><SelectValue placeholder="Select duration" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="4.5 years">4.5 years</SelectItem>
-                      <SelectItem value="5 years">5 years</SelectItem>
-                      <SelectItem value="5.5 years">5.5 years</SelectItem>
-                      <SelectItem value="6 years">6 years</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Medium of Instruction *</Label>
-                  <Select
-                    value={isOtherMedium ? "Other" : formData.academic.medium}
-                    onValueChange={(v) => {
-                      if (v === "Other") {
-                        updateField("academic", "medium", "Other:");
-                      } else {
-                        updateField("academic", "medium", v);
-                      }
-                    }}
-                  >
-                    <SelectTrigger><SelectValue placeholder="Select medium" /></SelectTrigger>
-                    <SelectContent>
-                      {languageOptions.map((lang: string) => (
-                        <SelectItem key={lang} value={lang}>{lang}</SelectItem>
-                      ))}
-                      <SelectItem value="Other">Others</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {isOtherMedium && (
-                    <Input
-                      value={otherMediumValue}
-                      onChange={(e) => updateField("academic", "medium", `Other:${e.target.value}`)}
-                      placeholder="Type the medium of instruction"
-                      className="mt-2"
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Seat Distribution */}
-            <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
-              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Seat Distribution</h4>
-              <div>
-                <Label>Total Seats *</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={formData.academic.totalSeats}
-                  onChange={(e) =>
-                    updateField("academic", "totalSeats", parseInt(e.target.value) || 0)
+            {/* Program Information */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Program Information</h4>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    updateField("academic", "programs", [
+                      ...(formData.academic.programs || []),
+                      { name: "", duration: "5.5 years", annualTuition: 0, registration: 0, totalSeats: 0, governmentSeats: 0, managementSeats: 0, nriSeats: 0, feeBreakdown: [] },
+                    ])
                   }
-                  placeholder="e.g. 150"
-                />
+                >
+                  + Add Program
+                </Button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <Label>Government</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={formData.academic.governmentSeats}
-                    onChange={(e) =>
-                      updateField("academic", "governmentSeats", parseInt(e.target.value) || 0)
-                    }
-                    placeholder="0"
-                  />
+              {(!formData.academic.programs || formData.academic.programs.length === 0) ? (
+                <div className="rounded-lg border border-dashed border-border/60 bg-card p-6 text-center">
+                  <p className="text-sm text-muted-foreground">No programs added yet. Click "Add Program" to add MBBS, etc.</p>
                 </div>
-                <div>
-                  <Label>Management</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={formData.academic.managementSeats}
-                    onChange={(e) =>
-                      updateField("academic", "managementSeats", parseInt(e.target.value) || 0)
-                    }
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <Label>NRI</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={formData.academic.nriSeats}
-                    onChange={(e) =>
-                      updateField("academic", "nriSeats", parseInt(e.target.value) || 0)
-                    }
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-              {formData.academic.totalSeats > 0 && (
-                <div className="flex gap-2 flex-wrap pt-1">
-                  {[
-                    { label: "Govt", value: formData.academic.governmentSeats, color: "bg-green-100 text-green-800" },
-                    { label: "Mgmt", value: formData.academic.managementSeats, color: "bg-blue-100 text-blue-800" },
-                    { label: "NRI", value: formData.academic.nriSeats, color: "bg-amber-100 text-amber-800" },
-                  ].map((s) => (
-                    <span key={s.label} className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${s.color}`}>
-                      {s.label}: {s.value}
-                    </span>
+              ) : (
+                <div className="space-y-4">
+                  {formData.academic.programs.map((prog: any, i: number) => (
+                    <div key={i} className="rounded-lg border border-border/60 bg-card p-3 space-y-3 sm:p-4">
+                      <div className="flex items-center justify-between">
+                        <h5 className="text-xs font-semibold text-foreground/60 uppercase tracking-wide">Program {i + 1}</h5>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = formData.academic.programs.filter((_: any, j: number) => j !== i);
+                            updateField("academic", "programs", updated);
+                          }}
+                          className="text-destructive/70 hover:text-destructive text-sm font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <Label>Program Name *</Label>
+                          <Input
+                            value={prog.name}
+                            onChange={(e) => {
+                              const updated = [...formData.academic.programs];
+                              updated[i] = { ...updated[i], name: e.target.value };
+                              updateField("academic", "programs", updated);
+                            }}
+                            placeholder="e.g. MBBS"
+                          />
+                        </div>
+                        <div>
+                          <Label>Duration *</Label>
+                          <Select
+                            value={prog.duration}
+                            onValueChange={(v) => {
+                              const updated = [...formData.academic.programs];
+                              updated[i] = { ...updated[i], duration: v };
+                              updateField("academic", "programs", updated);
+                            }}
+                          >
+                            <SelectTrigger><SelectValue placeholder="Select duration" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="4.5 years">4.5 years</SelectItem>
+                              <SelectItem value="5 years">5 years</SelectItem>
+                              <SelectItem value="5.5 years">5.5 years</SelectItem>
+                              <SelectItem value="6 years">6 years</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <Label>Annual Tuition *</Label>
+                          <Input
+                            type="text"
+                            inputMode="numeric"
+                            value={prog.annualTuition || ""}
+                            onChange={(e) => {
+                              const updated = [...formData.academic.programs];
+                              updated[i] = { ...updated[i], annualTuition: parseFloat(e.target.value) || 0 };
+                              updateField("academic", "programs", updated);
+                            }}
+                            placeholder="e.g. 500000"
+                          />
+                        </div>
+                        <div>
+                          <Label>Registration *</Label>
+                          <Input
+                            type="text"
+                            inputMode="numeric"
+                            value={prog.registration || ""}
+                            onChange={(e) => {
+                              const updated = [...formData.academic.programs];
+                              updated[i] = { ...updated[i], registration: parseFloat(e.target.value) || 0 };
+                              updateField("academic", "programs", updated);
+                            }}
+                            placeholder="e.g. 25000"
+                          />
+                        </div>
+                        <div>
+                          <Label>Total Seats *</Label>
+                          <Input
+                            type="text"
+                            inputMode="numeric"
+                            value={prog.totalSeats || ""}
+                            onChange={(e) => {
+                              const updated = [...formData.academic.programs];
+                              updated[i] = { ...updated[i], totalSeats: parseInt(e.target.value) || 0 };
+                              updateField("academic", "programs", updated);
+                            }}
+                            placeholder="e.g. 150"
+                          />
+                        </div>
+                      </div>
+                      {/* Seat Distribution */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <Label>Govt Seats</Label>
+                          <Input
+                            type="text"
+                            inputMode="numeric"
+                            value={prog.governmentSeats || ""}
+                            onChange={(e) => {
+                              const updated = [...formData.academic.programs];
+                              updated[i] = { ...updated[i], governmentSeats: parseInt(e.target.value) || 0 };
+                              updateField("academic", "programs", updated);
+                            }}
+                            placeholder="0"
+                          />
+                        </div>
+                        <div>
+                          <Label>Management Seats</Label>
+                          <Input
+                            type="text"
+                            inputMode="numeric"
+                            value={prog.managementSeats || ""}
+                            onChange={(e) => {
+                              const updated = [...formData.academic.programs];
+                              updated[i] = { ...updated[i], managementSeats: parseInt(e.target.value) || 0 };
+                              updateField("academic", "programs", updated);
+                            }}
+                            placeholder="0"
+                          />
+                        </div>
+                        <div>
+                          <Label>NRI Seats</Label>
+                          <Input
+                            type="text"
+                            inputMode="numeric"
+                            value={prog.nriSeats || ""}
+                            onChange={(e) => {
+                              const updated = [...formData.academic.programs];
+                              updated[i] = { ...updated[i], nriSeats: parseInt(e.target.value) || 0 };
+                              updateField("academic", "programs", updated);
+                            }}
+                            placeholder="0"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Per-Program Fee Breakdown */}
+                      <div className="border-t border-border/40 pt-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <Label className="text-xs text-muted-foreground">Fee Breakdown</Label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const updated = [...formData.academic.programs];
+                              const uid = crypto.randomUUID?.() || Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+                              updated[i] = {
+                                ...updated[i],
+                                feeBreakdown: [...(updated[i].feeBreakdown || []), { id: uid, name: "", amount: 0 }],
+                              };
+                              updateField("academic", "programs", updated);
+                            }}
+                          >
+                            + Add Item
+                          </Button>
+                        </div>
+                        {(!prog.feeBreakdown || prog.feeBreakdown.length === 0) ? (
+                          <p className="text-xs text-muted-foreground">No fee breakdown items yet.</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {prog.feeBreakdown.map((item: any, fi: number) => (
+                              <div key={item.id || fi} className="flex items-center gap-2">
+                                <Input
+                                  value={item.name}
+                                  onChange={(e) => {
+                                    const updated = [...formData.academic.programs];
+                                    updated[i].feeBreakdown = [...(updated[i].feeBreakdown || [])];
+                                    updated[i].feeBreakdown[fi] = { ...updated[i].feeBreakdown[fi], name: e.target.value };
+                                    updateField("academic", "programs", updated);
+                                  }}
+                                  placeholder="Fee name"
+                                  className="flex-1"
+                                />
+                                <Input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={item.amount || ""}
+                                  onChange={(e) => {
+                                    const updated = [...formData.academic.programs];
+                                    updated[i].feeBreakdown = [...(updated[i].feeBreakdown || [])];
+                                    updated[i].feeBreakdown[fi] = { ...updated[i].feeBreakdown[fi], amount: parseFloat(e.target.value) || 0 };
+                                    updateField("academic", "programs", updated);
+                                  }}
+                                  placeholder="Amount"
+                                  className="w-28"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...formData.academic.programs];
+                                    updated[i].feeBreakdown = (updated[i].feeBreakdown || []).filter((_: any, k: number) => k !== fi);
+                                    updateField("academic", "programs", updated);
+                                  }}
+                                  className="text-destructive/70 hover:text-destructive text-lg leading-none flex-shrink-0"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   ))}
-                  {(() => {
-                    const allocated = formData.academic.governmentSeats + formData.academic.managementSeats + formData.academic.nriSeats;
-                    const remaining = formData.academic.totalSeats - allocated;
-                    return remaining !== 0 ? (
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${remaining > 0 ? "bg-gray-100 text-gray-600" : "bg-red-100 text-red-700"}`}>
-                        {remaining > 0 ? `${remaining} unallocated` : `${Math.abs(remaining)} over-allocated`}
-                      </span>
-                    ) : null;
-                  })()}
                 </div>
               )}
             </div>
+
+            {/* Medium of Instruction (Universal) */}
+            <div className="rounded-lg border border-border/60 bg-card p-3 sm:p-4">
+              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide mb-3">Medium of Instruction</h4>
+              <div className="max-w-xs">
+                <Select
+                  value={isOtherMedium ? "Other" : formData.academic.medium}
+                  onValueChange={(v) => {
+                    if (v === "Other") {
+                      updateField("academic", "medium", "Other:");
+                    } else {
+                      updateField("academic", "medium", v);
+                    }
+                  }}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select medium" /></SelectTrigger>
+                  <SelectContent>
+                    {UNIVERSAL_MEDIUMS.map((lang: string) => (
+                      <SelectItem key={lang} value={lang}>{lang}</SelectItem>
+                    ))}
+                    <SelectItem value="Other">Others</SelectItem>
+                  </SelectContent>
+                </Select>
+                {isOtherMedium && (
+                  <Input
+                    value={otherMediumValue}
+                    onChange={(e) => updateField("academic", "medium", `Other:${e.target.value}`)}
+                    placeholder="Type the medium of instruction"
+                    className="mt-2"
+                  />
+                )}
+              </div>
+            </div>
+
+
 
             {/* Student Demographics */}
             <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
@@ -930,9 +1056,9 @@ export default function NewUniversityPage() {
                 <div>
                   <Label>Total Students</Label>
                   <Input
-                    type="number"
-                    min={0}
-                    value={formData.studentDemographics.totalStudents}
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.studentDemographics.totalStudents || ""}
                     onChange={(e) =>
                       setFormData((prev: any) => ({
                         ...prev,
@@ -945,9 +1071,9 @@ export default function NewUniversityPage() {
                 <div>
                   <Label>Local Students</Label>
                   <Input
-                    type="number"
-                    min={0}
-                    value={formData.studentDemographics.localStudents}
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.studentDemographics.localStudents || ""}
                     onChange={(e) =>
                       setFormData((prev: any) => ({
                         ...prev,
@@ -960,9 +1086,9 @@ export default function NewUniversityPage() {
                 <div>
                   <Label>Foreign Students</Label>
                   <Input
-                    type="number"
-                    min={0}
-                    value={formData.studentDemographics.foreignStudents}
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.studentDemographics.foreignStudents || ""}
                     onChange={(e) =>
                       setFormData((prev: any) => ({
                         ...prev,
@@ -1014,9 +1140,9 @@ export default function NewUniversityPage() {
                     </div>
                     <Input
                       className="w-24"
-                      type="number"
-                      min={0}
-                      value={entry.count}
+                      type="text"
+                      inputMode="numeric"
+                      value={entry.count || ""}
                       onChange={(e) =>
                         setFormData((prev: any) => {
                           const updated = [...prev.studentDemographics.foreignByCountry];
@@ -1130,8 +1256,8 @@ export default function NewUniversityPage() {
                 <div>
                   <Label>World Rank</Label>
                   <Input
-                    type="number"
-                    min={1}
+                    type="text"
+                    inputMode="numeric"
                     value={formData.recognition.worldRank || ""}
                     onChange={(e) =>
                       updateField("recognition", "worldRank", e.target.value ? parseInt(e.target.value) : null)
@@ -1142,8 +1268,8 @@ export default function NewUniversityPage() {
                 <div>
                   <Label>National Rank</Label>
                   <Input
-                    type="number"
-                    min={1}
+                    type="text"
+                    inputMode="numeric"
                     value={formData.recognition.nationalRank || ""}
                     onChange={(e) =>
                       updateField("recognition", "nationalRank", e.target.value ? parseInt(e.target.value) : null)
@@ -1162,145 +1288,10 @@ export default function NewUniversityPage() {
             {/* Fee Structure */}
             <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
               <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Fee Structure</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <Label>Annual Tuition *</Label>
-                  <Input
-                    type="text"
-                    inputMode="numeric"
-                    value={formData.fees.tuitionAnnual || ""}
-                    onChange={(e) => updateField("fees", "tuitionAnnual", parseFloat(e.target.value) || 0)}
-                    placeholder="e.g. 500000"
-                  />
-                  {formData.fees.tuitionAnnual > 0 && (
-                    <p className="text-xs text-muted-foreground mt-1">Cap for breakdown below</p>
-                  )}
-                </div>
-                <div>
-                  <Label>Total Program *</Label>
-                  <Input
-                    type="text"
-                    inputMode="numeric"
-                    value={formData.fees.totalProgram || ""}
-                    onChange={(e) => updateField("fees", "totalProgram", parseFloat(e.target.value) || 0)}
-                    placeholder="e.g. 2500000"
-                  />
-                </div>
-                <div>
-                  <Label>Registration *</Label>
-                  <Input
-                    type="text"
-                    inputMode="numeric"
-                    value={formData.fees.registration || ""}
-                    onChange={(e) => updateField("fees", "registration", parseFloat(e.target.value) || 0)}
-                    placeholder="e.g. 25000"
-                  />
-                </div>
-              </div>
 
-              {/* Fee Breakdown */}
-              <div className="border-t border-border/40 pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h5 className="text-sm font-medium text-foreground/80">Fee Breakdown</h5>
-                  <Button type="button" variant="outline" size="sm" onClick={addFeeBreakdownItem}>
-                    + Add Item
-                  </Button>
-                </div>
-                {formData.fees.feeBreakdown?.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No breakdown items yet. Add hostel fees, mess fees, etc.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {formData.fees.feeBreakdown?.map((item: any) => (
-                      <div key={item.id} className="flex items-center gap-2">
-                        <Input
-                          value={item.name}
-                          onChange={(e) => updateFeeBreakdownField(item.id, "name", e.target.value)}
-                          placeholder="Fee name"
-                          className="flex-1"
-                        />
-                        <Input
-                          type="text"
-                          inputMode="numeric"
-                          value={item.amount || ""}
-                          onChange={(e) => updateFeeBreakdownField(item.id, "amount", e.target.value)}
-                          placeholder="Amount"
-                          className="w-32"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeFeeBreakdownItem(item.id)}
-                          className="text-destructive/70 hover:text-destructive text-lg leading-none flex-shrink-0"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {formData.fees.feeBreakdown?.length > 0 && (
-                  <div className="mt-3 flex items-center gap-4 text-sm">
-                    <span className="text-muted-foreground">Breakdown Total: <strong className="text-foreground">{(feeBreakdownTotal).toLocaleString()}</strong></span>
-                    <span className="text-muted-foreground">Annual Tuition: <strong className="text-foreground">{formData.fees.tuitionAnnual.toLocaleString()}</strong></span>
-                    {feeBreakdownOverCap && (
-                      <span className="text-destructive font-medium">Exceeds annual tuition by {(feeBreakdownTotal - formData.fees.tuitionAnnual).toLocaleString()}</span>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Program Breakdown */}
-              <div className="border-t border-border/40 pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h5 className="text-sm font-medium text-foreground/80">Program Fee Breakdown</h5>
-                  <Button type="button" variant="outline" size="sm" onClick={addProgramBreakdownItem}>
-                    + Add Item
-                  </Button>
-                </div>
-                {formData.fees.programBreakdown?.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No breakdown items yet. Add year-wise or semester-wise fees.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {formData.fees.programBreakdown?.map((item: any) => (
-                      <div key={item.id} className="flex items-center gap-2">
-                        <Input
-                          value={item.name}
-                          onChange={(e) => updateProgramBreakdownField(item.id, "name", e.target.value)}
-                          placeholder="Item name"
-                          className="flex-1"
-                        />
-                        <Input
-                          type="text"
-                          inputMode="numeric"
-                          value={item.amount || ""}
-                          onChange={(e) => updateProgramBreakdownField(item.id, "amount", e.target.value)}
-                          placeholder="Amount"
-                          className="w-32"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeProgramBreakdownItem(item.id)}
-                          className="text-destructive/70 hover:text-destructive text-lg leading-none flex-shrink-0"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {formData.fees.programBreakdown?.length > 0 && (
-                  <div className="mt-3 flex items-center gap-4 text-sm">
-                    <span className="text-muted-foreground">Breakdown Total: <strong className="text-foreground">{(programBreakdownTotal).toLocaleString()}</strong></span>
-                    <span className="text-muted-foreground">Total Program: <strong className="text-foreground">{formData.fees.totalProgram.toLocaleString()}</strong></span>
-                    {programBreakdownOverCap && (
-                      <span className="text-destructive font-medium">Exceeds total program by {(programBreakdownTotal - formData.fees.totalProgram).toLocaleString()}</span>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label>Currency *</Label>
+              <div>
+                <Label>Currency *</Label>
+                <div className="max-w-xs">
                   <Select
                     value={formData.fees.currency}
                     onValueChange={(v) => updateField("fees", "currency", v)}
@@ -1314,16 +1305,64 @@ export default function NewUniversityPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="flex items-end pb-2">
-                  <div className="flex items-center gap-3">
-                    <Checkbox
-                      checked={formData.fees.scholarshipAvailable}
-                      onCheckedChange={(checked) => updateField("fees", "scholarshipAvailable", checked)}
-                    />
-                    <Label className="cursor-pointer">Scholarship Available</Label>
-                  </div>
-                </div>
               </div>
+
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="scholarship-toggle"
+                  checked={formData.fees.scholarshipAvailable}
+                  onCheckedChange={(checked) => updateField("fees", "scholarshipAvailable", checked)}
+                />
+                <Label htmlFor="scholarship-toggle" className="cursor-pointer font-medium">Scholarship Available</Label>
+              </div>
+
+              {formData.fees.scholarshipAvailable && (
+                <div className="border-t border-border/40 pt-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="text-xs text-muted-foreground">Scholarship Names</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        updateField("fees", "scholarships", [...formData.fees.scholarships, ""])
+                      }
+                    >
+                      + Add Scholarship
+                    </Button>
+                  </div>
+                  {formData.fees.scholarships.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No scholarships listed yet.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {formData.fees.scholarships.map((name: string, i: number) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <Input
+                            value={name}
+                            onChange={(e) => {
+                              const updated = [...formData.fees.scholarships];
+                              updated[i] = e.target.value;
+                              updateField("fees", "scholarships", updated);
+                            }}
+                            placeholder="e.g. Merit-Based Scholarship"
+                            className="flex-1"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = formData.fees.scholarships.filter((_: string, j: number) => j !== i);
+                              updateField("fees", "scholarships", updated);
+                            }}
+                            className="text-destructive/70 hover:text-destructive text-lg leading-none flex-shrink-0"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Payment & Policies */}
@@ -1354,40 +1393,99 @@ export default function NewUniversityPage() {
       case 5:
         return (
           <div className="space-y-4 sm:space-y-6">
-            {/* Hospital & Academic */}
+            {/* Departments */}
             <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
-              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Hospital & Academic</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <Label>Hospital Beds *</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={formData.infrastructure.hospitalBeds}
-                    onChange={(e) => updateField("infrastructure", "hospitalBeds", parseInt(e.target.value) || 0)}
-                    placeholder="e.g. 800"
-                  />
+              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Departments</h4>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-xs text-muted-foreground">Department Names</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => updateField("infrastructure", "departments", [...(formData.infrastructure.departments || []), ""])}
+                  >
+                    + Add Department
+                  </Button>
                 </div>
-                <div>
-                  <Label>Departments *</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={formData.infrastructure.departments}
-                    onChange={(e) => updateField("infrastructure", "departments", parseInt(e.target.value) || 0)}
-                    placeholder="e.g. 15"
-                  />
+                {(!formData.infrastructure.departments || formData.infrastructure.departments.length === 0) ? (
+                  <p className="text-xs text-muted-foreground">No departments added yet.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {formData.infrastructure.departments.map((dept: string, i: number) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <Input
+                          value={dept}
+                          onChange={(e) => {
+                            const updated = [...formData.infrastructure.departments];
+                            updated[i] = e.target.value;
+                            updateField("infrastructure", "departments", updated);
+                          }}
+                          placeholder="e.g. Cardiology"
+                          className="flex-1"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = formData.infrastructure.departments.filter((_: any, j: number) => j !== i);
+                            updateField("infrastructure", "departments", updated);
+                          }}
+                          className="text-destructive/70 hover:text-destructive text-lg leading-none flex-shrink-0"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Laboratories */}
+            <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
+              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Laboratories</h4>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-xs text-muted-foreground">Laboratory Names</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => updateField("infrastructure", "laboratories", [...(formData.infrastructure.laboratories || []), ""])}
+                  >
+                    + Add Laboratory
+                  </Button>
                 </div>
-                <div>
-                  <Label>Laboratories *</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={formData.infrastructure.laboratories}
-                    onChange={(e) => updateField("infrastructure", "laboratories", parseInt(e.target.value) || 0)}
-                    placeholder="e.g. 10"
-                  />
-                </div>
+                {(!formData.infrastructure.laboratories || formData.infrastructure.laboratories.length === 0) ? (
+                  <p className="text-xs text-muted-foreground">No laboratories added yet.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {formData.infrastructure.laboratories.map((lab: string, i: number) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <Input
+                          value={lab}
+                          onChange={(e) => {
+                            const updated = [...formData.infrastructure.laboratories];
+                            updated[i] = e.target.value;
+                            updateField("infrastructure", "laboratories", updated);
+                          }}
+                          placeholder="e.g. Anatomy Lab"
+                          className="flex-1"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = formData.infrastructure.laboratories.filter((_: any, j: number) => j !== i);
+                            updateField("infrastructure", "laboratories", updated);
+                          }}
+                          className="text-destructive/70 hover:text-destructive text-lg leading-none flex-shrink-0"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1398,9 +1496,9 @@ export default function NewUniversityPage() {
                 <div>
                   <Label>Boys</Label>
                   <Input
-                    type="number"
-                    min={0}
-                    value={formData.infrastructure.hostelBoys}
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.infrastructure.hostelBoys || ""}
                     onChange={(e) => updateField("infrastructure", "hostelBoys", parseInt(e.target.value) || 0)}
                     placeholder="e.g. 500"
                   />
@@ -1408,9 +1506,9 @@ export default function NewUniversityPage() {
                 <div>
                   <Label>Girls</Label>
                   <Input
-                    type="number"
-                    min={0}
-                    value={formData.infrastructure.hostelGirls}
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.infrastructure.hostelGirls || ""}
                     onChange={(e) => updateField("infrastructure", "hostelGirls", parseInt(e.target.value) || 0)}
                     placeholder="e.g. 500"
                   />
@@ -1420,7 +1518,19 @@ export default function NewUniversityPage() {
 
             {/* Facilities */}
             <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
-              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Facilities</h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Facilities</h4>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    updateField("infrastructure", "facilities", [...(formData.infrastructure.facilities || []), ""])
+                  }
+                >
+                  + Add Extra
+                </Button>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { key: "cafeteria", label: "Cafeteria" },
@@ -1434,6 +1544,30 @@ export default function NewUniversityPage() {
                     />
                     <span className="text-sm">{item.label}</span>
                   </label>
+                ))}
+                {formData.infrastructure.facilities?.map((name: string, i: number) => (
+                  <div key={i} className="flex items-center gap-2 rounded-md border border-border/60 p-3">
+                    <Input
+                      value={name}
+                      onChange={(e) => {
+                        const updated = [...(formData.infrastructure.facilities || [])];
+                        updated[i] = e.target.value;
+                        updateField("infrastructure", "facilities", updated);
+                      }}
+                      placeholder="Facility name"
+                      className="h-7 text-sm flex-1 min-w-0"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = (formData.infrastructure.facilities || []).filter((_: string, j: number) => j !== i);
+                        updateField("infrastructure", "facilities", updated);
+                      }}
+                      className="text-destructive/70 hover:text-destructive text-lg leading-none flex-shrink-0"
+                    >
+                      ×
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -1490,9 +1624,9 @@ export default function NewUniversityPage() {
                 <div>
                   <Label>Application Fee *</Label>
                   <Input
-                    type="number"
-                    min={0}
-                    value={formData.admission.applicationFee}
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.admission.applicationFee || ""}
                     onChange={(e) => updateField("admission", "applicationFee", parseFloat(e.target.value) || 0)}
                     placeholder="e.g. 1500"
                   />
@@ -1554,109 +1688,28 @@ export default function NewUniversityPage() {
               </div>
             </div>
 
-            {/* Bank Account (Indian) */}
+            {/* Bank Details */}
             <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
-              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Bank Account (Indian / General)</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label>Account Name *</Label>
-                  <Input
-                    value={formData.admin.accountName}
-                    onChange={(e) => updateField("admin", "accountName", e.target.value)}
-                    placeholder="Name on bank account"
-                  />
-                </div>
-                <div>
-                  <Label>Account Number *</Label>
-                  <Input
-                    value={formData.admin.accountNumber}
-                    onChange={(e) => updateField("admin", "accountNumber", e.target.value)}
-                    placeholder="Bank account number"
-                  />
-                </div>
-                <div>
-                  <Label>Bank Name *</Label>
-                  <Input
-                    value={formData.admin.bankName}
-                    onChange={(e) => updateField("admin", "bankName", e.target.value)}
-                    placeholder="e.g. Sberbank"
-                  />
-                </div>
-                <div>
-                  <Label>Bank Branch</Label>
-                  <Input
-                    value={formData.admin.bankBranch}
-                    onChange={(e) => updateField("admin", "bankBranch", e.target.value)}
-                    placeholder="Branch name"
-                  />
-                </div>
-                <div>
-                  <Label>IFSC / SWIFT Code *</Label>
-                  <Input
-                    value={formData.admin.ifscCode}
-                    onChange={(e) => updateField("admin", "ifscCode", e.target.value)}
-                    placeholder="e.g. SBIN0001234"
-                  />
-                </div>
-                <div>
-                  <Label>Commission (%) *</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={formData.admin.commission}
-                    onChange={(e) => updateField("admin", "commission", parseFloat(e.target.value) || 0)}
-                    placeholder="e.g. 10"
-                  />
-                </div>
-                <div>
-                  <Label>GST Number</Label>
-                  <Input
-                    value={formData.admin.gstNumber}
-                    onChange={(e) => updateField("admin", "gstNumber", e.target.value)}
-                    placeholder="Optional"
-                  />
-                </div>
-                <div>
-                  <Label>PAN Number</Label>
-                  <Input
-                    value={formData.admin.panNumber}
-                    onChange={(e) => updateField("admin", "panNumber", e.target.value)}
-                    placeholder="Optional"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Foreign Bank Payment Details (Country-specific) */}
-            <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
-              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">
-                {selectedBankCountry
-                  ? `${getBankConfig(selectedBankCountry)?.countryName || selectedBankCountry} Bank Details`
-                  : "Foreign Bank Payment Details"}
-              </h4>
+              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Bank Details</h4>
               <div>
-                <Label>Country</Label>
-                  <Select
+                <Label>Bank Country *</Label>
+                <Select
                   value={selectedBankCountry}
                   onValueChange={(code: string | null) => {
                     const countryCode = code ?? "";
-                    if (countryCode === "__none__" || countryCode === "") {
-                      setSelectedBankCountry("");
-                      updateField("admin", "bankCountry", "");
-                      updateField("admin", "bankDetails", {});
-                    } else {
-                      setSelectedBankCountry(countryCode);
-                      updateField("admin", "bankCountry", countryCode);
+                    setSelectedBankCountry(countryCode);
+                    setExtraBankFields([]);
+                    updateField("admin", "bankCountry", countryCode);
+                    if (countryCode && countryCode !== "IN") {
                       updateField("admin", "bankDetails", {});
                     }
                   }}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select country for local bank details" />
+                  <SelectTrigger className="max-w-xs">
+                    <SelectValue placeholder="Select country" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__none__">None (use Indian bank info above)</SelectItem>
+                    <SelectItem value="IN">India</SelectItem>
                     {SUPPORTED_FOREIGN_BANK_COUNTRIES.map((c) => (
                       <SelectItem key={c.code} value={c.code}>
                         {c.name}
@@ -1664,14 +1717,87 @@ export default function NewUniversityPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Select the country where this university's bank account is based
-                </p>
               </div>
 
-              {selectedBankCountry && (
+              {selectedBankCountry === "IN" && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {renderBankFields(selectedBankCountry)}
+                  <div>
+                    <Label>Account Name *</Label>
+                    <Input
+                      value={formData.admin.accountName}
+                      onChange={(e) => updateField("admin", "accountName", e.target.value)}
+                      placeholder="Name on bank account"
+                    />
+                  </div>
+                  <div>
+                    <Label>Account Number *</Label>
+                    <Input
+                      value={formData.admin.accountNumber}
+                      onChange={(e) => updateField("admin", "accountNumber", e.target.value)}
+                      placeholder="Bank account number"
+                    />
+                  </div>
+                  <div>
+                    <Label>Bank Name *</Label>
+                    <Input
+                      value={formData.admin.bankName}
+                      onChange={(e) => updateField("admin", "bankName", e.target.value)}
+                      placeholder="e.g. State Bank of India"
+                    />
+                  </div>
+                  <div>
+                    <Label>Bank Branch</Label>
+                    <Input
+                      value={formData.admin.bankBranch}
+                      onChange={(e) => updateField("admin", "bankBranch", e.target.value)}
+                      placeholder="Branch name"
+                    />
+                  </div>
+                  <div>
+                    <Label>IFSC / SWIFT Code *</Label>
+                    <Input
+                      value={formData.admin.ifscCode}
+                      onChange={(e) => updateField("admin", "ifscCode", e.target.value)}
+                      placeholder="e.g. SBIN0001234"
+                    />
+                  </div>
+                  <div>
+                    <Label>Commission (%) *</Label>
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      value={formData.admin.commission || ""}
+                      onChange={(e) => updateField("admin", "commission", parseFloat(e.target.value) || 0)}
+                      placeholder="e.g. 10"
+                    />
+                  </div>
+                  <div>
+                    <Label>GST Number</Label>
+                    <Input
+                      value={formData.admin.gstNumber}
+                      onChange={(e) => updateField("admin", "gstNumber", e.target.value)}
+                      placeholder="Optional"
+                    />
+                  </div>
+                  <div>
+                    <Label>PAN Number</Label>
+                    <Input
+                      value={formData.admin.panNumber}
+                      onChange={(e) => updateField("admin", "panNumber", e.target.value)}
+                      placeholder="Optional"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {selectedBankCountry && selectedBankCountry !== "IN" && (
+                <div>
+                  <h5 className="text-sm font-medium text-foreground/80 mb-3">
+                    {getBankConfig(selectedBankCountry)?.countryName || selectedBankCountry} Bank Details
+                  </h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {renderBankFields(selectedBankCountry)}
+                  </div>
                 </div>
               )}
             </div>
@@ -1683,7 +1809,19 @@ export default function NewUniversityPage() {
           <div className="space-y-4 sm:space-y-6">
             {/* Support Services */}
             <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
-              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Support Services</h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Support Services</h4>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    updateField("support", "extraServices", [...(formData.support.extraServices || []), ""])
+                  }
+                >
+                  + Add Extra
+                </Button>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {[
                   { key: "alumniNetwork", label: "Alumni Network" },
@@ -1699,6 +1837,30 @@ export default function NewUniversityPage() {
                     />
                     <span className="text-sm">{item.label}</span>
                   </label>
+                ))}
+                {formData.support.extraServices?.map((name: string, i: number) => (
+                  <div key={i} className="flex items-center gap-2 rounded-md border border-border/60 p-3">
+                    <Input
+                      value={name}
+                      onChange={(e) => {
+                        const updated = [...(formData.support.extraServices || [])];
+                        updated[i] = e.target.value;
+                        updateField("support", "extraServices", updated);
+                      }}
+                      placeholder="Service name"
+                      className="h-7 text-sm flex-1 min-w-0"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = (formData.support.extraServices || []).filter((_: string, j: number) => j !== i);
+                        updateField("support", "extraServices", updated);
+                      }}
+                      className="text-destructive/70 hover:text-destructive text-lg leading-none flex-shrink-0"
+                    >
+                      ×
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>

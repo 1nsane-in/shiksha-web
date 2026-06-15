@@ -60,11 +60,11 @@ export interface UniversityDetail extends UniversityListItem {
     nriSeats: number;
   } | null;
   infrastructure: {
-    hospitalBeds: number;
-    departments: number;
+    hospitalBeds?: number;
+    departments: string[];
     hostelBoys: number;
     hostelGirls: number;
-    laboratories: number;
+    laboratories: string[];
     campusArea: number;
     facilities: string[];
     cafeteria: boolean;

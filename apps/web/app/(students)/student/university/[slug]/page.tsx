@@ -603,18 +603,18 @@ function UniversityContent({
                     value={String(infra.hospitalBeds)}
                   />
                 )}
-                {infra.departments != null && (
+                {infra.departments?.length > 0 && (
                   <InfraStat
                     icon={<Layers />}
                     label="Departments"
-                    value={String(infra.departments)}
+                    value={infra.departments.join(", ")}
                   />
                 )}
-                {infra.laboratories != null && (
+                {infra.laboratories?.length > 0 && (
                   <InfraStat
                     icon={<BookMarked />}
                     label="Labs"
-                    value={String(infra.laboratories)}
+                    value={infra.laboratories.join(", ")}
                   />
                 )}
                 {infra.campusArea != null && (
@@ -771,9 +771,9 @@ function UniversityContent({
                         Programs Offered
                       </p>
                       <ul className="space-y-1.5">
-                        {academic.programs.map((p) => (
+                        {academic.programs.map((p: any) => (
                           <li
-                            key={p}
+                            key={typeof p === "string" ? p : p.name}
                             className="flex items-center gap-2 text-sm"
                             style={{ color: theme.inkMuted }}
                           >
@@ -781,7 +781,7 @@ function UniversityContent({
                               className="size-3.5 shrink-0"
                               style={{ color: theme.gold }}
                             />
-                            {p}
+                            {typeof p === "string" ? p : p.name}
                           </li>
                         ))}
                       </ul>

@@ -31,7 +31,6 @@ export const BANK_CONFIGS: Record<string, CountryBankConfig> = {
       { name: 'recipientInn',     label: 'Recipient INN (ИНН)',     placeholder: '10 or 12 digits',                                   required: true, type: 'text', pattern: '^\\d{10}(\\d{2})?$' },
       { name: 'recipientKpp',     label: 'Recipient KPP (КПП)',     placeholder: '9-digit КПП',                                       required: true, type: 'text', pattern: '^\\d{9}$' },
       { name: 'singleTreasuryAccount', label: 'Single Treasury Account (ЕКС)', placeholder: 'ЕКС — 20 digits starting with 30101', required: true, type: 'text', pattern: '^30101\\d{15}$' },
-      { name: 'paymentPurpose',   label: 'Payment Purpose',         placeholder: 'Назначение платежа — e.g. tuition fee 2025-2026',   required: true, type: 'textarea' },
     ],
   },
   KZ: {
@@ -47,7 +46,6 @@ export const BANK_CONFIGS: Record<string, CountryBankConfig> = {
       { name: 'eknp',               label: 'EKNP Code',              placeholder: 'KOD/KBE/Currency/KNP combined code',               required: false, type: 'text' },
       { name: 'bankName',           label: 'Bank Name',              placeholder: 'Full bank name',                                  required: true, type: 'text' },
       { name: 'bankAddress',        label: 'Bank Address',           placeholder: 'Bank branch address',                               required: true, type: 'text' },
-      { name: 'paymentPurpose',     label: 'Payment Purpose',        placeholder: 'Purpose of payment',                               required: true, type: 'textarea' },
     ],
   },
   KG: {
@@ -62,7 +60,6 @@ export const BANK_CONFIGS: Record<string, CountryBankConfig> = {
       { name: 'bankName',           label: 'Bank Name',              placeholder: 'Full bank name',                                  required: true, type: 'text' },
       { name: 'swiftCode',          label: 'SWIFT Code',             placeholder: 'For foreign currency (8/11 chars)',                 required: false, type: 'text' },
       { name: 'accountNumber',      label: 'Account Number',         placeholder: 'Bank account number',                             required: true, type: 'text' },
-      { name: 'paymentPurpose',     label: 'Payment Purpose',        placeholder: 'Purpose of payment',                               required: true, type: 'textarea' },
     ],
   },
   UZ: {
@@ -77,7 +74,6 @@ export const BANK_CONFIGS: Record<string, CountryBankConfig> = {
       { name: 'accountNumber',      label: 'Account Number',         placeholder: 'Bank account number',                             required: true, type: 'text' },
       { name: 'bankName',           label: 'Bank Name',              placeholder: 'Full bank name',                                  required: true, type: 'text' },
       { name: 'swiftCode',          label: 'SWIFT Code',             placeholder: '8 or 11 characters',                                required: false, type: 'text' },
-      { name: 'paymentPurpose',     label: 'Payment Purpose',        placeholder: 'Purpose of payment',                               required: true, type: 'textarea' },
     ],
   },
   BD: {
@@ -90,7 +86,6 @@ export const BANK_CONFIGS: Record<string, CountryBankConfig> = {
       { name: 'branchName',         label: 'Branch Name',            placeholder: 'Branch name',                                     required: true, type: 'text' },
       { name: 'swiftCode',          label: 'SWIFT / BIC Code',       placeholder: '8 or 11 characters (optional for domestic)',        required: false, type: 'text' },
       { name: 'routingNumber',      label: 'Routing Number',         placeholder: '9-digit bank routing number',                      required: true, type: 'text', pattern: '^\\d{9}$' },
-      { name: 'paymentPurpose',     label: 'Payment Purpose',        placeholder: 'Purpose of payment',                               required: false, type: 'textarea' },
     ],
   },
   GE: {
@@ -103,7 +98,6 @@ export const BANK_CONFIGS: Record<string, CountryBankConfig> = {
       { name: 'identificationCode', label: 'Personal / Tax ID',      placeholder: '11-digit personal number',                         required: true, type: 'text', pattern: '^\\d{11}$' },
       { name: 'bankName',           label: 'Bank Name',              placeholder: 'e.g. TBC Bank, Bank of Georgia',                    required: true, type: 'text' },
       { name: 'accountNumber',      label: 'Account Number',         placeholder: 'Account number (if different from IBAN)',           required: false, type: 'text' },
-      { name: 'paymentPurpose',     label: 'Payment Purpose',        placeholder: 'Purpose of payment',                               required: true, type: 'textarea' },
     ],
   },
   PH: {
@@ -115,7 +109,6 @@ export const BANK_CONFIGS: Record<string, CountryBankConfig> = {
       { name: 'bankName',           label: 'Bank Name',              placeholder: 'Full bank name',                                  required: true, type: 'text' },
       { name: 'swiftCode',          label: 'SWIFT / BIC Code',       placeholder: '8 or 11 characters',                                required: true, type: 'text' },
       { name: 'routingNumber',      label: 'Routing Number',         placeholder: '9-digit bank routing number (BRSTN)',               required: true, type: 'text', pattern: '^\\d{9}$' },
-      { name: 'paymentPurpose',     label: 'Payment Purpose',        placeholder: 'Purpose of payment',                               required: false, type: 'textarea' },
     ],
   },
   NP: {
@@ -127,7 +120,6 @@ export const BANK_CONFIGS: Record<string, CountryBankConfig> = {
       { name: 'bankName',           label: 'Bank Name',              placeholder: 'Full bank name',                                  required: true, type: 'text' },
       { name: 'branchName',         label: 'Branch Name',            placeholder: 'Bank branch name (if applicable)',                  required: false, type: 'text' },
       { name: 'swiftCode',          label: 'SWIFT / BIC Code',       placeholder: '8 or 11 characters',                                required: true, type: 'text' },
-      { name: 'paymentPurpose',     label: 'Payment Purpose',        placeholder: 'Purpose of payment',                               required: false, type: 'textarea' },
     ],
   },
   CN: {
@@ -140,7 +132,6 @@ export const BANK_CONFIGS: Record<string, CountryBankConfig> = {
       { name: 'branchName',         label: 'Branch Name',            placeholder: 'Bank branch name',                                 required: true, type: 'text' },
       { name: 'swiftCode',          label: 'SWIFT / BIC Code',       placeholder: 'Required for international transfers',               required: true, type: 'text' },
       { name: 'cnapsCode',          label: 'CNAPS Code',             placeholder: '12-digit payment system code',                     required: false, type: 'text', pattern: '^\\d{12}$' },
-      { name: 'paymentPurpose',     label: 'Payment Purpose',        placeholder: 'Purpose of payment',                               required: true, type: 'textarea' },
     ],
   },
 };
