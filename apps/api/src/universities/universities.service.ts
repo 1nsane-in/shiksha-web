@@ -340,6 +340,7 @@ export class UniversitiesService {
         support: { create: dto.support },
         content: { create: dto.content },
         admin: { create: dto.admin },
+        studentDemographics: (dto.studentDemographics as any) ?? undefined,
       },
       include: {
         location: true,
@@ -399,6 +400,7 @@ export class UniversitiesService {
       'bannerImage',
       'brochureUrl',
       'status',
+      'studentDemographics',
     ];
 
     for (const field of scalarFields) {

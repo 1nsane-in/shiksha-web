@@ -568,6 +568,30 @@ export default function UniversityDetailPage() {
                     </CardContent>
                   </Card>
 
+                  {/* Student Demographics */}
+                  {university.studentDemographics && (
+                    <Card size="sm" className="border-[#ECEAE6]">
+                      <CardContent className="space-y-3 p-4 sm:p-5">
+                        <SectionHeading icon={Users} title="Student Demographics" />
+                        <InfoRow icon={Users} label="Total Students" value={university.studentDemographics.totalStudents?.toLocaleString() ?? "—"} />
+                        <InfoRow icon={Users} label="Local" value={university.studentDemographics.localStudents?.toLocaleString() ?? "—"} />
+                        <InfoRow icon={Globe} label="Foreign" value={university.studentDemographics.foreignStudents?.toLocaleString() ?? "—"} />
+                        {university.studentDemographics.foreignByCountry?.length > 0 && (
+                          <div className="pt-1">
+                            <p className="text-xs text-[#777] mb-1.5">By Country:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {university.studentDemographics.foreignByCountry.map((f: any) => (
+                                <span key={f.country} className="inline-flex items-center gap-1 rounded-full bg-[#F0F0EE] px-2.5 py-0.5 text-xs font-medium text-[#555]">
+                                  {f.country}: {f.count.toLocaleString()}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
                   {/* Specializations */}
                   {a.specializations?.length > 0 && (
                     <Card size="sm" className="border-[#ECEAE6]">

@@ -138,21 +138,22 @@ model StageHistory {
 }
 
 model University {
-  id              String                    @id @default(uuid())
-  slug            String                    @unique
-  name            String
-  shortName       String
-  establishedYear Int
-  type            UniversityType
-  website         String
-  logo            String?
-  bannerImage     String?
-  brochureUrl     String?
-  status          UniversityStatus          @default(DRAFT)
-  createdAt       DateTime                  @default(now())
-  updatedAt       DateTime                  @updatedAt
-  verifiedAt      DateTime?
-  location        UniversityLocation?
+  id                  String                    @id @default(uuid())
+  slug                String                    @unique
+  name                String
+  shortName           String
+  establishedYear     Int
+  type                UniversityType
+  website             String
+  logo                String?
+  bannerImage         String?
+  brochureUrl         String?
+  status              UniversityStatus          @default(DRAFT)
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+  verifiedAt          DateTime?
+  studentDemographics Json?
+  location            UniversityLocation?
   contact         UniversityContact?
   academic        UniversityAcademic?
   recognition     UniversityRecognition?
@@ -303,21 +304,26 @@ model UniversityContent {
 }
 
 model UniversityAdmin {
-  id             String     @id @default(uuid())
-  universityId   String     @unique
-  pocName        String
-  pocDesignation String
-  pocEmail       String
-  pocPhone       String
-  accountName    String
-  accountNumber  String
-  bankName       String
-  bankBranch     String
-  ifscCode       String
-  gstNumber      String?
-  panNumber      String?
-  commission     Float
-  university     University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  id                    String     @id @default(uuid())
+  universityId          String     @unique
+  pocName               String
+  pocDesignation        String
+  pocEmail              String
+  pocPhone              String
+  accountName           String
+  accountNumber         String
+  bankName              String
+  bankBranch            String
+  ifscCode              String
+  gstNumber             String?
+  panNumber             String?
+  commission            Float
+
+  // Country-specific bank details (JSON) — used for non-Indian universities
+  bankCountry String?
+  bankDetails Json?
+
+  university            University @relation(fields: [universityId], references: [id], onDelete: Cascade)
 }
 
 model UniversityDocument {

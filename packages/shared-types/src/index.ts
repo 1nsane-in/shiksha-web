@@ -142,10 +142,12 @@ export interface University {
   brochureUrl?: string
   detailUrl?: string
 
-  // Metadata
+// Metadata
   grade?: string
   worldRank?: string
   ecfmg?: string
   createdAt?: string
   updatedAt?: string
 }
+
+export * from './bank-config';

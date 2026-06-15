@@ -188,7 +188,12 @@ export class AuthController {
     if (refreshToken) {
       await this.authService.logout(refreshToken);
     }
-    res.clearCookie('refreshToken', { path: '/api/auth' });
+    res.clearCookie('refreshToken', {
+      path: this.COOKIE_OPTIONS.path,
+      httpOnly: this.COOKIE_OPTIONS.httpOnly,
+      secure: this.COOKIE_OPTIONS.secure,
+      sameSite: this.COOKIE_OPTIONS.sameSite,
+    });
     return { message: 'Logged out successfully' };
   }
 

@@ -121,6 +121,27 @@ export interface UniversityDetail extends UniversityListItem {
     assignedAdminName: string;
     lastReviewedAt: string;
     notes: string;
+    pocName: string;
+    pocDesignation: string;
+    pocEmail: string;
+    pocPhone: string;
+    accountName: string;
+    accountNumber: string;
+    bankName: string;
+    bankBranch: string;
+    ifscCode: string;
+    gstNumber?: string;
+    panNumber?: string;
+    commission: number;
+    // Country-specific bank details (for non-Indian universities)
+    bankCountry?: string;
+    bankDetails?: Record<string, any>;
+  } | null;
+  studentDemographics?: {
+    totalStudents: number;
+    localStudents: number;
+    foreignStudents: number;
+    foreignByCountry?: { country: string; count: number }[];
   } | null;
 }
 

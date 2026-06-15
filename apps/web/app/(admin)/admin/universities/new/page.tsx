@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCreateUniversity } from "@/domains/universities";
 import { Button } from "@repo/ui";
@@ -18,6 +18,11 @@ import { Checkbox } from "@repo/ui";
 import { ArrowLeft, ArrowRight, Save } from "lucide-react";
 import { Country, State, City } from "country-state-city";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import {
+  SUPPORTED_FOREIGN_BANK_COUNTRIES,
+  getBankConfig,
+  type BankFieldConfig,
+} from "@repo/shared-types";
 
 const steps = [
   "Basic Info",
@@ -28,17 +33,91 @@ const steps = [
   "Infrastructure",
   "Admission",
   "Support & Content",
+  "Bank Details",
 ];
 
 export default function NewUniversityPage() {
   const router = useRouter();
+
+  const COUNTRY_LANGUAGES: Record<string, string[]> = {
+    IN: ["English", "Hindi"],
+    RU: ["English", "Russian"],
+    KZ: ["English", "Kazakh", "Russian"],
+    KG: ["English", "Kyrgyz", "Russian"],
+    UZ: ["English", "Uzbek", "Russian"],
+    BD: ["English", "Bengali"],
+    GE: ["English", "Georgian"],
+    PH: ["English", "Filipino"],
+    NP: ["English", "Nepali"],
+    CN: ["English", "Chinese"],
+    US: ["English"],
+    GB: ["English"],
+    CA: ["English", "French"],
+    AU: ["English"],
+    DE: ["English", "German"],
+    UA: ["English", "Ukrainian"],
+    EG: ["English", "Arabic"],
+    AE: ["English", "Arabic"],
+    SA: ["English", "Arabic"],
+    MY: ["English", "Malay"],
+    SG: ["English", "Chinese", "Malay"],
+    LK: ["English", "Sinhala", "Tamil"],
+    KE: ["English", "Swahili"],
+    ZA: ["English", "Afrikaans", "Zulu"],
+    NG: ["English"],
+    GH: ["English"],
+    ET: ["English", "Amharic"],
+    NZ: ["English", "Maori"],
+    IE: ["English", "Irish"],
+    FR: ["English", "French"],
+    ES: ["English", "Spanish"],
+    IT: ["English", "Italian"],
+    PT: ["English", "Portuguese"],
+    NL: ["English", "Dutch"],
+    SE: ["English", "Swedish"],
+    NO: ["English", "Norwegian"],
+    DK: ["English", "Danish"],
+    FI: ["English", "Finnish"],
+    PL: ["English", "Polish"],
+    CZ: ["English", "Czech"],
+    SK: ["English", "Slovak"],
+    HU: ["English", "Hungarian"],
+    RO: ["English", "Romanian"],
+    BG: ["English", "Bulgarian"],
+    GR: ["English", "Greek"],
+    TR: ["English", "Turkish"],
+    IL: ["English", "Hebrew", "Arabic"],
+    JP: ["English", "Japanese"],
+    KR: ["English", "Korean"],
+    VN: ["English", "Vietnamese"],
+    TH: ["English", "Thai"],
+    ID: ["English", "Indonesian"],
+    PK: ["English", "Urdu"],
+    AF: ["English", "Pashto", "Dari"],
+    IR: ["English", "Persian"],
+    IQ: ["English", "Arabic", "Kurdish"],
+    SY: ["English", "Arabic"],
+    JO: ["English", "Arabic"],
+    LB: ["English", "Arabic", "French"],
+    MA: ["English", "Arabic", "French"],
+    TN: ["English", "Arabic", "French"],
+    DZ: ["English", "Arabic", "French"],
+    MX: ["English", "Spanish"],
+    BR: ["English", "Portuguese"],
+    AR: ["English", "Spanish"],
+    CL: ["English", "Spanish"],
+    CO: ["English", "Spanish"],
+    PE: ["English", "Spanish"],
+  };
+
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const createUniversity = useCreateUniversity();
   const [imageKeys, setImageKeys] = useState<{ logo?: string; bannerImage?: string; brochure?: string }>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [locationCodes, setLocationCodes] = useState<{ countryCode: string; stateCode: string }>({ countryCode: "", stateCode: "" });
-  const [formData, setFormData] = useState<any>({
+  const [selectedBankCountry, setSelectedBankCountry] = useState("");
+  const getDefaultFormData = () => ({
     name: "",
     shortName: "",
     establishedYear: new Date().getFullYear(),
@@ -83,6 +162,8 @@ export default function NewUniversityPage() {
       scholarshipAvailable: false,
       paymentSchedule: "",
       refundPolicy: "",
+      feeBreakdown: [] as Array<{ id: string; name: string; amount: number }>,
+      programBreakdown: [] as Array<{ id: string; name: string; amount: number }>,
     },
     infrastructure: {
       hospitalBeds: 0,
@@ -120,7 +201,82 @@ export default function NewUniversityPage() {
       highlights: [],
       gallery: [],
     },
+    admin: {
+      pocName: "",
+      pocDesignation: "",
+      pocEmail: "",
+      pocPhone: "",
+      accountName: "",
+      accountNumber: "",
+      bankName: "",
+      bankBranch: "",
+      ifscCode: "",
+      gstNumber: "",
+      panNumber: "",
+      commission: 0,
+      bankCountry: "",
+      bankDetails: {},
+    },
+    studentDemographics: {
+      totalStudents: 0,
+      localStudents: 0,
+      foreignStudents: 0,
+      foreignByCountry: [] as { country: string; count: number }[],
+    },
   });
+
+  const [formData, setFormData] = useState<any>(getDefaultFormData());
+
+  const languageOptions = COUNTRY_LANGUAGES[locationCodes.countryCode] || ["English", "Hindi", "English + Local"];
+  const isOtherMedium = formData?.academic?.medium?.startsWith("Other:");
+  const otherMediumValue = isOtherMedium ? formData.academic.medium.replace("Other:", "") : "";
+
+  const STORAGE_KEY = "university-create-form";
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.formData) {
+          const defaults = getDefaultFormData();
+          const merged: any = { ...defaults };
+          const d = defaults as Record<string, any>;
+          for (const key of Object.keys(parsed.formData)) {
+            const val = parsed.formData[key];
+            if (val !== null && typeof val === "object" && !Array.isArray(val) && d[key] && typeof d[key] === "object") {
+              merged[key] = { ...d[key], ...val };
+            } else {
+              merged[key] = val;
+            }
+          }
+          setFormData(merged);
+        }
+        if (parsed.currentStep !== undefined) setCurrentStep(parsed.currentStep);
+        if (parsed.locationCodes) setLocationCodes(parsed.locationCodes);
+        if (parsed.selectedBankCountry !== undefined) setSelectedBankCountry(parsed.selectedBankCountry);
+        if (parsed.imageKeys) setImageKeys(parsed.imageKeys);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            formData,
+            currentStep,
+            locationCodes,
+            selectedBankCountry,
+            imageKeys,
+          })
+        );
+      } catch {}
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [formData, currentStep, locationCodes, selectedBankCountry, imageKeys]);
 
   const updateField = (section: string, field: string, value: any) => {
     setFormData((prev: any) => ({
@@ -137,6 +293,99 @@ export default function NewUniversityPage() {
       ...prev,
       [field]: value,
     }));
+  };
+
+  const updateBankField = (field: string, value: any) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      admin: {
+        ...prev.admin,
+        bankDetails: {
+          ...(prev.admin.bankDetails || {}),
+          [field]: value,
+        },
+      },
+    }));
+  };
+
+  const feeBreakdownTotal = (formData.fees.feeBreakdown || []).reduce((s: number, item: any) => s + (parseFloat(item.amount) || 0), 0);
+  const feeBreakdownOverCap = formData.fees.tuitionAnnual > 0 && feeBreakdownTotal > formData.fees.tuitionAnnual;
+
+  const programBreakdownTotal = (formData.fees.programBreakdown || []).reduce((s: number, item: any) => s + (parseFloat(item.amount) || 0), 0);
+  const programBreakdownOverCap = formData.fees.totalProgram > 0 && programBreakdownTotal > formData.fees.totalProgram;
+
+  const addFeeBreakdownItem = () => {
+    const uid = crypto.randomUUID?.() || Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const item = { id: uid, name: "", amount: 0 };
+    updateField("fees", "feeBreakdown", [...(formData.fees.feeBreakdown || []), item]);
+  };
+
+  const removeFeeBreakdownItem = (id: string) => {
+    const list = (formData.fees.feeBreakdown || []).filter((item: any) => item.id !== id);
+    updateField("fees", "feeBreakdown", list);
+  };
+
+  const updateFeeBreakdownField = (id: string, field: "name" | "amount", value: any) => {
+    const list = (formData.fees.feeBreakdown || []).map((item: any) =>
+      item.id === id ? { ...item, [field]: field === "amount" ? (parseFloat(value) || 0) : value } : item
+    );
+    updateField("fees", "feeBreakdown", list);
+  };
+
+  const addProgramBreakdownItem = () => {
+    const uid = crypto.randomUUID?.() || Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const item = { id: uid, name: "", amount: 0 };
+    updateField("fees", "programBreakdown", [...(formData.fees.programBreakdown || []), item]);
+  };
+
+  const removeProgramBreakdownItem = (id: string) => {
+    const list = (formData.fees.programBreakdown || []).filter((item: any) => item.id !== id);
+    updateField("fees", "programBreakdown", list);
+  };
+
+  const updateProgramBreakdownField = (id: string, field: "name" | "amount", value: any) => {
+    const list = (formData.fees.programBreakdown || []).map((item: any) =>
+      item.id === id ? { ...item, [field]: field === "amount" ? (parseFloat(value) || 0) : value } : item
+    );
+    updateField("fees", "programBreakdown", list);
+  };
+
+  const renderBankFields = (countryCode: string) => {
+    const config = getBankConfig(countryCode);
+    if (!config) return null;
+
+    return config.fields.map((field: BankFieldConfig) => {
+      const val = formData.admin.bankDetails?.[field.name] || "";
+      const commonProps = {
+        value: val,
+        onChange: (e: any) => updateBankField(field.name, e.target.value),
+        placeholder: field.placeholder,
+      };
+
+      if (field.type === "textarea") {
+        return (
+          <div key={field.name} className="sm:col-span-2">
+            <Label>
+              {field.label}
+              {field.required && <span className="text-destructive ml-0.5">*</span>}
+            </Label>
+            <Textarea rows={2} {...commonProps} />
+            {field.hint && <p className="text-xs text-muted-foreground mt-1">{field.hint}</p>}
+          </div>
+        );
+      }
+
+      return (
+        <div key={field.name}>
+          <Label>
+            {field.label}
+            {field.required && <span className="text-destructive ml-0.5">*</span>}
+          </Label>
+          <Input {...commonProps} />
+          {field.hint && <p className="text-xs text-muted-foreground mt-1">{field.hint}</p>}
+        </div>
+      );
+    });
   };
 
   const removeImage = async (field: "logo" | "bannerImage" | "brochure") => {
@@ -157,6 +406,13 @@ export default function NewUniversityPage() {
     setFormErrors({});
     try {
       const phoneCode = Country.getCountryByCode(locationCodes.countryCode)?.phonecode || "";
+      const otherFees: Record<string, number> = {};
+      (formData.fees.feeBreakdown || []).forEach((item: any) => {
+        if (item.name?.trim()) otherFees[item.name.trim()] = item.amount || 0;
+      });
+      (formData.fees.programBreakdown || []).forEach((item: any) => {
+        if (item.name?.trim()) otherFees[`Program - ${item.name.trim()}`] = item.amount || 0;
+      });
       const payload = {
         ...formData,
         contact: {
@@ -164,9 +420,13 @@ export default function NewUniversityPage() {
           phone: `+${phoneCode}-${formData.contact.phone}`,
           admissionOfficeHours: formData.contact.admissionOfficeHours,
         },
+        fees: { ...formData.fees, otherFees },
         ...(formData.brochureUrl ? { brochureUrl: formData.brochureUrl } : { brochureUrl: undefined }),
       };
+      delete payload.fees.feeBreakdown;
+      delete payload.fees.programBreakdown;
       await createUniversity.mutateAsync(payload);
+      localStorage.removeItem(STORAGE_KEY);
       router.push("/admin/universities");
     } catch (error: any) {
       const errData = error?.response?.data?.error || error?.response?.data;
@@ -221,14 +481,14 @@ export default function NewUniversityPage() {
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
+                <div >
                   <Label>Type *</Label>
                   <Select
                     value={formData.type}
                     onValueChange={(v) => updateRootField("type", v)}
                   >
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
+                    <SelectTrigger className={"w-full"}><SelectValue /></SelectTrigger>
+                    <SelectContent >
                       <SelectItem value="GOVERNMENT">Government</SelectItem>
                       <SelectItem value="PRIVATE">Private</SelectItem>
                     </SelectContent>
@@ -557,16 +817,31 @@ export default function NewUniversityPage() {
                 <div>
                   <Label>Medium of Instruction *</Label>
                   <Select
-                    value={formData.academic.medium}
-                    onValueChange={(v) => updateField("academic", "medium", v)}
+                    value={isOtherMedium ? "Other" : formData.academic.medium}
+                    onValueChange={(v) => {
+                      if (v === "Other") {
+                        updateField("academic", "medium", "Other:");
+                      } else {
+                        updateField("academic", "medium", v);
+                      }
+                    }}
                   >
                     <SelectTrigger><SelectValue placeholder="Select medium" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="English">English</SelectItem>
-                      <SelectItem value="Hindi">Hindi</SelectItem>
-                      <SelectItem value="English + Local">English + Local Language</SelectItem>
+                      {languageOptions.map((lang: string) => (
+                        <SelectItem key={lang} value={lang}>{lang}</SelectItem>
+                      ))}
+                      <SelectItem value="Other">Others</SelectItem>
                     </SelectContent>
                   </Select>
+                  {isOtherMedium && (
+                    <Input
+                      value={otherMediumValue}
+                      onChange={(e) => updateField("academic", "medium", `Other:${e.target.value}`)}
+                      placeholder="Type the medium of instruction"
+                      className="mt-2"
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -647,6 +922,131 @@ export default function NewUniversityPage() {
                 </div>
               )}
             </div>
+
+            {/* Student Demographics */}
+            <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
+              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Student Demographics</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <Label>Total Students</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={formData.studentDemographics.totalStudents}
+                    onChange={(e) =>
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        studentDemographics: { ...prev.studentDemographics, totalStudents: parseInt(e.target.value) || 0 },
+                      }))
+                    }
+                    placeholder="e.g. 5000"
+                  />
+                </div>
+                <div>
+                  <Label>Local Students</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={formData.studentDemographics.localStudents}
+                    onChange={(e) =>
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        studentDemographics: { ...prev.studentDemographics, localStudents: parseInt(e.target.value) || 0 },
+                      }))
+                    }
+                    placeholder="e.g. 3500"
+                  />
+                </div>
+                <div>
+                  <Label>Foreign Students</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={formData.studentDemographics.foreignStudents}
+                    onChange={(e) =>
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        studentDemographics: { ...prev.studentDemographics, foreignStudents: parseInt(e.target.value) || 0 },
+                      }))
+                    }
+                    placeholder="e.g. 1500"
+                  />
+                </div>
+              </div>
+
+              {/* Foreign By Country */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-xs text-muted-foreground">Breakdown by Country</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        studentDemographics: {
+                          ...prev.studentDemographics,
+                          foreignByCountry: [...prev.studentDemographics.foreignByCountry, { country: "", count: 0 }],
+                        },
+                      }))
+                    }
+                  >
+                    + Add Country
+                  </Button>
+                </div>
+                {formData.studentDemographics.foreignByCountry.map((entry: any, i: number) => (
+                  <div key={i} className="flex items-center gap-2 mb-2">
+                    <div className="flex-1">
+                      <SearchableSelect
+                        options={Country.getAllCountries().map((c) => ({ label: c.name, value: c.isoCode }))}
+                        value={Country.getAllCountries().find((c) => c.name === entry.country)?.isoCode ?? ""}
+                        onChange={(code) => {
+                          const name = Country.getCountryByCode(code)?.name || "";
+                          setFormData((prev: any) => {
+                            const updated = [...prev.studentDemographics.foreignByCountry];
+                            updated[i] = { ...updated[i], country: name };
+                            return { ...prev, studentDemographics: { ...prev.studentDemographics, foreignByCountry: updated } };
+                          });
+                        }}
+                        placeholder="Search country..."
+                      />
+                    </div>
+                    <Input
+                      className="w-24"
+                      type="number"
+                      min={0}
+                      value={entry.count}
+                      onChange={(e) =>
+                        setFormData((prev: any) => {
+                          const updated = [...prev.studentDemographics.foreignByCountry];
+                          updated[i] = { ...updated[i], count: parseInt(e.target.value) || 0 };
+                          return { ...prev, studentDemographics: { ...prev.studentDemographics, foreignByCountry: updated } };
+                        })
+                      }
+                      placeholder="Count"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500"
+                      onClick={() =>
+                        setFormData((prev: any) => ({
+                          ...prev,
+                          studentDemographics: {
+                            ...prev.studentDemographics,
+                            foreignByCountry: prev.studentDemographics.foreignByCountry.filter((_: any, j: number) => j !== i),
+                          },
+                        }))
+                      }
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         );
 
@@ -676,37 +1076,51 @@ export default function NewUniversityPage() {
                   </Select>
                 </div>
                 <div>
-                  <Label>NAAC Grade</Label>
+                  <Label>WHO Listed</Label>
                   <Select
-                    value={formData.recognition.naacGrade || ""}
-                    onValueChange={(v) =>
-                      updateField("recognition", "naacGrade", v)
-                    }
+                    value={(formData.recognition.bodies || []).includes("WHO") ? "YES" : "NO"}
+                    onValueChange={(v) => {
+                      const current = formData.recognition.bodies || [];
+                      if (v === "YES" && !current.includes("WHO")) {
+                        updateField("recognition", "bodies", [...current, "WHO"]);
+                      } else if (v === "NO") {
+                        updateField("recognition", "bodies", current.filter((b: string) => b !== "WHO"));
+                      }
+                    }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select grade" />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="A++">A++</SelectItem>
-                      <SelectItem value="A+">A+</SelectItem>
-                      <SelectItem value="A">A</SelectItem>
-                      <SelectItem value="B++">B++</SelectItem>
-                      <SelectItem value="B+">B+</SelectItem>
-                      <SelectItem value="B">B</SelectItem>
-                      <SelectItem value="C">C</SelectItem>
+                      <SelectItem value="YES">Yes</SelectItem>
+                      <SelectItem value="NO">No</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              <div className="flex items-center gap-3 pt-1">
-                <Checkbox
-                  checked={formData.recognition.nbaAccredited}
-                  onCheckedChange={(checked) =>
-                    updateField("recognition", "nbaAccredited", checked)
-                  }
-                />
-                <Label className="cursor-pointer">NBA Accredited</Label>
+              <div className="w-full sm:w-1/2">
+                <Label>NMC Approved</Label>
+                <Select
+                  value={(formData.recognition.bodies || []).includes("NMC") ? "YES" : "NO"}
+                  onValueChange={(v) => {
+                    const current = formData.recognition.bodies || [];
+                    if (v === "YES" && !current.includes("NMC")) {
+                      updateField("recognition", "bodies", [...current, "NMC"]);
+                    } else if (v === "NO") {
+                      updateField("recognition", "bodies", current.filter((b: string) => b !== "NMC"));
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="YES">Yes</SelectItem>
+                    <SelectItem value="NO">No</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
             </div>
 
             {/* Rankings Section */}
@@ -752,34 +1166,138 @@ export default function NewUniversityPage() {
                 <div>
                   <Label>Annual Tuition *</Label>
                   <Input
-                    type="number"
-                    min={0}
-                    value={formData.fees.tuitionAnnual}
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.fees.tuitionAnnual || ""}
                     onChange={(e) => updateField("fees", "tuitionAnnual", parseFloat(e.target.value) || 0)}
-                    placeholder="500000"
+                    placeholder="e.g. 500000"
                   />
+                  {formData.fees.tuitionAnnual > 0 && (
+                    <p className="text-xs text-muted-foreground mt-1">Cap for breakdown below</p>
+                  )}
                 </div>
                 <div>
                   <Label>Total Program *</Label>
                   <Input
-                    type="number"
-                    min={0}
-                    value={formData.fees.totalProgram}
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.fees.totalProgram || ""}
                     onChange={(e) => updateField("fees", "totalProgram", parseFloat(e.target.value) || 0)}
-                    placeholder="2500000"
+                    placeholder="e.g. 2500000"
                   />
                 </div>
                 <div>
                   <Label>Registration *</Label>
                   <Input
-                    type="number"
-                    min={0}
-                    value={formData.fees.registration}
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.fees.registration || ""}
                     onChange={(e) => updateField("fees", "registration", parseFloat(e.target.value) || 0)}
-                    placeholder="25000"
+                    placeholder="e.g. 25000"
                   />
                 </div>
               </div>
+
+              {/* Fee Breakdown */}
+              <div className="border-t border-border/40 pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h5 className="text-sm font-medium text-foreground/80">Fee Breakdown</h5>
+                  <Button type="button" variant="outline" size="sm" onClick={addFeeBreakdownItem}>
+                    + Add Item
+                  </Button>
+                </div>
+                {formData.fees.feeBreakdown?.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No breakdown items yet. Add hostel fees, mess fees, etc.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {formData.fees.feeBreakdown?.map((item: any) => (
+                      <div key={item.id} className="flex items-center gap-2">
+                        <Input
+                          value={item.name}
+                          onChange={(e) => updateFeeBreakdownField(item.id, "name", e.target.value)}
+                          placeholder="Fee name"
+                          className="flex-1"
+                        />
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          value={item.amount || ""}
+                          onChange={(e) => updateFeeBreakdownField(item.id, "amount", e.target.value)}
+                          placeholder="Amount"
+                          className="w-32"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeFeeBreakdownItem(item.id)}
+                          className="text-destructive/70 hover:text-destructive text-lg leading-none flex-shrink-0"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {formData.fees.feeBreakdown?.length > 0 && (
+                  <div className="mt-3 flex items-center gap-4 text-sm">
+                    <span className="text-muted-foreground">Breakdown Total: <strong className="text-foreground">{(feeBreakdownTotal).toLocaleString()}</strong></span>
+                    <span className="text-muted-foreground">Annual Tuition: <strong className="text-foreground">{formData.fees.tuitionAnnual.toLocaleString()}</strong></span>
+                    {feeBreakdownOverCap && (
+                      <span className="text-destructive font-medium">Exceeds annual tuition by {(feeBreakdownTotal - formData.fees.tuitionAnnual).toLocaleString()}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Program Breakdown */}
+              <div className="border-t border-border/40 pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h5 className="text-sm font-medium text-foreground/80">Program Fee Breakdown</h5>
+                  <Button type="button" variant="outline" size="sm" onClick={addProgramBreakdownItem}>
+                    + Add Item
+                  </Button>
+                </div>
+                {formData.fees.programBreakdown?.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No breakdown items yet. Add year-wise or semester-wise fees.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {formData.fees.programBreakdown?.map((item: any) => (
+                      <div key={item.id} className="flex items-center gap-2">
+                        <Input
+                          value={item.name}
+                          onChange={(e) => updateProgramBreakdownField(item.id, "name", e.target.value)}
+                          placeholder="Item name"
+                          className="flex-1"
+                        />
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          value={item.amount || ""}
+                          onChange={(e) => updateProgramBreakdownField(item.id, "amount", e.target.value)}
+                          placeholder="Amount"
+                          className="w-32"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeProgramBreakdownItem(item.id)}
+                          className="text-destructive/70 hover:text-destructive text-lg leading-none flex-shrink-0"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {formData.fees.programBreakdown?.length > 0 && (
+                  <div className="mt-3 flex items-center gap-4 text-sm">
+                    <span className="text-muted-foreground">Breakdown Total: <strong className="text-foreground">{(programBreakdownTotal).toLocaleString()}</strong></span>
+                    <span className="text-muted-foreground">Total Program: <strong className="text-foreground">{formData.fees.totalProgram.toLocaleString()}</strong></span>
+                    {programBreakdownOverCap && (
+                      <span className="text-destructive font-medium">Exceeds total program by {(programBreakdownTotal - formData.fees.totalProgram).toLocaleString()}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Currency *</Label>
@@ -989,6 +1507,173 @@ export default function NewUniversityPage() {
                   rows={2}
                 />
               </div>
+            </div>
+          </div>
+        );
+
+      case 8:
+        return (
+          <div className="space-y-4 sm:space-y-6">
+            {/* Point of Contact */}
+            <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
+              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Point of Contact</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>POC Name *</Label>
+                  <Input
+                    value={formData.admin.pocName}
+                    onChange={(e) => updateField("admin", "pocName", e.target.value)}
+                    placeholder="Contact person name"
+                  />
+                </div>
+                <div>
+                  <Label>POC Designation *</Label>
+                  <Input
+                    value={formData.admin.pocDesignation}
+                    onChange={(e) => updateField("admin", "pocDesignation", e.target.value)}
+                    placeholder="e.g. Admissions Officer"
+                  />
+                </div>
+                <div>
+                  <Label>POC Email *</Label>
+                  <Input
+                    type="email"
+                    value={formData.admin.pocEmail}
+                    onChange={(e) => updateField("admin", "pocEmail", e.target.value)}
+                    placeholder="admin@university.edu"
+                  />
+                </div>
+                <div>
+                  <Label>POC Phone *</Label>
+                  <Input
+                    value={formData.admin.pocPhone}
+                    onChange={(e) => updateField("admin", "pocPhone", e.target.value)}
+                    placeholder="+7-XXX-XXX-XXXX"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Bank Account (Indian) */}
+            <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
+              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Bank Account (Indian / General)</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Account Name *</Label>
+                  <Input
+                    value={formData.admin.accountName}
+                    onChange={(e) => updateField("admin", "accountName", e.target.value)}
+                    placeholder="Name on bank account"
+                  />
+                </div>
+                <div>
+                  <Label>Account Number *</Label>
+                  <Input
+                    value={formData.admin.accountNumber}
+                    onChange={(e) => updateField("admin", "accountNumber", e.target.value)}
+                    placeholder="Bank account number"
+                  />
+                </div>
+                <div>
+                  <Label>Bank Name *</Label>
+                  <Input
+                    value={formData.admin.bankName}
+                    onChange={(e) => updateField("admin", "bankName", e.target.value)}
+                    placeholder="e.g. Sberbank"
+                  />
+                </div>
+                <div>
+                  <Label>Bank Branch</Label>
+                  <Input
+                    value={formData.admin.bankBranch}
+                    onChange={(e) => updateField("admin", "bankBranch", e.target.value)}
+                    placeholder="Branch name"
+                  />
+                </div>
+                <div>
+                  <Label>IFSC / SWIFT Code *</Label>
+                  <Input
+                    value={formData.admin.ifscCode}
+                    onChange={(e) => updateField("admin", "ifscCode", e.target.value)}
+                    placeholder="e.g. SBIN0001234"
+                  />
+                </div>
+                <div>
+                  <Label>Commission (%) *</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={formData.admin.commission}
+                    onChange={(e) => updateField("admin", "commission", parseFloat(e.target.value) || 0)}
+                    placeholder="e.g. 10"
+                  />
+                </div>
+                <div>
+                  <Label>GST Number</Label>
+                  <Input
+                    value={formData.admin.gstNumber}
+                    onChange={(e) => updateField("admin", "gstNumber", e.target.value)}
+                    placeholder="Optional"
+                  />
+                </div>
+                <div>
+                  <Label>PAN Number</Label>
+                  <Input
+                    value={formData.admin.panNumber}
+                    onChange={(e) => updateField("admin", "panNumber", e.target.value)}
+                    placeholder="Optional"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Foreign Bank Payment Details (Country-specific) */}
+            <div className="rounded-lg border border-border/60 bg-card p-3 space-y-4 sm:p-4">
+              <h4 className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">
+                {selectedBankCountry
+                  ? `${getBankConfig(selectedBankCountry)?.countryName || selectedBankCountry} Bank Details`
+                  : "Foreign Bank Payment Details"}
+              </h4>
+              <div>
+                <Label>Country</Label>
+                  <Select
+                  value={selectedBankCountry}
+                  onValueChange={(code: string | null) => {
+                    const countryCode = code ?? "";
+                    if (countryCode === "__none__" || countryCode === "") {
+                      setSelectedBankCountry("");
+                      updateField("admin", "bankCountry", "");
+                      updateField("admin", "bankDetails", {});
+                    } else {
+                      setSelectedBankCountry(countryCode);
+                      updateField("admin", "bankCountry", countryCode);
+                      updateField("admin", "bankDetails", {});
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select country for local bank details" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">None (use Indian bank info above)</SelectItem>
+                    {SUPPORTED_FOREIGN_BANK_COUNTRIES.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Select the country where this university's bank account is based
+                </p>
+              </div>
+
+              {selectedBankCountry && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {renderBankFields(selectedBankCountry)}
+                </div>
+              )}
             </div>
           </div>
         );

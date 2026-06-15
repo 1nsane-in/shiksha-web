@@ -11,7 +11,9 @@ import {
   Min,
   Max,
   IsObject,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ECFMGStatus } from './university-enums';
 
 export class UniversityLocationDto {
@@ -118,6 +120,21 @@ export class UniversityContentDto {
   @IsOptional() @IsUrl() virtualTour?: string;
 }
 
+export class StudentDemographicsDto {
+  @IsNumber() @Min(0) totalStudents: number;
+  @IsNumber() @Min(0) localStudents: number;
+  @IsNumber() @Min(0) foreignStudents: number;
+  @IsOptional() @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ForeignStudentBreakdownDto)
+  foreignByCountry?: ForeignStudentBreakdownDto[];
+}
+
+export class ForeignStudentBreakdownDto {
+  @IsString() country: string;
+  @IsNumber() @Min(0) count: number;
+}
+
 export class UniversityAdminDto {
   @IsString() pocName: string;
   @IsString() pocDesignation: string;
@@ -131,4 +148,8 @@ export class UniversityAdminDto {
   @IsOptional() @IsString() gstNumber?: string;
   @IsOptional() @IsString() panNumber?: string;
   @IsNumber() @Min(0) @Max(100) commission: number;
+
+  // Country-specific bank details (for non-Indian universities)
+  @IsOptional() @IsString() bankCountry?: string;
+  @IsOptional() @IsObject() bankDetails?: any;
 }
