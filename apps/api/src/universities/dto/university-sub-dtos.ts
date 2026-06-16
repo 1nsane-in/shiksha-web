@@ -52,12 +52,31 @@ export class UniversityRecognitionDto {
   @IsBoolean() nbaAccredited: boolean;
   @IsOptional() @IsNumber() worldRank?: number;
   @IsOptional() @IsNumber() nationalRank?: number;
+  @IsOptional() @IsString() rankingSource?: string;
   @IsOptional() @IsString() worldRankingSource?: string;
   @IsOptional() @IsString() nationalRankingSource?: string;
   @IsOptional() @IsString() otherRankingSource?: string;
   @IsOptional() @IsString() otherNationalRankingSource?: string;
   @IsOptional() @IsObject() subjectRankings?: Record<string, string>;
   @IsArray() @IsString({ each: true }) accreditations: string[];
+}
+
+export class FeeBreakdownItemDto {
+  @IsString() name: string;
+  @IsNumber() @Min(0) amount: number;
+}
+
+export class ProgramFeeBreakdownDto {
+  @IsString() programName: string;
+  @IsNumber() @Min(0) annualTuition: number;
+  @IsNumber() @Min(0) totalSeats: number;
+  @IsOptional() @IsNumber() @Min(0) governmentSeats?: number;
+  @IsOptional() @IsNumber() @Min(0) managementSeats?: number;
+  @IsOptional() @IsNumber() @Min(0) nriSeats?: number;
+  @IsOptional() @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FeeBreakdownItemDto)
+  feeBreakdown?: FeeBreakdownItemDto[];
 }
 
 export class UniversityFeesDto {
@@ -74,6 +93,10 @@ export class UniversityFeesDto {
   @IsString() paymentSchedule: string;
   @IsString() refundPolicy: string;
   @IsOptional() @IsString() feeHikePolicy?: string;
+  @IsOptional() @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProgramFeeBreakdownDto)
+  programBreakdown?: ProgramFeeBreakdownDto[];
 }
 
 export class UniversityInfrastructureDto {
@@ -92,9 +115,13 @@ export class UniversityInfrastructureDto {
 
 export class UniversityAdmissionDto {
   @IsArray() @IsString({ each: true }) entranceExams: string[];
-  @IsString() minimumMarks: string;
+  @IsOptional() @IsString() minimumMarks?: string; // Legacy field
   @IsString() ageCriteria: string;
-  @IsString() eligibility: string;
+  @IsOptional() @IsString() eligibility?: string; // Legacy field
+  @IsOptional() @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProgramEligibilityDto)
+  programEligibility?: ProgramEligibilityDto[];
   @IsArray() @IsString({ each: true }) requiredDocuments: string[];
   @IsDateString() applicationDeadline: string;
   @IsNumber() @Min(0) applicationFee: number;
@@ -149,11 +176,18 @@ export class SocialLinksDto {
   @IsOptional() @IsUrl() tiktok?: string;
 }
 
+export class ProgramEligibilityDto {
+  @IsString() minimumMarks: string;
+  @IsString() eligibility: string;
+}
+
 export class UniversityAdminDto {
   @IsString() pocName: string;
   @IsString() pocDesignation: string;
   @IsEmail() pocEmail: string;
-  @IsString() pocPhone: string;
+  @IsOptional() @IsString() pocPhone?: string; // Legacy field
+  @IsString() phoneCountryCode: string;
+  @IsString() phoneNumber: string;
   @IsString() accountName: string;
   @IsString() accountNumber: string;
   @IsString() bankName: string;

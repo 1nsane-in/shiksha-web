@@ -455,11 +455,11 @@ function UniversityContent({
                   value={String(academic.programs.length)}
                 />
               )}
-              {recognition?.globalRank && (
+              {recognition?.worldRank && (
                 <StatBox
                   icon={<Award className="size-4" />}
                   label="World Rank"
-                  value={`#${recognition.globalRank}`}
+                  value={`#${recognition.worldRank}`}
                 />
               )}
               {support?.placementRate && (
@@ -653,8 +653,8 @@ function UniversityContent({
                     value={infra.transportation}
                   />
                 )}
-                {infra.library != null && (
-                  <BoolRow label="Library" value={infra.library} />
+                {infra.facilities?.includes("Library") && (
+                  <BoolRow label="Library" value={true} />
                 )}
               </div>
               {infra.facilities && infra.facilities.length > 0 && (
@@ -675,32 +675,32 @@ function UniversityContent({
           {fees && (
             <SectionCard title="Fees & Financials">
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {fees.tuitionFee != null && (
+                {fees.tuitionAnnual != null && (
                   <FeeBox
                     label="Tuition Fee"
-                    value={`₹${fees.tuitionFee.toLocaleString()}`}
-                    sub={fees.perYear ? "/year" : undefined}
+                    value={`${fees.currency} ${fees.tuitionAnnual.toLocaleString()}`}
+                    sub="/year"
                   />
                 )}
-                {fees.hostelFee != null && (
+                {fees.hostelAnnual != null && (
                   <FeeBox
                     label="Hostel Fee"
-                    value={`₹${fees.hostelFee.toLocaleString()}`}
-                    sub={fees.perYear ? "/year" : undefined}
+                    value={`${fees.currency} ${fees.hostelAnnual.toLocaleString()}`}
+                    sub="/year"
                   />
                 )}
-                {fees.totalFee != null && (
+                {fees.totalProgram != null && (
                   <FeeBox
-                    label="Total Fee"
-                    value={`₹${fees.totalFee.toLocaleString()}`}
+                    label="Total Program Fee"
+                    value={`${fees.currency} ${fees.totalProgram.toLocaleString()}`}
                     sub="Approx"
                     highlight
                   />
                 )}
-                {fees.messFee != null && (
+                {fees.registration != null && (
                   <FeeBox
-                    label="Mess Fee"
-                    value={`₹${fees.messFee.toLocaleString()}`}
+                    label="Registration Fee"
+                    value={`${fees.currency} ${fees.registration.toLocaleString()}`}
                   />
                 )}
                 {fees.otherFees != null &&
@@ -736,13 +736,13 @@ function UniversityContent({
                       </div>
                     </div>
                   )}
-                {fees.paymentTerms && (
-                  <InfoField label="Payment Terms" value={fees.paymentTerms} />
+                {fees.paymentSchedule && (
+                  <InfoField label="Payment Schedule" value={fees.paymentSchedule} />
                 )}
-                {fees.installmentAvailable != null && (
+                {fees.scholarshipAvailable != null && (
                   <BoolRow
-                    label="Installment Available"
-                    value={fees.installmentAvailable}
+                    label="Scholarship Available"
+                    value={fees.scholarshipAvailable}
                   />
                 )}
                 {fees.refundPolicy && (
@@ -940,49 +940,11 @@ function UniversityContent({
             <SectionCard title="Recognition & Accreditation">
               <div className="space-y-4">
                 <div className="flex flex-wrap gap-3">
-                  {recognition.nmcApproved != null && (
-                    <RecogBadge
-                      label="NMC Approved"
-                      value={recognition.nmcApproved}
-                    />
-                  )}
-                  {recognition.whoRecognized != null && (
-                    <RecogBadge
-                      label="WHO Recognized"
-                      value={recognition.whoRecognized}
-                    />
-                  )}
-                  {recognition.ecfmgVerified != null && (
-                    <RecogBadge
-                      label="ECFMG Verified"
-                      value={recognition.ecfmgVerified}
-                    />
-                  )}
-                  {recognition.gmcRecognized != null && (
-                    <RecogBadge
-                      label="GMC Recognized"
-                      value={recognition.gmcRecognized}
-                    />
-                  )}
-                  {recognition.amcAccredited != null && (
-                    <RecogBadge
-                      label="AMC Accredited"
-                      value={recognition.amcAccredited}
-                    />
-                  )}
+                  {recognition.bodies?.includes("NMC") && <RecogBadge label="NMC Approved" value={true} />}
+                  {recognition.bodies?.includes("WHO") && <RecogBadge label="WHO Recognized" value={true} />}
+                  <RecogBadge label={`ECFMG ${recognition.ecfmgStatus}`} value={recognition.ecfmgStatus === "APPROVED"} />
+                  {recognition.nbaAccredited && <RecogBadge label="NBA Accredited" value={true} />}
                 </div>
-                {recognition.otherApprovals &&
-                  recognition.otherApprovals.length > 0 && (
-                    <div>
-                      <p
-                        className="mb-2 text-xs font-medium uppercase tracking-wider"
-                        style={{ color: theme.inkSubtle }}
-                      >
-                        Other Approvals
-                      </p>
-                      <ChipList items={recognition.otherApprovals} />
-                    </div>
-                  )}
                 {recognition.accreditations &&
                   recognition.accreditations.length > 0 && (
                     <div>
@@ -995,7 +957,7 @@ function UniversityContent({
                       <ChipList items={recognition.accreditations} />
                     </div>
                   )}
-                {recognition.countryRank != null && (
+                {recognition.nationalRank != null && (
                   <div
                     className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm"
                     style={{
@@ -1005,12 +967,12 @@ function UniversityContent({
                   >
                     <Award className="size-5" style={{ color: theme.gold }} />
                     <span style={{ color: theme.ink }}>
-                      Country Rank: <b>#{recognition.countryRank}</b>
+                      Country Rank: <b>#{recognition.nationalRank}</b>
                     </span>
-                    {recognition.globalRank != null && (
+                    {recognition.worldRank != null && (
                       <span style={{ color: theme.inkSubtle }}>
                         {" "}
-                        &middot; World Rank: <b>#{recognition.globalRank}</b>
+                        &middot; World Rank: <b>#{recognition.worldRank}</b>
                       </span>
                     )}
                   </div>
@@ -1309,7 +1271,7 @@ function UniversityContent({
                     </span>
                   </div>
                 )}
-                {recognition.globalRank && (
+                {recognition.worldRank && (
                   <div
                     className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
                     style={{ background: theme.canvas }}
@@ -1319,7 +1281,7 @@ function UniversityContent({
                       className="font-semibold"
                       style={{ color: theme.ink }}
                     >
-                      #{recognition.globalRank}
+                      #{recognition.worldRank}
                     </span>
                   </div>
                 )}
