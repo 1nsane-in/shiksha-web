@@ -25,17 +25,12 @@ import {
   Bus,
   Coffee,
   Download,
-  Heart,
   Briefcase,
-  Languages,
-  TrendingUp,
   Clock,
   Stethoscope,
   FlaskConical,
   Library,
-  Dumbbell,
   Bed,
-  MessageSquare,
   ClipboardList,
   ScrollText,
   Banknote,
@@ -43,9 +38,6 @@ import {
   Award,
   ExternalLink,
   Building2,
-  DollarSign,
-  Shield,
-  RefreshCw,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -848,84 +840,72 @@ export default function UniversityDetailPage() {
               </div>
             </div>
 
-            {/* Infrastructure - Pro Max Design */}
+            {/* Infrastructure - Medical Dashboard Style */}
             {infra && (
-              <Card className="border-0 shadow-xl shadow-slate-200/50 overflow-hidden">
-                <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 p-6 text-white">
-                  <div className="flex items-center gap-3">
-                    <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/30">
-                      <Building2 className="h-7 w-7 text-white" />
+              <Card className="border border-slate-200 shadow-sm bg-white">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="h-12 w-12 rounded-xl bg-slate-100 flex items-center justify-center">
+                      <Building2 className="h-6 w-6 text-slate-600" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold">World-Class Infrastructure</h3>
-                      <p className="text-slate-300 text-sm">Modern facilities for comprehensive learning</p>
+                      <h3 className="text-lg font-semibold text-slate-900">Infrastructure</h3>
+                      <p className="text-sm text-slate-500">Campus facilities & resources</p>
                     </div>
                   </div>
-                </div>
-                <CardContent className="p-6">
-                  {/* Stats Grid */}
+
+                  {/* Stats Grid - Clean Medical Style */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
                     {[
-                      { icon: Stethoscope, value: infra.hospitalBeds || "—", label: "Hospital Beds", color: "from-rose-400 to-red-500" },
-                      { icon: Bed, value: infra.hostelBoys?.toLocaleString() || "—", label: "Hostel Boys", color: "from-blue-400 to-indigo-500" },
-                      { icon: Heart, value: infra.hostelGirls?.toLocaleString() || "—", label: "Hostel Girls", color: "from-pink-400 to-rose-500" },
-                      { icon: MapPin, value: infra.campusArea ? `${infra.campusArea} acres` : "—", label: "Campus Area", color: "from-green-400 to-emerald-500" },
-                      { icon: School, value: infra.departments?.length || "—", label: "Departments", color: "from-amber-400 to-orange-500" },
-                      { icon: FlaskConical, value: infra.laboratories?.length || "—", label: "Labs", color: "from-violet-400 to-purple-500" },
+                      { icon: Stethoscope, value: infra.hospitalBeds || "—", label: "Hospital Beds" },
+                      { icon: Bed, value: infra.hostelBoys?.toLocaleString() || "—", label: "Hostel (Boys)" },
+                      { icon: Bed, value: infra.hostelGirls?.toLocaleString() || "—", label: "Hostel (Girls)" },
+                      { icon: MapPin, value: infra.campusArea ? `${infra.campusArea} ac` : "—", label: "Campus Area" },
+                      { icon: School, value: infra.departments?.length || "—", label: "Departments" },
+                      { icon: FlaskConical, value: infra.laboratories?.length || "—", label: "Laboratories" },
                     ].map((stat, i) => (
-                      <div key={i} className="group relative overflow-hidden rounded-xl bg-slate-50 border border-slate-200 p-4 hover:shadow-lg hover:shadow-slate-500/10 transition-all duration-300 hover:-translate-y-1">
-                        <div className={`absolute top-0 right-0 w-12 h-12 bg-gradient-to-br ${stat.color} opacity-10 rounded-bl-full`} />
-                        <div className={`inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg mb-2 group-hover:scale-110 transition-transform`}>
-                          <stat.icon className="h-5 w-5" />
-                        </div>
-                        <p className="text-xl font-bold text-slate-900">{stat.value}</p>
-                        <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">{stat.label}</p>
+                      <div key={i} className="p-4 rounded-lg bg-slate-50 border border-slate-100 text-center hover:bg-slate-100 transition-colors">
+                        <p className="text-2xl font-semibold text-slate-900">{stat.value}</p>
+                        <p className="text-xs text-slate-500 mt-1">{stat.label}</p>
                       </div>
                     ))}
                   </div>
 
                   {/* Facilities */}
                   <div className="space-y-4">
-                    <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">Campus Facilities</h4>
                     <div className="flex flex-wrap gap-2">
                       {infra.cafeteria && (
-                        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-medium shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-shadow">
-                          <Coffee className="h-4 w-4" /> Cafeteria
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 text-sm border border-teal-100">
+                          <Coffee className="h-3.5 w-3.5" /> Cafeteria
                         </span>
                       )}
                       {infra.wifiCampus && (
-                        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-medium shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-shadow">
-                          <Wifi className="h-4 w-4" /> WiFi Campus
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm border border-blue-100">
+                          <Wifi className="h-3.5 w-3.5" /> WiFi Campus
                         </span>
                       )}
                       {infra.transportation && (
-                        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-medium shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-shadow">
-                          <Bus className="h-4 w-4" /> Transport
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 text-sm border border-amber-100">
+                          <Bus className="h-3.5 w-3.5" /> Transport
                         </span>
                       )}
+                      {infra.facilities?.map((facility: string, i: number) => (
+                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-sm border border-slate-200">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-teal-500" />
+                          {facility}
+                        </span>
+                      ))}
                     </div>
-                    {infra.facilities && infra.facilities.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {infra.facilities.map((facility: string, i: number) => (
-                          <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium border border-slate-200 hover:bg-slate-200 transition-colors">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                            {facility}
-                          </span>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
-                  {/* Departments & Labs Lists */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6 pt-6 border-t border-slate-100">
+                  {/* Departments & Labs */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-slate-100">
                     {infra.departments && infra.departments.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                          <School className="h-4 w-4 text-indigo-500" /> Departments
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
+                        <h4 className="text-sm font-medium text-slate-900 mb-2">Departments</h4>
+                        <div className="flex flex-wrap gap-1.5">
                           {infra.departments.map((dept: string, i: number) => (
-                            <span key={i} className="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-medium border border-indigo-100">
+                            <span key={i} className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs">
                               {dept}
                             </span>
                           ))}
@@ -934,12 +914,10 @@ export default function UniversityDetailPage() {
                     )}
                     {infra.laboratories && infra.laboratories.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                          <FlaskConical className="h-4 w-4 text-violet-500" /> Laboratories
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
+                        <h4 className="text-sm font-medium text-slate-900 mb-2">Laboratories</h4>
+                        <div className="flex flex-wrap gap-1.5">
                           {infra.laboratories.map((lab: string, i: number) => (
-                            <span key={i} className="px-3 py-1.5 rounded-lg bg-violet-50 text-violet-700 text-xs font-medium border border-violet-100">
+                            <span key={i} className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs">
                               {lab}
                             </span>
                           ))}
@@ -951,63 +929,50 @@ export default function UniversityDetailPage() {
               </Card>
             )}
 
-            {/* Fee Structure - Pro Max Design */}
+            {/* Fee Structure - Medical Dashboard Style */}
             {university.fees && (
-              <Card className="border-0 shadow-xl shadow-slate-200/50 overflow-hidden">
-                <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-6 text-white">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-14 w-14 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                        <Banknote className="h-7 w-7" />
+              <Card className="border border-slate-200 shadow-sm bg-white">
+                <CardContent className="p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <Banknote className="h-6 w-6 text-slate-600" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold">Fee Structure</h3>
-                        <p className="text-emerald-50 text-sm">Transparent pricing & flexible payment options</p>
+                        <h3 className="text-lg font-semibold text-slate-900">Fee Structure</h3>
+                        <p className="text-sm text-slate-500">Annual fees & payment details</p>
                       </div>
                     </div>
                     {university.fees.scholarshipAvailable && (
-                      <div className="flex items-center gap-2 bg-white/20 rounded-full px-4 py-2 backdrop-blur-sm">
-                        <Medal className="h-5 w-5 text-yellow-300" />
-                        <span className="font-semibold">Scholarships Available</span>
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 text-teal-700 text-sm font-medium border border-teal-100">
+                        <Medal className="h-4 w-4" />
+                        Scholarships Available
                       </div>
                     )}
                   </div>
-                </div>
-                <CardContent className="p-6">
+
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Fee Breakdown */}
                     <div className="space-y-4">
-                      <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                        <ScrollText className="h-4 w-4 text-emerald-500" /> Annual Fee Breakdown
-                      </h4>
-                      <div className="space-y-3">
+                      <h4 className="text-sm font-medium text-slate-900 uppercase tracking-wider">Annual Fees</h4>
+                      <div className="space-y-2">
                         {[
-                          { label: "Tuition Fee", value: university.fees.tuitionAnnual, icon: BookOpen, color: "blue" },
-                          { label: "Hostel Fee", value: university.fees.hostelAnnual, icon: Bed, color: "indigo" },
-                          { label: "Registration", value: university.fees.registration, icon: FileText, color: "amber" },
-                          { label: "Examination", value: university.fees.examination, icon: ClipboardList, color: "rose" },
-                          { label: "Library", value: university.fees.library, icon: Library, color: "violet" },
+                          { label: "Tuition Fee", value: university.fees.tuitionAnnual },
+                          { label: "Hostel Fee", value: university.fees.hostelAnnual },
+                          { label: "Registration", value: university.fees.registration },
+                          { label: "Examination", value: university.fees.examination },
+                          { label: "Library", value: university.fees.library },
                         ].map((fee, i) => (
-                          <div key={i} className="group flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-emerald-200 hover:shadow-md transition-all">
-                            <div className="flex items-center gap-3">
-                              <div className={`h-9 w-9 rounded-lg bg-${fee.color}-100 flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                                <fee.icon className={`h-4 w-4 text-${fee.color}-600`} />
-                              </div>
-                              <span className="text-sm text-slate-600 font-medium">{fee.label}</span>
-                            </div>
-                            <span className="text-sm font-bold text-slate-900">
+                          <div key={i} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                            <span className="text-sm text-slate-600">{fee.label}</span>
+                            <span className="text-sm font-medium text-slate-900">
                               {university.fees?.currency} {fee.value?.toLocaleString() || "—"}
                             </span>
                           </div>
                         ))}
-                        <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20">
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
-                              <GraduationCap className="h-5 w-5" />
-                            </div>
-                            <span className="font-semibold">Total Program Fee</span>
-                          </div>
-                          <span className="text-xl font-bold">
+                        <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-slate-50 border border-slate-100">
+                          <span className="text-sm font-semibold text-slate-900">Total Program Fee</span>
+                          <span className="text-lg font-bold text-slate-900">
                             {university.fees?.currency} {university.fees.totalProgram?.toLocaleString() || "—"}
                           </span>
                         </div>
@@ -1018,14 +983,12 @@ export default function UniversityDetailPage() {
                     <div className="space-y-6">
                       {university.fees.otherFees && Object.keys(university.fees.otherFees).length > 0 && (
                         <div>
-                          <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
-                            <DollarSign className="h-4 w-4 text-amber-500" /> Additional Fees
-                          </h4>
-                          <div className="space-y-2 p-4 rounded-xl bg-amber-50 border border-amber-100">
+                          <h4 className="text-sm font-medium text-slate-900 uppercase tracking-wider mb-3">Additional Fees</h4>
+                          <div className="space-y-2">
                             {Object.entries(university.fees.otherFees).map(([name, amount], i) => (
-                              <div key={i} className="flex justify-between items-center py-2 border-b border-amber-100 last:border-0">
-                                <span className="text-sm text-amber-800">{name}</span>
-                                <span className="text-sm font-semibold text-amber-900">
+                              <div key={i} className="flex justify-between items-center py-1.5 text-sm">
+                                <span className="text-slate-600">{name}</span>
+                                <span className="font-medium text-slate-900">
                                   {university.fees?.currency} {(amount as number).toLocaleString()}
                                 </span>
                               </div>
@@ -1036,46 +999,34 @@ export default function UniversityDetailPage() {
 
                       {/* Policies */}
                       <div>
-                        <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
-                          <Shield className="h-4 w-4 text-blue-500" /> Policies
-                        </h4>
-                        <div className="space-y-3 p-4 rounded-xl bg-blue-50 border border-blue-100">
+                        <h4 className="text-sm font-medium text-slate-900 uppercase tracking-wider mb-3">Policies</h4>
+                        <div className="space-y-3">
                           <div className="flex items-start gap-3">
-                            <Calendar className="h-4 w-4 text-blue-500 mt-0.5" />
+                            <div className="h-4 w-4 rounded-full bg-teal-100 flex items-center justify-center mt-0.5">
+                              <div className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+                            </div>
                             <div>
-                              <p className="text-xs text-blue-600 font-medium uppercase">Payment Schedule</p>
-                              <p className="text-sm text-blue-900">{university.fees.paymentSchedule || "Not specified"}</p>
+                              <p className="text-xs text-slate-500 uppercase">Payment Schedule</p>
+                              <p className="text-sm text-slate-700">{university.fees.paymentSchedule || "Not specified"}</p>
                             </div>
                           </div>
                           <div className="flex items-start gap-3">
-                            <RefreshCw className="h-4 w-4 text-blue-500 mt-0.5" />
+                            <div className="h-4 w-4 rounded-full bg-blue-100 flex items-center justify-center mt-0.5">
+                              <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                            </div>
                             <div>
-                              <p className="text-xs text-blue-600 font-medium uppercase">Refund Policy</p>
-                              <p className="text-sm text-blue-900">{university.fees.refundPolicy || "Not specified"}</p>
+                              <p className="text-xs text-slate-500 uppercase">Refund Policy</p>
+                              <p className="text-sm text-slate-700">{university.fees.refundPolicy || "Not specified"}</p>
                             </div>
                           </div>
-                          {university.fees.feeHikePolicy && (
-                            <div className="flex items-start gap-3">
-                              <TrendingUp className="h-4 w-4 text-blue-500 mt-0.5" />
-                              <div>
-                                <p className="text-xs text-blue-600 font-medium uppercase">Fee Hike Policy</p>
-                                <p className="text-sm text-blue-900">{university.fees.feeHikePolicy}</p>
-                              </div>
-                            </div>
-                          )}
                         </div>
                       </div>
 
-                      {/* Scholarship Details */}
+                      {/* Scholarship */}
                       {university.fees.scholarshipAvailable && university.fees.scholarshipDetails && (
-                        <div className="p-4 rounded-xl bg-gradient-to-r from-yellow-50 to-amber-50 border border-amber-200">
-                          <div className="flex items-start gap-3">
-                            <Medal className="h-5 w-5 text-amber-500 mt-0.5" />
-                            <div>
-                              <p className="text-sm font-bold text-amber-900">Scholarship Information</p>
-                              <p className="text-sm text-amber-700 mt-1">{university.fees.scholarshipDetails}</p>
-                            </div>
-                          </div>
+                        <div className="p-4 rounded-lg bg-teal-50 border border-teal-100">
+                          <p className="text-sm font-medium text-teal-900 mb-1">Scholarship Information</p>
+                          <p className="text-sm text-teal-700">{university.fees.scholarshipDetails}</p>
                         </div>
                       )}
                     </div>
@@ -1084,87 +1035,67 @@ export default function UniversityDetailPage() {
               </Card>
             )}
 
-            {/* Admission Requirements - Pro Max Design */}
+            {/* Admission Requirements - Medical Dashboard Style */}
             {adm && (
-              <Card className="border-0 shadow-xl shadow-slate-200/50 overflow-hidden">
-                <div className="bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 p-6 text-white">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-14 w-14 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                        <ClipboardList className="h-7 w-7" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold">Admission Requirements</h3>
-                        <p className="text-violet-50 text-sm">Program-wise eligibility criteria</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/20 rounded-full px-4 py-2 backdrop-blur-sm">
-                      <Clock className="h-4 w-4" />
-                      <span className="text-sm font-medium">Age: {adm.ageCriteria || "—"}</span>
-                    </div>
-                  </div>
-                </div>
+              <Card className="border border-slate-200 shadow-sm bg-white">
                 <CardContent className="p-6">
-                  {/* Global Admission Info */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div className="p-4 rounded-xl bg-violet-50 border border-violet-100">
-                      <p className="text-xs text-violet-600 font-medium uppercase mb-1">Entrance Exams</p>
-                      <p className="text-lg font-bold text-violet-900">{adm.entranceExams?.join(", ") || "—"}</p>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="h-12 w-12 rounded-xl bg-slate-100 flex items-center justify-center">
+                      <ClipboardList className="h-6 w-6 text-slate-600" />
                     </div>
-                    <div className="p-4 rounded-xl bg-fuchsia-50 border border-fuchsia-100">
-                      <p className="text-xs text-fuchsia-600 font-medium uppercase mb-1">Application Fee</p>
-                      <p className="text-lg font-bold text-fuchsia-900">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-slate-900">Admission Requirements</h3>
+                      <p className="text-sm text-slate-500">Eligibility criteria & application details</p>
+                    </div>
+                    {adm.ageCriteria && (
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-sm">
+                        <Users className="h-3.5 w-3.5" />
+                        Age: {adm.ageCriteria}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quick Info */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    <div className="p-4 rounded-lg bg-slate-50 border border-slate-100">
+                      <p className="text-xs text-slate-500 uppercase mb-1">Entrance Exams</p>
+                      <p className="text-base font-semibold text-slate-900">{adm.entranceExams?.join(", ") || "—"}</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-slate-50 border border-slate-100">
+                      <p className="text-xs text-slate-500 uppercase mb-1">Application Fee</p>
+                      <p className="text-base font-semibold text-slate-900">
                         {university.fees?.currency} {adm.applicationFee?.toLocaleString() || "—"}
                       </p>
                     </div>
-                    <div className="p-4 rounded-xl bg-purple-50 border border-purple-100">
-                      <p className="text-xs text-purple-600 font-medium uppercase mb-1">Selection Process</p>
-                      <p className="text-sm font-semibold text-purple-900">{adm.selectionProcess || "—"}</p>
+                    <div className="p-4 rounded-lg bg-slate-50 border border-slate-100">
+                      <p className="text-xs text-slate-500 uppercase mb-1">Selection Process</p>
+                      <p className="text-sm font-semibold text-slate-900">{adm.selectionProcess || "—"}</p>
                     </div>
                   </div>
 
                   {/* Program-wise Cards */}
                   {adm.programEligibility && adm.programEligibility.length > 0 && (
-                    <div className="space-y-4">
-                      <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider">By Program</h4>
+                    <div className="mb-6">
+                      <h4 className="text-sm font-medium text-slate-900 uppercase tracking-wider mb-4">Program Requirements</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {adm.programEligibility.map((prog: any, i: number) => {
                           const programName = a?.programs?.[i]?.name || `Program ${i + 1}`;
-                          const programData = typeof a?.programs?.[i] === 'object' ? a?.programs?.[i] : null;
                           return (
-                            <div key={i} className="group relative overflow-hidden rounded-xl bg-white border border-slate-200 hover:border-violet-300 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300">
-                              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500" />
-                              <div className="p-5">
-                                <div className="flex items-center gap-3 mb-4">
-                                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white font-bold text-sm shadow-lg">
-                                    {i + 1}
-                                  </div>
-                                  <h5 className="font-bold text-slate-900">{programName}</h5>
+                            <div key={i} className="p-5 rounded-xl bg-white border border-slate-200 hover:border-teal-200 hover:shadow-sm transition-all">
+                              <div className="flex items-center gap-3 mb-4">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 text-teal-700 font-bold text-sm">
+                                  {i + 1}
                                 </div>
-                                <div className="space-y-3">
-                                  <div className="p-3 rounded-lg bg-slate-50">
-                                    <p className="text-xs text-slate-500 uppercase font-medium mb-1">Minimum Marks</p>
-                                    <p className="text-lg font-bold text-violet-600">{prog.minimumMarks || "—"}</p>
-                                  </div>
-                                  <div className="p-3 rounded-lg bg-slate-50">
-                                    <p className="text-xs text-slate-500 uppercase font-medium mb-1">Eligibility</p>
-                                    <p className="text-sm text-slate-700">{prog.eligibility || "—"}</p>
-                                  </div>
-                                  {programData?.feeBreakdown && programData.feeBreakdown.length > 0 && (
-                                    <div className="pt-3 border-t border-slate-100">
-                                      <p className="text-xs text-slate-500 uppercase font-medium mb-2">Fee Breakdown</p>
-                                      <div className="space-y-1.5">
-                                        {programData.feeBreakdown.map((fee: any, fi: number) => (
-                                          <div key={fi} className="flex justify-between items-center text-sm">
-                                            <span className="text-slate-600">{fee.name}</span>
-                                            <span className="font-semibold text-slate-900">
-                                              {university.fees?.currency} {fee.amount?.toLocaleString()}
-                                            </span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
+                                <h5 className="font-semibold text-slate-900">{programName}</h5>
+                              </div>
+                              <div className="space-y-3">
+                                <div>
+                                  <p className="text-xs text-slate-500 uppercase mb-1">Minimum Marks</p>
+                                  <p className="text-lg font-semibold text-teal-600">{prog.minimumMarks || "—"}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-slate-500 uppercase mb-1">Eligibility</p>
+                                  <p className="text-sm text-slate-700">{prog.eligibility || "—"}</p>
                                 </div>
                               </div>
                             </div>
@@ -1174,21 +1105,21 @@ export default function UniversityDetailPage() {
                     </div>
                   )}
 
-                  {/* Legacy Eligibility */}
+                  {/* General Eligibility */}
                   {adm.eligibility && (
-                    <div className="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
-                      <p className="text-xs text-slate-500 uppercase font-medium mb-1">General Eligibility</p>
+                    <div className="mb-6 p-4 rounded-lg bg-slate-50 border border-slate-100">
+                      <p className="text-xs text-slate-500 uppercase mb-1">General Eligibility</p>
                       <p className="text-sm text-slate-700">{adm.eligibility}</p>
                     </div>
                   )}
 
                   {/* Required Documents */}
                   {adm.requiredDocuments && adm.requiredDocuments.length > 0 && (
-                    <div className="mt-6">
-                      <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Required Documents</h4>
+                    <div className="mb-6">
+                      <h4 className="text-sm font-medium text-slate-900 uppercase tracking-wider mb-3">Required Documents</h4>
                       <div className="flex flex-wrap gap-2">
                         {adm.requiredDocuments.map((doc: string, i: number) => (
-                          <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-50 text-violet-700 text-sm font-medium border border-violet-100">
+                          <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 text-sm border border-teal-100">
                             <CheckCircle2 className="h-3.5 w-3.5" />
                             {doc}
                           </span>
@@ -1199,24 +1130,19 @@ export default function UniversityDetailPage() {
 
                   {/* Application Deadline */}
                   {adm.applicationDeadline && (
-                    <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 flex items-center justify-between">
+                    <div className="p-4 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                          <Calendar className="h-5 w-5 text-amber-600" />
-                        </div>
+                        <Calendar className="h-5 w-5 text-amber-600" />
                         <div>
-                          <p className="text-xs text-amber-600 font-medium uppercase">Application Deadline</p>
-                          <p className="text-lg font-bold text-amber-900">
+                          <p className="text-xs text-amber-600 uppercase">Application Deadline</p>
+                          <p className="text-base font-semibold text-amber-900">
                             {new Date(adm.applicationDeadline).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-amber-600">Status</p>
-                        <p className="text-sm font-semibold text-amber-900">
-                          {new Date(adm.applicationDeadline) > new Date() ? 'Open' : 'Closed'}
-                        </p>
-                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${new Date(adm.applicationDeadline) > new Date() ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                        {new Date(adm.applicationDeadline) > new Date() ? 'Open' : 'Closed'}
+                      </span>
                     </div>
                   )}
                 </CardContent>
