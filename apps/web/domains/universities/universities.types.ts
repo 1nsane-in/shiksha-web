@@ -232,6 +232,14 @@ export interface UniversityDetail extends UniversityListItem {
   admission: UniversityAdmission | null;
   support: UniversitySupport | null;
   content: UniversityContent;
+  recognition: UniversityRecognition | null;
+  fees: UniversityFees | null;
+  admin: UniversityAdmin | null;
+  courses: UniversityCourse[];
+  documents: UniversityDocument[];
+  studentDemographics?: StudentDemographics | null;
+  socialLinks?: SocialLinks | null;
+  _count?: UniversityCount;
   courses: {
     id: string;
     name: string;
@@ -264,6 +272,14 @@ export interface UniversityDetail extends UniversityListItem {
     lastReviewedAt: string;
     notes: string;
   } | null;
+  documents?: {
+    id: string;
+    type: string;
+    fileUrl: string;
+    fileName: string;
+    fileSize: number;
+    uploadedAt: string;
+  }[];
 }
 
 export interface UniversityFilters {
