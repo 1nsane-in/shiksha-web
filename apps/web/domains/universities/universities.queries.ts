@@ -86,3 +86,95 @@ export function useUpdateUniversityStatus() {
     },
   });
 }
+
+export function useUpdateUniversity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) => {
+      const { updateUniversity } = await import("./universities.api");
+      return updateUniversity(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+  });
+}
+
+export function useCreateCourse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ universityId, data }: { universityId: string; data: Record<string, unknown> }) => {
+      const { createUniversityCourse } = await import("./universities.api");
+      return createUniversityCourse(universityId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+    },
+  });
+}
+
+export function useUpdateCourse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ universityId, courseId, data }: { universityId: string; courseId: string; data: Record<string, unknown> }) => {
+      const { updateUniversityCourse } = await import("./universities.api");
+      return updateUniversityCourse(universityId, courseId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+    },
+  });
+}
+
+export function useDeleteCourse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ universityId, courseId }: { universityId: string; courseId: string }) => {
+      const { deleteUniversityCourse } = await import("./universities.api");
+      return deleteUniversityCourse(universityId, courseId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+    },
+  });
+}
+
+export function useUploadDocument() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ universityId, data }: { universityId: string; data: FormData }) => {
+      const { uploadUniversityDocument } = await import("./universities.api");
+      return uploadUniversityDocument(universityId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+    },
+  });
+}
+
+export function useDeleteDocument() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ universityId, documentId }: { universityId: string; documentId: string }) => {
+      const { deleteUniversityDocument } = await import("./universities.api");
+      return deleteUniversityDocument(universityId, documentId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+    },
+  });
+}
+
+export function useUploadImage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ universityId, file, type }: { universityId: string; file: File; type: "logo" | "banner" | "gallery" }) => {
+      const { uploadUniversityImage } = await import("./universities.api");
+      return uploadUniversityImage(universityId, file, type);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+    },
+  });
+}

@@ -552,6 +552,10 @@ function UniversityContent({
                       : undefined
                   }
                 />
+                <InfoField
+                  label="Reservation Policy"
+                  value={admission.reservationPolicy}
+                />
                 {admission.applicationDeadline && (
                   <InfoField
                     label="Deadline"
@@ -588,6 +592,37 @@ function UniversityContent({
                       <ChipList items={admission.requiredDocuments} />
                     </div>
                   )}
+                {admission.programEligibility &&
+                  admission.programEligibility.length > 0 && (
+                    <div className="sm:col-span-2">
+                      <p
+                        className="mb-2 text-xs font-medium uppercase tracking-wider"
+                        style={{ color: theme.inkSubtle }}
+                      >
+                        Eligibility by Program
+                      </p>
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        {admission.programEligibility.map((prog: any, i: number) => (
+                          <div
+                            key={i}
+                            className="rounded-lg px-4 py-3"
+                            style={{
+                              background: theme.canvas,
+                              border: "1px solid " + theme.hairline,
+                            }}
+                          >
+                            <p className="text-sm font-semibold" style={{ color: theme.ink }}>
+                              {academic?.programs?.[i]?.name || `Program ${i + 1}`}
+                            </p>
+                            <div className="mt-1.5 space-y-1 text-xs" style={{ color: theme.inkMuted }}>
+                              {prog.minimumMarks && <p>Min Marks: {prog.minimumMarks}</p>}
+                              {prog.eligibility && <p>{prog.eligibility}</p>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
               </div>
             </SectionCard>
           )}
@@ -601,6 +636,13 @@ function UniversityContent({
                     icon={<Hospital />}
                     label="Hospital Beds"
                     value={String(infra.hospitalBeds)}
+                  />
+                )}
+                {infra.librarySize && (
+                  <InfraStat
+                    icon={<BookMarked />}
+                    label="Library"
+                    value={infra.librarySize}
                   />
                 )}
                 {infra.departments?.length > 0 && (
@@ -811,6 +853,32 @@ function UniversityContent({
                         <ChipList items={academic.intakeMonths} />
                       </div>
                     )}
+                  {academic.curriculumType && (
+                    <div>
+                      <p
+                        className="mb-2 text-xs font-medium uppercase tracking-wider"
+                        style={{ color: theme.inkSubtle }}
+                      >
+                        Curriculum Type
+                      </p>
+                      <p className="text-sm font-medium" style={{ color: theme.ink }}>
+                        {academic.curriculumType}
+                      </p>
+                    </div>
+                  )}
+                  {academic.clinicalTraining && (
+                    <div>
+                      <p
+                        className="mb-2 text-xs font-medium uppercase tracking-wider"
+                        style={{ color: theme.inkSubtle }}
+                      >
+                        Clinical Training
+                      </p>
+                      <p className="text-sm font-medium" style={{ color: theme.ink }}>
+                        {academic.clinicalTraining}
+                      </p>
+                    </div>
+                  )}
                   {/* seat breakdown */}
                   {(academic.governmentSeats ||
                     academic.managementSeats ||
@@ -1197,6 +1265,45 @@ function UniversityContent({
             </div>
           </div>
 
+          {/* social links */}
+          {uni.socialLinks && Object.keys(uni.socialLinks).length > 0 && (
+            <div
+              className="rounded-2xl p-6"
+              style={{
+                background: theme.surface,
+                border: "1px solid " + theme.hairline,
+              }}
+            >
+              <h3
+                className="mb-4 text-sm font-semibold uppercase tracking-wider"
+                style={{ color: theme.inkSubtle }}
+              >
+                Social Links
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(uni.socialLinks)
+                  .filter(([, v]) => v)
+                  .map(([platform, url]) => (
+                    <a
+                      key={platform}
+                      href={url as string}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors capitalize"
+                      style={{
+                        background: theme.goldLight,
+                        color: theme.ink,
+                        border: "1px solid " + theme.goldBorder,
+                      }}
+                    >
+                      <Globe className="size-3" />
+                      {platform}
+                    </a>
+                  ))}
+              </div>
+            </div>
+          )}
+
           {/* contact */}
           {uni.contact && (
             <div
@@ -1236,6 +1343,64 @@ function UniversityContent({
                   />
                 )}
               </div>
+            </div>
+          )}
+
+          {/* student demographics */}
+          {uni.studentDemographics && (
+            <div
+              className="rounded-2xl p-6"
+              style={{
+                background: theme.surface,
+                border: "1px solid " + theme.hairline,
+              }}
+            >
+              <h3
+                className="mb-4 text-sm font-semibold uppercase tracking-wider"
+                style={{ color: theme.inkSubtle }}
+              >
+                Student Body
+              </h3>
+              <div className="space-y-2">
+                {[
+                  { label: "Total Students", value: uni.studentDemographics.totalStudents },
+                  { label: "Local Students", value: uni.studentDemographics.localStudents },
+                  { label: "International", value: uni.studentDemographics.foreignStudents },
+                ].map((s) => (
+                  <div
+                    key={s.label}
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
+                    style={{ background: theme.canvas }}
+                  >
+                    <span style={{ color: theme.inkMuted }}>{s.label}</span>
+                    <span className="font-semibold" style={{ color: theme.ink }}>
+                      {s.value?.toLocaleString() ?? "—"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {uni.studentDemographics.foreignByCountry?.length > 0 && (
+                <div className="mt-3 pt-3" style={{ borderTop: "1px solid " + theme.hairline }}>
+                  <p className="mb-2 text-xs font-medium uppercase tracking-wider" style={{ color: theme.inkSubtle }}>
+                    Top Countries
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {uni.studentDemographics.foreignByCountry.slice(0, 3).map((f: any) => (
+                      <span
+                        key={f.country}
+                        className="rounded-md px-2 py-1 text-xs"
+                        style={{
+                          background: theme.goldLight,
+                          border: "1px solid " + theme.goldBorder,
+                          color: theme.ink,
+                        }}
+                      >
+                        {f.country}: {f.count}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

@@ -626,3 +626,46 @@ Payments = Razorpay webhook-driven
 ```
 
 Prioritize correctness, security, maintainability, and clear business workflows over premature optimization.
+
+---
+
+## 18. Semble Code Search
+
+This repository uses [Semble](https://github.com/MinishLab/semble) for fast and accurate code search. Semble is configured as an MCP server.
+
+### Available Tools
+
+- `semble_search` - Search the codebase with natural language queries
+- `semble_find_related` - Find code related to a specific location
+
+### Usage Examples
+
+```
+// Search for authentication handling
+"How is authentication handled?"
+
+// Find related code
+find_related: src/auth/service.ts:42
+
+// Search with top-k results
+"payment gateway integration", top_k: 10
+```
+
+### CLI Usage
+
+```bash
+# Search local repo
+semble search "authentication flow" ./apps/api
+
+# Find related code
+semble find-related src/auth/service.ts 42 ./apps/api
+
+# View token savings
+semble savings
+```
+
+### Notes
+- Semble indexes automatically on first search
+- Indexes are cached and updated on file changes
+- Uses ~98% fewer tokens than grep+read
+- Runs entirely on CPU with no API keys required
