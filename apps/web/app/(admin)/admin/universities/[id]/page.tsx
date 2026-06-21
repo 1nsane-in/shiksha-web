@@ -164,9 +164,9 @@ function BadgeList({ items }: { items: string[] }) {
   if (!items?.length) return <span className="text-sm text-[#9CA3AF]">—</span>;
   return (
     <div className="flex flex-wrap gap-1.5">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <span
-          key={item}
+          key={`${item}-${index}`}
           className="inline-flex items-center rounded-md border border-[#ECEAE6] bg-white px-2 py-0.5 text-xs text-[#6B6B6B]"
         >
           {item}
@@ -444,8 +444,19 @@ export default function UniversityDetailPage() {
           </div>
         </div>
 
-        {/* Quick stats */}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
+      </div>
+
+      {/* Header with Title and Status */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[#111] sm:text-3xl">{university.name}</h1>
+          <p className="mt-1 text-sm text-[#6B6B6B]">{university.shortName}</p>
+        </div>
+        <Badge className={status.className}>{status.label}</Badge>
+      </div>
+
+      {/* Quick stats */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
           <StatCard
             icon={Building2}
             label="Type"
@@ -473,8 +484,8 @@ export default function UniversityDetailPage() {
           />
         </div>
 
-        {/* Tabs */}
-        <Tabs
+      {/* Tabs */}
+      <Tabs
           defaultValue="overview"
           className="w-full min-w-0"
         >
@@ -599,7 +610,7 @@ export default function UniversityDetailPage() {
                     <InfoRow
                       icon={BookOpen}
                       label="Programs"
-                      value={<BadgeList items={a.programs.map((p: { name: string }) => p.name)} />}
+                      value={<BadgeList items={a.programs} />}
                     />
                     <InfoRow icon={Clock} label="Duration" value={a.duration} />
                     <InfoRow icon={Globe} label="Medium" value={a.medium} />
@@ -634,7 +645,7 @@ export default function UniversityDetailPage() {
                 <CardContent className="space-y-4 p-5">
                   <SectionHeading icon={BookOpen} title="Syllabus & Medium" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <InfoRow icon={GraduationCap} label="Offered Programs" value={<BadgeList items={a.programs.map((p: { name: string }) => p.name)} />} />
+                    <InfoRow icon={GraduationCap} label="Offered Programs" value={<BadgeList items={a.programs} />} />
                     <InfoRow icon={Clock} label="Course Duration" value={a.duration} />
                     <InfoRow icon={Globe} label="Teaching Medium" value={a.medium} />
                     <InfoRow icon={Calendar} label="Academic Intakes" value={<BadgeList items={a.intakeMonths} />} />
@@ -954,8 +965,7 @@ export default function UniversityDetailPage() {
             </div>
           )}
         </TabsContent>
-        </Tabs>
-      </div>
+      </Tabs>
     </div>
   );
 }

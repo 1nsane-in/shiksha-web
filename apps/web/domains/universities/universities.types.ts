@@ -17,21 +17,9 @@ export interface UniversityContact {
   admissionOfficeHours?: string;
 }
 
-export interface UniversityProgram {
-  name: string;
-  duration: string;
-  annualTuition: number;
-  registration?: number;
-  totalSeats: number;
-  governmentSeats: number;
-  managementSeats: number;
-  nriSeats: number;
-  feeBreakdown?: { id?: string; name: string; amount: number }[];
-}
-
 export interface UniversityAcademic {
   id?: string;
-  programs: UniversityProgram[];
+  programs: string[];
   duration: string;
   medium: string;
   specializations: string[];
