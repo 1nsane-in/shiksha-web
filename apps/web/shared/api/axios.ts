@@ -1,6 +1,6 @@
 import axios from "axios";
-import { API_URL, STORAGE_KEYS } from "./constants";
-import { storage } from "./storage";
+import { API_URL } from "./constants";
+import { useAuthStore } from "@/stores/auth-store";
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -25,23 +25,6 @@ function processQueue(error: unknown, token: string | null) {
   failedQueue = [];
 }
 
-function setTokenCookie(token: string) {
-  if (typeof document === "undefined") return;
-  document.cookie = `refreshToken=${token}; path=/; max-age=${15 * 60}; SameSite=Lax`;
-}
-
-function clearTokenCookie() {
-  if (typeof document === "undefined") return;
-  document.cookie = "refreshToken=; path=/; max-age=0";
-}
-
-type AuthStorage = {
-  state: {
-    user: unknown;
-    access_token: string | null;
-  };
-};
-
 api.interceptors.response.use((response) => {
   if (response.data && typeof response.data === 'object' && 'ok' in response.data) {
     if (response.data.ok === true) {
@@ -57,12 +40,9 @@ api.interceptors.response.use((response) => {
 
 api.interceptors.request.use((config) => {
   config.headers["X-Api-Version"] = "1";
-  if (typeof window !== "undefined") {
-    const auth = storage.get<AuthStorage>(STORAGE_KEYS.AUTH_STORAGE);
-    const token = auth?.state?.access_token;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  const token = useAuthStore.getState().access_token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -101,14 +81,8 @@ api.interceptors.response.use(
         const body = refreshData?.ok === true ? refreshData.data : refreshData;
         const newToken = body?.accessToken;
 
-        const current = storage.get<AuthStorage>(STORAGE_KEYS.AUTH_STORAGE);
-        storage.set(STORAGE_KEYS.AUTH_STORAGE, {
-          state: {
-            ...current?.state,
-            access_token: newToken,
-          },
-        });
-        setTokenCookie(newToken);
+        // Update zustand store -> this also updates the `token` cookie for middleware
+        useAuthStore.getState().setTokens(newToken);
 
         processQueue(null, newToken);
 
@@ -116,8 +90,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        storage.remove(STORAGE_KEYS.AUTH_STORAGE);
-        clearTokenCookie();
+        useAuthStore.getState().logout();
         window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {

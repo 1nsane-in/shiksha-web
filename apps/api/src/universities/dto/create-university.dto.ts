@@ -21,6 +21,8 @@ import {
   UniversitySupportDto,
   UniversityContentDto,
   UniversityAdminDto,
+  StudentDemographicsDto,
+  SocialLinksDto,
 } from './university-sub-dtos';
 
 export class CreateUniversityDto {
@@ -44,6 +46,13 @@ export class CreateUniversityDto {
   @ValidateNested() @Type(() => UniversitySupportDto) support: UniversitySupportDto;
   @ValidateNested() @Type(() => UniversityContentDto) content: UniversityContentDto;
   @ValidateNested() @Type(() => UniversityAdminDto) admin: UniversityAdminDto;
+  @ValidateNested() @Type(() => StudentDemographicsDto)
+  @IsOptional()
+  studentDemographics?: StudentDemographicsDto;
+
+  @ValidateNested() @Type(() => SocialLinksDto)
+  @IsOptional()
+  socialLinks?: SocialLinksDto;
 }
 
 

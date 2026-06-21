@@ -149,3 +149,5 @@ export interface University {
   createdAt?: string
   updatedAt?: string
 }
+
+export * from './bank-config';

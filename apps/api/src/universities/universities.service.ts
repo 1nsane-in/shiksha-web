@@ -302,17 +302,6 @@ export class UniversitiesService {
       );
     }
 
-    const totalSeats =
-      dto.academic.governmentSeats +
-      dto.academic.managementSeats +
-      dto.academic.nriSeats;
-
-    if (totalSeats !== dto.academic.totalSeats) {
-      throw new BadRequestException(
-        'Seat distribution does not match total seats',
-      );
-    }
-
     const university = await this.prisma.university.create({
       data: {
         slug,
@@ -327,19 +316,22 @@ export class UniversitiesService {
         status: UniversityStatus.DRAFT,
         location: { create: dto.location },
         contact: { create: dto.contact },
-        academic: { create: dto.academic },
-        recognition: { create: dto.recognition },
-        fees: { create: dto.fees },
+        academic: { create: { totalSeats: 0, governmentSeats: 0, managementSeats: 0, nriSeats: 0, ...dto.academic } },
+        recognition: { create: dto.recognition as any },
+        fees: { create: { tuitionAnnual: 0, registration: 0, ...dto.fees } as any },
         infrastructure: { create: dto.infrastructure },
         admission: {
           create: {
             ...dto.admission,
             applicationDeadline: new Date(dto.admission.applicationDeadline),
-          },
+            programEligibility: dto.admission.programEligibility as any,
+          } as any,
         },
         support: { create: dto.support },
         content: { create: dto.content },
-        admin: { create: dto.admin },
+        admin: { create: dto.admin as any },
+        studentDemographics: (dto.studentDemographics as any) ?? undefined,
+        socialLinks: (dto.socialLinks as any) ?? undefined,
       },
       include: {
         location: true,
@@ -399,6 +391,8 @@ export class UniversitiesService {
       'bannerImage',
       'brochureUrl',
       'status',
+      'studentDemographics',
+      'socialLinks',
     ];
 
     for (const field of scalarFields) {

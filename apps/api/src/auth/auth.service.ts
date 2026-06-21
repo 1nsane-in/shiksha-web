@@ -314,7 +314,18 @@ export class AuthService {
       throw new UnauthorizedException("Account is deactivated");
     }
 
-    await this.prisma.userSession.delete({ where: { id: session.id } });
+    // Grace period: keep old session valid for 30s instead of deleting immediately.
+    // Prevents multi-tab logout race: if Tab B tries to refresh with the same
+    // old token while Tab A's refresh is in-flight, it can still find the session.
+    await this.prisma.userSession.update({
+      where: { id: session.id },
+      data: { expiresAt: new Date(Date.now() + 30 * 1000) },
+    });
+
+    // Cleanup: garbage-collect fully expired sessions
+    await this.prisma.userSession.deleteMany({
+      where: { expiresAt: { lt: new Date() } },
+    });
 
     const { accessToken, refreshToken: newRefreshToken } =
       await this.generateTokens(session.user);

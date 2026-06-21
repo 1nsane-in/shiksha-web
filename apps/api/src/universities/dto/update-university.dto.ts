@@ -22,6 +22,8 @@ import {
   UniversitySupportDto,
   UniversityContentDto,
   UniversityAdminDto,
+  StudentDemographicsDto,
+  SocialLinksDto,
 } from './university-sub-dtos';
 
 export class UpdateUniversityDto {
@@ -46,6 +48,11 @@ export class UpdateUniversityDto {
   @IsOptional() @ValidateNested() @Type(() => UniversitySupportDto) support?: UniversitySupportDto;
   @IsOptional() @ValidateNested() @Type(() => UniversityContentDto) content?: UniversityContentDto;
   @IsOptional() @ValidateNested() @Type(() => UniversityAdminDto) admin?: UniversityAdminDto;
+  @IsOptional() @ValidateNested() @Type(() => StudentDemographicsDto)
+  studentDemographics?: StudentDemographicsDto;
+
+  @IsOptional() @ValidateNested() @Type(() => SocialLinksDto)
+  socialLinks?: SocialLinksDto;
 }
 
 

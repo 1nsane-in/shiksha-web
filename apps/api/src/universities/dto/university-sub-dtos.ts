@@ -11,7 +11,9 @@ import {
   Min,
   Max,
   IsObject,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ECFMGStatus } from './university-enums';
 
 export class UniversityLocationDto {
@@ -30,15 +32,15 @@ export class UniversityContactDto {
 }
 
 export class UniversityAcademicDto {
-  @IsArray() @IsString({ each: true }) programs: string[];
+  @IsArray() programs: any[];
   @IsString() duration: string;
   @IsString() medium: string;
   @IsArray() @IsString({ each: true }) specializations: string[];
   @IsArray() @IsString({ each: true }) intakeMonths: string[];
-  @IsNumber() @Min(1) totalSeats: number;
-  @IsNumber() @Min(0) governmentSeats: number;
-  @IsNumber() @Min(0) managementSeats: number;
-  @IsNumber() @Min(0) nriSeats: number;
+  @IsOptional() @IsNumber() @Min(0) totalSeats?: number;
+  @IsOptional() @IsNumber() @Min(0) governmentSeats?: number;
+  @IsOptional() @IsNumber() @Min(0) managementSeats?: number;
+  @IsOptional() @IsNumber() @Min(0) nriSeats?: number;
   @IsOptional() @IsString() curriculumType?: string;
   @IsOptional() @IsString() clinicalTraining?: string;
 }
@@ -50,14 +52,38 @@ export class UniversityRecognitionDto {
   @IsBoolean() nbaAccredited: boolean;
   @IsOptional() @IsNumber() worldRank?: number;
   @IsOptional() @IsNumber() nationalRank?: number;
+  @IsOptional() @IsString() rankingSource?: string;
+  @IsOptional() @IsString() worldRankingSource?: string;
+  @IsOptional() @IsString() nationalRankingSource?: string;
+  @IsOptional() @IsString() otherRankingSource?: string;
+  @IsOptional() @IsString() otherNationalRankingSource?: string;
+  @IsOptional() @IsObject() subjectRankings?: Record<string, string>;
   @IsArray() @IsString({ each: true }) accreditations: string[];
 }
 
+export class FeeBreakdownItemDto {
+  @IsString() name: string;
+  @IsNumber() @Min(0) amount: number;
+}
+
+export class ProgramFeeBreakdownDto {
+  @IsString() programName: string;
+  @IsNumber() @Min(0) annualTuition: number;
+  @IsNumber() @Min(0) totalSeats: number;
+  @IsOptional() @IsNumber() @Min(0) governmentSeats?: number;
+  @IsOptional() @IsNumber() @Min(0) managementSeats?: number;
+  @IsOptional() @IsNumber() @Min(0) nriSeats?: number;
+  @IsOptional() @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FeeBreakdownItemDto)
+  feeBreakdown?: FeeBreakdownItemDto[];
+}
+
 export class UniversityFeesDto {
-  @IsNumber() @Min(0) tuitionAnnual: number;
+  @IsOptional() @IsNumber() @Min(0) tuitionAnnual?: number;
   @IsNumber() @Min(0) totalProgram: number;
   @IsOptional() @IsNumber() @Min(0) hostelAnnual?: number;
-  @IsNumber() @Min(0) registration: number;
+  @IsOptional() @IsNumber() @Min(0) registration?: number;
   @IsOptional() @IsNumber() @Min(0) examination?: number;
   @IsOptional() @IsNumber() @Min(0) library?: number;
   @IsOptional() @IsObject() otherFees?: Record<string, number>;
@@ -67,15 +93,19 @@ export class UniversityFeesDto {
   @IsString() paymentSchedule: string;
   @IsString() refundPolicy: string;
   @IsOptional() @IsString() feeHikePolicy?: string;
+  @IsOptional() @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProgramFeeBreakdownDto)
+  programBreakdown?: ProgramFeeBreakdownDto[];
 }
 
 export class UniversityInfrastructureDto {
-  @IsNumber() @Min(1) hospitalBeds: number;
-  @IsNumber() @Min(1) departments: number;
+  @IsOptional() @IsNumber() @Min(0) hospitalBeds?: number;
+  @IsArray() @IsString({ each: true }) departments: string[];
   @IsOptional() @IsString() librarySize?: string;
   @IsNumber() @Min(0) hostelBoys: number;
   @IsNumber() @Min(0) hostelGirls: number;
-  @IsNumber() @Min(1) laboratories: number;
+  @IsArray() @IsString({ each: true }) laboratories: string[];
   @IsOptional() @IsNumber() @Min(0) campusArea?: number;
   @IsArray() @IsString({ each: true }) facilities: string[];
   @IsBoolean() cafeteria: boolean;
@@ -85,9 +115,13 @@ export class UniversityInfrastructureDto {
 
 export class UniversityAdmissionDto {
   @IsArray() @IsString({ each: true }) entranceExams: string[];
-  @IsString() minimumMarks: string;
+  @IsOptional() @IsString() minimumMarks?: string; // Legacy field
   @IsString() ageCriteria: string;
-  @IsString() eligibility: string;
+  @IsOptional() @IsString() eligibility?: string; // Legacy field
+  @IsOptional() @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProgramEligibilityDto)
+  programEligibility?: ProgramEligibilityDto[];
   @IsArray() @IsString({ each: true }) requiredDocuments: string[];
   @IsDateString() applicationDeadline: string;
   @IsNumber() @Min(0) applicationFee: number;
@@ -118,11 +152,42 @@ export class UniversityContentDto {
   @IsOptional() @IsUrl() virtualTour?: string;
 }
 
+export class StudentDemographicsDto {
+  @IsNumber() @Min(0) totalStudents: number;
+  @IsNumber() @Min(0) localStudents: number;
+  @IsNumber() @Min(0) foreignStudents: number;
+  @IsOptional() @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ForeignStudentBreakdownDto)
+  foreignByCountry?: ForeignStudentBreakdownDto[];
+}
+
+export class ForeignStudentBreakdownDto {
+  @IsString() country: string;
+  @IsNumber() @Min(0) count: number;
+}
+
+export class SocialLinksDto {
+  @IsOptional() @IsUrl() facebook?: string;
+  @IsOptional() @IsUrl() instagram?: string;
+  @IsOptional() @IsUrl() youtube?: string;
+  @IsOptional() @IsUrl() linkedin?: string;
+  @IsOptional() @IsUrl() twitter?: string;
+  @IsOptional() @IsUrl() tiktok?: string;
+}
+
+export class ProgramEligibilityDto {
+  @IsString() minimumMarks: string;
+  @IsString() eligibility: string;
+}
+
 export class UniversityAdminDto {
   @IsString() pocName: string;
   @IsString() pocDesignation: string;
   @IsEmail() pocEmail: string;
-  @IsString() pocPhone: string;
+  @IsOptional() @IsString() pocPhone?: string; // Legacy field
+  @IsString() phoneCountryCode: string;
+  @IsString() phoneNumber: string;
   @IsString() accountName: string;
   @IsString() accountNumber: string;
   @IsString() bankName: string;
@@ -131,4 +196,8 @@ export class UniversityAdminDto {
   @IsOptional() @IsString() gstNumber?: string;
   @IsOptional() @IsString() panNumber?: string;
   @IsNumber() @Min(0) @Max(100) commission: number;
+
+  // Country-specific bank details (for non-Indian universities)
+  @IsOptional() @IsString() bankCountry?: string;
+  @IsOptional() @IsObject() bankDetails?: any;
 }

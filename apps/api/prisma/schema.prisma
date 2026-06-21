@@ -22,13 +22,13 @@ model User {
   lastLoginAt     DateTime?
   lastLoginIp     String?
   aiConversations AIConversation[]
+  deviceTokens    DeviceToken[]
   notifications   Notification[]
   orgMemberships  OrganizationMember[]
-  student         Student?
   parent          Parent?
+  student         Student?
   activityLogs    UserActivityLog[]
   sessions        UserSession[]
-  deviceTokens    DeviceToken[]
 
   @@index([email])
   @@index([role])
@@ -91,10 +91,6 @@ model Student {
   state                   String?
   country                 String?
   pincode                 String?
-  passportNumber          String?
-  passportExpiry          DateTime?
-  passportIssueDate       DateTime?
-  passportIssueCountry    String?
   neetScore               Int?
   neetRank                Int?
   twelfthPercentage       Float?
@@ -103,9 +99,15 @@ model Student {
   applicationStatus       ApplicationStatus       @default(NOT_STARTED)
   createdAt               DateTime                @default(now())
   updatedAt               DateTime                @updatedAt
+  passportExpiry          DateTime?
+  passportIssueCountry    String?
+  passportIssueDate       DateTime?
+  passportNumber          String?
   aiJobs                  AIJob[]
   admissionLetter         AdmissionLetter?
+  timelineEvents          ApplicationTimeline[]
   automationEvents        AutomationEvent[]
+  examRecords             ExamRecord[]
   invitationLetter        InvitationLetter?
   notificationPreferences NotificationPreference?
   payments                Payment[]
@@ -113,8 +115,6 @@ model Student {
   user                    User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   documents               StudentDocument[]
   applications            UniversityApplication[]
-  examRecords             ExamRecord[]
-  timelineEvents          ApplicationTimeline[]
 
   @@index([userId])
   @@index([applicationStatus])
@@ -139,33 +139,35 @@ model StageHistory {
 }
 
 model University {
-  id              String                    @id @default(uuid())
-  slug            String                    @unique
-  name            String
-  shortName       String
-  establishedYear Int
-  type            UniversityType
-  website         String
-  logo            String?
-  bannerImage     String?
-  brochureUrl     String?
-  status          UniversityStatus          @default(DRAFT)
-  createdAt       DateTime                  @default(now())
-  updatedAt       DateTime                  @updatedAt
-  verifiedAt      DateTime?
-  location        UniversityLocation?
-  contact         UniversityContact?
-  academic        UniversityAcademic?
-  recognition     UniversityRecognition?
-  fees            UniversityFees?
-  infrastructure  UniversityInfrastructure?
-  admission       UniversityAdmission?
-  support         UniversitySupport?
-  content         UniversityContent?
-  admin           UniversityAdmin?
-  courses         UniversityCourse[]
-  applications    UniversityApplication[]
-  documents       UniversityDocument[]
+  id                  String                    @id @default(uuid())
+  name                String
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+  slug                String                    @unique
+  shortName           String
+  establishedYear     Int
+  type                UniversityType
+  website             String
+  logo                String?
+  bannerImage         String?
+  status              UniversityStatus          @default(DRAFT)
+  verifiedAt          DateTime?
+  brochureUrl         String?
+  studentDemographics Json?
+  socialLinks         Json?
+  academic            UniversityAcademic?
+  admin               UniversityAdmin?
+  admission           UniversityAdmission?
+  applications        UniversityApplication[]
+  contact             UniversityContact?
+  content             UniversityContent?
+  courses             UniversityCourse[]
+  documents           UniversityDocument[]
+  fees                UniversityFees?
+  infrastructure      UniversityInfrastructure?
+  location            UniversityLocation?
+  recognition         UniversityRecognition?
+  support             UniversitySupport?
 
   @@index([slug])
   @@index([name])
@@ -196,7 +198,6 @@ model UniversityContact {
 model UniversityAcademic {
   id               String     @id @default(uuid())
   universityId     String     @unique
-  programs         String[]
   duration         String
   medium           String
   specializations  String[]
@@ -207,20 +208,27 @@ model UniversityAcademic {
   nriSeats         Int
   curriculumType   String?
   clinicalTraining String?
+  programs         Json       @default("[]") @db.Json
   university       University @relation(fields: [universityId], references: [id], onDelete: Cascade)
 }
 
 model UniversityRecognition {
-  id             String      @id @default(uuid())
-  universityId   String      @unique
-  bodies         String[]
-  ecfmgStatus    ECFMGStatus
-  naacGrade      String?
-  nbaAccredited  Boolean     @default(false)
-  worldRank      Int?
-  nationalRank   Int?
-  accreditations String[]
-  university     University  @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  id                         String      @id @default(uuid())
+  universityId               String      @unique
+  bodies                     String[]
+  ecfmgStatus                ECFMGStatus
+  naacGrade                  String?
+  nbaAccredited              Boolean     @default(false)
+  worldRank                  Int?
+  nationalRank               Int?
+  rankingSource              String?
+  accreditations             String[]
+  subjectRankings            Json?
+  worldRankingSource         String?
+  nationalRankingSource      String?
+  otherRankingSource         String?
+  otherNationalRankingSource String?
+  university                 University  @relation(fields: [universityId], references: [id], onDelete: Cascade)
 }
 
 model UniversityFees {
@@ -239,23 +247,24 @@ model UniversityFees {
   paymentSchedule      String
   refundPolicy         String
   feeHikePolicy        String?
+  programBreakdown     Json?
   university           University @relation(fields: [universityId], references: [id], onDelete: Cascade)
 }
 
 model UniversityInfrastructure {
   id             String     @id @default(uuid())
   universityId   String     @unique
-  hospitalBeds   Int
-  departments    Int
+  hospitalBeds   Int?
   librarySize    String?
   hostelBoys     Int
   hostelGirls    Int
-  laboratories   Int
   campusArea     Float?
   facilities     String[]
   cafeteria      Boolean    @default(false)
   wifiCampus     Boolean    @default(false)
   transportation Boolean    @default(false)
+  departments    String[]   @default([])
+  laboratories   String[]   @default([])
   university     University @relation(fields: [universityId], references: [id], onDelete: Cascade)
 }
 
@@ -263,9 +272,10 @@ model UniversityAdmission {
   id                  String     @id @default(uuid())
   universityId        String     @unique
   entranceExams       String[]
-  minimumMarks        String
+  minimumMarks        String?
   ageCriteria         String
-  eligibility         String
+  eligibility         String?
+  programEligibility  Json?
   requiredDocuments   String[]
   applicationDeadline DateTime
   applicationFee      Float
@@ -304,21 +314,32 @@ model UniversityContent {
 }
 
 model UniversityAdmin {
-  id             String     @id @default(uuid())
-  universityId   String     @unique
-  pocName        String
-  pocDesignation String
-  pocEmail       String
-  pocPhone       String
-  accountName    String
-  accountNumber  String
-  bankName       String
-  bankBranch     String
-  ifscCode       String
-  gstNumber      String?
-  panNumber      String?
-  commission     Float
-  university     University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  id                    String     @id @default(uuid())
+  universityId          String     @unique
+  pocName               String
+  pocDesignation        String
+  pocEmail              String
+  pocPhone              String?
+  phoneCountryCode      String     @default("+91")
+  phoneNumber           String     @default("")
+  accountName           String
+  accountNumber         String
+  bankName              String
+  bankBranch            String
+  ifscCode              String
+  gstNumber             String?
+  panNumber             String?
+  commission            Float
+  recipientName         String?
+  recipientBank         String?
+  bankIdCode            String?
+  recipientInn          String?
+  recipientKpp          String?
+  singleTreasuryAccount String?
+  paymentPurpose        String?
+  bankCountry           String?
+  bankDetails           Json?
+  university            University @relation(fields: [universityId], references: [id], onDelete: Cascade)
 }
 
 model UniversityDocument {
@@ -356,26 +377,26 @@ model UniversityCourse {
 model UniversityApplication {
   id               String                @id @default(uuid())
   studentId        String
-  universityId     String
+  courseId         String?
   status           String                @default("pending")
-  firstName        String?
-  lastName         String?
+  universityId     String
+  createdAt        DateTime              @default(now())
   email            String?
+  firstName        String?
+  formData         Json?
+  lastName         String?
   selectedProgram  String?
   submittedAt      DateTime?
-  formData         Json?
-  createdAt        DateTime              @default(now())
   updatedAt        DateTime              @updatedAt
-  course           UniversityCourse?     @relation(fields: [courseId], references: [id], onDelete: SetNull)
-  courseId         String?
+  admissionLetter  AdmissionLetter?
+  timelineEvents   ApplicationTimeline[]
+  examRecord       ExamRecord?
+  invitationLetter InvitationLetter?
+  Payment          Payment[]
+  tickets          SupportTicket[]
+  course           UniversityCourse?     @relation(fields: [courseId], references: [id])
   student          Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
   university       University            @relation(fields: [universityId], references: [id])
-  admissionLetter  AdmissionLetter?
-  invitationLetter InvitationLetter?
-  examRecord       ExamRecord?
-  timelineEvents   ApplicationTimeline[]
-  tickets          SupportTicket[]
-  payments         Payment[]
 
   @@index([studentId])
   @@index([status])
@@ -457,49 +478,50 @@ model StudentDocument {
 }
 
 model Payment {
-  id                String                @id @default(uuid())
-  studentId         String
-  applicationId     String
-  stage             Int
-  amount            Float
-  currency          String                @default("INR")
-  status            PaymentStatus         @default(PENDING)
-  razorpayOrderId   String?
-  razorpayPaymentId String?
-  razorpaySignature String?
-  paymentMethod     String?
-  bankReference     String?
-  manuallyApproved  Boolean               @default(false)
-  approvedBy        String?
-  approvalNote      String?
-  paidAt            DateTime?
-  refundAmount      Float?
-  refundReason      String?
-  refundedAt        DateTime?
-  refundStatus      String?
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
-  student           Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  application       UniversityApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  id                    String                @id @default(uuid())
+  studentId             String
+  stage                 Int
+  amount                Float
+  currency              String                @default("INR")
+  status                PaymentStatus         @default(PENDING)
+  razorpayOrderId       String?
+  razorpayPaymentId     String?
+  razorpaySignature     String?
+  paymentMethod         String?
+  bankReference         String?
+  manuallyApproved      Boolean               @default(false)
+  approvedBy            String?
+  approvalNote          String?
+  paidAt                DateTime?
+  refundAmount          Float?
+  refundReason          String?
+  refundedAt            DateTime?
+  refundStatus          String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  applicationId         String
+  UniversityApplication UniversityApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  student               Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
   @@index([applicationId])
   @@index([status])
   @@index([createdAt])
+  @@index([applicationId])
 }
 
 model AdmissionLetter {
   id            String                 @id @default(uuid())
   studentId     String                 @unique
-  applicationId String?                @unique
   fileUrl       String
   fileName      String?
   uploadedBy    String
   uploadedAt    DateTime               @default(now())
   viewCount     Int                    @default(0)
   downloadCount Int                    @default(0)
+  applicationId String?                @unique
+  application   UniversityApplication? @relation(fields: [applicationId], references: [id])
   student       Student                @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  application   UniversityApplication? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
 }
 
 model ExamRecord {
@@ -525,7 +547,6 @@ model ExamRecord {
 model InvitationLetter {
   id               String                 @id @default(uuid())
   studentId        String                 @unique
-  applicationId    String?                @unique
   fileUrl          String
   fileName         String?
   uploadedBy       String
@@ -535,8 +556,9 @@ model InvitationLetter {
   downloadCount    Int                    @default(0)
   lastViewedAt     DateTime?
   lastDownloadedAt DateTime?
+  applicationId    String?                @unique
+  application      UniversityApplication? @relation(fields: [applicationId], references: [id])
   student          Student                @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  application      UniversityApplication? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
 }
 
 model VisaCenter {
@@ -1101,7 +1123,6 @@ model SupportTicket {
   id             String                 @id @default(uuid())
   organizationId String?
   userId         String
-  applicationId  String?
   subject        String
   description    String
   categoryId     String?
@@ -1111,8 +1132,9 @@ model SupportTicket {
   resolvedAt     DateTime?
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt
+  applicationId  String?
+  application    UniversityApplication? @relation(fields: [applicationId], references: [id])
   messages       SupportTicketMessage[]
-  application    UniversityApplication? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([status])
@@ -1149,17 +1171,67 @@ model Announcement {
   @@index([isActive])
 }
 
+model Parent {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VisaApplication {
+  id              String                @id @default(uuid())
+  studentId       String
+  applicationId   String?
+  visaCenterId    String?
+  checklistId     String?
+  status          VisaApplicationStatus @default(DRAFT)
+  passportNumber  String?
+  passportExpiry  DateTime?
+  visaType        String?
+  submissionDate  DateTime?
+  appointmentDate DateTime?
+  documentUrls    String[]
+  remarks         String?
+  notes           String?
+  submittedAt     DateTime?
+  decidedAt       DateTime?
+  decidedBy       String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  checklist       VisaChecklist?        @relation(fields: [checklistId], references: [id])
+  visaCenter      VisaCenter?           @relation(fields: [visaCenterId], references: [id])
+
+  @@index([studentId])
+  @@index([applicationId])
+  @@index([status])
+}
+
+model Consultation {
+  id        String   @id
+  name      String
+  email     String
+  phone     String
+  neetScore Int?
+  state     String?
+  country   String?
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model GalleryImage {
+  id        String   @id
+  title     String?
+  url       String
+  key       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
 enum Role {
   SUPER_ADMIN
   ADMIN
   STUDENT
   PARENT
-}
-
-model Parent {
-  id     String @id @default(uuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum ApplicationStatus {
@@ -1330,34 +1402,6 @@ enum ExamResult {
   AWAITED
   PASSED
   FAILED
-}
-
-model VisaApplication {
-  id              String                @id @default(uuid())
-  studentId       String
-  applicationId   String?
-  visaCenterId    String?
-  checklistId     String?
-  status          VisaApplicationStatus @default(DRAFT)
-  passportNumber  String?
-  passportExpiry  DateTime?
-  visaType        String?
-  submissionDate  DateTime?
-  appointmentDate DateTime?
-  documentUrls    String[]
-  remarks         String?
-  notes           String?
-  submittedAt     DateTime?
-  decidedAt       DateTime?
-  decidedBy       String?
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-  visaCenter      VisaCenter?           @relation(fields: [visaCenterId], references: [id], onDelete: SetNull)
-  checklist       VisaChecklist?        @relation(fields: [checklistId], references: [id], onDelete: SetNull)
-
-  @@index([studentId])
-  @@index([applicationId])
-  @@index([status])
 }
 
 enum VisaApplicationStatus {
