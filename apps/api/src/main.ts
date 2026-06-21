@@ -3,10 +3,8 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
-import * as Sentry from '@sentry/nestjs';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { initSentry } from './common/sentry.config';
 import { AppModule } from './app.module';
 import { AnalyticsService } from './common/services/analytics.service';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
@@ -27,8 +25,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document);
-
-  initSentry(configService);
 
   app.useGlobalFilters(new AllExceptionsFilter());
 

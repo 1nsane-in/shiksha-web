@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateConsultationDto } from './dto/create-consultation.dto';
@@ -8,7 +9,11 @@ export class ConsultationService {
 
   async create(dto: CreateConsultationDto) {
     return this.prisma.consultation.create({
-      data: dto,
+      data: {
+        id: randomUUID(),
+        ...dto,
+        updatedAt: new Date(),
+      },
     });
   }
 

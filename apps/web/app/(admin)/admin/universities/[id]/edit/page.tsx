@@ -125,6 +125,8 @@ export default function EditUniversityPage() {
                 <SelectContent>
                   <SelectItem value="GOVERNMENT">Government</SelectItem>
                   <SelectItem value="PRIVATE">Private</SelectItem>
+                  <SelectItem value="DEEMED">Deemed</SelectItem>
+                  <SelectItem value="AUTONOMOUS">Autonomous</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -305,6 +307,108 @@ export default function EditUniversityPage() {
             <label className="flex items-center gap-2 text-sm">
               <Checkbox checked={formData.infrastructure.transportation} onCheckedChange={(v) => updateField("infrastructure", "transportation", v)} />
               Transportation
+            </label>
+          </div>
+        </div>
+
+        {/* Recognition */}
+        <div className="rounded-lg border border-border bg-card p-3 sm:p-5 space-y-4">
+          <h2 className="text-sm font-semibold">Recognition & Accreditation</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <Label>Recognition Bodies</Label>
+              <Input value={formData.recognition.bodies?.join(", ") || ""} onChange={(e) => updateField("recognition", "bodies", e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean))} placeholder="NMC, WHO, etc." />
+            </div>
+            <div>
+              <Label>ECFMG Status</Label>
+              <Select value={formData.recognition.ecfmgStatus} onValueChange={(v) => updateField("recognition", "ecfmgStatus", v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="APPROVED">Approved</SelectItem>
+                  <SelectItem value="NOT_REQUIRED">Not Required</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>World Rank</Label>
+              <Input type="number" value={formData.recognition.worldRank ?? ""} onChange={(e) => updateField("recognition", "worldRank", parseInt(e.target.value) || null)} />
+            </div>
+            <div>
+              <Label>National Rank</Label>
+              <Input type="number" value={formData.recognition.nationalRank ?? ""} onChange={(e) => updateField("recognition", "nationalRank", parseInt(e.target.value) || null)} />
+            </div>
+          </div>
+        </div>
+
+        {/* Admission */}
+        <div className="rounded-lg border border-border bg-card p-3 sm:p-5 space-y-4">
+          <h2 className="text-sm font-semibold">Admission Details</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <Label>Entrance Exams</Label>
+              <Input value={formData.admission.entranceExams?.join(", ") || ""} onChange={(e) => updateField("admission", "entranceExams", e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean))} />
+            </div>
+            <div>
+              <Label>Minimum Marks</Label>
+              <Input value={formData.admission.minimumMarks || ""} onChange={(e) => updateField("admission", "minimumMarks", e.target.value)} />
+            </div>
+            <div>
+              <Label>Age Criteria</Label>
+              <Input value={formData.admission.ageCriteria || ""} onChange={(e) => updateField("admission", "ageCriteria", e.target.value)} />
+            </div>
+            <div>
+              <Label>Eligibility</Label>
+              <Input value={formData.admission.eligibility || ""} onChange={(e) => updateField("admission", "eligibility", e.target.value)} />
+            </div>
+            <div>
+              <Label>Application Fee</Label>
+              <Input type="number" value={formData.admission.applicationFee} onChange={(e) => updateField("admission", "applicationFee", parseFloat(e.target.value) || 0)} />
+            </div>
+            <div>
+              <Label>Application Deadline</Label>
+              <Input type="date" value={formData.admission.applicationDeadline ? formData.admission.applicationDeadline.split("T")[0] : ""} onChange={(e) => updateField("admission", "applicationDeadline", e.target.value ? new Date(e.target.value).toISOString() : "")} />
+            </div>
+            <div className="sm:col-span-2">
+              <Label>Selection Process</Label>
+              <Textarea value={formData.admission.selectionProcess || ""} onChange={(e) => updateField("admission", "selectionProcess", e.target.value)} rows={3} />
+            </div>
+          </div>
+        </div>
+
+        {/* Support */}
+        <div className="rounded-lg border border-border bg-card p-3 sm:p-5 space-y-4">
+          <h2 className="text-sm font-semibold">Support Services</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <Label>Placement Rate (%)</Label>
+              <Input type="number" value={formData.support.placementRate ?? ""} onChange={(e) => updateField("support", "placementRate", parseFloat(e.target.value) || 0)} />
+            </div>
+            <div>
+              <Label>Average Package</Label>
+              <Input type="number" value={formData.support.averagePackage ?? ""} onChange={(e) => updateField("support", "averagePackage", parseFloat(e.target.value) || 0)} />
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-4 pt-2">
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox checked={formData.support.visaAssistance} onCheckedChange={(v) => updateField("support", "visaAssistance", v)} />
+              Visa Assistance
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox checked={formData.support.internationalStudentSupport} onCheckedChange={(v) => updateField("support", "internationalStudentSupport", v)} />
+              International Student Support
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox checked={formData.support.counselingServices} onCheckedChange={(v) => updateField("support", "counselingServices", v)} />
+              Counseling Services
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox checked={formData.support.careerGuidance} onCheckedChange={(v) => updateField("support", "careerGuidance", v)} />
+              Career Guidance
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox checked={formData.support.alumniNetwork} onCheckedChange={(v) => updateField("support", "alumniNetwork", v)} />
+              Alumni Network
             </label>
           </div>
         </div>

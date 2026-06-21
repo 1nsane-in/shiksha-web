@@ -14,6 +14,7 @@ import {
   UploadUniversityDocumentDto,
   UniversityQueryDto,
   UniversityStatus,
+  UniversityType,
 } from './universities.dto';
 import { PaginatorService } from '../common/services/paginator.service';
 import { createQueryBuilder } from '../common/helpers/prisma-query-builder';
@@ -98,6 +99,7 @@ export class UniversitiesService {
           logo: true,
           bannerImage: true,
           brochureUrl: true,
+          website: true,
           location: {
             select: {
               country: true,
@@ -290,6 +292,9 @@ export class UniversitiesService {
   }
 
   async create(dto: CreateUniversityDto) {
+    if (!dto.name) {
+      throw new ConflictException('University name is required');
+    }
     const slug = this.generateSlug(dto.name);
 
     const existing = await this.prisma.university.findUnique({
@@ -306,32 +311,26 @@ export class UniversitiesService {
       data: {
         slug,
         name: dto.name,
-        shortName: dto.shortName,
-        establishedYear: dto.establishedYear,
-        type: dto.type,
-        website: dto.website,
+        shortName: dto.shortName ?? dto.name,
+        establishedYear: dto.establishedYear ?? new Date().getFullYear(),
+        type: dto.type ?? UniversityType.GOVERNMENT,
+        website: dto.website ?? '',
         logo: dto.logo,
         bannerImage: dto.bannerImage,
         brochureUrl: dto.brochureUrl,
         status: UniversityStatus.DRAFT,
-        location: { create: dto.location },
-        contact: { create: dto.contact },
-        academic: { create: { totalSeats: 0, governmentSeats: 0, managementSeats: 0, nriSeats: 0, ...dto.academic } },
-        recognition: { create: dto.recognition as any },
-        fees: { create: { tuitionAnnual: 0, registration: 0, ...dto.fees } as any },
-        infrastructure: { create: dto.infrastructure },
-        admission: {
-          create: {
-            ...dto.admission,
-            applicationDeadline: new Date(dto.admission.applicationDeadline),
-            programEligibility: dto.admission.programEligibility as any,
-          } as any,
-        },
-        support: { create: dto.support },
-        content: { create: dto.content },
-        admin: { create: dto.admin as any },
-        studentDemographics: (dto.studentDemographics as any) ?? undefined,
-        socialLinks: (dto.socialLinks as any) ?? undefined,
+        location: dto.location ? { create: this.sanitizeLocation(dto.location) as any } : undefined,
+        contact: dto.contact ? { create: this.sanitizeContact(dto.contact) as any } : undefined,
+        academic: dto.academic ? { create: this.sanitizeAcademic(dto.academic) as any } : undefined,
+        recognition: dto.recognition ? { create: dto.recognition as any } : undefined,
+        fees: dto.fees ? { create: { ...dto.fees } as any } : undefined,
+        infrastructure: dto.infrastructure ? { create: this.sanitizeInfrastructure(dto.infrastructure) as any } : undefined,
+        admission: dto.admission ? { create: this.sanitizeAdmission(dto.admission) as any } : undefined,
+        support: dto.support ? { create: dto.support as any } : undefined,
+        content: dto.content ? { create: this.sanitizeContent(dto.content) as any } : undefined,
+        admin: dto.admin ? { create: dto.admin as any } : undefined,
+        studentDemographics: dto.studentDemographics as any ?? undefined,
+        socialLinks: dto.socialLinks as any ?? undefined,
       },
       include: {
         location: true,
@@ -348,6 +347,66 @@ export class UniversitiesService {
     });
 
     return university;
+  }
+
+  private sanitizeLocation(loc: any) {
+    return { country: loc.country ?? '', state: loc.state ?? '', city: loc.city ?? '', address: loc.address ?? '', latitude: loc.latitude, longitude: loc.longitude };
+  }
+
+  private sanitizeContact(con: any) {
+    return { email: con.email ?? '', phone: con.phone ?? '', admissionOfficeHours: con.admissionOfficeHours ?? '' };
+  }
+
+  private sanitizeAcademic(ac: any) {
+    return {
+      programs: ac.programs ?? [],
+      duration: ac.duration ?? '',
+      medium: ac.medium ?? '',
+      specializations: ac.specializations ?? [],
+      intakeMonths: ac.intakeMonths ?? [],
+      totalSeats: ac.totalSeats ?? 0,
+      governmentSeats: ac.governmentSeats ?? 0,
+      managementSeats: ac.managementSeats ?? 0,
+      nriSeats: ac.nriSeats ?? 0,
+      curriculumType: ac.curriculumType,
+      clinicalTraining: ac.clinicalTraining,
+    };
+  }
+
+  private sanitizeInfrastructure(inf: any) {
+    return {
+      hospitalBeds: inf.hospitalBeds,
+      departments: inf.departments ?? [],
+      librarySize: inf.librarySize,
+      hostelBoys: inf.hostelBoys ?? 0,
+      hostelGirls: inf.hostelGirls ?? 0,
+      laboratories: inf.laboratories ?? [],
+      campusArea: inf.campusArea,
+      facilities: inf.facilities ?? [],
+      cafeteria: inf.cafeteria ?? false,
+      wifiCampus: inf.wifiCampus ?? false,
+      transportation: inf.transportation ?? false,
+    };
+  }
+
+  private sanitizeAdmission(adm: any) {
+    return {
+      ...adm,
+      applicationDeadline: adm.applicationDeadline ? new Date(adm.applicationDeadline) : undefined,
+      programEligibility: adm.programEligibility as any,
+    };
+  }
+
+  private sanitizeContent(con: any) {
+    return {
+      shortDescription: con.shortDescription ?? '',
+      longDescription: con.longDescription ?? '',
+      highlights: con.highlights ?? [],
+      whyChooseUs: con.whyChooseUs,
+      gallery: con.gallery ?? [],
+      videoTour: con.videoTour,
+      virtualTour: con.virtualTour,
+    };
   }
 
   async update(id: string, dto: UpdateUniversityDto) {

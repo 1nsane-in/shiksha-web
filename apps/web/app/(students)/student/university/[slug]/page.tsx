@@ -60,6 +60,8 @@ function typeBadgeStyle(type: string) {
   const map: Record<string, { label: string; cls: string }> = {
     GOVERNMENT: { label: "Government", cls: "bg-emerald-50 text-emerald-700" },
     PRIVATE: { label: "Private", cls: "bg-violet-50 text-violet-700" },
+    DEEMED: { label: "Deemed", cls: "bg-amber-50 text-amber-700" },
+    AUTONOMOUS: { label: "Autonomous", cls: "bg-teal-50 text-teal-700" },
   };
   return map[type] ?? { label: type, cls: "bg-gray-50 text-gray-600" };
 }
@@ -480,15 +482,23 @@ function UniversityContent({
           )}
 
           {/* ── About / Gallery ── */}
-          {hasGallery && (
+          {(content?.shortDescription || content?.longDescription || hasGallery) && (
             <SectionCard title="About & Gallery">
-              {(uni as any).description && (
+              {content?.shortDescription && (
                 <p
-                  className="mb-6 text-sm leading-relaxed"
+                  className="mb-4 text-sm leading-relaxed"
                   style={{ color: theme.inkMuted }}
                 >
-                  {(uni as any).description}
+                  {content.shortDescription}
                 </p>
+              )}
+              {content?.longDescription && (
+                <div
+                  className="mb-6 text-sm leading-relaxed whitespace-pre-wrap"
+                  style={{ color: theme.inkMuted }}
+                >
+                  {content.longDescription}
+                </div>
               )}
               {hasGallery && (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

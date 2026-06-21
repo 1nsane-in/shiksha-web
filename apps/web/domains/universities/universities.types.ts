@@ -240,46 +240,6 @@ export interface UniversityDetail extends UniversityListItem {
   studentDemographics?: StudentDemographics | null;
   socialLinks?: SocialLinks | null;
   _count?: UniversityCount;
-  courses: {
-    id: string;
-    name: string;
-    duration: number;
-    fees: number;
-    seats: number;
-    isActive: boolean;
-  }[];
-  recognition: {
-    nmcApproved: boolean;
-    whoListed: boolean;
-    ecfmgVerified: boolean;
-    accreditedBy: string;
-    globalRank: number;
-    countryRank: number;
-    approvals: string[];
-  } | null;
-  fees: {
-    currency: string;
-    tuitionFee: number;
-    hostelFee: number;
-    totalFee: number;
-    paymentTerms: string;
-    installmentAvailable: boolean;
-    otherFees: Record<string, number>;
-  } | null;
-  admin: {
-    assignedAdminId: string;
-    assignedAdminName: string;
-    lastReviewedAt: string;
-    notes: string;
-  } | null;
-  documents?: {
-    id: string;
-    type: string;
-    fileUrl: string;
-    fileName: string;
-    fileSize: number;
-    uploadedAt: string;
-  }[];
 }
 
 export interface UniversityFilters {

@@ -9,6 +9,9 @@ import {
   useUpdateUniversity,
   useUploadUniversityDocument,
   useDeleteUniversityDocument,
+  useAddUniversityCourse,
+  useUpdateUniversityCourse,
+  useDeleteUniversityCourse,
 } from "@/domains/universities";
 import { uploadFile } from "@/domains/documents/documents.api";
 import { Button } from "@repo/ui";
@@ -45,6 +48,13 @@ import {
   ScrollText,
   Banknote,
   Trash2,
+  TrendingUp,
+  Heart,
+  MessageSquare,
+  Languages,
+  Dumbbell,
+  Building2,
+  Plus,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -222,6 +232,9 @@ export default function UniversityDetailPage() {
   const updateUniversityMut = useUpdateUniversity();
   const uploadDocMut = useUploadUniversityDocument();
   const deleteDocMut = useDeleteUniversityDocument();
+  const addCourseMut = useAddUniversityCourse();
+  const updateCourseMut = useUpdateUniversityCourse();
+  const deleteCourseMut = useDeleteUniversityCourse();
 
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [docForm, setDocForm] = useState({
@@ -481,6 +494,9 @@ export default function UniversityDetailPage() {
             <TabsTrigger value="support" className="px-4 text-xs font-medium">
               Support
             </TabsTrigger>
+            <TabsTrigger value="courses" className="px-4 text-xs font-medium">
+              Courses
+            </TabsTrigger>
           </TabsList>
 
           {/* ===== Overview Tab ===== */}
@@ -583,7 +599,7 @@ export default function UniversityDetailPage() {
                     <InfoRow
                       icon={BookOpen}
                       label="Programs"
-                      value={<BadgeList items={a.programs} />}
+                      value={<BadgeList items={a.programs.map((p: { name: string }) => p.name)} />}
                     />
                     <InfoRow icon={Clock} label="Duration" value={a.duration} />
                     <InfoRow icon={Globe} label="Medium" value={a.medium} />
@@ -618,7 +634,7 @@ export default function UniversityDetailPage() {
                 <CardContent className="space-y-4 p-5">
                   <SectionHeading icon={BookOpen} title="Syllabus & Medium" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <InfoRow icon={GraduationCap} label="Offered Programs" value={<BadgeList items={a.programs} />} />
+                    <InfoRow icon={GraduationCap} label="Offered Programs" value={<BadgeList items={a.programs.map((p: { name: string }) => p.name)} />} />
                     <InfoRow icon={Clock} label="Course Duration" value={a.duration} />
                     <InfoRow icon={Globe} label="Teaching Medium" value={a.medium} />
                     <InfoRow icon={Calendar} label="Academic Intakes" value={<BadgeList items={a.intakeMonths} />} />
@@ -701,7 +717,7 @@ export default function UniversityDetailPage() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            </>
           ) : (
             <div className="text-center py-12 text-sm text-gray-500 bg-white border border-[#ECEAE6] rounded-xl">
               No infrastructure metrics documented.
@@ -848,8 +864,118 @@ export default function UniversityDetailPage() {
               </div>
             )}
           </TabsContent>
+
+        {/* ===== Courses Tab ===== */}
+        <TabsContent value="courses" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-[#111]">Offered Courses</h3>
+            <Button
+              size="sm"
+              className="bg-[#3730A3] hover:bg-[#2e288a] text-white font-medium cursor-pointer h-9 px-4"
+              onClick={() => {
+                const name = prompt("Course name:");
+                if (!name) return;
+                addCourseMut.mutate(
+                  { uniId: university.id, data: { name, duration: 5, fees: 0, seats: 0 } },
+                  { onError: () => toast.error("Failed to add course") }
+                );
+              }}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Add Course
+            </Button>
+          </div>
+
+          {university.courses && university.courses.length > 0 ? (
+            <div className="overflow-x-auto rounded-xl border border-[#ECEAE6] bg-white">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[#ECEAE6] bg-[#FAFAF8]">
+                    <th className="px-4 py-3 text-left font-semibold text-[#111]">Name</th>
+                    <th className="px-4 py-3 text-left font-semibold text-[#111]">Duration</th>
+                    <th className="px-4 py-3 text-left font-semibold text-[#111]">Fees</th>
+                    <th className="px-4 py-3 text-left font-semibold text-[#111]">Seats</th>
+                    <th className="px-4 py-3 text-left font-semibold text-[#111]">Status</th>
+                    <th className="px-4 py-3 text-right font-semibold text-[#111]">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {university.courses.map((course) => (
+                    <tr key={course.id} className="border-b border-[#ECEAE6] last:border-0 hover:bg-[#FAFAF8]">
+                      <td className="px-4 py-3 font-medium text-[#111]">{course.name}</td>
+                      <td className="px-4 py-3 text-[#6B6B6B]">{course.duration} yrs</td>
+                      <td className="px-4 py-3 text-[#6B6B6B]">₹{course.fees?.toLocaleString() ?? "—"}</td>
+                      <td className="px-4 py-3 text-[#6B6B6B]">{course.seats}</td>
+                      <td className="px-4 py-3">
+                        <Badge className={course.isActive ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-50 text-gray-700 border-gray-200"}>
+                          {course.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 text-xs cursor-pointer"
+                            onClick={() => {
+                              const newName = prompt("Course name:", course.name);
+                              if (!newName) return;
+                              updateCourseMut.mutate(
+                                { courseId: course.id, data: { name: newName } },
+                                { onError: () => toast.error("Failed to update course") }
+                              );
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 text-xs text-red-600 border-red-200 hover:bg-red-50 cursor-pointer"
+                            onClick={() => {
+                              if (!confirm(`Delete course "${course.name}"?`)) return;
+                              deleteCourseMut.mutate(course.id, {
+                                onError: () => toast.error("Failed to delete course"),
+                              });
+                            }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-12 text-sm text-gray-500 bg-white border border-[#ECEAE6] rounded-xl">
+              No courses added yet.
+            </div>
+          )}
+        </TabsContent>
         </Tabs>
       </div>
+    </div>
+  );
+}
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: IconComponent;
+  label: string;
+  value: unknown;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-1.5 rounded-xl border bg-white py-4 text-center shadow-xs" style={{ borderColor: "#ECEAE6" }}>
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-700">
+        <Icon className="h-4.5 w-4.5" />
+      </div>
+      <p className="text-base font-extrabold text-[#111]">{String(value ?? "—")}</p>
+      <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">{label}</p>
     </div>
   );
 }
@@ -861,17 +987,14 @@ function InfraStat({
 }: {
   icon: IconComponent;
   label: string;
-  value: string | number;
+  value: unknown;
 }) {
   return (
-    <div
-      className="flex flex-col items-center gap-1.5 rounded-xl border bg-white py-4 text-center shadow-xs"
-      style={{ borderColor: theme.hairline }}
-    >
+    <div className="flex flex-col items-center gap-1.5 rounded-xl border bg-white py-4 text-center shadow-xs" style={{ borderColor: "#ECEAE6" }}>
       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-700">
         <Icon className="h-4.5 w-4.5" />
       </div>
-      <p className="text-base font-extrabold text-[#111]">{value}</p>
+      <p className="text-base font-extrabold text-[#111]">{Array.isArray(value) ? value.length : String(value ?? "—")}</p>
       <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">{label}</p>
     </div>
   );
@@ -937,29 +1060,6 @@ function XIcon({ className }: { className?: string }) {
 }
 
 /* Local SVG icon components for icons not in lucide-react */
-function Building2({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
-      <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
-      <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
-      <path d="M10 6h4" />
-      <path d="M10 10h4" />
-      <path d="M10 14h4" />
-      <path d="M10 18h4" />
-    </svg>
-  );
-}
-
 function ImageIcon({ className }: { className?: string }) {
   return (
     <svg

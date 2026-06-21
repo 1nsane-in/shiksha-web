@@ -22,7 +22,7 @@ export function getAdminUniversity(identifier: string) {
 }
 
 export function getUniversityCountries() {
-  return client.get<{ countries: string[] }>("/universities/countries");
+  return client.get<string[]>("/universities/countries");
 }
 
 export function deleteUniversity(id: string) {
@@ -43,6 +43,10 @@ export function updateUniversityStatus(id: string, status: string) {
 
 export function addUniversityCourse(uniId: string, data: Record<string, unknown>) {
   return client.post(`/admin/universities/${uniId}/courses`, data);
+}
+
+export function updateUniversityCourse(courseId: string, data: Record<string, unknown>) {
+  return client.put(`/admin/universities/courses/${courseId}`, data);
 }
 
 export function deleteUniversityCourse(courseId: string) {

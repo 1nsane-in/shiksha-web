@@ -40,6 +40,8 @@ import {
 const typeColors: Record<string, string> = {
   GOVERNMENT: "bg-blue-50 text-blue-700 border-blue-200",
   PRIVATE: "bg-purple-50 text-purple-700 border-purple-200",
+  DEEMED: "bg-amber-50 text-amber-700 border-amber-200",
+  AUTONOMOUS: "bg-teal-50 text-teal-700 border-teal-200",
 };
 
 const statusColors: Record<string, string> = {
@@ -60,22 +62,14 @@ export default function UniversitiesPage() {
   const filters = {
     page,
     limit: 50,
+    ...(search.trim() && { search: search.trim() }),
     ...(statusFilter !== "all" && { status: statusFilter }),
     ...(typeFilter !== "all" && { type: typeFilter }),
   };
 
   const { data: universitiesData, isLoading } = useAdminUniversities(filters);
   const updateStatus = useUpdateUniversityStatus();
-  const allUniversities = universitiesData?.data ?? [];
-  const universities = search.trim()
-    ? allUniversities.filter((uni) => {
-        const q = search.trim().toLowerCase();
-        return (
-          uni.name.toLowerCase().includes(q) ||
-          uni.shortName.toLowerCase().includes(q)
-        );
-      })
-    : allUniversities;
+  const universities = universitiesData?.data ?? [];
   const totalPages = universitiesData?.meta?.totalPages ?? 1;
 
   const handleStatusToggle = (
@@ -154,6 +148,8 @@ export default function UniversitiesPage() {
               <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="GOVERNMENT">Government</SelectItem>
               <SelectItem value="PRIVATE">Private</SelectItem>
+              <SelectItem value="DEEMED">Deemed</SelectItem>
+              <SelectItem value="AUTONOMOUS">Autonomous</SelectItem>
             </SelectContent>
           </Select>
         </div>

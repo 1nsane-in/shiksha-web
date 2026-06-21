@@ -115,6 +115,20 @@ export function useAddUniversityCourse() {
   });
 }
 
+export function useUpdateUniversityCourse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ courseId, data }: { courseId: string; data: Record<string, unknown> }) => {
+      const { updateUniversityCourse } = await import("./universities.api");
+      return updateUniversityCourse(courseId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+  });
+}
+
 export function useDeleteUniversityCourse() {
   const queryClient = useQueryClient();
   return useMutation({

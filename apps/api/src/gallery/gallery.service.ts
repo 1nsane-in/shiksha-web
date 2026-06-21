@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../common/services/storage.service';
@@ -20,9 +21,11 @@ export class GalleryService {
     const uploadResult = await this.storage.upload(file, 'gallery-images');
     return this.prisma.galleryImage.create({
       data: {
+        id: randomUUID(),
         title: title || file.originalname,
         url: uploadResult.url,
         key: uploadResult.key,
+        updatedAt: new Date(),
       },
     });
   }
