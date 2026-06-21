@@ -128,14 +128,76 @@ export default function ConsultationsAdminPage() {
   const closedCount = consultations.filter((c) => c.status === "CLOSED").length;
 
   if (error) {
+    const errorMessage = (error as any)?.response?.data?.message 
+      || (error as any)?.message 
+      || "Unable to connect to the server";
+    const isRateLimit = errorMessage.includes("Too many requests") || (error as any)?.response?.status === 429;
+    
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center max-w-lg mx-auto">
-        <AlertCircle className="size-12 text-red-400 mb-4 animate-pulse" />
-        <h2 className="text-lg font-bold text-[#1A153A]">Failed to load consultation requests</h2>
-        <p className="text-sm text-gray-500 mt-1">Please verify your server connection and database URL settings.</p>
-        <Button onClick={() => refetch()} variant="outline" className="gap-2 mt-4 cursor-pointer">
-          <RefreshCw className="size-4" /> Retry Connection
-        </Button>
+        <AlertCircle className={`size-12 mb-4 animate-pulse ${isRateLimit ? 'text-amber-400' : 'text-red-400'}`} />
+        <h2 className="text-lg font-bold text-[#1A153A]">
+          {isRateLimit ? "Rate Limit Exceeded" : "Failed to load consultation requests"}
+        </h2>
+        <p className="text-sm text-gray-500 mt-1 px-4">
+          {isRateLimit 
+            ? "You're making requests too quickly. Please wait a moment and try again."
+            : errorMessage
+          }
+        </p>
+        <div className="flex gap-2 mt-4">
+          <Button onClick={() => refetch()} variant="outline" className="gap-2 cursor-pointer">
+            <RefreshCw className="size-4" /> Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6">
+        {/* Metrics Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-xl border bg-white p-5 flex items-center gap-4" style={{ borderColor: theme.hairline }}>
+              <Skeleton className="h-10 w-10 rounded-lg" />
+              <div className="space-y-2">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-6 w-12" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Filter Card Skeleton */}
+        <div className="rounded-xl border bg-white p-6" style={{ borderColor: theme.hairline }}>
+          <div className="flex items-center justify-between border-b pb-3 mb-5" style={{ borderColor: theme.hairline }}>
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="space-y-1.5">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-10 w-full rounded-lg" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Table Skeleton */}
+        <div className="rounded-xl border bg-white p-6" style={{ borderColor: theme.hairline }}>
+          <div className="mb-4 flex items-center justify-between border-b pb-3" style={{ borderColor: theme.hairline }}>
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-8 w-20" />
+          </div>
+          <div className="space-y-3">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full rounded-lg" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -270,6 +332,16 @@ export default function ConsultationsAdminPage() {
               ({filteredConsultations.length} shown of {consultations.length} total)
             </span>
           </h2>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isLoading}
+            className="gap-1.5 cursor-pointer"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </div>
 
         {isLoading ? (

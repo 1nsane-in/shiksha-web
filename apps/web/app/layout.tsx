@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { TooltipProvider } from "@repo/ui";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { Providers } from "@/lib/providers";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Shiksha | Medical Admission Platform",
@@ -24,6 +25,7 @@ export default function RootLayout({
             <TooltipProvider>
               <div className="bg-[#FAF9F6]">{children}</div>
             </TooltipProvider>
+            <Toaster position="top-right" richColors />
           </AuthProvider>
         </Providers>
       </body>
