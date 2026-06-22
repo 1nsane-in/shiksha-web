@@ -111,12 +111,12 @@ export class SubmitApplicationFormDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
-  embassyLocation: string;
+  embassyLocation!: string;
 
   @IsObject()
   @ValidateNested()
   @Type(() => LanguageAbilityDto)
-  language1: LanguageAbilityDto;
+  language1!: LanguageAbilityDto;
 
   @IsOptional()
   @IsObject()
@@ -130,7 +130,7 @@ export class SubmitApplicationFormDto {
   otherLanguages?: string[];
 
   @IsEnum(['pre-medical', 'general-medicine', 'dentistry', 'post-graduate'])
-  selectedProgram: 'pre-medical' | 'general-medicine' | 'dentistry' | 'post-graduate';
+  selectedProgram!: 'pre-medical' | 'general-medicine' | 'dentistry' | 'post-graduate';
 
   @IsOptional()
   @IsString()
@@ -140,16 +140,16 @@ export class SubmitApplicationFormDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
-  signature: string;
+  signature!: string;
 
   @IsDateString()
-  signatureDate: string;
+  signatureDate!: string;
 }
 
 export class UpdateApplicationStatusDto {
   @IsString()
   @IsNotEmpty()
-  status: string;
+  status!: string;
 }
 
 export class UpdateApplicationDto {

@@ -41,6 +41,8 @@ import {
   Phone,
   Globe,
   BookOpen,
+  RefreshCw,
+  X,
 } from "lucide-react";
 import {
   Sheet,
@@ -89,6 +91,9 @@ export default function UniversitiesPage() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [requestStatusFilter, setRequestStatusFilter] = useState("all");
+  const [requestTypeFilter, setRequestTypeFilter] = useState("all");
+  const [requestCountryFilter, setRequestCountryFilter] = useState("all");
+  const [requestProgramFilter, setRequestProgramFilter] = useState("all");
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -100,15 +105,27 @@ export default function UniversitiesPage() {
     ...(typeFilter !== "all" && { type: typeFilter }),
   };
 
-  const { data: universitiesData, isLoading } = useAdminUniversities(filters);
+  const { data: universitiesData, isLoading, refetch: refetchUniversities } = useAdminUniversities(filters);
   const updateStatus = useUpdateUniversityStatus();
   const universities = universitiesData?.data ?? [];
   const totalPages = universitiesData?.meta?.totalPages ?? 1;
 
-  const { data: requestsData, isLoading: isLoadingRequests, error: requestsError } = useUniversityRequests(
+  const { data: requestsData, isLoading: isLoadingRequests, error: requestsError, refetch: refetchRequests } = useUniversityRequests(
     requestStatusFilter === "all" ? undefined : requestStatusFilter
   );
   const requests = requestsData ?? [];
+
+  // Client-side filtering for requests (since API only supports status filter)
+  const filteredRequests = requests.filter((req: any) => {
+    if (requestTypeFilter !== "all" && req.type !== requestTypeFilter) return false;
+    if (requestCountryFilter !== "all" && req.country !== requestCountryFilter) return false;
+    if (requestProgramFilter !== "all") {
+      const hasProgram = req.programs?.includes(requestProgramFilter);
+      const hasOtherProgram = requestProgramFilter === "Other" && req.otherPrograms;
+      if (!hasProgram && !hasOtherProgram) return false;
+    }
+    return true;
+  });
 
   // Show error toast if requests fail
   useEffect(() => {
@@ -236,6 +253,16 @@ export default function UniversitiesPage() {
               <SelectItem value="AUTONOMOUS">Autonomous</SelectItem>
             </SelectContent>
           </Select>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetchUniversities()}
+            disabled={isLoading}
+            className="h-10 px-3 border-[#E5E7EB] hover:bg-white"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
       </div>
 
@@ -463,13 +490,14 @@ export default function UniversitiesPage() {
         <>
           {/* Requests Filters */}
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center bg-[#FAFAF8] border border-[#ECEAE6] rounded-xl p-4">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 flex-1">
+              {/* Status Filter */}
               <Select
                 value={requestStatusFilter}
                 onValueChange={(value) => setRequestStatusFilter(value ?? "all")}
               >
-                <SelectTrigger className="w-full sm:w-[180px] bg-white border-[#E5E7EB] text-xs h-10">
-                  <SelectValue placeholder="Filter by status" />
+                <SelectTrigger className="w-full sm:w-[150px] bg-white border-[#E5E7EB] text-xs h-10">
+                  <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
@@ -480,10 +508,108 @@ export default function UniversitiesPage() {
                   <SelectItem value="ADDED">Added</SelectItem>
                 </SelectContent>
               </Select>
+
+              {/* Type Filter */}
+              <Select
+                value={requestTypeFilter}
+                onValueChange={(value) => setRequestTypeFilter(value ?? "all")}
+              >
+                <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-10">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="GOVERNMENT">Government</SelectItem>
+                  <SelectItem value="PRIVATE">Private</SelectItem>
+                  <SelectItem value="DEEMED">Deemed</SelectItem>
+                  <SelectItem value="AUTONOMOUS">Autonomous</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Country Filter */}
+              <Select
+                value={requestCountryFilter}
+                onValueChange={(value) => setRequestCountryFilter(value ?? "all")}
+              >
+                <SelectTrigger className="w-full sm:w-[150px] bg-white border-[#E5E7EB] text-xs h-10">
+                  <SelectValue placeholder="Country" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Countries</SelectItem>
+                  <SelectItem value="India">India</SelectItem>
+                  <SelectItem value="Russia">Russia</SelectItem>
+                  <SelectItem value="Ukraine">Ukraine</SelectItem>
+                  <SelectItem value="Kazakhstan">Kazakhstan</SelectItem>
+                  <SelectItem value="Uzbekistan">Uzbekistan</SelectItem>
+                  <SelectItem value="Kyrgyzstan">Kyrgyzstan</SelectItem>
+                  <SelectItem value="Georgia">Georgia</SelectItem>
+                  <SelectItem value="Armenia">Armenia</SelectItem>
+                  <SelectItem value="Belarus">Belarus</SelectItem>
+                  <SelectItem value="Moldova">Moldova</SelectItem>
+                  <SelectItem value="Azerbaijan">Azerbaijan</SelectItem>
+                  <SelectItem value="Tajikistan">Tajikistan</SelectItem>
+                  <SelectItem value="Turkmenistan">Turkmenistan</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Program Filter */}
+              <Select
+                value={requestProgramFilter}
+                onValueChange={(value) => setRequestProgramFilter(value ?? "all")}
+              >
+                <SelectTrigger className="w-full sm:w-[160px] bg-white border-[#E5E7EB] text-xs h-10">
+                  <SelectValue placeholder="Program" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Programs</SelectItem>
+                  <SelectItem value="MBBS">MBBS</SelectItem>
+                  <SelectItem value="BDS">BDS</SelectItem>
+                  <SelectItem value="BAMS">BAMS</SelectItem>
+                  <SelectItem value="BHMS">BHMS</SelectItem>
+                  <SelectItem value="BUMS">BUMS</SelectItem>
+                  <SelectItem value="MD">MD</SelectItem>
+                  <SelectItem value="MS">MS</SelectItem>
+                  <SelectItem value="MDS">MDS</SelectItem>
+                  <SelectItem value="MCh">MCh</SelectItem>
+                  <SelectItem value="DM">DM</SelectItem>
+                  <SelectItem value="PhD">PhD</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Clear Filters */}
+              {(requestStatusFilter !== "all" || requestTypeFilter !== "all" || requestCountryFilter !== "all" || requestProgramFilter !== "all") && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setRequestStatusFilter("all");
+                    setRequestTypeFilter("all");
+                    setRequestCountryFilter("all");
+                    setRequestProgramFilter("all");
+                  }}
+                  className="h-10 px-3 text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Clear
+                </Button>
+              )}
+
+              {/* Refresh Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetchRequests()}
+                disabled={isLoadingRequests}
+                className="h-10 px-3 border-[#E5E7EB] hover:bg-white"
+              >
+                <RefreshCw className={`h-4 w-4 ${isLoadingRequests ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
-            <div className="flex-1 text-right">
+            <div className="text-right">
               <p className="text-sm text-gray-500">
-                Total requests: <span className="font-semibold text-[#111]">{requests.length}</span>
+                Showing <span className="font-semibold text-[#111]">{filteredRequests.length}</span> of {requests.length}
               </p>
             </div>
           </div>
@@ -495,6 +621,9 @@ export default function UniversitiesPage() {
                 <TableRow className="bg-[#FAFAF8] border-[#ECEAE6]">
                   <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
                     University
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+                    Website
                   </TableHead>
                   <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
                     Location
@@ -513,21 +642,23 @@ export default function UniversitiesPage() {
               <TableBody>
                 {isLoadingRequests ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-12">
+                    <TableCell colSpan={6} className="text-center py-12">
                       <Loader2 className="h-6 w-6 text-[#3730A3] animate-spin mx-auto" />
                     </TableCell>
                   </TableRow>
-                ) : requests.length === 0 ? (
+                ) : filteredRequests.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={5}
+                      colSpan={6}
                       className="text-center py-12 text-sm text-[#888]"
                     >
-                      No university requests found.
+                      {requests.length === 0 
+                        ? "No university requests found." 
+                        : "No requests match the selected filters."}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  requests.map((req: any) => (
+                  filteredRequests.map((req: any) => (
                     <TableRow
                       key={req.id}
                       className="border-[#ECEAE6] hover:bg-[#F2F1ED] transition-colors cursor-pointer"
@@ -537,23 +668,27 @@ export default function UniversitiesPage() {
                       }}
                     >
                       <TableCell className="py-4">
-                        <div>
-                          <div className="font-bold text-sm text-[#111]">
-                            {req.universityName}
-                          </div>
-                          {req.website && (
-                            <a
-                              href={req.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs text-[#3730A3] hover:underline flex items-center gap-1 mt-1"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Globe className="h-3 w-3" />
-                              {req.website.replace(/^https?:\/\//, '')}
-                            </a>
-                          )}
+                        <div className="font-bold text-sm text-[#111]">
+                          {req.universityName}
                         </div>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        {req.website ? (
+                          <a
+                            href={req.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-[#3730A3] hover:underline flex items-center gap-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Globe className="h-3 w-3" />
+                            <span className="truncate max-w-[120px]">
+                              {req.website.replace(/^https?:\/\//, '')}
+                            </span>
+                          </a>
+                        ) : (
+                          <span className="text-xs text-gray-400">-</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">

@@ -4,11 +4,11 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CreateTicketDto {
   @ApiProperty()
   @IsString()
-  subject: string;
+  subject!: string;
 
   @ApiProperty()
   @IsString()
-  description: string;
+  description!: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -29,7 +29,7 @@ export class CreateTicketDto {
 export class AddTicketMessageDto {
   @ApiProperty()
   @IsString()
-  content: string;
+  content!: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -41,7 +41,7 @@ export class AddTicketMessageDto {
 export class UpdateTicketStatusDto {
   @ApiProperty({ enum: ['OPEN', 'IN_PROGRESS', 'WAITING_FOR_CUSTOMER', 'RESOLVED', 'CLOSED'] })
   @IsString()
-  status: string;
+  status!: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -52,5 +52,5 @@ export class UpdateTicketStatusDto {
 export class AssignTicketDto {
   @ApiProperty()
   @IsUUID()
-  assignedTo: string;
+  assignedTo!: string;
 }

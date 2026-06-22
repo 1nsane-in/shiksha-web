@@ -94,5 +94,5 @@ export class AdminUpdateStudentDto extends UpdateStudentProfileDto {
 
 export class AssignUniversityDto {
   @IsString()
-  courseId: string;
+  courseId!: string;
 }

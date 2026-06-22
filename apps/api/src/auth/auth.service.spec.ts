@@ -1,228 +1,362 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  UnauthorizedException,
-  BadRequestException,
-  ConflictException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailValidationService } from '../common/services/email-validation.service';
+import { UnauthorizedException, BadRequestException } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 
-/**
- * Unit tests for the Google social auth flow.
- * Covers the parent/Student role split added so the UI can prompt for a role.
- */
-describe('AuthService - Google social auth', () => {
+describe('AuthService', () => {
   let service: AuthService;
-  let prisma: any;
-  let jwt: any;
+  let prisma: PrismaService;
+  let jwtService: JwtService;
 
-  const fakeGoogleUser = {
-    sub: 'google-sub-123',
-    email: 'newuser@example.com',
-    name: 'New User',
-    email_verified: true,
+  const mockUser = {
+    id: 'user-123',
+    email: 'test@example.com',
+    name: 'Test User',
+    passwordHash: 'hashedPassword',
+    role: 'STUDENT',
+    isActive: true,
+    emailVerified: true,
   };
 
   beforeEach(async () => {
-    prisma = {
-      user: {
-        findUnique: jest.fn(),
-        create: jest.fn(),
-      },
-      student: { create: jest.fn() },
-      parent: { create: jest.fn() },
-      userSession: {
-        create: jest.fn(),
-        deleteMany: jest.fn(),
-        findUnique: jest.fn(),
-      },
-    };
-    jwt = {
-      sign: jest.fn().mockReturnValue('signed-token'),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        { provide: PrismaService, useValue: prisma },
-        { provide: JwtService, useValue: jwt },
+        {
+          provide: JwtService,
+          useValue: {
+            sign: jest.fn().mockReturnValue('mock-jwt-token'),
+          },
+        },
+        {
+          provide: PrismaService,
+          useValue: {
+            user: {
+              findUnique: jest.fn(),
+              create: jest.fn(),
+              update: jest.fn(),
+            },
+            student: {
+              create: jest.fn(),
+            },
+            parent: {
+              create: jest.fn(),
+            },
+            otpVerification: {
+              create: jest.fn(),
+              findFirst: jest.fn(),
+              update: jest.fn(),
+            },
+            userSession: {
+              create: jest.fn(),
+              findUnique: jest.fn(),
+              update: jest.fn(),
+              deleteMany: jest.fn(),
+            },
+            $transaction: jest.fn(),
+          },
+        },
         {
           provide: EmailValidationService,
-          useValue: { validateEmail: jest.fn(), validateEmailAsync: jest.fn() },
+          useValue: {
+            validateEmailAsync: jest.fn().mockResolvedValue(true),
+            validateEmail: jest.fn().mockReturnValue(true),
+          },
         },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-
-    // Stub out the private token verifier so tests don't hit the network.
-    (service as any).verifyGoogleToken = jest.fn();
+    prisma = module.get<PrismaService>(PrismaService);
+    jwtService = module.get<JwtService>(JwtService);
   });
 
-  const stubVerify = (info: any) => {
-    (service as any).verifyGoogleToken.mockResolvedValue(info);
-  };
+  describe('login', () => {
+    it('should return tokens for valid credentials', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'correctpassword',
+      };
 
-  describe('googleLogin', () => {
-    it('auto-registers a new user as STUDENT by default', async () => {
-      stubVerify(fakeGoogleUser);
-      prisma.user.findUnique.mockResolvedValue(null);
-      prisma.user.create.mockResolvedValue({
-        id: 'u1',
-        email: fakeGoogleUser.email,
-        name: fakeGoogleUser.name,
-        role: 'STUDENT',
-        isActive: true,
-      });
-      prisma.student.create.mockResolvedValue({ id: 's1', userId: 'u1' });
-      prisma.userSession.create.mockResolvedValue({});
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
+      jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(true));
 
-      const result = await service.googleLogin({ accessToken: 'tok' });
+      const result = await service.login(loginDto);
 
-      expect(result.message).toBe('Google login successful');
-      expect(result.user.role).toBe('STUDENT');
-      expect(prisma.user.create).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ role: 'STUDENT' }) }),
-      );
-      expect(prisma.student.create).toHaveBeenCalledWith({ data: { userId: 'u1' } });
-      expect(prisma.parent.create).not.toHaveBeenCalled();
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
+      expect(result.user).toEqual(mockUser);
     });
 
-    it('auto-registers a new user as PARENT when role=PARENT', async () => {
-      stubVerify(fakeGoogleUser);
-      prisma.user.findUnique.mockResolvedValue(null);
-      prisma.user.create.mockResolvedValue({
-        id: 'u2',
-        email: fakeGoogleUser.email,
-        name: fakeGoogleUser.name,
-        role: 'PARENT',
-        isActive: true,
-      });
-      prisma.parent.create.mockResolvedValue({ id: 'p1', userId: 'u2' });
-      prisma.userSession.create.mockResolvedValue({});
+    it('should throw UnauthorizedException for invalid email', async () => {
+      const loginDto = {
+        email: 'nonexistent@example.com',
+        password: 'password',
+      };
 
-      const result = await service.googleLogin({ accessToken: 'tok', role: 'PARENT' });
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
 
-      expect(result.user.role).toBe('PARENT');
-      expect(prisma.user.create).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ role: 'PARENT' }) }),
-      );
-      expect(prisma.parent.create).toHaveBeenCalledWith({ data: { userId: 'u2' } });
-      expect(prisma.student.create).not.toHaveBeenCalled();
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('returns the existing user without creating new records on second login', async () => {
-      stubVerify(fakeGoogleUser);
-      prisma.user.findUnique.mockResolvedValue({
-        id: 'existing',
-        email: fakeGoogleUser.email,
-        name: fakeGoogleUser.name,
-        role: 'STUDENT',
-        isActive: true,
-      });
-      prisma.userSession.create.mockResolvedValue({});
+    it('should throw UnauthorizedException for inactive user', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'password',
+      };
 
-      const result = await service.googleLogin({ accessToken: 'tok', role: 'PARENT' });
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue({
+        ...mockUser,
+        isActive: false,
+      } as any);
 
-      expect(result.user.id).toBe('existing');
-      // role param is ignored for existing accounts
-      expect(prisma.user.create).not.toHaveBeenCalled();
-      expect(prisma.parent.create).not.toHaveBeenCalled();
-      expect(prisma.student.create).not.toHaveBeenCalled();
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('throws UnauthorizedException on invalid Google token', async () => {
-      stubVerify(null);
-      await expect(service.googleLogin({ accessToken: 'bad' })).rejects.toThrow(
-        UnauthorizedException,
-      );
+    it('should throw UnauthorizedException for invalid password', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'wrongpassword',
+      };
+
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
+      jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(false));
+
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('falls back to STUDENT when role is something other than PARENT', async () => {
-      stubVerify(fakeGoogleUser);
-      prisma.user.findUnique.mockResolvedValue(null);
-      prisma.user.create.mockResolvedValue({
-        id: 'u3',
-        email: fakeGoogleUser.email,
-        name: fakeGoogleUser.name,
-        role: 'STUDENT',
-        isActive: true,
-      });
-      prisma.student.create.mockResolvedValue({});
-      prisma.userSession.create.mockResolvedValue({});
+    it('should throw UnauthorizedException for user without password', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'password',
+      };
 
-      const result = await service.googleLogin({ accessToken: 'tok', role: 'ADMIN' as any });
-      expect(result.user.role).toBe('STUDENT');
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue({
+        ...mockUser,
+        passwordHash: null,
+      } as any);
+
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
   });
 
-  describe('googleRegister', () => {
-    it('creates a PARENT account with the Parent record', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
-      prisma.user.create.mockResolvedValue({
-        id: 'pr1',
-        email: 'parent@example.com',
-        name: 'Pat Parent',
-        phone: '+1234567890',
-        role: 'PARENT',
-        isActive: true,
-      });
-      prisma.parent.create.mockResolvedValue({ id: 'p1', userId: 'pr1' });
-      prisma.userSession.create.mockResolvedValue({});
+  describe('completeRegistration', () => {
+    it('should create user and return tokens', async () => {
+      const dto = {
+        token: 'valid-token',
+        password: 'securePassword123',
+        confirmPassword: 'securePassword123',
+        role: 'STUDENT' as const,
+      };
 
-      const result = await service.googleRegister({
-        email: 'parent@example.com',
-        name: 'Pat Parent',
-        phone: '+1234567890',
-        googleId: 'g1',
-        accessToken: 'tok',
-        role: 'PARENT',
-      });
+      const otpRecord = {
+        id: 'otp-123',
+        email: 'new@example.com',
+        name: 'New User',
+        verifiedAt: new Date(),
+        completedAt: null,
+        expiresAt: new Date(Date.now() + 3600000),
+      };
 
-      expect(result.message).toBe('Google registration successful');
-      expect(result.user.role).toBe('PARENT');
-      expect(prisma.parent.create).toHaveBeenCalledWith({ data: { userId: 'pr1' } });
-      expect(prisma.student.create).not.toHaveBeenCalled();
+      jest.spyOn(prisma.otpVerification, 'findFirst').mockResolvedValue(otpRecord as any);
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
+      jest.spyOn(prisma.user, 'create').mockResolvedValue(mockUser as any);
+      jest.spyOn(prisma.student, 'create').mockResolvedValue({ id: 'student-123' } as any);
+      jest.spyOn(prisma.otpVerification, 'update').mockResolvedValue({} as any);
+      jest.spyOn(prisma.userSession, 'create').mockResolvedValue({} as any);
+
+      const result = await service.completeRegistration(dto);
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
+      expect(result).toHaveProperty('user');
     });
 
-    it('creates a STUDENT account with the Student record', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
-      prisma.user.create.mockResolvedValue({
-        id: 'st1',
-        email: 'student@example.com',
-        name: 'Sam Student',
-        role: 'STUDENT',
-        isActive: true,
-      });
-      prisma.student.create.mockResolvedValue({ id: 's1', userId: 'st1' });
-      prisma.userSession.create.mockResolvedValue({});
+    it('should throw BadRequestException for invalid token', async () => {
+      const dto = {
+        token: 'invalid-token',
+        password: 'password',
+        confirmPassword: 'password',
+        role: 'STUDENT' as const,
+      };
 
-      const result = await service.googleRegister({
-        email: 'student@example.com',
-        name: 'Sam Student',
-        googleId: 'g2',
-        accessToken: 'tok',
-        role: 'STUDENT',
-      });
+      jest.spyOn(prisma.otpVerification, 'findFirst').mockResolvedValue(null);
 
-      expect(result.user.role).toBe('STUDENT');
-      expect(prisma.student.create).toHaveBeenCalledWith({ data: { userId: 'st1' } });
-      expect(prisma.parent.create).not.toHaveBeenCalled();
+      await expect(service.completeRegistration(dto)).rejects.toThrow(BadRequestException);
     });
 
-    it('rejects when email already exists', async () => {
-      prisma.user.findUnique.mockResolvedValue({ id: 'existing' });
-      await expect(
-        service.googleRegister({
-          email: 'dup@example.com',
-          name: 'Dup',
-          googleId: 'g3',
-          accessToken: 'tok',
-          role: 'STUDENT',
-        }),
-      ).rejects.toThrow(BadRequestException);
+    it('should throw BadRequestException for existing email', async () => {
+      const dto = {
+        token: 'valid-token',
+        password: 'password',
+        confirmPassword: 'password',
+        role: 'STUDENT' as const,
+      };
+
+      const otpRecord = {
+        id: 'otp-123',
+        email: 'existing@example.com',
+        name: 'New User',
+        verifiedAt: new Date(),
+        completedAt: null,
+        expiresAt: new Date(Date.now() + 3600000),
+      };
+
+      jest.spyOn(prisma.otpVerification, 'findFirst').mockResolvedValue(otpRecord as any);
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
+
+      await expect(service.completeRegistration(dto)).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('logout', () => {
+    it('should delete session for valid refresh token', async () => {
+      const refreshToken = 'valid-refresh-token';
+      
+      jest.spyOn(prisma.userSession, 'deleteMany').mockResolvedValue({ count: 1 } as any);
+
+      const result = await service.logout(refreshToken);
+
+      expect(result).toEqual({ message: 'Logged out successfully' });
+      expect(prisma.userSession.deleteMany).toHaveBeenCalled();
+    });
+  });
+
+  describe('refreshTokens', () => {
+    it('should return new tokens for valid refresh token', async () => {
+      const refreshToken = 'valid-refresh-token';
+      const session = {
+        id: 'session-123',
+        userId: 'user-123',
+        tokenHash: crypto.createHash('sha256').update(refreshToken).digest('hex'),
+        expiresAt: new Date(Date.now() + 3600000),
+        user: mockUser,
+      };
+
+      jest.spyOn(prisma.userSession, 'findUnique').mockResolvedValue(session as any);
+      jest.spyOn(prisma.userSession, 'update').mockResolvedValue({} as any);
+      jest.spyOn(prisma.userSession, 'deleteMany').mockResolvedValue({ count: 0 } as any);
+      jest.spyOn(prisma.userSession, 'create').mockResolvedValue({} as any);
+
+      const result = await service.refreshTokens(refreshToken);
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
+    });
+
+    it('should throw UnauthorizedException for expired token', async () => {
+      const refreshToken = 'expired-token';
+      const session = {
+        id: 'session-123',
+        userId: 'user-123',
+        tokenHash: crypto.createHash('sha256').update(refreshToken).digest('hex'),
+        expiresAt: new Date(Date.now() - 3600000),
+        user: mockUser,
+      };
+
+      jest.spyOn(prisma.userSession, 'findUnique').mockResolvedValue(session as any);
+
+      await expect(service.refreshTokens(refreshToken)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException for inactive user', async () => {
+      const refreshToken = 'valid-token';
+      const session = {
+        id: 'session-123',
+        userId: 'user-123',
+        tokenHash: crypto.createHash('sha256').update(refreshToken).digest('hex'),
+        expiresAt: new Date(Date.now() + 3600000),
+        user: { ...mockUser, isActive: false },
+      };
+
+      jest.spyOn(prisma.userSession, 'findUnique').mockResolvedValue(session as any);
+
+      await expect(service.refreshTokens(refreshToken)).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('getCurrentUser', () => {
+    it('should return user for valid userId', async () => {
+      const userId = 'user-123';
+      
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
+
+      const result = await service.getCurrentUser(userId);
+
+      expect(result).toEqual(mockUser);
+    });
+
+    it('should throw UnauthorizedException for non-existent user', async () => {
+      const userId = 'non-existent';
+      
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
+
+      await expect(service.getCurrentUser(userId)).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('forgotPassword', () => {
+    it('should create OTP for existing user', async () => {
+      const dto = { email: 'test@example.com' };
+      
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
+      jest.spyOn(prisma.otpVerification, 'create').mockResolvedValue({} as any);
+
+      const result = await service.forgotPassword(dto);
+
+      expect(result).toHaveProperty('message');
+      expect(prisma.otpVerification.create).toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException for non-existent user', async () => {
+      const dto = { email: 'nonexistent@example.com' };
+      
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
+
+      await expect(service.forgotPassword(dto)).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should reset password with valid token', async () => {
+      const dto = {
+        token: 'valid-token',
+        password: 'newSecurePassword123',
+        confirmPassword: 'newSecurePassword123',
+      };
+
+      const otpRecord = {
+        id: 'otp-123',
+        email: 'test@example.com',
+        verifiedAt: new Date(),
+        completedAt: null,
+        expiresAt: new Date(Date.now() + 3600000),
+      };
+
+      jest.spyOn(prisma.otpVerification, 'findFirst').mockResolvedValue(otpRecord as any);
+      jest.spyOn(prisma.user, 'update').mockResolvedValue({} as any);
+      jest.spyOn(prisma.otpVerification, 'update').mockResolvedValue({} as any);
+
+      const result = await service.resetPassword(dto);
+
+      expect(result).toEqual({ message: 'Password reset successful' });
+      expect(prisma.user.update).toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException for invalid token', async () => {
+      const dto = {
+        token: 'invalid-token',
+        password: 'password',
+        confirmPassword: 'password',
+      };
+
+      jest.spyOn(prisma.otpVerification, 'findFirst').mockResolvedValue(null);
+
+      await expect(service.resetPassword(dto)).rejects.toThrow(BadRequestException);
     });
   });
 });
