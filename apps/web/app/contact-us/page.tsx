@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 import { useCreateConsultation } from "@/domains/consultations";
+import { useCreateUniversityRequest } from "@/domains/university-requests";
 import { toast } from "sonner";
-import { Phone, Mail, MapPin, Clock, Send, ShieldCheck, Loader2 } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Send, ShieldCheck, Loader2, Building2, Globe, BookOpen, GraduationCap } from "lucide-react";
 import { Country, State } from "country-state-city";
 
 const theme = {
@@ -18,8 +20,46 @@ const theme = {
   hairline: "rgba(26, 21, 58, 0.08)",
 };
 
-export default function ContactUsPage() {
+// Loading fallback for Suspense
+function ContactPageLoading() {
+  return (
+    <div className="min-h-screen flex flex-col" style={{ background: theme.canvas }}>
+      <Header />
+      <main className="flex-1 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block size-8 animate-spin rounded-full border-4 border-solid border-gold border-r-transparent" />
+          <p className="text-sm text-gray-500 mt-4">Loading...</p>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+// Main page component wrapped in Suspense
+export default function ContactUsPageWrapper() {
+  return (
+    <Suspense fallback={<ContactPageLoading />}>
+      <ContactUsPage />
+    </Suspense>
+  );
+}
+
+function ContactUsPage() {
+  const searchParams = useSearchParams();
   const createMutation = useCreateConsultation();
+  const createUniRequestMutation = useCreateUniversityRequest();
+  const [activeTab, setActiveTab] = useState<"consultation" | "university">("consultation");
+  
+  // Set active tab based on query param
+  useEffect(() => {
+    const subject = searchParams.get("subject");
+    if (subject === "university-request") {
+      setActiveTab("university");
+    }
+  }, [searchParams]);
+  
+  // Consultation form state
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -28,12 +68,29 @@ export default function ContactUsPage() {
     state: "",
     country: "",
   });
+  
+  // University request form state
+  const [uniForm, setUniForm] = useState({
+    universityName: "",
+    country: "",
+    state: "",
+    website: "",
+    type: "",
+    programs: [] as string[],
+    otherPrograms: "",
+    contactEmail: "",
+    contactPhone: "",
+    additionalInfo: "",
+  });
+  
+  const [selectedUniCountryIso, setSelectedUniCountryIso] = useState("");
 
   const [selectedCountryIso, setSelectedCountryIso] = useState("");
   const [selectedCountryPhoneCode, setSelectedCountryPhoneCode] = useState("");
 
   const countries = Country.getAllCountries();
   const states = selectedCountryIso ? State.getStatesOfCountry(selectedCountryIso) : [];
+  const uniStates = selectedUniCountryIso ? State.getStatesOfCountry(selectedUniCountryIso) : [];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -122,6 +179,61 @@ export default function ContactUsPage() {
         country: "",
       });
       setSelectedCountryIso("");
+      setSelectedCountryPhoneCode("");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to submit request. Please try again.");
+    }
+  };
+
+  const handleUniSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!uniForm.universityName.trim()) {
+      toast.error("Please enter the University Name");
+      return;
+    }
+    if (!uniForm.country.trim()) {
+      toast.error("Please select the Country");
+      return;
+    }
+    if (!uniForm.type) {
+      toast.error("Please select the University Type");
+      return;
+    }
+    if (uniForm.programs.length === 0) {
+      toast.error("Please select at least one Program");
+      return;
+    }
+
+    const payload = {
+      universityName: uniForm.universityName.trim(),
+      country: uniForm.country,
+      state: uniForm.state || undefined,
+      website: uniForm.website.trim() || undefined,
+      type: uniForm.type,
+      programs: uniForm.programs,
+      otherPrograms: uniForm.otherPrograms.trim() || undefined,
+      contactEmail: uniForm.contactEmail.trim(),
+      contactPhone: `${selectedCountryPhoneCode || "+91"} ${uniForm.contactPhone.trim()}`,
+      additionalInfo: uniForm.additionalInfo.trim() || undefined,
+    };
+
+    try {
+      await createUniRequestMutation.mutateAsync(payload);
+      toast.success("University request submitted! Our team will review and add it within 24-48 hours.");
+      setUniForm({
+        universityName: "",
+        country: "",
+        state: "",
+        website: "",
+        type: "",
+        programs: [],
+        otherPrograms: "",
+        contactEmail: "",
+        contactPhone: "",
+        additionalInfo: "",
+      });
+      setSelectedUniCountryIso("");
       setSelectedCountryPhoneCode("");
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to submit request. Please try again.");
@@ -235,19 +347,53 @@ export default function ContactUsPage() {
               </div>
             </div>
 
-            {/* Right: Consultation Form (3/5 size) */}
+            {/* Right: Forms (3/5 size) */}
             <div className="lg:col-span-3">
+              {/* Tab Switcher */}
               <div className="bg-white rounded-2xl border p-6 sm:p-8 shadow-sm" style={{ borderColor: theme.hairline }}>
-                <div className="mb-6">
-                  <h3 className="text-xl font-bold tracking-tight" style={{ color: theme.ink }}>
-                    Free Guidance Request Form
-                  </h3>
-                  <p className="text-xs mt-1" style={{ color: theme.inkMuted }}>
-                    All fields are securely verified. Ensure correct mobile number for OTP/Call.
-                  </p>
+                <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("consultation")}
+                    className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                      activeTab === "consultation"
+                        ? "bg-white text-[#1A153A] shadow-sm"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      Free Consultation
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("university")}
+                    className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                      activeTab === "university"
+                        ? "bg-white text-[#1A153A] shadow-sm"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <Building2 className="h-4 w-4" />
+                      Request University
+                    </span>
+                  </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                {activeTab === "consultation" ? (
+                  <>
+                    <div className="mb-6">
+                      <h3 className="text-xl font-bold tracking-tight" style={{ color: theme.ink }}>
+                        Free Guidance Request Form
+                      </h3>
+                      <p className="text-xs mt-1" style={{ color: theme.inkMuted }}>
+                        All fields are securely verified. Ensure correct mobile number for OTP/Call.
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Full Name & Email Id */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-1.5">
@@ -394,6 +540,251 @@ export default function ContactUsPage() {
                     </button>
                   </div>
                 </form>
+                  </>
+                ) : (
+                  <>
+                    <div className="mb-6">
+                      <h3 className="text-xl font-bold tracking-tight" style={{ color: theme.ink }}>
+                        Request to Add University
+                      </h3>
+                      <p className="text-xs mt-1" style={{ color: theme.inkMuted }}>
+                        Can&apos;t find your desired university? Submit details and we&apos;ll add it within 24-48 hours.
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleUniSubmit} className="space-y-5">
+                      {/* University Name & Website */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                            <Building2 className="h-3 w-3 inline mr-1" />
+                            University Name <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g., Jalalabad International University"
+                            value={uniForm.universityName}
+                            onChange={(e) => setUniForm({ ...uniForm, universityName: e.target.value })}
+                            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold text-sm"
+                            required
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                            <Globe className="h-3 w-3 inline mr-1" />
+                            Website URL
+                          </label>
+                          <input
+                            type="url"
+                            placeholder="https://university.edu"
+                            value={uniForm.website}
+                            onChange={(e) => setUniForm({ ...uniForm, website: e.target.value })}
+                            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Country & State */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                            <MapPin className="h-3 w-3 inline mr-1" />
+                            Country <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            value={selectedUniCountryIso}
+                            onChange={(e) => {
+                              const isoCode = e.target.value;
+                              const countryObj = countries.find((c) => c.isoCode === isoCode);
+                              setSelectedUniCountryIso(isoCode);
+                              setUniForm({ ...uniForm, country: countryObj?.name || "", state: "" });
+                            }}
+                            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold text-sm bg-white"
+                            required
+                          >
+                            <option value="">Select Country</option>
+                            {countries.map((c) => (
+                              <option key={c.isoCode} value={c.isoCode}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                            State / Province
+                          </label>
+                          <select
+                            value={uniForm.state}
+                            onChange={(e) => setUniForm({ ...uniForm, state: e.target.value })}
+                            disabled={!selectedUniCountryIso}
+                            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold text-sm bg-white disabled:opacity-60"
+                          >
+                            <option value="">Select State</option>
+                            {uniStates.map((s) => (
+                              <option key={s.isoCode} value={s.name}>
+                                {s.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Type & Programs */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                            <GraduationCap className="h-3 w-3 inline mr-1" />
+                            University Type <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            value={uniForm.type}
+                            onChange={(e) => setUniForm({ ...uniForm, type: e.target.value })}
+                            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold text-sm bg-white"
+                            required
+                          >
+                            <option value="">Select Type</option>
+                            <option value="GOVERNMENT">Government</option>
+                            <option value="PRIVATE">Private</option>
+                            <option value="SEMI_PRIVATE">Semi-Private</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                            <BookOpen className="h-3 w-3 inline mr-1" />
+                            Programs Offered <span className="text-red-500">*</span>
+                          </label>
+                          <div className="flex flex-wrap gap-2">
+                            {["MBBS", "BDS", "Nursing", "Pharmacy", "Other"].map((program) => (
+                              <button
+                                key={program}
+                                type="button"
+                                onClick={() => {
+                                  const newPrograms = uniForm.programs.includes(program)
+                                    ? uniForm.programs.filter((p) => p !== program)
+                                    : [...uniForm.programs, program];
+                                  setUniForm({ ...uniForm, programs: newPrograms });
+                                }}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border ${
+                                  uniForm.programs.includes(program)
+                                    ? "bg-gold text-white border-gold"
+                                    : "bg-gray-50 text-gray-600 border-gray-200 hover:border-gold"
+                                }`}
+                              >
+                                {program}
+                              </button>
+                            ))}
+                          </div>
+                          {uniForm.programs.includes("Other") && (
+                            <input
+                              type="text"
+                              placeholder="Specify other programs (e.g., Physiotherapy, Dentistry...)"
+                              value={uniForm.otherPrograms || ""}
+                              onChange={(e) => setUniForm({ ...uniForm, otherPrograms: e.target.value })}
+                              className="w-full mt-2 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold text-sm"
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Contact Info - Your Contact Details */}
+                      <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 flex items-center gap-2">
+                          <Phone className="h-3 w-3" />
+                          Your Contact Details (for inquiry)
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                              <Mail className="h-3 w-3 inline mr-1" />
+                              Your Email <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="email"
+                              placeholder="your.email@example.com"
+                              value={uniForm.contactEmail}
+                              onChange={(e) => setUniForm({ ...uniForm, contactEmail: e.target.value })}
+                              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold text-sm"
+                              required
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                              <Phone className="h-3 w-3 inline mr-1" />
+                              Your Phone <span className="text-red-500">*</span>
+                            </label>
+                            <div className="flex gap-2">
+                              <select
+                                value={selectedCountryPhoneCode || "+91"}
+                                onChange={(e) => setSelectedCountryPhoneCode(e.target.value)}
+                                className="w-16 px-1 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold text-sm bg-white shrink-0 text-center"
+                                required
+                              >
+                                {countries.map((c) => (
+                                  <option key={c.isoCode} value={`+${c.phonecode.replace("+", "")}`}>
+                                    +{c.phonecode.replace("+", "")}
+                                  </option>
+                                ))}
+                              </select>
+                              <input
+                                type="tel"
+                                placeholder="Mobile number"
+                                value={uniForm.contactPhone}
+                                onChange={(e) => {
+                                  let value = e.target.value.replace(/\D/g, "");
+                                  value = value.slice(0, 10);
+                                  setUniForm({ ...uniForm, contactPhone: value });
+                                }}
+                                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold text-sm"
+                                maxLength={10}
+                                required
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Additional Info */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                          Additional Information
+                        </label>
+                        <textarea
+                          placeholder="Any other details about the university (e.g., NMC approval status, year established, tuition fees...)"
+                          value={uniForm.additionalInfo}
+                          onChange={(e) => setUniForm({ ...uniForm, additionalInfo: e.target.value })}
+                          rows={3}
+                          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold text-sm resize-none"
+                        />
+                      </div>
+
+                      {/* Submit Button */}
+                      <div className="pt-2">
+                        <button
+                          type="submit"
+                          disabled={createUniRequestMutation.isPending}
+                          className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer bg-gold hover:bg-gold-dark"
+                        >
+                          {createUniRequestMutation.isPending ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Submitting...
+                            </>
+                          ) : (
+                            <>
+                              <Building2 className="h-4 w-4" />
+                              Submit University Request
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </>
+                )}
               </div>
             </div>
             

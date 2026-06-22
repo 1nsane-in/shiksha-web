@@ -24,6 +24,7 @@ import { VisaSupportModule } from './visa-support/visa-support.module';
 import { RateLimitingModule } from './common/rate-limiting/rate-limiting.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { ConsultationModule } from './consultation/consultation.module';
+import { UniversityRequestModule } from './university-requests/university-request.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { ConsultationModule } from './consultation/consultation.module';
     VisaSupportModule,
     GalleryModule,
     ConsultationModule,
+    UniversityRequestModule,
   ],
   controllers: [AppController],
   providers: [

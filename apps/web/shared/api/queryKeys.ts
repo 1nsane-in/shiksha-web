@@ -79,4 +79,9 @@ export const queryKeys = {
   consultations: {
     all: ["consultations"] as const,
   },
+  universityRequests: {
+    all: ["university-requests"] as const,
+    list: (status?: string) => ["university-requests", "list", status] as const,
+    stats: ["university-requests", "stats"] as const,
+  },
 };

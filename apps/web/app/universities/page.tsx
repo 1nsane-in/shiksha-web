@@ -165,12 +165,12 @@ export default function PublicUniversitiesPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Header Banner */}
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider bg-amber-50 text-[#C4953B] border border-amber-200/50 mb-4">
-              <Star className="size-3.5 fill-[#C4953B]" />
+            <span className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider bg-amber-50 text-gold border border-amber-200/50 mb-4">
+              <Star className="size-3.5 fill-gold" />
               NMC, WHO & ECFMG Approved
             </span>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1A153A] leading-tight tracking-tight">
-              Our Partner <span className="text-[#C4953B]">Medical Universities</span>
+              Our Partner <span className="text-gold">Medical Universities</span>
             </h1>
             <p className="text-slate-500 mt-4 leading-relaxed text-sm sm:text-base">
               Explore premier government and private medical universities in Kyrgyzstan. Low-cost English medium MBBS programs fully compliant with NMC directives.
@@ -187,7 +187,7 @@ export default function PublicUniversitiesPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search university by name or abbreviation (e.g. OSMU)..."
-                className="w-full py-2.5 pl-10 pr-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#C4953B] bg-slate-50/50 text-[#1A153A]"
+                className="w-full py-2.5 pl-10 pr-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold bg-slate-50/50 text-[#1A153A]"
               />
             </div>
 
@@ -217,7 +217,7 @@ export default function PublicUniversitiesPage() {
           {/* Loading Indicator */}
           {isLoading ? (
             <div className="text-center py-20">
-              <div className="inline-block size-8 animate-spin rounded-full border-4 border-solid border-[#C4953B] border-r-transparent shrink-0" />
+              <div className="inline-block size-8 animate-spin rounded-full border-4 border-solid border-gold border-r-transparent shrink-0" />
               <p className="text-xs text-slate-400 mt-4 font-semibold">Loading university directory...</p>
             </div>
           ) : filteredUniversities.length === 0 ? (
@@ -227,6 +227,13 @@ export default function PublicUniversitiesPage() {
               <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
                 No partners match your criteria. Try resetting filters or updating your search string.
               </p>
+              <button
+                onClick={() => router.push("/contact-us?subject=university-request")}
+                className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-gold hover:bg-[#b0852f] text-white font-semibold text-xs rounded-lg transition-all duration-200"
+              >
+                <Building2 className="w-4 h-4" />
+                Request to Add University
+              </button>
             </div>
           ) : (
             /* Card list grid */
@@ -249,7 +256,7 @@ export default function PublicUniversitiesPage() {
                       className="group relative overflow-hidden transition-all duration-200 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md"
                     >
                       {/* top accent bar */}
-                      <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 bg-[#C4953B]" />
+                      <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 bg-gold" />
 
                       <div className="flex flex-col sm:flex-row">
                         {/* Image banner */}
@@ -328,7 +335,7 @@ export default function PublicUniversitiesPage() {
                           <div className="pt-5 border-t border-slate-100 flex items-center gap-2 mt-4">
                             <button
                               onClick={() => router.push("/student/university/" + uni.slug + "?apply=true")}
-                              className="flex-1 py-2 px-3 text-center text-xs font-bold text-white rounded-lg transition-all duration-150 active:scale-[0.98] bg-[#C4953B]"
+                              className="flex-1 py-2 px-3 text-center text-xs font-bold text-white rounded-lg transition-all duration-150 active:scale-[0.98] bg-gold"
                             >
                               Apply Now
                             </button>
@@ -345,6 +352,50 @@ export default function PublicUniversitiesPage() {
                   </motion.div>
                 );
               })}
+            </div>
+          )}
+
+          {/* Request University Banner - After listings */}
+          {!isLoading && filteredUniversities.length > 0 && (
+            <div className="max-w-5xl mx-auto mt-16">
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#1A153A] via-[#2d2652] to-[#1A153A] border border-gold/20">
+                {/* Decorative pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-gold blur-3xl" />
+                  <div className="absolute -left-20 -bottom-20 w-48 h-48 rounded-full bg-gold blur-3xl" />
+                </div>
+                
+                <div className="relative px-6 py-8 sm:px-10 sm:py-10 flex flex-col sm:flex-row items-center gap-6">
+                  {/* Icon */}
+                  <div className="shrink-0">
+                    <div className="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/30 flex items-center justify-center">
+                      <Building2 className="w-8 h-8 text-gold" />
+                    </div>
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="flex-1 text-center sm:text-left">
+                    <h3 className="text-lg sm:text-xl font-bold text-gold mb-2">
+                      Can&apos;t Find Your University?
+                    </h3>
+                    <p className="text-sm text-white/80 leading-relaxed max-w-xl">
+                      If the university you&apos;re looking for isn&apos;t listed in our directory, 
+                      let us know and our team will research and add it to our database within 24-48 hours.
+                    </p>
+                  </div>
+                  
+                  {/* CTA Button */}
+                  <div className="shrink-0">
+                    <button
+                      onClick={() => router.push("/contact-us?subject=university-request")}
+                      className="group inline-flex items-center gap-2 px-6 py-3 bg-gold hover:bg-[#b0852f] text-[#1A153A] font-bold text-sm rounded-xl transition-all duration-200 active:scale-[0.98] whitespace-nowrap"
+                    >
+                      <span>Request University</span>
+                      <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

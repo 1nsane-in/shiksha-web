@@ -507,7 +507,6 @@ model Payment {
   @@index([applicationId])
   @@index([status])
   @@index([createdAt])
-  @@index([applicationId])
 }
 
 model AdmissionLetter {
@@ -1227,6 +1226,34 @@ model GalleryImage {
   updatedAt DateTime
 }
 
+model UniversityRequest {
+  id               String   @id @default(uuid())
+  universityName   String
+  country          String
+  state            String?
+  website          String?
+  type             String
+  programs         String[]
+  otherPrograms    String?
+  contactEmail     String
+  contactPhone     String
+  additionalInfo   String?
+  status           UniversityRequestStatus @default(PENDING)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum UniversityRequestStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  ADDED
+}
+
 enum Role {
   SUPER_ADMIN
   ADMIN
@@ -1411,26 +1438,4 @@ enum VisaApplicationStatus {
   PROCESSING
   APPROVED
   REJECTED
-}
-
-model GalleryImage {
-  id        String   @id @default(uuid())
-  title     String?
-  url       String
-  key       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Consultation {
-  id        String   @id @default(uuid())
-  name      String
-  email     String
-  phone     String
-  neetScore Int?
-  state     String?
-  country   String?
-  status    String   @default("PENDING")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
