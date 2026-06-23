@@ -458,14 +458,11 @@ function UniversityContent({
                 />
               )}
               {recognition?.worldRank ? (
-              {recognition?.worldRank ? (
                 <StatBox
                   icon={<Award className="size-4" />}
                   label="World Rank"
                   value={`#${recognition.worldRank}`}
                 />
-              ) : null}
-              {support?.placementRate ? (
               ) : null}
               {support?.placementRate ? (
                 <StatBox
@@ -475,14 +472,11 @@ function UniversityContent({
                 />
               ) : null}
               {infra?.hospitalBeds ? (
-              ) : null}
-              {infra?.hospitalBeds ? (
                 <StatBox
                   icon={<Hospital className="size-4" />}
                   label="Hospital Beds"
                   value={String(infra.hospitalBeds)}
                 />
-              ) : null}
               ) : null}
             </div>
           )}
@@ -616,21 +610,6 @@ function UniversityContent({
                           </div>
                         ))}
                       </div>
-                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                        {admission.requiredDocuments.map((doc: string, i: number) => (
-                          <div
-                            key={i}
-                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
-                            style={{
-                              background: theme.canvas,
-                              border: "1px solid " + theme.hairline,
-                            }}
-                          >
-                            <Check className="size-4 shrink-0" style={{ color: theme.gold }} />
-                            <span style={{ color: theme.inkMuted }}>{doc}</span>
-                          </div>
-                        ))}
-                      </div>
                     </div>
                   )}
               </div>
@@ -726,61 +705,6 @@ function UniversityContent({
                 </div>
               )}
               
-              
-              {/* Departments */}
-              {infra.departments && infra.departments.length > 0 && (
-                <div className="mt-5">
-                  <p
-                    className="mb-2 text-xs font-medium uppercase tracking-wider"
-                    style={{ color: theme.inkSubtle }}
-                  >
-                    Departments
-                  </p>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {infra.departments.map((dept: string, i: number) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
-                        style={{
-                          background: theme.canvas,
-                          border: "1px solid " + theme.hairline,
-                        }}
-                      >
-                        <Layers className="size-4 shrink-0" style={{ color: theme.gold }} />
-                        <span style={{ color: theme.inkMuted }}>{dept}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Laboratories */}
-              {infra.laboratories && infra.laboratories.length > 0 && (
-                <div className="mt-5">
-                  <p
-                    className="mb-2 text-xs font-medium uppercase tracking-wider"
-                    style={{ color: theme.inkSubtle }}
-                  >
-                    Laboratories
-                  </p>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {infra.laboratories.map((lab: string, i: number) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
-                        style={{
-                          background: theme.canvas,
-                          border: "1px solid " + theme.hairline,
-                        }}
-                      >
-                        <BookMarked className="size-4 shrink-0" style={{ color: theme.gold }} />
-                        <span style={{ color: theme.inkMuted }}>{lab}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
               {/* boolean facilities */}
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {infra.cafeteria != null && (
@@ -806,24 +730,7 @@ function UniversityContent({
                     style={{ color: theme.inkSubtle }}
                   >
                     Other Facilities
-                    Other Facilities
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {infra.facilities.map((facility: string, i: number) => (
-                      <span
-                        key={i}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
-                        style={{
-                          background: theme.goldLight,
-                          color: theme.ink,
-                          border: "1px solid " + theme.goldBorder,
-                        }}
-                      >
-                        <Check className="size-3" style={{ color: theme.gold }} />
-                        {facility}
-                      </span>
-                    ))}
-                  </div>
                   <div className="flex flex-wrap gap-2">
                     {infra.facilities.map((facility: string, i: number) => (
                       <span
