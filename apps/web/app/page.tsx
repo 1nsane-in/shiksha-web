@@ -38,11 +38,11 @@ export default function Home() {
       </div>
       {/* Rest of the page */}
       <main className=" max-w-6xl mx-auto">
-        <EligibilityCalculator />
+        {/* <EligibilityCalculator /> */}
         <UniversityCards />
-        <UniversityComparison />
+        {/* <UniversityComparison />
         <UniversityAdvantages />
-        <WhyTrustUs />
+        <WhyTrustUs /> */}
       </main>
       <Footer />
     </>
