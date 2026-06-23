@@ -379,10 +379,10 @@ export default function AboutUsPage() {
                   href="tel:+996556611890"
                   className="inline-flex items-center justify-center px-6 py-2.5 text-xs font-semibold text-[#1A153A] bg-white rounded-lg transition-all hover:bg-white/95"
                 >
-                  Call +996 5566 11890
+                  Call +7 918 482-65-01
                 </a>
                 <a
-                  href="mailto:contact@wciecorganization.com"
+                  href="mailto:siksha.sabkaadhikaar@gmail.com"
                   className="inline-flex items-center justify-center px-6 py-2.5 text-xs font-semibold text-white border border-white/20 rounded-lg transition-all hover:bg-white/10"
                 >
                   Email Us

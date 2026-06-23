@@ -297,9 +297,8 @@ function ContactUsPage() {
                     <Phone className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold" style={{ color: theme.ink }}>Mobile Numbers</h4>
-                    <p className="text-sm font-mono mt-1" style={{ color: theme.inkMuted }}>+996 5566 11890</p>
-                    <p className="text-sm font-mono" style={{ color: theme.inkMuted }}>+91 98765 43210</p>
+                    <h4 className="text-sm font-semibold" style={{ color: theme.ink }}>Mobile Number</h4>
+                    <p className="text-sm font-mono mt-1" style={{ color: theme.inkMuted }}>+7 918 482-65-01</p>
                   </div>
                 </div>
 
@@ -308,9 +307,8 @@ function ContactUsPage() {
                     <Mail className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold" style={{ color: theme.ink }}>Email Addresses</h4>
-                    <p className="text-sm mt-1" style={{ color: theme.inkMuted }}>admissions@shiksha-global.com</p>
-                    <p className="text-sm" style={{ color: theme.inkMuted }}>support@shiksha-global.com</p>
+                    <h4 className="text-sm font-semibold" style={{ color: theme.ink }}>Email Address</h4>
+                    <p className="text-sm mt-1" style={{ color: theme.inkMuted }}>siksha.sabkaadhikaar@gmail.com</p>
                   </div>
                 </div>
 

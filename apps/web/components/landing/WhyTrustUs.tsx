@@ -55,7 +55,7 @@ export function WhyTrustUs() {
         {/* Why Trust Us Headers */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-[#1A153A] mb-4">
-            Why Trust Shiksha (WCIEC)
+            Why Trust Shiksha
           </h2>
           <p className="text-slate-600 leading-relaxed">
             We are more than an admissions portal; we are a lifelong mentor in your global medical education.
