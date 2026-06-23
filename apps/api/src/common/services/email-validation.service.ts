@@ -1,9 +1,11 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { promises as dns } from 'dns';
-import * as disposableEmailDomains from 'disposable-email-domains';
+import disposableEmailDomains from 'disposable-email-domains';
 
 const disposableSet = new Set(
-  disposableEmailDomains.map((d: string) => d.toLowerCase()),
+  Array.isArray(disposableEmailDomains)
+    ? disposableEmailDomains.map((d: string) => d.toLowerCase())
+    : [],
 );
 
 const MX_CACHE_TTL = 60 * 60 * 1000;
