@@ -319,18 +319,32 @@ export class UniversitiesService {
         bannerImage: dto.bannerImage,
         brochureUrl: dto.brochureUrl,
         status: UniversityStatus.DRAFT,
-        location: dto.location ? { create: this.sanitizeLocation(dto.location) as any } : undefined,
-        contact: dto.contact ? { create: this.sanitizeContact(dto.contact) as any } : undefined,
-        academic: dto.academic ? { create: this.sanitizeAcademic(dto.academic) as any } : undefined,
-        recognition: dto.recognition ? { create: dto.recognition as any } : undefined,
+        location: dto.location
+          ? { create: this.sanitizeLocation(dto.location) as any }
+          : undefined,
+        contact: dto.contact
+          ? { create: this.sanitizeContact(dto.contact) as any }
+          : undefined,
+        academic: dto.academic
+          ? { create: this.sanitizeAcademic(dto.academic) as any }
+          : undefined,
+        recognition: dto.recognition
+          ? { create: dto.recognition as any }
+          : undefined,
         fees: dto.fees ? { create: { ...dto.fees } as any } : undefined,
-        infrastructure: dto.infrastructure ? { create: this.sanitizeInfrastructure(dto.infrastructure) as any } : undefined,
-        admission: dto.admission ? { create: this.sanitizeAdmission(dto.admission) as any } : undefined,
+        infrastructure: dto.infrastructure
+          ? { create: this.sanitizeInfrastructure(dto.infrastructure) as any }
+          : undefined,
+        admission: dto.admission
+          ? { create: this.sanitizeAdmission(dto.admission) }
+          : undefined,
         support: dto.support ? { create: dto.support as any } : undefined,
-        content: dto.content ? { create: this.sanitizeContent(dto.content) as any } : undefined,
+        content: dto.content
+          ? { create: this.sanitizeContent(dto.content) as any }
+          : undefined,
         admin: dto.admin ? { create: dto.admin as any } : undefined,
-        studentDemographics: dto.studentDemographics as any ?? undefined,
-        socialLinks: dto.socialLinks as any ?? undefined,
+        studentDemographics: (dto.studentDemographics as any) ?? undefined,
+        socialLinks: (dto.socialLinks as any) ?? undefined,
       },
       include: {
         location: true,
@@ -350,11 +364,22 @@ export class UniversitiesService {
   }
 
   private sanitizeLocation(loc: any) {
-    return { country: loc.country ?? '', state: loc.state ?? '', city: loc.city ?? '', address: loc.address ?? '', latitude: loc.latitude, longitude: loc.longitude };
+    return {
+      country: loc.country ?? '',
+      state: loc.state ?? '',
+      city: loc.city ?? '',
+      address: loc.address ?? '',
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+    };
   }
 
   private sanitizeContact(con: any) {
-    return { email: con.email ?? '', phone: con.phone ?? '', admissionOfficeHours: con.admissionOfficeHours ?? '' };
+    return {
+      email: con.email ?? '',
+      phone: con.phone ?? '',
+      admissionOfficeHours: con.admissionOfficeHours ?? '',
+    };
   }
 
   private sanitizeAcademic(ac: any) {
@@ -392,8 +417,10 @@ export class UniversitiesService {
   private sanitizeAdmission(adm: any) {
     return {
       ...adm,
-      applicationDeadline: adm.applicationDeadline ? new Date(adm.applicationDeadline) : undefined,
-      programEligibility: adm.programEligibility as any,
+      applicationDeadline: adm.applicationDeadline
+        ? new Date(adm.applicationDeadline)
+        : undefined,
+      programEligibility: adm.programEligibility,
     };
   }
 
@@ -538,7 +565,9 @@ export class UniversitiesService {
       where: { id },
       data: {
         status,
-        ...(status === UniversityStatus.ACTIVE ? { verifiedAt: new Date() } : {}),
+        ...(status === UniversityStatus.ACTIVE
+          ? { verifiedAt: new Date() }
+          : {}),
       },
     });
   }
@@ -642,36 +671,45 @@ export class UniversitiesService {
     }
     // Extract key from the public URL (e.g. "https://pub-xxx.r2.dev/brochures/uuid.pdf" → "brochures/uuid.pdf")
     const url = new URL(university.brochureUrl);
-    const key = url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname;
+    const key = url.pathname.startsWith('/')
+      ? url.pathname.slice(1)
+      : url.pathname;
     const signedUrl = await this.storage.getSignedUrl(key, 900); // 15 min
     return { url: signedUrl, expiresIn: 900 };
   }
 
   async getStatistics() {
-    const [total, active, draft, underReview, byType, byCountry, recentlyAdded] =
-      await Promise.all([
-        this.prisma.university.count(),
-        this.prisma.university.count({ where: { status: 'ACTIVE' } }),
-        this.prisma.university.count({ where: { status: 'DRAFT' } }),
-        this.prisma.university.count({ where: { status: 'UNDER_REVIEW' } }),
-        this.prisma.university.groupBy({
-          by: ['type'],
-          _count: true,
-        }),
-        this.prisma.universityLocation.groupBy({
-          by: ['country'],
-          _count: true,
-          orderBy: { _count: { country: 'desc' } },
-          take: 10,
-        }),
-        this.prisma.university.count({
-          where: {
-            createdAt: {
-              gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-            },
+    const [
+      total,
+      active,
+      draft,
+      underReview,
+      byType,
+      byCountry,
+      recentlyAdded,
+    ] = await Promise.all([
+      this.prisma.university.count(),
+      this.prisma.university.count({ where: { status: 'ACTIVE' } }),
+      this.prisma.university.count({ where: { status: 'DRAFT' } }),
+      this.prisma.university.count({ where: { status: 'UNDER_REVIEW' } }),
+      this.prisma.university.groupBy({
+        by: ['type'],
+        _count: true,
+      }),
+      this.prisma.universityLocation.groupBy({
+        by: ['country'],
+        _count: true,
+        orderBy: { _count: { country: 'desc' } },
+        take: 10,
+      }),
+      this.prisma.university.count({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
           },
-        }),
-      ]);
+        },
+      }),
+    ]);
 
     return {
       total,
@@ -684,4 +722,3 @@ export class UniversitiesService {
     };
   }
 }
-

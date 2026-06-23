@@ -67,18 +67,19 @@ export class UniversityRecognitionDto {
 
 /* ─── Fees sub-types ─── */
 export class FeeBreakdownItemDto {
-  @IsString() name: string;
-  @IsNumber() @Min(0) amount: number;
+  @IsString() name!: string;
+  @IsNumber() @Min(0) amount!: number;
 }
 
 export class ProgramFeeBreakdownDto {
-  @IsString() programName: string;
-  @IsNumber() @Min(0) annualTuition: number;
-  @IsNumber() @Min(0) totalSeats: number;
+  @IsString() programName!: string;
+  @IsNumber() @Min(0) annualTuition!: number;
+  @IsNumber() @Min(0) totalSeats!: number;
   @IsOptional() @IsNumber() @Min(0) governmentSeats?: number;
   @IsOptional() @IsNumber() @Min(0) managementSeats?: number;
   @IsOptional() @IsNumber() @Min(0) nriSeats?: number;
-  @IsOptional() @IsArray()
+  @IsOptional()
+  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FeeBreakdownItemDto)
   feeBreakdown?: FeeBreakdownItemDto[];
@@ -98,7 +99,8 @@ export class UniversityFeesDto {
   @IsOptional() @IsString() paymentSchedule?: string;
   @IsOptional() @IsString() refundPolicy?: string;
   @IsOptional() @IsString() feeHikePolicy?: string;
-  @IsOptional() @IsArray()
+  @IsOptional()
+  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ProgramFeeBreakdownDto)
   programBreakdown?: ProgramFeeBreakdownDto[];
@@ -121,8 +123,8 @@ export class UniversityInfrastructureDto {
 
 /* ─── Admission ─── */
 export class ProgramEligibilityDto {
-  @IsString() minimumMarks: string;
-  @IsString() eligibility: string;
+  @IsString() minimumMarks!: string;
+  @IsString() eligibility!: string;
 }
 
 export class UniversityAdmissionDto {
@@ -130,11 +132,15 @@ export class UniversityAdmissionDto {
   @IsOptional() @IsString() minimumMarks?: string;
   @IsOptional() @IsString() ageCriteria?: string;
   @IsOptional() @IsString() eligibility?: string;
-  @IsOptional() @IsArray()
+  @IsOptional()
+  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ProgramEligibilityDto)
   programEligibility?: ProgramEligibilityDto[];
-  @IsOptional() @IsArray() @IsString({ each: true }) requiredDocuments?: string[];
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  requiredDocuments?: string[];
   @IsOptional() @IsDateString() applicationDeadline?: string;
   @IsOptional() @IsNumber() @Min(0) applicationFee?: number;
   @IsOptional() @IsString() selectionProcess?: string;
@@ -168,15 +174,16 @@ export class UniversityContentDto {
 
 /* ─── Student Demographics ─── */
 export class ForeignStudentBreakdownDto {
-  @IsString() country: string;
-  @IsNumber() @Min(0) count: number;
+  @IsString() country!: string;
+  @IsNumber() @Min(0) count!: number;
 }
 
 export class StudentDemographicsDto {
   @IsOptional() @IsNumber() @Min(0) totalStudents?: number;
   @IsOptional() @IsNumber() @Min(0) localStudents?: number;
   @IsOptional() @IsNumber() @Min(0) foreignStudents?: number;
-  @IsOptional() @IsArray()
+  @IsOptional()
+  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ForeignStudentBreakdownDto)
   foreignByCountry?: ForeignStudentBreakdownDto[];

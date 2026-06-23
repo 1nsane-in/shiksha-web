@@ -40,7 +40,8 @@ export class DashboardController {
     ]);
 
     const admissionsLettersUploaded = await this.prisma.admissionLetter.count();
-    const invitationsLettersUploaded = await this.prisma.invitationLetter.count();
+    const invitationsLettersUploaded =
+      await this.prisma.invitationLetter.count();
     const totalRevenue = await this.prisma.payment.aggregate({
       where: { status: { in: ['SUCCESS', 'MANUALLY_APPROVED'] } },
       _sum: { amount: true },
@@ -54,10 +55,13 @@ export class DashboardController {
       invitationsLettersUploaded,
       totalRevenue: totalRevenue._sum.amount || 0,
       recentStudents,
-      stageWiseCount: stageWiseCount.reduce((acc, item) => {
-        acc[`stage_${item.currentStage}`] = item._count;
-        return acc;
-      }, {}),
+      stageWiseCount: stageWiseCount.reduce(
+        (acc, item) => {
+          acc[`stage_${item.currentStage}`] = item._count;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
     };
   }
 }

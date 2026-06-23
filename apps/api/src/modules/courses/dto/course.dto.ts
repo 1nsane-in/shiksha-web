@@ -1,56 +1,64 @@
-import { IsUUID, IsString, IsOptional, IsBoolean, IsDateString, IsNumber, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsDateString,
+  IsNumber,
+  IsArray,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCourseDto {
   @ApiProperty({ example: 'Introduction to Computer Science' })
   @IsString()
-  title: string;
+  title!: string;
 
   @ApiProperty({ example: 'CS101' })
   @IsString()
-  code: string;
+  code!: string;
 
-  @ApiProperty({ example: 'An introductory course to computer science fundamentals' })
+  @ApiProperty({
+    example: 'An introductory course to computer science fundamentals',
+  })
   @IsString()
-  description: string;
+  description!: string;
 
   @ApiProperty({ example: 10 })
   @IsNumber()
-  credits: number;
+  credits!: number;
 
   @ApiProperty({ example: '2023-09-01' })
   @IsDateString()
-  startDate: Date;
+  startDate!: Date;
 
   @ApiProperty({ example: '2023-12-31' })
   @IsDateString()
-  endDate: Date;
+  endDate!: Date;
 
   @ApiProperty({ example: ['Programming Fundamentals', 'Data Structures'] })
   @IsArray()
   @IsString({ each: true })
-  prerequisites: string[];
+  prerequisites!: string[];
 
   @ApiProperty({ example: 'Computer Science' })
   @IsString()
-  department: string;
+  department!: string;
 
   @ApiProperty({ example: 'Dr. John Smith' })
   @IsString()
-  instructor: string;
+  instructor!: string;
 
   @ApiProperty({ example: 30 })
   @IsNumber()
-  maxStudents: number;
+  maxStudents!: number;
 
   @ApiProperty({ example: 'Online' })
   @IsString()
-  deliveryMethod: string;
+  deliveryMethod!: string;
 
   @ApiProperty({ example: ['Lecture', 'Lab'] })
   @IsArray()
   @IsString({ each: true })
-  courseTypes: string[];
+  courseTypes!: string[];
 }
 
 export class UpdateCourseDto {
@@ -84,7 +92,9 @@ export class UpdateCourseDto {
   @IsOptional()
   endDate?: Date;
 
-  @ApiProperty({ example: ['Programming Fundamentals', 'Data Structures', 'Algorithms'] })
+  @ApiProperty({
+    example: ['Programming Fundamentals', 'Data Structures', 'Algorithms'],
+  })
   @IsArray()
   @IsString({ each: true })
   @IsOptional()

@@ -52,6 +52,6 @@ export class DeviceTokenService {
       where: { userId, isActive: true },
       select: { token: true },
     });
-    return tokens.map(t => t.token);
+    return tokens.map((t) => t.token);
   }
 }

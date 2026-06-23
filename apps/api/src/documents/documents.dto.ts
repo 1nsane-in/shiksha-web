@@ -1,22 +1,28 @@
-import { IsString, IsOptional, IsEnum, IsNumber, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  IsBoolean,
+} from 'class-validator';
 
 export class UploadDocumentDto {
   @IsString()
-  documentTypeId: string;
+  documentTypeId!: string;
 
   @IsString()
-  fileUrl: string;
+  fileUrl!: string;
 
   @IsString()
-  fileName: string;
+  fileName!: string;
 
   @IsNumber()
-  fileSize: number;
+  fileSize!: number;
 }
 
 export class VerifyDocumentDto {
   @IsEnum(['APPROVED', 'REJECTED'])
-  status: 'APPROVED' | 'REJECTED';
+  status!: 'APPROVED' | 'REJECTED';
 
   @IsOptional()
   @IsString()
@@ -25,17 +31,17 @@ export class VerifyDocumentDto {
 
 export class CreateDocumentTypeDto {
   @IsString()
-  name: string;
+  name!: string;
 
   @IsString()
-  code: string;
+  code!: string;
 
   @IsOptional()
   @IsString()
   description?: string;
 
   @IsNumber()
-  requiredForStage: number;
+  requiredForStage!: number;
 }
 
 export class UpdateDocumentTypeDto {

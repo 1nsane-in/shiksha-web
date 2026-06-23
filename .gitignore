@@ -31,8 +31,4 @@ Thumbs.db
 .playwright-mcp/
 # docs/
 
-.worktrees/
-
-
- 
-godmode/
+.github/

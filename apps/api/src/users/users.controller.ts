@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateProfileDto, UpdateUserByAdminDto } from './users.dto';
+import type { AuthenticatedRequest } from '../common/types/request.type';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -21,12 +22,15 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get('profile')
-  async getProfile(@Request() req) {
+  async getProfile(@Request() req: AuthenticatedRequest) {
     return this.usersService.getProfile(req.user.id);
   }
 
   @Put('profile')
-  async updateProfile(@Request() req, @Body() dto: UpdateProfileDto) {
+  async updateProfile(
+    @Request() req: AuthenticatedRequest,
+    @Body() dto: UpdateProfileDto,
+  ) {
     return this.usersService.updateProfile(req.user.id, dto);
   }
 }

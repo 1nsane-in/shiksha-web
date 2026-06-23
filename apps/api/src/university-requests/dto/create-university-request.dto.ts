@@ -1,13 +1,19 @@
-import { IsString, IsOptional, IsArray, IsEmail, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class CreateUniversityRequestDto {
   @IsString()
   @IsNotEmpty()
-  universityName: string;
+  universityName!: string;
 
   @IsString()
   @IsNotEmpty()
-  country: string;
+  country!: string;
 
   @IsString()
   @IsOptional()
@@ -19,11 +25,11 @@ export class CreateUniversityRequestDto {
 
   @IsString()
   @IsNotEmpty()
-  type: string;
+  type!: string;
 
   @IsArray()
   @IsString({ each: true })
-  programs: string[];
+  programs!: string[];
 
   @IsString()
   @IsOptional()
@@ -31,11 +37,11 @@ export class CreateUniversityRequestDto {
 
   @IsEmail()
   @IsNotEmpty()
-  contactEmail: string;
+  contactEmail!: string;
 
   @IsString()
   @IsNotEmpty()
-  contactPhone: string;
+  contactPhone!: string;
 
   @IsString()
   @IsOptional()

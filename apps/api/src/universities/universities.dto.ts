@@ -1,4 +1,9 @@
-export { UniversityType, UniversityStatus, ECFMGStatus, UniversityDocType } from './dto/university-enums';
+export {
+  UniversityType,
+  UniversityStatus,
+  ECFMGStatus,
+  UniversityDocType,
+} from './dto/university-enums';
 export {
   UniversityLocationDto,
   UniversityContactDto,

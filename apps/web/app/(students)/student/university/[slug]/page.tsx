@@ -457,27 +457,27 @@ function UniversityContent({
                   value={String(academic.programs.length)}
                 />
               )}
-              {recognition?.worldRank && (
+              {recognition?.worldRank ? (
                 <StatBox
                   icon={<Award className="size-4" />}
                   label="World Rank"
                   value={`#${recognition.worldRank}`}
                 />
-              )}
-              {support?.placementRate && (
+              ) : null}
+              {support?.placementRate ? (
                 <StatBox
                   icon={<Star className="size-4" />}
                   label="Placement"
                   value={`${support.placementRate}%`}
                 />
-              )}
-              {infra?.hospitalBeds && (
+              ) : null}
+              {infra?.hospitalBeds ? (
                 <StatBox
                   icon={<Hospital className="size-4" />}
                   label="Hospital Beds"
                   value={String(infra.hospitalBeds)}
                 />
-              )}
+              ) : null}
             </div>
           )}
 
@@ -550,18 +550,65 @@ function UniversityContent({
                   value={admission.minimumMarks}
                 />
                 <InfoField label="Age Criteria" value={admission.ageCriteria} />
-                <InfoField
-                  label="Selection Process"
-                  value={admission.selectionProcess}
-                />
-                <InfoField
-                  label="Application Fee"
-                  value={
-                    admission.applicationFee != null
-                      ? `₹${admission.applicationFee.toLocaleString()}`
-                      : undefined
-                  }
-                />
+                {/* Selection Process - Show as timeline if it has steps */}
+                {(() => {
+                  const selectionSteps = admission.selectionProcess?.split("→").map((s: string) => s.trim()).filter(Boolean) || [];
+                  const hasSelectionSteps = selectionSteps.length > 1;
+                  return hasSelectionSteps ? (
+                    <div className="sm:col-span-2">
+                      <p
+                        className="mb-3 text-xs font-medium uppercase tracking-wider"
+                        style={{ color: theme.inkSubtle }}
+                      >
+                        Selection Process
+                      </p>
+                      <div className="space-y-0">
+                        {selectionSteps.map((step: string, idx: number) => (
+                          <div key={idx} className="flex items-start gap-3">
+                            <div className="flex flex-col items-center">
+                              <div
+                                className="flex size-7 items-center justify-center rounded-full text-xs font-bold"
+                                style={{
+                                  background: theme.gold,
+                                  color: "#fff",
+                                }}
+                              >
+                                {idx + 1}
+                              </div>
+                              {idx < selectionSteps.length - 1 && (
+                                <div
+                                  className="mt-1 h-full min-h-[24px] w-0.5"
+                                  style={{ background: theme.hairline }}
+                                />
+                              )}
+                            </div>
+                            <div className="pb-4">
+                              <p className="text-sm font-medium" style={{ color: theme.ink }}>
+                                {step}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <InfoField
+                      label="Selection Process"
+                      value={admission.selectionProcess}
+                    />
+                  );
+                })()}
+                {admission.applicationFee != null && admission.applicationFee > 0 ? (
+                  <InfoField
+                    label="Application Fee"
+                    value={`₹${admission.applicationFee.toLocaleString()}`}
+                  />
+                ) : admission.applicationFee === 0 ? (
+                  <InfoField
+                    label="Application Fee"
+                    value="Free"
+                  />
+                ) : null}
                 {admission.applicationDeadline && (
                   <InfoField
                     label="Deadline"
@@ -595,7 +642,21 @@ function UniversityContent({
                       >
                         Required Documents
                       </p>
-                      <ChipList items={admission.requiredDocuments} />
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {admission.requiredDocuments.map((doc: string, i: number) => (
+                          <div
+                            key={i}
+                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
+                            style={{
+                              background: theme.canvas,
+                              border: "1px solid " + theme.hairline,
+                            }}
+                          >
+                            <Check className="size-4 shrink-0" style={{ color: theme.gold }} />
+                            <span style={{ color: theme.inkMuted }}>{doc}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
               </div>
@@ -649,6 +710,61 @@ function UniversityContent({
                   />
                 )}
               </div>
+              
+              {/* Departments */}
+              {infra.departments && infra.departments.length > 0 && (
+                <div className="mt-5">
+                  <p
+                    className="mb-2 text-xs font-medium uppercase tracking-wider"
+                    style={{ color: theme.inkSubtle }}
+                  >
+                    Departments
+                  </p>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {infra.departments.map((dept: string, i: number) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
+                        style={{
+                          background: theme.canvas,
+                          border: "1px solid " + theme.hairline,
+                        }}
+                      >
+                        <Layers className="size-4 shrink-0" style={{ color: theme.gold }} />
+                        <span style={{ color: theme.inkMuted }}>{dept}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Laboratories */}
+              {infra.laboratories && infra.laboratories.length > 0 && (
+                <div className="mt-5">
+                  <p
+                    className="mb-2 text-xs font-medium uppercase tracking-wider"
+                    style={{ color: theme.inkSubtle }}
+                  >
+                    Laboratories
+                  </p>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {infra.laboratories.map((lab: string, i: number) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
+                        style={{
+                          background: theme.canvas,
+                          border: "1px solid " + theme.hairline,
+                        }}
+                      >
+                        <BookMarked className="size-4 shrink-0" style={{ color: theme.gold }} />
+                        <span style={{ color: theme.inkMuted }}>{lab}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               {/* boolean facilities */}
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {infra.cafeteria != null && (
@@ -673,9 +789,24 @@ function UniversityContent({
                     className="mb-2 text-xs font-medium uppercase tracking-wider"
                     style={{ color: theme.inkSubtle }}
                   >
-                    Facilities
+                    Other Facilities
                   </p>
-                  <ChipList items={infra.facilities} />
+                  <div className="flex flex-wrap gap-2">
+                    {infra.facilities.map((facility: string, i: number) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
+                        style={{
+                          background: theme.goldLight,
+                          color: theme.ink,
+                          border: "1px solid " + theme.goldBorder,
+                        }}
+                      >
+                        <Check className="size-3" style={{ color: theme.gold }} />
+                        {facility}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
             </SectionCard>

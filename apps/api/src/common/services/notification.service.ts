@@ -27,7 +27,7 @@ export class NotificationService {
 
   async getUserNotifications(
     userId: string,
-    options?: { unreadOnly?: boolean; limit?: number }
+    options?: { unreadOnly?: boolean; limit?: number },
   ) {
     return this.prisma.notification.findMany({
       where: {
@@ -72,15 +72,17 @@ export class NotificationService {
   }
 
   // Bulk notifications for automation
-  async createBulk(notifications: Array<{
-    userId: string;
-    type: string;
-    title: string;
-    message: string;
-    data?: Record<string, any>;
-  }>) {
+  async createBulk(
+    notifications: Array<{
+      userId: string;
+      type: string;
+      title: string;
+      message: string;
+      data?: Record<string, any>;
+    }>,
+  ) {
     return this.prisma.notification.createMany({
-      data: notifications.map(n => ({
+      data: notifications.map((n) => ({
         userId: n.userId,
         type: n.type,
         title: n.title,

@@ -3,7 +3,6 @@ import {
   BadRequestException,
   NotFoundException,
   ForbiddenException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
@@ -92,7 +91,8 @@ export class PaymentsService {
       paymentId = payment.id;
     }
 
-    const productinfo = 'Stage_' + dto.stage + '_' + config.label.replace(/\s+/g, '_');
+    const productinfo =
+      'Stage_' + dto.stage + '_' + config.label.replace(/\s+/g, '_');
     const amount = config.amount.toFixed(2);
 
     const hash = generatePayUHash({

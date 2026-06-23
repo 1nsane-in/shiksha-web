@@ -48,7 +48,7 @@ export class AuditLogService {
   async getEntityHistory(
     entityType: string,
     entityId: string,
-    options?: { limit?: number; offset?: number }
+    options?: { limit?: number; offset?: number },
   ) {
     return this.prisma.auditLog.findMany({
       where: { entityType, entityId },
@@ -85,9 +85,10 @@ export class AuditLogService {
   }
 
   async logStageChange(data: StageChangeData) {
-    const metadata = data.metadata && Object.keys(data.metadata).length > 0
-      ? data.metadata
-      : undefined;
+    const metadata =
+      data.metadata && Object.keys(data.metadata).length > 0
+        ? data.metadata
+        : undefined;
 
     return this.prisma.stageHistory.create({
       data: {

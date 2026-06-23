@@ -60,14 +60,25 @@ export class UniversityRequestService {
   }
 
   async getStats() {
-    const [total, pending, underReview, approved, rejected, added] = await Promise.all([
-      this.prisma.universityRequest.count(),
-      this.prisma.universityRequest.count({ where: { status: UniversityRequestStatus.PENDING } }),
-      this.prisma.universityRequest.count({ where: { status: UniversityRequestStatus.UNDER_REVIEW } }),
-      this.prisma.universityRequest.count({ where: { status: UniversityRequestStatus.APPROVED } }),
-      this.prisma.universityRequest.count({ where: { status: UniversityRequestStatus.REJECTED } }),
-      this.prisma.universityRequest.count({ where: { status: UniversityRequestStatus.ADDED } }),
-    ]);
+    const [total, pending, underReview, approved, rejected, added] =
+      await Promise.all([
+        this.prisma.universityRequest.count(),
+        this.prisma.universityRequest.count({
+          where: { status: UniversityRequestStatus.PENDING },
+        }),
+        this.prisma.universityRequest.count({
+          where: { status: UniversityRequestStatus.UNDER_REVIEW },
+        }),
+        this.prisma.universityRequest.count({
+          where: { status: UniversityRequestStatus.APPROVED },
+        }),
+        this.prisma.universityRequest.count({
+          where: { status: UniversityRequestStatus.REJECTED },
+        }),
+        this.prisma.universityRequest.count({
+          where: { status: UniversityRequestStatus.ADDED },
+        }),
+      ]);
 
     return {
       total,

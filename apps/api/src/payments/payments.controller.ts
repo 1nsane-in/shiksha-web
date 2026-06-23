@@ -1,7 +1,19 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
-import { InitiatePayUPaymentDto, VerifyPayUPaymentDto, ManualPaymentApprovalDto } from './dto/payment.dto';
+import {
+  InitiatePayUPaymentDto,
+  VerifyPayUPaymentDto,
+  ManualPaymentApprovalDto,
+} from './dto/payment.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -18,7 +30,10 @@ export class PaymentsController {
 
   @Post('initiate')
   @ApiOperation({ summary: 'Initiate PayU payment for a stage' })
-  async initiate(@Body() dto: InitiatePayUPaymentDto, @AuthUser() user: AuthenticatedUser) {
+  async initiate(
+    @Body() dto: InitiatePayUPaymentDto,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     return this.paymentsService.initiatePayment(user.id, dto);
   }
 
@@ -31,7 +46,10 @@ export class PaymentsController {
 
   @Get('history')
   @ApiOperation({ summary: 'Get payment history' })
-  async getHistory(@AuthUser() user: AuthenticatedUser, @Query('applicationId') applicationId?: string) {
+  async getHistory(
+    @AuthUser() user: AuthenticatedUser,
+    @Query('applicationId') applicationId?: string,
+  ) {
     return this.paymentsService.getPaymentHistory(user.id, applicationId);
   }
 
@@ -45,7 +63,10 @@ export class PaymentsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get payment by ID' })
-  async getPayment(@Param('id') id: string, @AuthUser() user: AuthenticatedUser) {
+  async getPayment(
+    @Param('id') id: string,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     return this.paymentsService.getPaymentById(id, user.id, user.role);
   }
 
@@ -55,7 +76,10 @@ export class PaymentsController {
   @Roles('ADMIN', 'SUPER_ADMIN')
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Manually approve a payment (Admin)' })
-  async manualApprove(@Body() dto: ManualPaymentApprovalDto, @AuthUser() user: AuthenticatedUser) {
+  async manualApprove(
+    @Body() dto: ManualPaymentApprovalDto,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     return this.paymentsService.manualApprove(user.id, dto);
   }
 
@@ -63,7 +87,13 @@ export class PaymentsController {
   @Roles('ADMIN', 'SUPER_ADMIN')
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Get all pending payments (Admin)' })
-  async getPending(@Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.paymentsService.getPendingPayments(Number(page) || 1, Number(limit) || 20);
+  async getPending(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.paymentsService.getPendingPayments(
+      Number(page) || 1,
+      Number(limit) || 20,
+    );
   }
 }

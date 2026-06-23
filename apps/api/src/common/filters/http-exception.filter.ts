@@ -29,9 +29,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const exceptionResponse =
-      exception instanceof HttpException
-        ? exception.getResponse()
-        : null;
+      exception instanceof HttpException ? exception.getResponse() : null;
 
     this.logger.error(
       `${request.method} ${request.url}`,
@@ -91,7 +89,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       fields = {};
       for (const msg of msgs) {
         const match = msg.match(/^(\w+)\s/);
-        if (match) {
+        if (match && match[1]) {
           fields[match[1]] = msg;
         }
       }

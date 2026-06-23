@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export interface Course {
@@ -26,8 +30,12 @@ export class CoursesService {
 
   async create(createCourseDto: Partial<Course>): Promise<Course> {
     // Check if course with same title already exists
-    const existingCourse = await this.prisma.course.findUnique({
-      where: { title: createCourseDto.title as string },
+    if (!createCourseDto.title) {
+      throw new ConflictException('Course title is required');
+    }
+
+    const existingCourse = await this.prisma.course.findFirst({
+      where: { title: createCourseDto.title },
     });
 
     if (existingCourse) {
@@ -36,7 +44,18 @@ export class CoursesService {
 
     return this.prisma.course.create({
       data: {
-        ...createCourseDto,
+        title: createCourseDto.title,
+        code: createCourseDto.code!,
+        description: createCourseDto.description!,
+        credits: createCourseDto.credits!,
+        startDate: createCourseDto.startDate!,
+        endDate: createCourseDto.endDate!,
+        prerequisites: createCourseDto.prerequisites || [],
+        department: createCourseDto.department!,
+        instructor: createCourseDto.instructor!,
+        maxStudents: createCourseDto.maxStudents!,
+        deliveryMethod: createCourseDto.deliveryMethod!,
+        courseTypes: createCourseDto.courseTypes || [],
         published: false,
       },
     });
@@ -72,8 +91,11 @@ export class CoursesService {
     }
 
     // If updating title, check for duplicates
-    if (updateCourseDto.title && updateCourseDto.title !== existingCourse.title) {
-      const duplicate = await this.prisma.course.findUnique({
+    if (
+      updateCourseDto.title &&
+      updateCourseDto.title !== existingCourse.title
+    ) {
+      const duplicate = await this.prisma.course.findFirst({
         where: { title: updateCourseDto.title },
       });
 

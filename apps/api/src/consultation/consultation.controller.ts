@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { ConsultationService } from './consultation.service';
 import { CreateConsultationDto } from './dto/create-consultation.dto';
 import { RolesGuard } from '../auth/guards/roles.guard';

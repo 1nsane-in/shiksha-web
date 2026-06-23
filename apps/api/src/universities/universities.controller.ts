@@ -45,15 +45,51 @@ export class AdminUniversitiesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all universities (Admin)' })
-  @ApiQuery({ name: 'page', required: false, type: String, description: 'Page number' })
-  @ApiQuery({ name: 'limit', required: false, type: String, description: 'Items per page' })
-  @ApiQuery({ name: 'country', required: false, type: String, description: 'Filter by country' })
-  @ApiQuery({ name: 'status', required: false, enum: UniversityStatus, description: 'Filter by status' })
-  @ApiQuery({ name: 'type', required: false, type: String, description: 'Filter by university type' })
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by name or short name' })
-  @ApiResponse({ status: 200, description: 'List of universities with pagination' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: String,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: String,
+    description: 'Items per page',
+  })
+  @ApiQuery({
+    name: 'country',
+    required: false,
+    type: String,
+    description: 'Filter by country',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: UniversityStatus,
+    description: 'Filter by status',
+  })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    type: String,
+    description: 'Filter by university type',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Search by name or short name',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of universities with pagination',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - requires ADMIN or SUPER_ADMIN role' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - requires ADMIN or SUPER_ADMIN role',
+  })
   async findAll(@Query() query: UniversityQueryDto) {
     return this.universitiesService.findAllAdmin(query);
   }
@@ -79,7 +115,10 @@ export class AdminUniversitiesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get university details by ID (Admin)' })
   @ApiParam({ name: 'id', description: 'University ID or slug' })
-  @ApiResponse({ status: 200, description: 'University details with all relations' })
+  @ApiResponse({
+    status: 200,
+    description: 'University details with all relations',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'University not found' })
@@ -218,12 +257,40 @@ export class UniversitiesController {
   @Public()
   @Get()
   @ApiOperation({ summary: 'Get all active universities (Public)' })
-  @ApiQuery({ name: 'page', required: false, type: String, description: 'Page number' })
-  @ApiQuery({ name: 'limit', required: false, type: String, description: 'Items per page' })
-  @ApiQuery({ name: 'country', required: false, type: String, description: 'Filter by country' })
-  @ApiQuery({ name: 'type', required: false, type: String, description: 'Filter by university type' })
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by name or short name' })
-  @ApiResponse({ status: 200, description: 'List of active universities with pagination' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: String,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: String,
+    description: 'Items per page',
+  })
+  @ApiQuery({
+    name: 'country',
+    required: false,
+    type: String,
+    description: 'Filter by country',
+  })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    type: String,
+    description: 'Filter by university type',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Search by name or short name',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of active universities with pagination',
+  })
   async findAll(@Query() query: UniversityQueryDto) {
     const publicQuery = { ...query, status: UniversityStatus.ACTIVE };
     return this.universitiesService.findAll(publicQuery);
@@ -251,7 +318,10 @@ export class UniversitiesController {
   @ApiOperation({ summary: 'Get university details by ID or slug (Public)' })
   @ApiParam({ name: 'identifier', description: 'University ID or slug' })
   @ApiResponse({ status: 200, description: 'University details' })
-  @ApiResponse({ status: 404, description: 'University not found or not active' })
+  @ApiResponse({
+    status: 404,
+    description: 'University not found or not active',
+  })
   async findOne(@Param('identifier') identifier: string) {
     const university = await this.universitiesService.findOne(identifier);
     if (university.status !== UniversityStatus.ACTIVE) {

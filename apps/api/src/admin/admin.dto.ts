@@ -1,4 +1,11 @@
-import { IsString, IsEmail, IsOptional, MinLength, IsEnum, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsOptional,
+  MinLength,
+  IsEnum,
+  IsBoolean,
+} from 'class-validator';
 
 export enum AdminRole {
   ADMIN = 'ADMIN',
@@ -7,21 +14,21 @@ export enum AdminRole {
 
 export class CreateAdminDto {
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
   @MinLength(8)
-  password: string;
+  password!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
   phone?: string;
 
   @IsEnum(AdminRole)
-  role: AdminRole;
+  role!: AdminRole;
 }
 
 export class UpdateAdminDto {
@@ -45,17 +52,17 @@ export class UpdateAdminDto {
 export class ChangePasswordDto {
   @IsString()
   @MinLength(8)
-  currentPassword: string;
+  currentPassword!: string;
 
   @IsString()
   @MinLength(8)
-  newPassword: string;
+  newPassword!: string;
 }
 
 export class ResetAdminPasswordDto {
   @IsString()
   @MinLength(8)
-  newPassword: string;
+  newPassword!: string;
 }
 
 export class AdminQueryDto {

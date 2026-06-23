@@ -6,26 +6,27 @@ import {
   IsEmail,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import * as crypto from 'crypto';
 
 export class InitiatePayUPaymentDto {
   @ApiProperty({ description: 'Application UUID' })
   @IsUUID()
-  applicationId: string;
+  applicationId!: string;
 
   @ApiProperty({
     description: 'Stage number (2 for admission fee, 3 for exam fee)',
     example: 2,
   })
   @IsNumber()
-  stage: number;
+  stage!: number;
 
   @ApiProperty({ description: 'Student first name' })
   @IsString()
-  firstName: string;
+  firstName!: string;
 
   @ApiProperty({ description: 'Student email' })
   @IsEmail()
-  email: string;
+  email!: string;
 
   @ApiProperty({ description: 'Phone number', required: false })
   @IsOptional()
@@ -34,56 +35,56 @@ export class InitiatePayUPaymentDto {
 }
 
 export class PayUHashResponseDto {
-  hash: string;
-  key: string;
-  txnid: string;
-  amount: string;
-  productinfo: string;
-  firstname: string;
-  email: string;
-  phone: string;
-  surl: string;
-  furl: string;
-  service_provider: string;
-  udf1: string;
-  udf2: string;
-  udf3: string;
-  udf4: string;
-  udf5: string;
+  hash!: string;
+  key!: string;
+  txnid!: string;
+  amount!: string;
+  productinfo!: string;
+  firstname!: string;
+  email!: string;
+  phone!: string;
+  surl!: string;
+  furl!: string;
+  service_provider!: string;
+  udf1!: string;
+  udf2!: string;
+  udf3!: string;
+  udf4!: string;
+  udf5!: string;
 }
 
 export class VerifyPayUPaymentDto {
   @ApiProperty()
   @IsString()
-  status: string;
+  status!: string;
 
   @ApiProperty()
   @IsString()
-  txnid: string;
+  txnid!: string;
 
   @ApiProperty()
   @IsString()
-  mihpayid: string;
+  mihpayid!: string;
 
   @ApiProperty()
   @IsString()
-  amount: string;
+  amount!: string;
 
   @ApiProperty()
   @IsString()
-  productinfo: string;
+  productinfo!: string;
 
   @ApiProperty()
   @IsString()
-  firstname: string;
+  firstname!: string;
 
   @ApiProperty()
   @IsString()
-  email: string;
+  email!: string;
 
   @ApiProperty()
   @IsString()
-  hash: string;
+  hash!: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -136,7 +137,7 @@ export class VerifyPayUPaymentDto {
 
 export class ManualPaymentApprovalDto {
   @IsUUID()
-  paymentId: string;
+  paymentId!: string;
 
   @IsOptional()
   @IsString()
@@ -173,7 +174,6 @@ export function generatePayUHash(data: {
   udf4?: string;
   udf5?: string;
 }): string {
-  const crypto = require('crypto');
   const hashString = [
     data.key,
     data.txnid,
@@ -216,7 +216,6 @@ export function verifyPayUResponse(params: {
   udf5?: string;
   additionalCharges?: string;
 }): string {
-  const crypto = require('crypto');
   // PayU reverse hash: salt|status|||||||||udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key
   let hashString: string;
   if (params.additionalCharges) {

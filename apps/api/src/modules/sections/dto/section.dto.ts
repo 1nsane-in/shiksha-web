@@ -4,19 +4,19 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CreateSectionDto {
   @ApiProperty({ example: 'Introduction to Programming' })
   @IsString()
-  title: string;
+  title!: string;
 
   @ApiProperty({ example: 'An introduction to programming concepts' })
   @IsString()
-  description: string;
+  description!: string;
 
   @ApiProperty({ example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890' })
   @IsUUID()
-  courseId: string;
+  courseId!: string;
 
   @ApiProperty({ example: 1 })
   @IsNumber()
-  order: number;
+  order!: number;
 }
 
 export class UpdateSectionDto {

@@ -1,7 +1,21 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TicketsService } from './tickets.service';
-import { CreateTicketDto, AddTicketMessageDto, UpdateTicketStatusDto, AssignTicketDto } from './dto/ticket.dto';
+import {
+  CreateTicketDto,
+  AddTicketMessageDto,
+  UpdateTicketStatusDto,
+  AssignTicketDto,
+} from './dto/ticket.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthUser } from '../auth/decorators/user.decorator';
@@ -15,7 +29,10 @@ export class TicketsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a support ticket' })
-  async create(@Body() dto: CreateTicketDto, @AuthUser() user: AuthenticatedUser) {
+  async create(
+    @Body() dto: CreateTicketDto,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     return this.ticketsService.createTicket(user.id, user.role, null, dto);
   }
 
@@ -27,8 +44,15 @@ export class TicketsController {
 
   @Get('application/:applicationId')
   @ApiOperation({ summary: 'Get tickets for an application' })
-  async getByApplication(@Param('applicationId') applicationId: string, @AuthUser() user: AuthenticatedUser) {
-    return this.ticketsService.getApplicationTickets(applicationId, user.id, user.role);
+  async getByApplication(
+    @Param('applicationId') applicationId: string,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
+    return this.ticketsService.getApplicationTickets(
+      applicationId,
+      user.id,
+      user.role,
+    );
   }
 
   @Get(':id')
@@ -39,7 +63,11 @@ export class TicketsController {
 
   @Post(':id/messages')
   @ApiOperation({ summary: 'Add message to ticket' })
-  async addMessage(@Param('id') id: string, @Body() dto: AddTicketMessageDto, @AuthUser() user: AuthenticatedUser) {
+  async addMessage(
+    @Param('id') id: string,
+    @Body() dto: AddTicketMessageDto,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     return this.ticketsService.addMessage(id, user.id, user.role, null, dto);
   }
 
@@ -47,7 +75,10 @@ export class TicketsController {
   @Roles('ADMIN', 'SUPER_ADMIN')
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Update ticket status (Admin)' })
-  async updateStatus(@Param('id') id: string, @Body() dto: UpdateTicketStatusDto) {
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateTicketStatusDto,
+  ) {
     return this.ticketsService.updateStatus(id, dto, 'ADMIN');
   }
 
@@ -64,6 +95,9 @@ export class TicketsController {
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Get all tickets (Admin)' })
   async getAll(@Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.ticketsService.getAllTickets(Number(page) || 1, Number(limit) || 20);
+    return this.ticketsService.getAllTickets(
+      Number(page) || 1,
+      Number(limit) || 20,
+    );
   }
 }
