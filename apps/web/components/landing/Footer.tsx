@@ -118,15 +118,14 @@ export function Footer() {
                 <Phone className="h-4 w-4 shrink-0 mt-0.5" style={{ color: theme.gold }} />
                 <div>
                   <p className="font-medium">Call Advisors</p>
-                  <p className="font-mono mt-0.5 text-xs">+996 5566 11890</p>
-                  <p className="font-mono text-xs">+91 98765 43210</p>
+                  <p className="font-mono mt-0.5 text-xs">+7 918 482-65-01</p>
                 </div>
               </li>
               <li className="flex items-start gap-2.5 text-sm" style={{ color: theme.inkMuted }}>
                 <Mail className="h-4 w-4 shrink-0 mt-0.5" style={{ color: theme.gold }} />
                 <div>
                   <p className="font-medium">Email Queries</p>
-                  <p className="mt-0.5 text-xs">admissions@shiksha-global.com</p>
+                  <p className="mt-0.5 text-xs">siksha.sabkaadhikaar@gmail.com</p>
                 </div>
               </li>
               <li className="flex items-start gap-2.5 text-sm" style={{ color: theme.inkMuted }}>

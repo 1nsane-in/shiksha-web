@@ -16,24 +16,24 @@ const theme = {
 const slides = [
   {
     image:
-      "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=1920&q=85",
-    headline: "Your Gateway to Medical Education Abroad",
+      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1920&q=85",
+    headline: "From Application to White Coat.",
     subtitle:
-      "Manage applications, documents, payments, and admission progress from one secure platform built for students, parents, agents, and admission teams.",
+      "Shiksha simplifies medical admissions so you can focus on what matters \u2014 becoming a doctor. We guide you through every step with transparency and care.",
   },
   {
     image:
-      "https://images.unsplash.com/photo-1576495199011-eb94736d05d6?w=1920&q=85",
-    headline: "World-Class Universities, One Platform",
+      "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1920&q=85",
+    headline: "World-Class Medical Universities, One Platform",
     subtitle:
-      "NMC, WHO, and ECFMG recognized medical programs across top universities with guided admission support at every stage.",
+      "NMC, WHO, and ECFMG recognized programs across top international universities with guided support from application to arrival.",
   },
   {
     image:
-      "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=1920&q=85",
+      "https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=1920&q=85",
     headline: "Your Journey, Simplified from Start to Finish",
     subtitle:
-      "From application to visa support, track every step of your medical admission journey in one place with real-time updates.",
+      "From university selection and application to visa processing and on-ground settlement \u2014 track every step in one place with real-time updates.",
   },
 ];
 
