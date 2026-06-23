@@ -12,7 +12,11 @@ export class PrismaQueryBuilder {
   private conditions: WhereCondition[] = [];
   private searchFields: { field: string; value?: string }[] = [];
 
-  where(field: string, value: unknown, operator?: WhereCondition['operator']): this {
+  where(
+    field: string,
+    value: unknown,
+    operator?: WhereCondition['operator'],
+  ): this {
     if (value !== undefined && value !== null && value !== '') {
       this.conditions.push({ field, value, operator });
     }
@@ -44,7 +48,10 @@ export class PrismaQueryBuilder {
           [condition.field]: condition.value,
         };
       } else if (condition.operator === 'contains') {
-        where[condition.field] = { contains: condition.value, mode: 'insensitive' };
+        where[condition.field] = {
+          contains: condition.value,
+          mode: 'insensitive',
+        };
       } else {
         where[condition.field] = condition.value;
       }

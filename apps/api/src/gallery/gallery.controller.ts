@@ -33,13 +33,21 @@ export class GalleryController {
     FileInterceptor('file', {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
       fileFilter: (_req, file, callback) => {
-        const allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'];
+        const allowedMimes = [
+          'image/jpeg',
+          'image/png',
+          'image/jpg',
+          'image/webp',
+          'image/gif',
+        ];
         if (allowedMimes.includes(file.mimetype)) {
           callback(null, true);
         } else {
           callback(
             new BadRequestException(
-              'Unsupported file type: ' + file.mimetype + '. Allowed: JPEG, PNG, JPG, WEBP, GIF',
+              'Unsupported file type: ' +
+                file.mimetype +
+                '. Allowed: JPEG, PNG, JPG, WEBP, GIF',
             ),
             false,
           );

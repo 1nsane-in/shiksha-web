@@ -83,7 +83,9 @@ describe('AuthService', () => {
       };
 
       jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
-      jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(true));
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(() => Promise.resolve(true));
 
       const result = await service.login(loginDto);
 
@@ -100,7 +102,9 @@ describe('AuthService', () => {
 
       jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
 
-      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException for inactive user', async () => {
@@ -114,7 +118,9 @@ describe('AuthService', () => {
         isActive: false,
       } as any);
 
-      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException for invalid password', async () => {
@@ -124,9 +130,13 @@ describe('AuthService', () => {
       };
 
       jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
-      jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(false));
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(() => Promise.resolve(false));
 
-      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException for user without password', async () => {
@@ -140,7 +150,9 @@ describe('AuthService', () => {
         passwordHash: null,
       } as any);
 
-      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -162,10 +174,14 @@ describe('AuthService', () => {
         expiresAt: new Date(Date.now() + 3600000),
       };
 
-      jest.spyOn(prisma.otpVerification, 'findFirst').mockResolvedValue(otpRecord as any);
+      jest
+        .spyOn(prisma.otpVerification, 'findFirst')
+        .mockResolvedValue(otpRecord as any);
       jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
       jest.spyOn(prisma.user, 'create').mockResolvedValue(mockUser as any);
-      jest.spyOn(prisma.student, 'create').mockResolvedValue({ id: 'student-123' } as any);
+      jest
+        .spyOn(prisma.student, 'create')
+        .mockResolvedValue({ id: 'student-123' } as any);
       jest.spyOn(prisma.otpVerification, 'update').mockResolvedValue({} as any);
       jest.spyOn(prisma.userSession, 'create').mockResolvedValue({} as any);
 
@@ -186,7 +202,9 @@ describe('AuthService', () => {
 
       jest.spyOn(prisma.otpVerification, 'findFirst').mockResolvedValue(null);
 
-      await expect(service.completeRegistration(dto)).rejects.toThrow(BadRequestException);
+      await expect(service.completeRegistration(dto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException for existing email', async () => {
@@ -206,18 +224,24 @@ describe('AuthService', () => {
         expiresAt: new Date(Date.now() + 3600000),
       };
 
-      jest.spyOn(prisma.otpVerification, 'findFirst').mockResolvedValue(otpRecord as any);
+      jest
+        .spyOn(prisma.otpVerification, 'findFirst')
+        .mockResolvedValue(otpRecord as any);
       jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
 
-      await expect(service.completeRegistration(dto)).rejects.toThrow(BadRequestException);
+      await expect(service.completeRegistration(dto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
   describe('logout', () => {
     it('should delete session for valid refresh token', async () => {
       const refreshToken = 'valid-refresh-token';
-      
-      jest.spyOn(prisma.userSession, 'deleteMany').mockResolvedValue({ count: 1 } as any);
+
+      jest
+        .spyOn(prisma.userSession, 'deleteMany')
+        .mockResolvedValue({ count: 1 });
 
       const result = await service.logout(refreshToken);
 
@@ -232,14 +256,21 @@ describe('AuthService', () => {
       const session = {
         id: 'session-123',
         userId: 'user-123',
-        tokenHash: crypto.createHash('sha256').update(refreshToken).digest('hex'),
+        tokenHash: crypto
+          .createHash('sha256')
+          .update(refreshToken)
+          .digest('hex'),
         expiresAt: new Date(Date.now() + 3600000),
         user: mockUser,
       };
 
-      jest.spyOn(prisma.userSession, 'findUnique').mockResolvedValue(session as any);
+      jest
+        .spyOn(prisma.userSession, 'findUnique')
+        .mockResolvedValue(session as any);
       jest.spyOn(prisma.userSession, 'update').mockResolvedValue({} as any);
-      jest.spyOn(prisma.userSession, 'deleteMany').mockResolvedValue({ count: 0 } as any);
+      jest
+        .spyOn(prisma.userSession, 'deleteMany')
+        .mockResolvedValue({ count: 0 });
       jest.spyOn(prisma.userSession, 'create').mockResolvedValue({} as any);
 
       const result = await service.refreshTokens(refreshToken);
@@ -253,14 +284,21 @@ describe('AuthService', () => {
       const session = {
         id: 'session-123',
         userId: 'user-123',
-        tokenHash: crypto.createHash('sha256').update(refreshToken).digest('hex'),
+        tokenHash: crypto
+          .createHash('sha256')
+          .update(refreshToken)
+          .digest('hex'),
         expiresAt: new Date(Date.now() - 3600000),
         user: mockUser,
       };
 
-      jest.spyOn(prisma.userSession, 'findUnique').mockResolvedValue(session as any);
+      jest
+        .spyOn(prisma.userSession, 'findUnique')
+        .mockResolvedValue(session as any);
 
-      await expect(service.refreshTokens(refreshToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens(refreshToken)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException for inactive user', async () => {
@@ -268,21 +306,28 @@ describe('AuthService', () => {
       const session = {
         id: 'session-123',
         userId: 'user-123',
-        tokenHash: crypto.createHash('sha256').update(refreshToken).digest('hex'),
+        tokenHash: crypto
+          .createHash('sha256')
+          .update(refreshToken)
+          .digest('hex'),
         expiresAt: new Date(Date.now() + 3600000),
         user: { ...mockUser, isActive: false },
       };
 
-      jest.spyOn(prisma.userSession, 'findUnique').mockResolvedValue(session as any);
+      jest
+        .spyOn(prisma.userSession, 'findUnique')
+        .mockResolvedValue(session as any);
 
-      await expect(service.refreshTokens(refreshToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens(refreshToken)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
   describe('getCurrentUser', () => {
     it('should return user for valid userId', async () => {
       const userId = 'user-123';
-      
+
       jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
 
       const result = await service.getCurrentUser(userId);
@@ -292,17 +337,19 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException for non-existent user', async () => {
       const userId = 'non-existent';
-      
+
       jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
 
-      await expect(service.getCurrentUser(userId)).rejects.toThrow(UnauthorizedException);
+      await expect(service.getCurrentUser(userId)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
   describe('forgotPassword', () => {
     it('should create OTP for existing user', async () => {
       const dto = { email: 'test@example.com' };
-      
+
       jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
       jest.spyOn(prisma.otpVerification, 'create').mockResolvedValue({} as any);
 
@@ -314,10 +361,12 @@ describe('AuthService', () => {
 
     it('should throw BadRequestException for non-existent user', async () => {
       const dto = { email: 'nonexistent@example.com' };
-      
+
       jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
 
-      await expect(service.forgotPassword(dto)).rejects.toThrow(BadRequestException);
+      await expect(service.forgotPassword(dto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -337,7 +386,9 @@ describe('AuthService', () => {
         expiresAt: new Date(Date.now() + 3600000),
       };
 
-      jest.spyOn(prisma.otpVerification, 'findFirst').mockResolvedValue(otpRecord as any);
+      jest
+        .spyOn(prisma.otpVerification, 'findFirst')
+        .mockResolvedValue(otpRecord as any);
       jest.spyOn(prisma.user, 'update').mockResolvedValue({} as any);
       jest.spyOn(prisma.otpVerification, 'update').mockResolvedValue({} as any);
 
@@ -356,7 +407,9 @@ describe('AuthService', () => {
 
       jest.spyOn(prisma.otpVerification, 'findFirst').mockResolvedValue(null);
 
-      await expect(service.resetPassword(dto)).rejects.toThrow(BadRequestException);
+      await expect(service.resetPassword(dto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

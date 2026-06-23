@@ -4,16 +4,15 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { AnalyticsService } from './common/services/analytics.service';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { versionMiddleware } from './common/middleware/version-middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
-  const analyticsService = app.get(AnalyticsService);
   const logger = new Logger('Bootstrap');
 
   const swaggerConfig = new DocumentBuilder()
@@ -30,7 +29,7 @@ async function bootstrap() {
 
   app.use(versionMiddleware);
 
-  app.use((req, res, next) => {
+  app.use((req: any, res: any, next: any) => {
     const start = Date.now();
     res.on('finish', () => {
       const duration = Date.now() - start;
@@ -46,9 +45,10 @@ async function bootstrap() {
 
   app.set('etag', false);
 
-  const allowedOrigins = configService.get<string>('FRONTEND_URL')
+  const allowedOrigins = configService
+    .get<string>('FRONTEND_URL')
     ?.split(',')
-    .map(url => url.trim())
+    .map((url) => url.trim())
     .filter(Boolean) || ['http://localhost:3000'];
 
   // Add 127.0.0.1 and localhost by default in development mode
@@ -67,12 +67,13 @@ async function bootstrap() {
       if (!origin) {
         return callback(null, true);
       }
-      
-      const isAllowed = allowedOrigins.some(allowedOrigin => {
+
+      const isAllowed = allowedOrigins.some((allowedOrigin) => {
         // Handle exact match
         if (allowedOrigin === origin) return true;
         // Handle trailing slash mismatch (e.g. http://localhost:3000/ vs http://localhost:3000)
-        if (allowedOrigin.replace(/\/$/, '') === origin.replace(/\/$/, '')) return true;
+        if (allowedOrigin.replace(/\/$/, '') === origin.replace(/\/$/, ''))
+          return true;
         return false;
       });
 
@@ -109,29 +110,30 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // Security headers with Helmet
-  const helmet = require('helmet');
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'"],
-        fontSrc: ["'self'"],
-        objectSrc: ["'none'"],
-        mediaSrc: ["'self'"],
-        frameSrc: ["'none'"],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          connectSrc: ["'self'"],
+          fontSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          mediaSrc: ["'self'"],
+          frameSrc: ["'none'"],
+        },
       },
-    },
-    crossOriginEmbedderPolicy: false,
-    hsts: {
-      maxAge: 31536000,
-      includeSubDomains: true,
-      preload: true,
-    },
-    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  }));
+      crossOriginEmbedderPolicy: false,
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    }),
+  );
 
   app.enableShutdownHooks();
 

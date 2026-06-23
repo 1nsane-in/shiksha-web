@@ -28,23 +28,63 @@ import {
 export class CreateUniversityDto {
   @IsOptional() @IsString() name?: string;
   @IsOptional() @IsString() shortName?: string;
-  @IsOptional() @IsNumber() @Min(1800) @Max(new Date().getFullYear()) establishedYear?: number;
+  @IsOptional()
+  @IsNumber()
+  @Min(1800)
+  @Max(new Date().getFullYear())
+  establishedYear?: number;
   @IsOptional() @IsEnum(UniversityType) type?: UniversityType;
   @IsOptional() @IsUrl() website?: string;
   @IsOptional() @IsUrl() logo?: string;
   @IsOptional() @IsUrl() bannerImage?: string;
   @IsOptional() @IsUrl() brochureUrl?: string;
 
-  @IsOptional() @ValidateNested() @Type(() => UniversityLocationDto) location?: UniversityLocationDto;
-  @IsOptional() @ValidateNested() @Type(() => UniversityContactDto) contact?: UniversityContactDto;
-  @IsOptional() @ValidateNested() @Type(() => UniversityAcademicDto) academic?: UniversityAcademicDto;
-  @IsOptional() @ValidateNested() @Type(() => UniversityRecognitionDto) recognition?: UniversityRecognitionDto;
-  @IsOptional() @ValidateNested() @Type(() => UniversityFeesDto) fees?: UniversityFeesDto;
-  @IsOptional() @ValidateNested() @Type(() => UniversityInfrastructureDto) infrastructure?: UniversityInfrastructureDto;
-  @IsOptional() @ValidateNested() @Type(() => UniversityAdmissionDto) admission?: UniversityAdmissionDto;
-  @IsOptional() @ValidateNested() @Type(() => UniversitySupportDto) support?: UniversitySupportDto;
-  @IsOptional() @ValidateNested() @Type(() => UniversityContentDto) content?: UniversityContentDto;
-  @IsOptional() @ValidateNested() @Type(() => UniversityAdminDto) admin?: UniversityAdminDto;
-  @IsOptional() @ValidateNested() @Type(() => StudentDemographicsDto) studentDemographics?: StudentDemographicsDto;
-  @IsOptional() @ValidateNested() @Type(() => SocialLinksDto) socialLinks?: SocialLinksDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UniversityLocationDto)
+  location?: UniversityLocationDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UniversityContactDto)
+  contact?: UniversityContactDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UniversityAcademicDto)
+  academic?: UniversityAcademicDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UniversityRecognitionDto)
+  recognition?: UniversityRecognitionDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UniversityFeesDto)
+  fees?: UniversityFeesDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UniversityInfrastructureDto)
+  infrastructure?: UniversityInfrastructureDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UniversityAdmissionDto)
+  admission?: UniversityAdmissionDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UniversitySupportDto)
+  support?: UniversitySupportDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UniversityContentDto)
+  content?: UniversityContentDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UniversityAdminDto)
+  admin?: UniversityAdminDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => StudentDemographicsDto)
+  studentDemographics?: StudentDemographicsDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SocialLinksDto)
+  socialLinks?: SocialLinksDto;
 }

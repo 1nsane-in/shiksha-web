@@ -15,14 +15,16 @@ export class AnalyticsService {
   constructor() {
     const apiKey = process.env.POSTHOG_KEY;
     const host = process.env.POSTHOG_HOST || 'https://us.i.posthog.com';
-    this.enabled = !!(process.env.NODE_ENV === 'production' || process.env.POSTHOG_KEY);
+    this.enabled = !!(
+      process.env.NODE_ENV === 'production' || process.env.POSTHOG_KEY
+    );
 
     if (this.enabled && apiKey) {
       this.posthog = new PostHog(apiKey, { host });
     }
   }
 
-  async track(data: AnalyticsEvent): Promise<void> {
+  track(data: AnalyticsEvent): void {
     if (!this.posthog || !this.enabled) {
       return;
     }
@@ -34,7 +36,7 @@ export class AnalyticsService {
     });
   }
 
-  async identify(distinctId: string, properties?: Record<string, any>): Promise<void> {
+  identify(distinctId: string, properties?: Record<string, any>): void {
     if (!this.posthog || !this.enabled) {
       return;
     }
@@ -45,7 +47,7 @@ export class AnalyticsService {
     });
   }
 
-  async alias(distinctId: string, alias: string): Promise<void> {
+  alias(distinctId: string, alias: string): void {
     if (!this.posthog || !this.enabled) {
       return;
     }

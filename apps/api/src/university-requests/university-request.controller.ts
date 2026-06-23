@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { UniversityRequestService } from './university-request.service';
 import { CreateUniversityRequestDto } from './dto/create-university-request.dto';
 import { UpdateUniversityRequestDto } from './dto/update-university-request.dto';

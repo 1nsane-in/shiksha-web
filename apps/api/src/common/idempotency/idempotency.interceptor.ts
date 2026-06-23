@@ -102,13 +102,16 @@ export class IdempotencyInterceptor implements NestInterceptor {
   }
 
   private startCleanup() {
-    setInterval(() => {
-      const now = Date.now();
-      for (const [key, record] of this.store.entries()) {
-        if (now - record.createdAt > this.TTL) {
-          this.store.delete(key);
+    setInterval(
+      () => {
+        const now = Date.now();
+        for (const [key, record] of this.store.entries()) {
+          if (now - record.createdAt > this.TTL) {
+            this.store.delete(key);
+          }
         }
-      }
-    }, 60 * 60 * 1000);
+      },
+      60 * 60 * 1000,
+    );
   }
 }

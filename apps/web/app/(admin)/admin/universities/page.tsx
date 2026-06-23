@@ -221,48 +221,60 @@ export default function UniversitiesPage() {
           />
         </div>
         <div className="flex flex-wrap gap-2">
-          <Select
-            value={statusFilter}
-            onValueChange={(value) => setStatusFilter(value ?? "all")}
-          >
-            <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-10">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="DRAFT">Draft</SelectItem>
-              <SelectItem value="UNDER_REVIEW">Under Review</SelectItem>
-              <SelectItem value="ACTIVE">Active</SelectItem>
-              <SelectItem value="INACTIVE">Inactive</SelectItem>
-              <SelectItem value="SUSPENDED">Suspended</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Status Filter */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Status</label>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value ?? "all")}
+            >
+              <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-9">
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="DRAFT">Draft</SelectItem>
+                <SelectItem value="UNDER_REVIEW">Under Review</SelectItem>
+                <SelectItem value="ACTIVE">Active</SelectItem>
+                <SelectItem value="INACTIVE">Inactive</SelectItem>
+                <SelectItem value="SUSPENDED">Suspended</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select
-            value={typeFilter}
-            onValueChange={(value) => setTypeFilter(value ?? "all")}
-          >
-            <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-10">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="GOVERNMENT">Government</SelectItem>
-              <SelectItem value="PRIVATE">Private</SelectItem>
-              <SelectItem value="DEEMED">Deemed</SelectItem>
-              <SelectItem value="AUTONOMOUS">Autonomous</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Type Filter */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Type</label>
+            <Select
+              value={typeFilter}
+              onValueChange={(value) => setTypeFilter(value ?? "all")}
+            >
+              <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-9">
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="GOVERNMENT">Government</SelectItem>
+                <SelectItem value="PRIVATE">Private</SelectItem>
+                <SelectItem value="DEEMED">Deemed</SelectItem>
+                <SelectItem value="AUTONOMOUS">Autonomous</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetchUniversities()}
-            disabled={isLoading}
-            className="h-10 px-3 border-[#E5E7EB] hover:bg-white"
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </Button>
+          {/* Refresh Button */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-semibold text-transparent uppercase tracking-wider">Action</label>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetchUniversities()}
+              disabled={isLoading}
+              className="h-9 px-3 border-[#E5E7EB] hover:bg-white"
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -489,123 +501,141 @@ export default function UniversitiesPage() {
       ) : (
         <>
           {/* Requests Filters */}
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center bg-[#FAFAF8] border border-[#ECEAE6] rounded-xl p-4">
-            <div className="flex flex-wrap gap-2 flex-1">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end bg-[#FAFAF8] border border-[#ECEAE6] rounded-xl p-4">
+            <div className="flex flex-wrap gap-3 flex-1">
               {/* Status Filter */}
-              <Select
-                value={requestStatusFilter}
-                onValueChange={(value) => setRequestStatusFilter(value ?? "all")}
-              >
-                <SelectTrigger className="w-full sm:w-[150px] bg-white border-[#E5E7EB] text-xs h-10">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="UNDER_REVIEW">Under Review</SelectItem>
-                  <SelectItem value="APPROVED">Approved</SelectItem>
-                  <SelectItem value="REJECTED">Rejected</SelectItem>
-                  <SelectItem value="ADDED">Added</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Status</label>
+                <Select
+                  value={requestStatusFilter}
+                  onValueChange={(value) => setRequestStatusFilter(value ?? "all")}
+                >
+                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-[#E5E7EB] text-xs h-9">
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="PENDING">Pending</SelectItem>
+                    <SelectItem value="UNDER_REVIEW">Under Review</SelectItem>
+                    <SelectItem value="APPROVED">Approved</SelectItem>
+                    <SelectItem value="REJECTED">Rejected</SelectItem>
+                    <SelectItem value="ADDED">Added</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Type Filter */}
-              <Select
-                value={requestTypeFilter}
-                onValueChange={(value) => setRequestTypeFilter(value ?? "all")}
-              >
-                <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-10">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="GOVERNMENT">Government</SelectItem>
-                  <SelectItem value="PRIVATE">Private</SelectItem>
-                  <SelectItem value="DEEMED">Deemed</SelectItem>
-                  <SelectItem value="AUTONOMOUS">Autonomous</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Type</label>
+                <Select
+                  value={requestTypeFilter}
+                  onValueChange={(value) => setRequestTypeFilter(value ?? "all")}
+                >
+                  <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-9">
+                    <SelectValue placeholder="All Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="GOVERNMENT">Government</SelectItem>
+                    <SelectItem value="PRIVATE">Private</SelectItem>
+                    <SelectItem value="DEEMED">Deemed</SelectItem>
+                    <SelectItem value="AUTONOMOUS">Autonomous</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Country Filter */}
-              <Select
-                value={requestCountryFilter}
-                onValueChange={(value) => setRequestCountryFilter(value ?? "all")}
-              >
-                <SelectTrigger className="w-full sm:w-[150px] bg-white border-[#E5E7EB] text-xs h-10">
-                  <SelectValue placeholder="Country" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Countries</SelectItem>
-                  <SelectItem value="India">India</SelectItem>
-                  <SelectItem value="Russia">Russia</SelectItem>
-                  <SelectItem value="Ukraine">Ukraine</SelectItem>
-                  <SelectItem value="Kazakhstan">Kazakhstan</SelectItem>
-                  <SelectItem value="Uzbekistan">Uzbekistan</SelectItem>
-                  <SelectItem value="Kyrgyzstan">Kyrgyzstan</SelectItem>
-                  <SelectItem value="Georgia">Georgia</SelectItem>
-                  <SelectItem value="Armenia">Armenia</SelectItem>
-                  <SelectItem value="Belarus">Belarus</SelectItem>
-                  <SelectItem value="Moldova">Moldova</SelectItem>
-                  <SelectItem value="Azerbaijan">Azerbaijan</SelectItem>
-                  <SelectItem value="Tajikistan">Tajikistan</SelectItem>
-                  <SelectItem value="Turkmenistan">Turkmenistan</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Country</label>
+                <Select
+                  value={requestCountryFilter}
+                  onValueChange={(value) => setRequestCountryFilter(value ?? "all")}
+                >
+                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-[#E5E7EB] text-xs h-9">
+                    <SelectValue placeholder="All Countries" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Countries</SelectItem>
+                    <SelectItem value="India">India</SelectItem>
+                    <SelectItem value="Russia">Russia</SelectItem>
+                    <SelectItem value="Ukraine">Ukraine</SelectItem>
+                    <SelectItem value="Kazakhstan">Kazakhstan</SelectItem>
+                    <SelectItem value="Uzbekistan">Uzbekistan</SelectItem>
+                    <SelectItem value="Kyrgyzstan">Kyrgyzstan</SelectItem>
+                    <SelectItem value="Georgia">Georgia</SelectItem>
+                    <SelectItem value="Armenia">Armenia</SelectItem>
+                    <SelectItem value="Belarus">Belarus</SelectItem>
+                    <SelectItem value="Moldova">Moldova</SelectItem>
+                    <SelectItem value="Azerbaijan">Azerbaijan</SelectItem>
+                    <SelectItem value="Tajikistan">Tajikistan</SelectItem>
+                    <SelectItem value="Turkmenistan">Turkmenistan</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Program Filter */}
-              <Select
-                value={requestProgramFilter}
-                onValueChange={(value) => setRequestProgramFilter(value ?? "all")}
-              >
-                <SelectTrigger className="w-full sm:w-[160px] bg-white border-[#E5E7EB] text-xs h-10">
-                  <SelectValue placeholder="Program" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Programs</SelectItem>
-                  <SelectItem value="MBBS">MBBS</SelectItem>
-                  <SelectItem value="BDS">BDS</SelectItem>
-                  <SelectItem value="BAMS">BAMS</SelectItem>
-                  <SelectItem value="BHMS">BHMS</SelectItem>
-                  <SelectItem value="BUMS">BUMS</SelectItem>
-                  <SelectItem value="MD">MD</SelectItem>
-                  <SelectItem value="MS">MS</SelectItem>
-                  <SelectItem value="MDS">MDS</SelectItem>
-                  <SelectItem value="MCh">MCh</SelectItem>
-                  <SelectItem value="DM">DM</SelectItem>
-                  <SelectItem value="PhD">PhD</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Program</label>
+                <Select
+                  value={requestProgramFilter}
+                  onValueChange={(value) => setRequestProgramFilter(value ?? "all")}
+                >
+                  <SelectTrigger className="w-full sm:w-[160px] bg-white border-[#E5E7EB] text-xs h-9">
+                    <SelectValue placeholder="All Programs" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Programs</SelectItem>
+                    <SelectItem value="MBBS">MBBS</SelectItem>
+                    <SelectItem value="BDS">BDS</SelectItem>
+                    <SelectItem value="BAMS">BAMS</SelectItem>
+                    <SelectItem value="BHMS">BHMS</SelectItem>
+                    <SelectItem value="BUMS">BUMS</SelectItem>
+                    <SelectItem value="MD">MD</SelectItem>
+                    <SelectItem value="MS">MS</SelectItem>
+                    <SelectItem value="MDS">MDS</SelectItem>
+                    <SelectItem value="MCh">MCh</SelectItem>
+                    <SelectItem value="DM">DM</SelectItem>
+                    <SelectItem value="PhD">PhD</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Clear Filters */}
               {(requestStatusFilter !== "all" || requestTypeFilter !== "all" || requestCountryFilter !== "all" || requestProgramFilter !== "all") && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setRequestStatusFilter("all");
-                    setRequestTypeFilter("all");
-                    setRequestCountryFilter("all");
-                    setRequestProgramFilter("all");
-                  }}
-                  className="h-10 px-3 text-gray-500 hover:text-gray-700"
-                >
-                  <X className="h-4 w-4 mr-1" />
-                  Clear
-                </Button>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-semibold text-transparent uppercase tracking-wider">Action</label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setRequestStatusFilter("all");
+                      setRequestTypeFilter("all");
+                      setRequestCountryFilter("all");
+                      setRequestProgramFilter("all");
+                    }}
+                    className="h-9 px-3 text-gray-500 hover:text-gray-700"
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Clear
+                  </Button>
+                </div>
               )}
 
               {/* Refresh Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => refetchRequests()}
-                disabled={isLoadingRequests}
-                className="h-10 px-3 border-[#E5E7EB] hover:bg-white"
-              >
-                <RefreshCw className={`h-4 w-4 ${isLoadingRequests ? 'animate-spin' : ''}`} />
-              </Button>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-transparent uppercase tracking-wider">Action</label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => refetchRequests()}
+                  disabled={isLoadingRequests}
+                  className="h-9 px-3 border-[#E5E7EB] hover:bg-white"
+                >
+                  <RefreshCw className={`h-4 w-4 ${isLoadingRequests ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-500">

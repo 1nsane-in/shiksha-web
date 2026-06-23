@@ -117,7 +117,8 @@ describe('CoursesService', () => {
           id: '1',
           title: 'Introduction to Computer Science',
           code: 'CS101',
-          description: 'An introductory course to computer science fundamentals',
+          description:
+            'An introductory course to computer science fundamentals',
           credits: 10,
           startDate: new Date('2023-09-01'),
           endDate: new Date('2023-12-31'),
@@ -226,7 +227,7 @@ describe('CoursesService', () => {
     it('should throw NotFoundException when trying to update non-existing course', async () => {
       mockPrismaService.course.findUnique.mockResolvedValue(null);
 
-      await expect(service.update('1', {} as UpdateCourseDto)).rejects.toThrow(
+      await expect(service.update('1', {})).rejects.toThrow(
         new NotFoundException('Course not found'),
       );
     });
@@ -276,7 +277,8 @@ describe('CoursesService', () => {
 
       mockPrismaService.course.findUnique.mockImplementation((args) => {
         if (args.where.id === '1') return Promise.resolve(mockExistingCourse);
-        if (args.where.title === 'Advanced Computer Science') return Promise.resolve(mockDuplicateCourse);
+        if (args.where.title === 'Advanced Computer Science')
+          return Promise.resolve(mockDuplicateCourse);
         return Promise.resolve(null);
       });
 
@@ -311,7 +313,9 @@ describe('CoursesService', () => {
       mockPrismaService.course.delete.mockResolvedValue(undefined);
 
       await expect(service.remove('1')).resolves.not.toThrow();
-      expect(mockPrismaService.course.delete).toHaveBeenCalledWith({ where: { id: '1' } });
+      expect(mockPrismaService.course.delete).toHaveBeenCalledWith({
+        where: { id: '1' },
+      });
     });
 
     it('should throw NotFoundException when trying to delete non-existing course', async () => {

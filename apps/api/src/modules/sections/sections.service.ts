@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export interface Section {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   courseId: string;
   order: number;
   createdAt: Date;
@@ -15,19 +19,26 @@ export interface Section {
 export class SectionsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createSectionDto: Partial<Section>): Promise<Section> {
+  async create(createSectionDto: {
+    title: string;
+    description?: string | null;
+    courseId: string;
+    order?: number;
+  }): Promise<Section> {
     // Check if section with same title already exists for the course
     const existingSection = await this.prisma.section.findUnique({
-      where: { 
+      where: {
         courseId_title: {
-          courseId: createSectionDto.courseId as string,
-          title: createSectionDto.title as string
-        }
+          courseId: createSectionDto.courseId,
+          title: createSectionDto.title,
+        },
       },
     });
 
     if (existingSection) {
-      throw new ConflictException('Section with this title already exists for this course');
+      throw new ConflictException(
+        'Section with this title already exists for this course',
+      );
     }
 
     return this.prisma.section.create({
@@ -55,7 +66,15 @@ export class SectionsService {
     return section;
   }
 
-  async update(id: string, updateSectionDto: Partial<Section>): Promise<Section> {
+  async update(
+    id: string,
+    updateSectionDto: {
+      title?: string;
+      description?: string | null;
+      courseId?: string;
+      order?: number;
+    },
+  ): Promise<Section> {
     // Check if section exists
     const existingSection = await this.prisma.section.findUnique({
       where: { id },
@@ -66,18 +85,23 @@ export class SectionsService {
     }
 
     // Check if updating title for same course would cause conflict
-    if (updateSectionDto.title && updateSectionDto.title !== existingSection.title) {
+    if (
+      updateSectionDto.title &&
+      updateSectionDto.title !== existingSection.title
+    ) {
       const duplicate = await this.prisma.section.findUnique({
-        where: { 
+        where: {
           courseId_title: {
             courseId: existingSection.courseId,
             title: updateSectionDto.title,
-          }
+          },
         },
       });
 
       if (duplicate) {
-        throw new ConflictException('Section with this title already exists for this course');
+        throw new ConflictException(
+          'Section with this title already exists for this course',
+        );
       }
     }
 

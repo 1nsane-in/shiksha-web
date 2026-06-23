@@ -1,6 +1,15 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UploadDocumentDto, VerifyDocumentDto, CreateDocumentTypeDto, UpdateDocumentTypeDto } from './documents.dto';
+import {
+  UploadDocumentDto,
+  VerifyDocumentDto,
+  CreateDocumentTypeDto,
+  UpdateDocumentTypeDto,
+} from './documents.dto';
 import { PaginatorService } from '../common/services/paginator.service';
 
 @Injectable()
@@ -44,7 +53,9 @@ export class DocumentsService {
     });
 
     if (existingDocument && existingDocument.status === 'UPLOADED') {
-      throw new BadRequestException('Document already uploaded and pending review');
+      throw new BadRequestException(
+        'Document already uploaded and pending review',
+      );
     }
 
     return this.prisma.studentDocument.create({
@@ -175,7 +186,9 @@ export class DocumentsService {
     });
 
     if (existing) {
-      throw new BadRequestException('Document type with this code already exists');
+      throw new BadRequestException(
+        'Document type with this code already exists',
+      );
     }
 
     return this.prisma.documentType.create({ data: dto });

@@ -2,10 +2,10 @@ import { IsString, IsOptional, IsBoolean, IsUUID } from 'class-validator';
 
 export class UploadLetterDto {
   @IsUUID()
-  applicationId: string;
+  applicationId!: string;
 
   @IsString()
-  fileUrl: string;
+  fileUrl!: string;
 
   @IsOptional()
   @IsString()
@@ -27,14 +27,14 @@ export class UpdateLetterDto {
 }
 
 export class LetterResponseDto {
-  id: string;
-  applicationId: string;
-  fileUrl: string;
+  id!: string;
+  applicationId!: string;
+  fileUrl!: string;
   fileName?: string;
-  uploadedBy: string;
-  uploadedAt: Date;
-  viewCount: number;
-  downloadCount: number;
+  uploadedBy!: string;
+  uploadedAt!: Date;
+  viewCount!: number;
+  downloadCount!: number;
   isDownloadable?: boolean;
   lastViewedAt?: Date;
   lastDownloadedAt?: Date;

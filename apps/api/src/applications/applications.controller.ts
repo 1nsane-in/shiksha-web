@@ -63,10 +63,7 @@ export class AdminApplicationsController {
   @ApiParam({ name: 'id', description: 'Application ID' })
   @ApiResponse({ status: 200, description: 'Application status updated' })
   @ApiResponse({ status: 404, description: 'Application not found' })
-  async updateStatus(
-    @Param('id') id: string,
-    @Body('status') status: string,
-  ) {
+  async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.applicationsService.updateStatus(id, status);
   }
 }

@@ -1,9 +1,26 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, ParseUUIDPipe, HttpStatus, HttpCode } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  ParseUUIDPipe,
+  HttpStatus,
+  HttpCode,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { Course } from '@prisma/client';
 
 @ApiTags('Courses')
 @ApiBearerAuth()
@@ -13,21 +30,23 @@ export class CoursesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiCreatedResponse({ description: 'Course created successfully.', type: Course })
+  @ApiCreatedResponse({
+    description: 'Course created successfully.',
+  })
   @ApiOperation({ summary: 'Create a new course' })
   async create(@Body() createCourseDto: CreateCourseDto) {
     return this.coursesService.create(createCourseDto);
   }
 
   @Get()
-  @ApiOkResponse({ description: 'List of courses', type: [Course] })
+  @ApiOkResponse({ description: 'List of courses' })
   @ApiOperation({ summary: 'Get all courses' })
   async findAll() {
     return this.coursesService.findAll();
   }
 
   @Get(':id')
-  @ApiResponse({ status: 200, description: 'Course found', type: Course })
+  @ApiResponse({ status: 200, description: 'Course found' })
   @ApiResponse({ status: 404, description: 'Course not found' })
   @ApiOperation({ summary: 'Get a course by ID' })
   async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
@@ -35,7 +54,7 @@ export class CoursesController {
   }
 
   @Put(':id')
-  @ApiResponse({ status: 200, description: 'Course updated', type: Course })
+  @ApiResponse({ status: 200, description: 'Course updated' })
   @ApiResponse({ status: 404, description: 'Course not found' })
   @ApiOperation({ summary: 'Update a course by ID' })
   async update(

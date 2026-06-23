@@ -1,9 +1,26 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, ParseUUIDPipe, HttpStatus, HttpCode } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  ParseUUIDPipe,
+  HttpStatus,
+  HttpCode,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { SectionsService } from './sections.service';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
-import { Section } from '@prisma/client';
 
 @ApiTags('Sections')
 @ApiBearerAuth()
@@ -13,21 +30,23 @@ export class SectionsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiCreatedResponse({ description: 'Section created successfully.', type: Section })
+  @ApiCreatedResponse({
+    description: 'Section created successfully.',
+  })
   @ApiOperation({ summary: 'Create a new section' })
   async create(@Body() createSectionDto: CreateSectionDto) {
     return this.sectionsService.create(createSectionDto);
   }
 
   @Get()
-  @ApiOkResponse({ description: 'List of sections', type: [Section] })
+  @ApiOkResponse({ description: 'List of sections' })
   @ApiOperation({ summary: 'Get all sections' })
   async findAll() {
     return this.sectionsService.findAll();
   }
 
   @Get(':id')
-  @ApiResponse({ status: 200, description: 'Section found', type: Section })
+  @ApiResponse({ status: 200, description: 'Section found' })
   @ApiResponse({ status: 404, description: 'Section not found' })
   @ApiOperation({ summary: 'Get a section by ID' })
   async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
@@ -35,7 +54,7 @@ export class SectionsController {
   }
 
   @Put(':id')
-  @ApiResponse({ status: 200, description: 'Section updated', type: Section })
+  @ApiResponse({ status: 200, description: 'Section updated' })
   @ApiResponse({ status: 404, description: 'Section not found' })
   @ApiOperation({ summary: 'Update a section by ID' })
   async update(

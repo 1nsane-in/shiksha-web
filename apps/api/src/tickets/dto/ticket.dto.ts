@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsUUID, IsEnum, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsUUID, IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTicketDto {
@@ -39,7 +39,9 @@ export class AddTicketMessageDto {
 }
 
 export class UpdateTicketStatusDto {
-  @ApiProperty({ enum: ['OPEN', 'IN_PROGRESS', 'WAITING_FOR_CUSTOMER', 'RESOLVED', 'CLOSED'] })
+  @ApiProperty({
+    enum: ['OPEN', 'IN_PROGRESS', 'WAITING_FOR_CUSTOMER', 'RESOLVED', 'CLOSED'],
+  })
   @IsString()
   status!: string;
 

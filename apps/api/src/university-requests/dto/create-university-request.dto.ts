@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsArray, IsEmail, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class CreateUniversityRequestDto {
   @IsString()

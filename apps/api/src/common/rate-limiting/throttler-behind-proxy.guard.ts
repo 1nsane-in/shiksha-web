@@ -17,8 +17,8 @@ export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
     const expressReq = req as unknown as Request;
     const ip = expressReq.ips?.length
       ? expressReq.ips[0]
-      : expressReq.ip || 'unknown';
-    return ip;
+      : expressReq.ip;
+    return ip || 'unknown';
   }
 
   protected async getErrorMessage(): Promise<string> {

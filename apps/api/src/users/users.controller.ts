@@ -27,7 +27,10 @@ export class UsersController {
   }
 
   @Put('profile')
-  async updateProfile(@Request() req: AuthenticatedRequest, @Body() dto: UpdateProfileDto) {
+  async updateProfile(
+    @Request() req: AuthenticatedRequest,
+    @Body() dto: UpdateProfileDto,
+  ) {
     return this.usersService.updateProfile(req.user.id, dto);
   }
 }

@@ -17,9 +17,16 @@ export interface PaginatedResult<T> {
 
 @Injectable()
 export class PaginatorService {
-  parseOptions(queryPage?: string, queryLimit?: string, defaultLimit = 10): PaginationOptions {
+  parseOptions(
+    queryPage?: string,
+    queryLimit?: string,
+    defaultLimit = 10,
+  ): PaginationOptions {
     const page = Math.max(1, parseInt(queryPage || '1'));
-    const limit = Math.min(100, Math.max(1, parseInt(queryLimit || String(defaultLimit))));
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(queryLimit || String(defaultLimit))),
+    );
     return { page, limit };
   }
 
@@ -27,7 +34,11 @@ export class PaginatorService {
     return (params.page - 1) * params.limit;
   }
 
-  wrapResult<T>(data: T[], total: number, params: PaginationOptions): PaginatedResult<T> {
+  wrapResult<T>(
+    data: T[],
+    total: number,
+    params: PaginationOptions,
+  ): PaginatedResult<T> {
     return {
       data,
       meta: {

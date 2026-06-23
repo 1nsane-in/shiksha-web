@@ -1,8 +1,10 @@
-import { Injectable, BadRequestException, Logger } from "@nestjs/common";
-import { promises as dns } from "dns";
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { promises as dns } from 'dns';
+import * as disposableEmailDomains from 'disposable-email-domains';
 
-const disposableDomains: string[] = require("disposable-email-domains");
-const disposableSet = new Set(disposableDomains.map((d: string) => d.toLowerCase()));
+const disposableSet = new Set(
+  disposableEmailDomains.map((d: string) => d.toLowerCase()),
+);
 
 const MX_CACHE_TTL = 60 * 60 * 1000;
 
@@ -14,32 +16,38 @@ export class EmailValidationService {
   validateEmail(email: string): void {
     const domain = this.extractDomain(email);
     if (!domain) {
-      throw new BadRequestException("Invalid email address");
+      throw new BadRequestException('Invalid email address');
     }
 
     if (this.isDisposableDomain(domain)) {
-      throw new BadRequestException("Business emails only. Please use a valid email address.");
+      throw new BadRequestException(
+        'Business emails only. Please use a valid email address.',
+      );
     }
   }
 
   async validateEmailAsync(email: string): Promise<void> {
     const domain = this.extractDomain(email);
     if (!domain) {
-      throw new BadRequestException("Invalid email address");
+      throw new BadRequestException('Invalid email address');
     }
 
     if (this.isDisposableDomain(domain)) {
-      throw new BadRequestException("Business emails only. Please use a valid email address.");
+      throw new BadRequestException(
+        'Business emails only. Please use a valid email address.',
+      );
     }
 
     const hasMx = await this.hasValidMxRecord(domain);
     if (!hasMx) {
-      throw new BadRequestException("Business emails only. Please use a valid email address.");
+      throw new BadRequestException(
+        'Business emails only. Please use a valid email address.',
+      );
     }
   }
 
   private extractDomain(email: string): string | null {
-    const parts = email.trim().toLowerCase().split("@");
+    const parts = email.trim().toLowerCase().split('@');
     if (parts.length !== 2 || !parts[1]) return null;
     return parts[1];
   }
@@ -56,11 +64,16 @@ export class EmailValidationService {
 
     try {
       const mxRecords = await dns.resolveMx(domain);
-      const valid = mxRecords.length > 0 && mxRecords.some((r) => r.exchange && r.priority > 0);
+      const valid =
+        mxRecords.length > 0 &&
+        mxRecords.some((r) => r.exchange && r.priority > 0);
       this.mxCache.set(domain, { valid, expiresAt: Date.now() + MX_CACHE_TTL });
       return valid;
     } catch {
-      this.mxCache.set(domain, { valid: false, expiresAt: Date.now() + MX_CACHE_TTL });
+      this.mxCache.set(domain, {
+        valid: false,
+        expiresAt: Date.now() + MX_CACHE_TTL,
+      });
       return false;
     }
   }

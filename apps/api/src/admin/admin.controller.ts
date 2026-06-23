@@ -52,7 +52,7 @@ export class AdminController {
   // Create new admin (SUPER_ADMIN only)
   @Post()
   @Roles('SUPER_ADMIN')
-  async create(@Body() dto: CreateAdminDto, @Request() req) {
+  async create(@Body() dto: CreateAdminDto, @Request() req: any) {
     return this.adminService.create(dto, req.user.id);
   }
 
@@ -66,21 +66,21 @@ export class AdminController {
   // Delete admin (SUPER_ADMIN only)
   @Delete(':id')
   @Roles('SUPER_ADMIN')
-  async delete(@Param('id') id: string, @Request() req) {
+  async delete(@Param('id') id: string, @Request() req: any) {
     return this.adminService.delete(id, req.user.id);
   }
 
   // Toggle admin status (SUPER_ADMIN only)
   @Patch(':id/toggle-status')
   @Roles('SUPER_ADMIN')
-  async toggleStatus(@Param('id') id: string, @Request() req) {
+  async toggleStatus(@Param('id') id: string, @Request() req: any) {
     return this.adminService.toggleStatus(id, req.user.id);
   }
 
   // Change own password (ADMIN or SUPER_ADMIN)
   @Post('change-password')
   @Roles('ADMIN', 'SUPER_ADMIN')
-  async changePassword(@Body() dto: ChangePasswordDto, @Request() req) {
+  async changePassword(@Body() dto: ChangePasswordDto, @Request() req: any) {
     return this.adminService.changePassword(req.user.id, dto);
   }
 

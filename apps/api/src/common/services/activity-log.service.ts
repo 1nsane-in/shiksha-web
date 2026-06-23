@@ -66,10 +66,13 @@ export class ActivityLogService {
       _count: true,
     });
 
-    return activities.reduce((acc, item) => {
-      acc[item.action] = item._count;
-      return acc;
-    }, {} as Record<string, number>);
+    return activities.reduce(
+      (acc, item) => {
+        acc[item.action] = item._count;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }
 
   async trackPageView(data: {
@@ -103,14 +106,18 @@ export class ActivityLogService {
       take: 100,
     });
 
-    const uniquePages = new Set(pageViews.map(pv => pv.path)).size;
-    const totalDuration = pageViews.reduce((sum, pv) => sum + (pv.duration || 0), 0);
-    const bounces = pageViews.filter(pv => pv.bounced).length;
+    const uniquePages = new Set(pageViews.map((pv) => pv.path)).size;
+    const totalDuration = pageViews.reduce(
+      (sum, pv) => sum + (pv.duration || 0),
+      0,
+    );
+    const bounces = pageViews.filter((pv) => pv.bounced).length;
 
     return {
       totalPageViews: pageViews.length,
       uniquePages,
-      averageDuration: pageViews.length > 0 ? totalDuration / pageViews.length : 0,
+      averageDuration:
+        pageViews.length > 0 ? totalDuration / pageViews.length : 0,
       bounceRate: pageViews.length > 0 ? (bounces / pageViews.length) * 100 : 0,
       lastActive: pageViews[0]?.createdAt,
     };
