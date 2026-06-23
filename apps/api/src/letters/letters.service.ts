@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TimelineService } from '../common/services/timeline.service';
 import { NotificationService } from '../common/services/notification.service';
@@ -21,13 +26,26 @@ export class LettersService {
     });
     if (!application) throw new NotFoundException('Application not found');
     if (application.status !== 'approved') {
-      throw new BadRequestException('Application must be approved before issuing admission letter');
+      throw new BadRequestException(
+        'Application must be approved before issuing admission letter',
+      );
     }
 
     const letter = await this.prisma.admissionLetter.upsert({
       where: { applicationId: dto.applicationId },
-      update: { fileUrl: dto.fileUrl, fileName: dto.fileName, uploadedBy: adminId, uploadedAt: new Date() },
-      create: { studentId: application.studentId, applicationId: dto.applicationId, fileUrl: dto.fileUrl, fileName: dto.fileName, uploadedBy: adminId },
+      update: {
+        fileUrl: dto.fileUrl,
+        fileName: dto.fileName,
+        uploadedBy: adminId,
+        uploadedAt: new Date(),
+      },
+      create: {
+        studentId: application.studentId,
+        applicationId: dto.applicationId,
+        fileUrl: dto.fileUrl,
+        fileName: dto.fileName,
+        uploadedBy: adminId,
+      },
     });
 
     // Stage advancement: Stage 1 -> Stage 2
@@ -40,26 +58,38 @@ export class LettersService {
       await this.timeline.onStageAdvanced(dto.applicationId, student.id, 1, 2);
     }
 
-    await this.timeline.onAdmissionLetterUploaded(dto.applicationId, student.id);
+    await this.timeline.onAdmissionLetterUploaded(
+      dto.applicationId,
+      student.id,
+    );
 
     await this.notification.create({
       userId: application.student.user.id,
       type: 'ADMISSION_LETTER',
       title: 'Admission Letter Issued',
-      message: 'Your admission letter has been uploaded. Please review and complete the payment of ₹5,000.',
+      message:
+        'Your admission letter has been uploaded. Please review and complete the payment of ₹5,000.',
       data: { applicationId: dto.applicationId, letterId: letter.id },
     });
 
     return letter;
   }
 
-  async getAdmissionLetter(applicationId: string, userId: string, userRole: string) {
+  async getAdmissionLetter(
+    applicationId: string,
+    userId: string,
+    userRole: string,
+  ) {
     const letter = await this.prisma.admissionLetter.findUnique({
       where: { applicationId },
       include: { application: { include: { student: true } } },
     });
     if (!letter) throw new NotFoundException('Admission letter not found');
-    if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN' && letter.application?.student.userId !== userId) {
+    if (
+      userRole !== 'ADMIN' &&
+      userRole !== 'SUPER_ADMIN' &&
+      letter.application?.student.userId !== userId
+    ) {
       throw new ForbiddenException('Access denied');
     }
     await this.prisma.admissionLetter.update({
@@ -70,21 +100,57 @@ export class LettersService {
   }
 
   async getMyAdmissionLetter(userId: string) {
+    console.log('[getMyAdmissionLetter] userId:', userId);
     const student = await this.prisma.student.findUnique({ where: { userId } });
-    if (!student) throw new NotFoundException('Student profile not found');
+    if (!student) {
+      console.log(
+        '[getMyAdmissionLetter] Student not found for userId:',
+        userId,
+      );
+      throw new NotFoundException('Student profile not found');
+    }
+    console.log('[getMyAdmissionLetter] student.id:', student.id);
     const letter = await this.prisma.admissionLetter.findFirst({
       where: { studentId: student.id },
     });
+    console.log(
+      '[getMyAdmissionLetter] Letter query result:',
+      letter?.id ?? 'null',
+    );
     if (!letter) throw new NotFoundException('Admission letter not found');
+
+    // Check if stage 2 payment is completed
+    const payment = await this.prisma.payment.findFirst({
+      where: {
+        studentId: student.id,
+        stage: 2,
+        status: { in: ['SUCCESS', 'MANUALLY_APPROVED'] },
+      },
+    });
+    const isPaid = !!payment;
+
+    if (!isPaid) {
+      // Letter exists but locked behind payment - return metadata only, no fileUrl
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { fileUrl, ...rest } = letter;
+      return {
+        ...rest,
+        fileUrl: null,
+        isLocked: true as const,
+      };
+    }
+
     await this.prisma.admissionLetter.update({
       where: { id: letter.id },
       data: { viewCount: { increment: 1 } },
     });
-    return letter;
+    return { ...letter, isLocked: false as const };
   }
 
   async downloadAdmissionLetter(applicationId: string) {
-    const letter = await this.prisma.admissionLetter.findUnique({ where: { applicationId } });
+    const letter = await this.prisma.admissionLetter.findUnique({
+      where: { applicationId },
+    });
     if (!letter) throw new NotFoundException('Admission letter not found');
     await this.prisma.admissionLetter.update({
       where: { id: letter.id },
@@ -104,8 +170,19 @@ export class LettersService {
 
     const letter = await this.prisma.invitationLetter.upsert({
       where: { applicationId: dto.applicationId },
-      update: { fileUrl: dto.fileUrl, fileName: dto.fileName, uploadedBy: adminId, uploadedAt: new Date() },
-      create: { studentId: application.studentId, applicationId: dto.applicationId, fileUrl: dto.fileUrl, fileName: dto.fileName, uploadedBy: adminId },
+      update: {
+        fileUrl: dto.fileUrl,
+        fileName: dto.fileName,
+        uploadedBy: adminId,
+        uploadedAt: new Date(),
+      },
+      create: {
+        studentId: application.studentId,
+        applicationId: dto.applicationId,
+        fileUrl: dto.fileUrl,
+        fileName: dto.fileName,
+        uploadedBy: adminId,
+      },
     });
 
     // Stage advancement: Stage 3 -> Stage 4
@@ -115,10 +192,18 @@ export class LettersService {
         where: { id: student.id },
         data: { currentStage: 4, applicationStatus: 'STAGE_4_PENDING' },
       });
-      await this.timeline.onStageAdvanced(dto.applicationId, student.id, student.currentStage, 4);
+      await this.timeline.onStageAdvanced(
+        dto.applicationId,
+        student.id,
+        student.currentStage,
+        4,
+      );
     }
 
-    await this.timeline.onInvitationLetterUploaded(dto.applicationId, student.id);
+    await this.timeline.onInvitationLetterUploaded(
+      dto.applicationId,
+      student.id,
+    );
 
     await this.notification.create({
       userId: application.student.user.id,
@@ -131,13 +216,21 @@ export class LettersService {
     return letter;
   }
 
-  async getInvitationLetter(applicationId: string, userId: string, userRole: string) {
+  async getInvitationLetter(
+    applicationId: string,
+    userId: string,
+    userRole: string,
+  ) {
     const letter = await this.prisma.invitationLetter.findUnique({
       where: { applicationId },
       include: { application: { include: { student: true } } },
     });
     if (!letter) throw new NotFoundException('Invitation letter not found');
-    if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN' && letter.application?.student.userId !== userId) {
+    if (
+      userRole !== 'ADMIN' &&
+      userRole !== 'SUPER_ADMIN' &&
+      letter.application?.student.userId !== userId
+    ) {
       throw new ForbiddenException('Access denied');
     }
     await this.prisma.invitationLetter.update({
@@ -156,7 +249,9 @@ export class LettersService {
     if (!letter) throw new NotFoundException('Invitation letter not found');
     // Check if downloadable
     if (!letter.isDownloadable) {
-      throw new ForbiddenException('Invitation letter will be available after completing previous stages');
+      throw new ForbiddenException(
+        'Invitation letter will be available after completing previous stages',
+      );
     }
     await this.prisma.invitationLetter.update({
       where: { id: letter.id },
@@ -171,8 +266,13 @@ export class LettersService {
       include: { application: { include: { student: true } } },
     });
     if (!letter) throw new NotFoundException('Invitation letter not found');
-    if (!letter.isDownloadable && (letter.application?.student?.currentStage ?? 0) < 4) {
-      throw new ForbiddenException('Invitation letter download is not yet available');
+    if (
+      !letter.isDownloadable &&
+      (letter.application?.student?.currentStage ?? 0) < 4
+    ) {
+      throw new ForbiddenException(
+        'Invitation letter download is not yet available',
+      );
     }
     await this.prisma.invitationLetter.update({
       where: { id: letter.id },

@@ -31,4 +31,3 @@ export enum UniversityDocType {
   ANTI_RAGGING_POLICY = 'ANTI_RAGGING_POLICY',
   AGREEMENT = 'AGREEMENT',
 }
-

@@ -16,15 +16,21 @@ function AuthCallbackContent() {
         const hash = window.location.hash;
         const params = new URLSearchParams(hash.replace('#', ''));
         const accessToken = params.get('access_token');
+        const storedRole = sessionStorage.getItem("googleSelectedRole");
+        const role =
+          storedRole === "PARENT" || storedRole === "STUDENT"
+            ? storedRole
+            : undefined;
 
         if (!accessToken) {
           throw new Error('No access token received');
         }
 
-        const data = await googleLogin({ accessToken });
+        const data = await googleLogin({ accessToken, role });
         if (data.accessToken) {
           useAuthStore.getState().login(data.user, data.accessToken);
         }
+        sessionStorage.removeItem("googleSelectedRole");
 
         // Use stored redirect or fall back to role-based default
         const storedRedirect = sessionStorage.getItem("postLoginRedirect");
@@ -33,6 +39,8 @@ function AuthCallbackContent() {
           router.push(storedRedirect);
         } else if (data.user?.role === 'ADMIN' || data.user?.role === 'SUPER_ADMIN') {
           router.push('/admin/dashboard');
+        } else if (data.user?.role === 'PARENT') {
+          router.push('/parents/dashboard');
         } else {
           router.push('/student/dashboard');
         }

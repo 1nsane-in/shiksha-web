@@ -1,4 +1,4 @@
-import { Controller, Post, Delete, Get, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Delete, Get, Body, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { DeviceTokenService } from './device-token.service';
 import { RegisterDeviceTokenDto } from './dto/device-token.dto';
@@ -13,13 +13,19 @@ export class DeviceTokenController {
 
   @Post()
   @ApiOperation({ summary: 'Register device token for push notifications' })
-  async register(@Body() dto: RegisterDeviceTokenDto, @AuthUser() user: AuthenticatedUser) {
+  async register(
+    @Body() dto: RegisterDeviceTokenDto,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     return this.deviceTokenService.register(user.id, dto);
   }
 
   @Delete(':token')
   @ApiOperation({ summary: 'Unregister device token' })
-  async unregister(@Param('token') token: string, @AuthUser() user: AuthenticatedUser) {
+  async unregister(
+    @Param('token') token: string,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     return this.deviceTokenService.unregister(user.id, token);
   }
 

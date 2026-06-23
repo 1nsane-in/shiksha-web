@@ -5,7 +5,11 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class MetricsService {
   constructor(private prisma: PrismaService) {}
 
-  async recordDailyMetric(metricType: string, value: number, metadata?: Record<string, any>) {
+  async recordDailyMetric(
+    metricType: string,
+    value: number,
+    metadata?: Record<string, any>,
+  ) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -58,17 +62,23 @@ export class MetricsService {
 
     // Calculate metrics
     const totalPayments = student.payments
-      .filter(p => p.status === 'SUCCESS' || p.status === 'MANUALLY_APPROVED')
+      .filter((p) => p.status === 'SUCCESS' || p.status === 'MANUALLY_APPROVED')
       .reduce((sum, p) => sum + p.amount, 0);
 
-    const approvedDocs = student.documents.filter(d => d.status === 'APPROVED').length;
+    const approvedDocs = student.documents.filter(
+      (d) => d.status === 'APPROVED',
+    ).length;
     const totalDocs = student.documents.length;
     const documentScore = totalDocs > 0 ? (approvedDocs / totalDocs) * 100 : 0;
 
-    const completionRate = this.calculateCompletionRate(student.currentStage, student.applicationStatus);
+    const completionRate = this.calculateCompletionRate(
+      student.currentStage,
+      student.applicationStatus,
+    );
 
     const daysInSystem = Math.floor(
-      (new Date().getTime() - student.createdAt.getTime()) / (1000 * 60 * 60 * 24)
+      (new Date().getTime() - student.createdAt.getTime()) /
+        (1000 * 60 * 60 * 24),
     );
 
     await this.prisma.studentMetric.upsert({
@@ -156,14 +166,20 @@ export class MetricsService {
     return {
       students: {
         total: totalStudents,
-        byStage: studentsByStage.reduce((acc, item) => {
-          acc[`stage_${item.currentStage}`] = item._count;
-          return acc;
-        }, {} as Record<string, number>),
-        byStatus: studentsByStatus.reduce((acc, item) => {
-          acc[item.applicationStatus] = item._count;
-          return acc;
-        }, {} as Record<string, number>),
+        byStage: studentsByStage.reduce(
+          (acc, item) => {
+            acc[`stage_${item.currentStage}`] = item._count;
+            return acc;
+          },
+          {} as Record<string, number>,
+        ),
+        byStatus: studentsByStatus.reduce(
+          (acc, item) => {
+            acc[item.applicationStatus] = item._count;
+            return acc;
+          },
+          {} as Record<string, number>,
+        ),
         todayRegistrations,
       },
       payments: {

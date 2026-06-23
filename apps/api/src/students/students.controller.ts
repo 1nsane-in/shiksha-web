@@ -52,7 +52,10 @@ export class StudentController {
   @ApiBody({ type: UpdateStudentProfileDto })
   @ApiResponse({ status: 200, description: 'Profile updated' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async updateProfile(@Req() req: AuthenticatedRequest, @Body() dto: UpdateStudentProfileDto) {
+  async updateProfile(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: UpdateStudentProfileDto,
+  ) {
     return this.studentsService.updateProfile(req.user.id, dto);
   }
 
@@ -61,7 +64,10 @@ export class StudentController {
   @ApiBody({ type: UpdateAcademicDto })
   @ApiResponse({ status: 200, description: 'Academic info updated' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async updateAcademic(@Req() req: AuthenticatedRequest, @Body() dto: UpdateAcademicDto) {
+  async updateAcademic(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: UpdateAcademicDto,
+  ) {
     return this.studentsService.updateProfile(req.user.id, dto);
   }
 
@@ -76,11 +82,23 @@ export class StudentController {
   @Post('apply')
   @ApiOperation({ summary: 'Submit application to a university' })
   @ApiBody({ type: SubmitApplicationFormDto })
-  @ApiResponse({ status: 201, description: 'Application submitted successfully' })
-  @ApiResponse({ status: 400, description: 'Validation error or profile incomplete' })
+  @ApiResponse({
+    status: 201,
+    description: 'Application submitted successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error or profile incomplete',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 409, description: 'Already applied or university unavailable' })
-  async submitApplication(@Req() req: AuthenticatedRequest, @Body() dto: SubmitApplicationFormDto) {
+  @ApiResponse({
+    status: 409,
+    description: 'Already applied or university unavailable',
+  })
+  async submitApplication(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: SubmitApplicationFormDto,
+  ) {
     return this.studentsService.submitApplication(req.user.id, dto);
   }
 
@@ -107,7 +125,10 @@ export class StudentController {
   @ApiParam({ name: 'universityId', description: 'University ID' })
   @ApiResponse({ status: 200, description: 'Application check result' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async checkApplication(@Req() req: AuthenticatedRequest, @Param('universityId') universityId: string) {
+  async checkApplication(
+    @Req() req: AuthenticatedRequest,
+    @Param('universityId') universityId: string,
+  ) {
     return this.studentsService.checkApplication(req.user.id, universityId);
   }
 
@@ -117,7 +138,10 @@ export class StudentController {
   @ApiResponse({ status: 200, description: 'Application details' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Application not found' })
-  async getMyApplicationById(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+  async getMyApplicationById(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
     return this.studentsService.getMyApplicationById(req.user.id, id);
   }
 }
@@ -207,7 +231,10 @@ export class AdminStudentsController {
   @ApiResponse({ status: 201, description: 'University assigned' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  async assignUniversity(@Param('id') id: string, @Body() dto: AssignUniversityDto) {
+  async assignUniversity(
+    @Param('id') id: string,
+    @Body() dto: AssignUniversityDto,
+  ) {
     return this.studentsService.assignUniversity(id, dto);
   }
 }

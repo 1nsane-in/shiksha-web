@@ -210,7 +210,9 @@ export class StudentsService {
     });
 
     if (!student) {
-      throw new NotFoundException('Student profile not found. Please complete your profile first.');
+      throw new NotFoundException(
+        'Student profile not found. Please complete your profile first.',
+      );
     }
 
     const dob = new Date(dto.dateOfBirth);
@@ -233,19 +235,24 @@ export class StudentsService {
     }
 
     if (university.status !== 'ACTIVE') {
-      throw new ConflictException('This university is not currently accepting applications');
+      throw new ConflictException(
+        'This university is not currently accepting applications',
+      );
     }
 
-    const existingApplication = await this.prisma.universityApplication.findFirst({
-      where: {
-        studentId: student.id,
-        universityId: dto.universityId,
-        status: { not: 'rejected' },
-      },
-    });
+    const existingApplication =
+      await this.prisma.universityApplication.findFirst({
+        where: {
+          studentId: student.id,
+          universityId: dto.universityId,
+          status: { not: 'rejected' },
+        },
+      });
 
     if (existingApplication) {
-      throw new ConflictException('You have already applied to this university');
+      throw new ConflictException(
+        'You have already applied to this university',
+      );
     }
 
     const formData = {
@@ -320,7 +327,9 @@ export class StudentsService {
           },
         },
       }),
-      this.prisma.universityApplication.count({ where: { studentId: student.id } }),
+      this.prisma.universityApplication.count({
+        where: { studentId: student.id },
+      }),
     ]);
 
     return this.paginator.wrapResult(applications, total, { page, limit });

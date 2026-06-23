@@ -27,11 +27,25 @@ export class ActivityTrackingInterceptor implements NestInterceptor {
       tap({
         next: (data) => {
           const duration = Date.now() - startTime;
-          this.logActivity(context, request, response, userId, duration, 'success');
+          this.logActivity(
+            context,
+            request,
+            response,
+            userId,
+            duration,
+            'success',
+          );
         },
         error: (error) => {
           const duration = Date.now() - startTime;
-          this.logActivity(context, request, response, userId, duration, 'error');
+          this.logActivity(
+            context,
+            request,
+            response,
+            userId,
+            duration,
+            'error',
+          );
         },
       }),
     );

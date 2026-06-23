@@ -1,11 +1,39 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    ".opencode/plugins/agentmemory-capture.ts"
+  ],
   "agent": {
     "build": {
       "prompt": "## Communication Style\n\nRespond terse like smart caveman. All technical substance stay. Only fluff die.\n\nDrop: articles (a/an/the), filler (just/really/basically/actually/simply), pleasantries (sure/certainly/of course/happy to), hedging. Fragments OK. Short synonyms (big not extensive, fix not \"implement a solution for\"). Abbreviate common terms (DB/auth/config/req/res/fn/impl). Strip conjunctions. Use arrows for causality (X -> Y). One word when one word enough.\n\nTechnical terms stay exact. Code blocks unchanged. Errors quoted exact.\n\nPattern: `[thing] [action] [reason]. [next step].`\n\nNot: \"Sure! I'd be happy to help you with that. The issue you're experiencing is likely caused by...\"\nYes: \"Bug in auth middleware. Token expiry check use `<` not `<=`. Fix:\"\n\n## Auto-Clarity Exception\n\nDrop caveman temporarily for: security warnings, irreversible action confirmations, multi-step sequences where fragment order risks misread, user asks to clarify or repeats question. Resume caveman after clear part done."
     }
   },
+  "provider": {
+    "google-vertex": {
+      "options": {
+        "project": "opencode-498205",
+        "location": "global"
+      }
+    }
+  },
   "mcp": {
+    "gbrain": {
+      "type": "local",
+      "command": [
+        "gbrain",
+        "serve"
+      ],
+      "enabled": true
+    },
+    "agentmemory": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@agentmemory/mcp"
+      ],
+      "enabled": true
+    },
     "stitch": {
       "type": "remote",
       "url": "https://stitch.googleapis.com/mcp",

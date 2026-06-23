@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Patch, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { LettersService } from './letters.service';
 import { UploadLetterDto, UpdateLetterDto } from './dto/letter.dto';
@@ -19,14 +27,24 @@ export class LettersController {
   @Roles('ADMIN', 'SUPER_ADMIN')
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Upload admission letter (Admin)' })
-  uploadAdmissionLetter(@Body() dto: UploadLetterDto, @AuthUser() user: AuthenticatedUser) {
+  uploadAdmissionLetter(
+    @Body() dto: UploadLetterDto,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     return this.lettersService.uploadAdmissionLetter(user.id, dto);
   }
 
   @Get('admission/:applicationId')
   @ApiOperation({ summary: 'Get admission letter by application' })
-  getAdmissionLetter(@Param('applicationId') applicationId: string, @AuthUser() user: AuthenticatedUser) {
-    return this.lettersService.getAdmissionLetter(applicationId, user.id, user.role);
+  getAdmissionLetter(
+    @Param('applicationId') applicationId: string,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
+    return this.lettersService.getAdmissionLetter(
+      applicationId,
+      user.id,
+      user.role,
+    );
   }
 
   @Get('admission/my')
@@ -47,14 +65,24 @@ export class LettersController {
   @Roles('ADMIN', 'SUPER_ADMIN')
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Upload invitation letter (Admin)' })
-  uploadInvitationLetter(@Body() dto: UploadLetterDto, @AuthUser() user: AuthenticatedUser) {
+  uploadInvitationLetter(
+    @Body() dto: UploadLetterDto,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     return this.lettersService.uploadInvitationLetter(user.id, dto);
   }
 
   @Get('invitation/:applicationId')
   @ApiOperation({ summary: 'Get invitation letter by application' })
-  getInvitationLetter(@Param('applicationId') applicationId: string, @AuthUser() user: AuthenticatedUser) {
-    return this.lettersService.getInvitationLetter(applicationId, user.id, user.role);
+  getInvitationLetter(
+    @Param('applicationId') applicationId: string,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
+    return this.lettersService.getInvitationLetter(
+      applicationId,
+      user.id,
+      user.role,
+    );
   }
 
   @Get('invitation/my')
@@ -73,14 +101,19 @@ export class LettersController {
   @Roles('ADMIN', 'SUPER_ADMIN')
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Update invitation letter settings' })
-  updateInvitationLetter(@Param('id') id: string, @Body() dto: UpdateLetterDto) {
+  updateInvitationLetter(
+    @Param('id') id: string,
+    @Body() dto: UpdateLetterDto,
+  ) {
     return this.lettersService.updateInvitationLetter(id, dto);
   }
 
   @Post('invitation/:applicationId/approve-access')
   @Roles('ADMIN', 'SUPER_ADMIN')
   @UseGuards(RolesGuard)
-  @ApiOperation({ summary: 'Approve invitation letter download + unlock Stage 5' })
+  @ApiOperation({
+    summary: 'Approve invitation letter download + unlock Stage 5',
+  })
   approveInvitationAccess(@Param('applicationId') applicationId: string) {
     return this.lettersService.approveInvitationLetterAccess(applicationId);
   }

@@ -14,7 +14,12 @@ import { DocumentsService } from './documents.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UploadDocumentDto, VerifyDocumentDto, CreateDocumentTypeDto, UpdateDocumentTypeDto } from './documents.dto';
+import {
+  UploadDocumentDto,
+  VerifyDocumentDto,
+  CreateDocumentTypeDto,
+  UpdateDocumentTypeDto,
+} from './documents.dto';
 
 @Controller('student/documents')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -23,12 +28,12 @@ export class StudentDocumentsController {
   constructor(private documentsService: DocumentsService) {}
 
   @Get()
-  async getMyDocuments(@Request() req) {
+  async getMyDocuments(@Request() req: any) {
     return this.documentsService.getMyDocuments(req.user.id);
   }
 
   @Post()
-  async uploadDocument(@Request() req, @Body() dto: UploadDocumentDto) {
+  async uploadDocument(@Request() req: any, @Body() dto: UploadDocumentDto) {
     return this.documentsService.uploadMyDocument(req.user.id, dto);
   }
 }
@@ -63,7 +68,7 @@ export class AdminDocumentsController {
   @Put(':id/verify')
   async verifyDocument(
     @Param('id') id: string,
-    @Request() req,
+    @Request() req: any,
     @Body() dto: VerifyDocumentDto,
   ) {
     return this.documentsService.verifyDocument(id, req.user.id, dto);
@@ -83,7 +88,10 @@ export class AdminDocumentsController {
   }
 
   @Put('types/:id')
-  async updateDocumentType(@Param('id') id: string, @Body() dto: UpdateDocumentTypeDto) {
+  async updateDocumentType(
+    @Param('id') id: string,
+    @Body() dto: UpdateDocumentTypeDto,
+  ) {
     return this.documentsService.updateDocumentType(id, dto);
   }
 

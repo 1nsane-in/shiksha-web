@@ -22,11 +22,11 @@ const theme = {
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "About Us", href: "/about-us" },
-  { name: "Our Universities", href: "#" },
-  { name: "Gallery", href: "#" },
+  { name: "Our Universities", href: "/universities" },
+  { name: "Gallery", href: "/gallery" },
   { name: "Online Payment", href: "#" },
   { name: "Courses", href: "#courses" },
-  { name: "Contact Us", href: "#contact" },
+  { name: "Contact Us", href: "/contact-us" },
 ];
 
 export function Header() {
@@ -57,14 +57,14 @@ export function Header() {
         </Link>
 
         {/* ─── Desktop nav ─── */}
-        <nav className="hidden md:block">
+        <nav className="hidden lg:block">
           <ul className="flex items-center gap-10">
             {navLinks.map((link) => (
               <li key={link.name}>
                 <Link
-                  href={link.href}
-                  className="group relative text-sm font-medium transition-colors duration-200"
-                  style={{ color: theme.inkMuted }}
+                   href={link.href}
+                   className="group relative text-sm font-medium transition-colors duration-200"
+                   style={{ color: theme.inkMuted }}
                 >
                   {link.name}
                   <span
@@ -97,7 +97,7 @@ export function Header() {
               </Avatar>
             </Link>
           ) : (
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <Link
                 href={loginUrl}
                 className="inline-flex items-center justify-center px-5 py-2 text-sm font-medium transition-all duration-200 active:scale-[0.97]"
@@ -115,7 +115,7 @@ export function Header() {
           {/* Mobile hamburger */}
           <button
             type="button"
-            className="flex size-10 items-center justify-center rounded-lg md:hidden"
+            className="flex size-10 items-center justify-center rounded-lg lg:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             style={{ color: theme.ink }}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -133,7 +133,7 @@ export function Header() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="overflow-hidden md:hidden"
+            className="overflow-hidden lg:hidden"
             style={{ background: theme.ink }}
           >
             <nav className="space-y-1 px-4 pb-6 pt-2">

@@ -15,13 +15,17 @@ export class StudentDashboardController {
   constructor(private dashboardService: DashboardService) {}
 
   @Get('overview')
-  @ApiOperation({ summary: 'Get dashboard overview with profile, stage, and stats' })
+  @ApiOperation({
+    summary: 'Get dashboard overview with profile, stage, and stats',
+  })
   getOverview(@Req() req: AuthenticatedRequest) {
     return this.dashboardService.getOverview(req.user.id);
   }
 
   @Get('activity')
-  @ApiOperation({ summary: 'Get recent activity, notifications, and deadlines' })
+  @ApiOperation({
+    summary: 'Get recent activity, notifications, and deadlines',
+  })
   getActivity(@Req() req: AuthenticatedRequest) {
     return this.dashboardService.getActivity(req.user.id);
   }

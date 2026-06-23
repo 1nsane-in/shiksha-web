@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ExamsService } from './exams.service';
 import { ScheduleExamDto, DeclareExamResultDto } from './dto/exam.dto';
@@ -17,7 +25,10 @@ export class ExamsController {
   @Roles('ADMIN', 'SUPER_ADMIN')
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Schedule entrance exam (Admin)' })
-  async schedule(@Body() dto: ScheduleExamDto, @AuthUser() user: AuthenticatedUser) {
+  async schedule(
+    @Body() dto: ScheduleExamDto,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     return this.examsService.scheduleExam(user.id, dto);
   }
 
@@ -25,7 +36,10 @@ export class ExamsController {
   @Roles('ADMIN', 'SUPER_ADMIN')
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Declare exam result (Admin)' })
-  async declareResult(@Body() dto: DeclareExamResultDto, @AuthUser() user: AuthenticatedUser) {
+  async declareResult(
+    @Body() dto: DeclareExamResultDto,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     return this.examsService.declareResult(user.id, dto);
   }
 
@@ -37,8 +51,15 @@ export class ExamsController {
 
   @Get('application/:applicationId')
   @ApiOperation({ summary: 'Get exam by application ID' })
-  async getByApplication(@Param('applicationId') applicationId: string, @AuthUser() user: AuthenticatedUser) {
-    return this.examsService.getExamByApplication(applicationId, user.id, user.role);
+  async getByApplication(
+    @Param('applicationId') applicationId: string,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
+    return this.examsService.getExamByApplication(
+      applicationId,
+      user.id,
+      user.role,
+    );
   }
 
   @Get('admin/all')
@@ -46,6 +67,9 @@ export class ExamsController {
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Get all exams (Admin)' })
   async getAll(@Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.examsService.getAllExams(Number(page) || 1, Number(limit) || 20);
+    return this.examsService.getAllExams(
+      Number(page) || 1,
+      Number(limit) || 20,
+    );
   }
 }

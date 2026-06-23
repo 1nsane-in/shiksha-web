@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
-import { StudentDocumentsController, AdminDocumentsController } from './documents.controller';
+import {
+  StudentDocumentsController,
+  AdminDocumentsController,
+} from './documents.controller';
 import { DocumentsService } from './documents.service';
 import { PrismaModule } from '../prisma/prisma.module';
 

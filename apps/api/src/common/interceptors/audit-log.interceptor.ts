@@ -14,7 +14,7 @@ interface AuditableOptions {
   getEntityId?: (data: any) => string | undefined;
 }
 
-  export function Auditable(options: AuditableOptions) {
+export function Auditable(options: AuditableOptions) {
   @Injectable()
   class AuditInterceptor implements NestInterceptor {
     constructor(public readonly auditLogService: AuditLogService) {}
@@ -86,8 +86,16 @@ export class AuditLogInterceptor implements NestInterceptor {
 }
 
 export function AuditPoint(entityType: string, entityIdParam: string) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    Reflect.defineMetadata('audit_point', { entityType, entityIdParam }, descriptor.value);
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ) {
+    Reflect.defineMetadata(
+      'audit_point',
+      { entityType, entityIdParam },
+      descriptor.value,
+    );
     return descriptor;
   };
 }

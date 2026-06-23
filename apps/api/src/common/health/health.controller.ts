@@ -14,8 +14,6 @@ export class HealthController {
   @Public()
   @HealthCheck()
   async check() {
-    return this.health.check([
-      () => this.dbHealth.isHealthy('database'),
-    ]);
+    return this.health.check([() => this.dbHealth.isHealthy('database')]);
   }
 }

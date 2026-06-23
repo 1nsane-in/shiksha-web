@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { 
-  HealthIndicator, 
+import {
+  HealthIndicator,
   HealthIndicatorResult,
   HealthCheckError,
 } from '@nestjs/terminus';

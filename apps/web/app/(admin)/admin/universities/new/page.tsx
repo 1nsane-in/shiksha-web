@@ -1084,6 +1084,8 @@ export default function NewUniversityPage() {
                     <SelectContent>
                       <SelectItem value="GOVERNMENT">Government</SelectItem>
                       <SelectItem value="PRIVATE">Private</SelectItem>
+                      <SelectItem value="DEEMED">Deemed</SelectItem>
+                      <SelectItem value="AUTONOMOUS">Autonomous</SelectItem>
                     </SelectContent>
                   </Select>
                   {formErrors.type && (

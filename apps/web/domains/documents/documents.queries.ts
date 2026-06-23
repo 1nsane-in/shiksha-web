@@ -29,9 +29,12 @@ export function useUploadMyDocument() {
 
 export function useUploadFile() {
   return useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async (arg: File | { file: File; folder?: string }) => {
       const { uploadFile } = await import("./documents.api");
-      return uploadFile(file);
+      if (arg instanceof File) {
+        return uploadFile(arg);
+      }
+      return uploadFile(arg.file, arg.folder);
     },
   });
 }
@@ -96,5 +99,16 @@ export function useCreateDocumentType() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.documents.types() });
     },
+  });
+}
+
+export function useStudentDocuments(studentId: string) {
+  return useQuery({
+    queryKey: queryKeys.documents.student(studentId),
+    queryFn: async () => {
+      const { getStudentDocuments } = await import("./documents.api");
+      return getStudentDocuments(studentId);
+    },
+    enabled: !!studentId,
   });
 }

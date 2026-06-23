@@ -18,7 +18,9 @@ interface PaginatedMeta {
   totalPages: number;
 }
 
-function isPaginated(value: unknown): value is { data: unknown[]; meta: PaginatedMeta } {
+function isPaginated(
+  value: unknown,
+): value is { data: unknown[]; meta: PaginatedMeta } {
   if (typeof value !== 'object' || value === null) return false;
   const obj = value as Record<string, unknown>;
   return Array.isArray(obj.data) && obj.meta !== undefined;

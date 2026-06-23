@@ -1,6 +1,6 @@
 # V1 — Pending Work
 
-Last updated: 2026-05-25
+Last updated: 2026-06-04
 
 ## ✅ Completed
 
@@ -8,6 +8,7 @@ Last updated: 2026-05-25
 |--------|---------|---------------|---------------|
 | Auth (OTP, JWT, Google OAuth) | ✅ | ✅ | ✅ |
 | User / Student Profile | ✅ | ✅ | ✅ |
+| Student Management (Admin) | ✅ | ✅ | ✅ |
 | Application Stages (1-5 unlock) | ✅ | ✅ | ✅ |
 | Document Upload & Verification | ✅ | ✅ | ✅ |
 | Payments (PayU) | ✅ | ✅ | ✅ |
@@ -25,36 +26,31 @@ The Agent role, Agent model, Commission model, and all related backend/frontend 
 
 ## 🔴 Not Started
 
-### 1. Admin Student Management Page
-- **What:** A page under `/admin/students` to list, search, and manage all student accounts
-- **Backend:** `StudentsModule` already exists (full CRUD)
-- **Frontend page:** Missing
-
-### 2. Reports Dashboard
+### 1. Reports Dashboard
 - **What:** Admin reports page showing student counts, revenue, stage funnel, etc.
 - **Backend:** `AnalyticsService` and `MetricsService` already exist in CommonModule
 - **Frontend page:** Missing
 - **Frontend domain:** Missing (`domains/reports/`)
 
-### 3. AI Module (NestJS)
+### 2. AI Module (NestJS)
 - **What:** AI assistant for admins using Vercel AI SDK + OpenRouter (Amazon Nova Lite)
 - **Database:** Models exist (`AIJob`, `AIConversation`, `AIExtractedField`, `AIFlag`, etc.)
 - **Backend service/controller:** Missing
 - **Frontend:** Not needed in V1 (admin-only tool)
 
-### 4. Notifications UI
+### 3. Notifications UI
 - **What:** Frontend page for notification history and preferences
 - **Backend:** `NotificationService` + `DeviceTokenModule` exist (FCM push)
 - **Frontend page:** Missing
 - **Frontend domain:** Missing (`domains/notifications/`)
 
-### 5. Settings Page
+### 4. Settings Page
 - **What:** Admin page to manage system-wide settings
 - **Database:** `SystemSetting` model exists
 - **Backend module:** Missing
 - **Frontend page:** Missing
 
-### 6. Parent Dashboard
+### 5. Parent Dashboard
 - **What:** Dashboard for parent users to track their child's admission
 - **Backend:** `Parent` model exists
 - **Frontend:** Only stub pages (layout, loading, not-found)
