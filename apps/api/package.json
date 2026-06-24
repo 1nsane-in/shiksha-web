@@ -5,6 +5,20 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "engines": {
+    "node": "22.x",
+    "npm": "10.x"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "@scarf/scarf",
+      "@sentry/node-cpu-profiler",
+      "esbuild",
+      "prisma"
+    ]
+  },
   "scripts": {
     "dev": "nest start --watch",
     "prebuild": "npx prisma@6 generate",
