@@ -541,7 +541,7 @@ export function EligibilityCalculator() {
                         Want a Professional Free Consultation?
                       </h5>
                       <p className="text-xs text-slate-400 mt-1">
-                        Book a free counselling session with a medical doctor from WCIEC to secure your seat.
+                        Book a free counselling session with our medical admissions team to secure your seat.
                       </p>
                     </div>
                     <button

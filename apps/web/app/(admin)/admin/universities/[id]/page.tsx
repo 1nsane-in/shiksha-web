@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft,
   Edit,
+  ImageIcon,
   MapPin,
   Phone,
   Mail,
@@ -55,6 +56,7 @@ import {
   Dumbbell,
   Building2,
   Plus,
+  ExternalLink,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -146,16 +148,31 @@ function InfoRow({
 function SectionHeading({
   icon: Icon,
   title,
+  onEdit,
 }: {
   icon: IconComponent;
   title: string;
+  onEdit?: () => void;
 }) {
   return (
-    <div className="mb-5 flex items-center gap-2.5">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-700">
-        <Icon className="h-4 w-4" />
+    <div className="mb-5 flex items-center justify-between">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-700">
+          <Icon className="h-4 w-4" />
+        </div>
+        <h3 className="text-sm font-bold uppercase tracking-wider text-[#111]">{title}</h3>
       </div>
-      <h3 className="text-sm font-bold uppercase tracking-wider text-[#111]">{title}</h3>
+      {onEdit && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onEdit}
+          className="h-8 px-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+        >
+          <Edit className="h-3.5 w-3.5 mr-1" />
+          Edit
+        </Button>
+      )}
     </div>
   );
 }
@@ -237,6 +254,8 @@ export default function UniversityDetailPage() {
   const deleteCourseMut = useDeleteUniversityCourse();
 
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+  const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [docForm, setDocForm] = useState({
     type: "BROCHURE",
     file: null as File | null,
@@ -294,7 +313,6 @@ export default function UniversityDetailPage() {
         },
       });
       toast.success("Image added to campus gallery");
-      refetch();
     } catch (err) {
       toast.error("Failed to upload gallery image");
     } finally {
@@ -318,10 +336,34 @@ export default function UniversityDetailPage() {
         },
       });
       toast.success("Image removed from gallery");
-      refetch();
     } catch (err) {
       toast.error("Failed to update gallery");
     }
+  };
+
+  // Banner / Logo Handlers
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setIsUploadingBanner(true);
+    try {
+      const file = e.target.files[0];
+      const res = await uploadFile(file, "banners");
+      await updateUniversityMut.mutateAsync({ id: uniId, data: { bannerImage: res.url } });
+      toast.success("Banner image updated");
+    } catch { toast.error("Failed to upload banner"); }
+    finally { setIsUploadingBanner(false); }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setIsUploadingLogo(true);
+    try {
+      const file = e.target.files[0];
+      const res = await uploadFile(file, "logos");
+      await updateUniversityMut.mutateAsync({ id: uniId, data: { logo: res.url } });
+      toast.success("Logo updated");
+    } catch { toast.error("Failed to upload logo"); }
+    finally { setIsUploadingLogo(false); }
   };
 
   // Document Handlers
@@ -380,9 +422,27 @@ export default function UniversityDetailPage() {
               sizes="100vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent" />
+            <div className="absolute bottom-3 right-3 z-10">
+              <label className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg bg-white/90 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-white border border-white/20">
+                <Edit className="h-3 w-3" /> Change Banner
+                <input type="file" accept="image/*,image/svg+xml" className="hidden" onChange={handleBannerUpload} disabled={isUploadingBanner} />
+              </label>
+            </div>
           </>
         ) : (
-          <div className="h-full w-full bg-gradient-to-br from-[#FAFAF8] to-[#ECEAE6]" />
+          <label className="flex h-full w-full cursor-pointer items-center justify-center bg-gradient-to-br from-[#FAFAF8] to-[#ECEAE6] transition hover:from-gray-100 hover:to-gray-200">
+            <div className="flex flex-col items-center gap-1.5 text-gray-400">
+              {isUploadingBanner ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+              ) : (
+                <>
+                  <ImageIcon className="h-6 w-6" />
+                  <span className="text-xs font-medium">Add Banner Image</span>
+                </>
+              )}
+            </div>
+            <input type="file" accept="image/*,image/svg+xml" className="hidden" onChange={handleBannerUpload} disabled={isUploadingBanner} />
+          </label>
         )}
 
         {/* Back and Action buttons inside Hero Overlay */}
@@ -446,11 +506,34 @@ export default function UniversityDetailPage() {
 
       </div>
 
-      {/* Header with Title and Status */}
+      {/* Header with Logo, Title, and Status */}
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[#111] sm:text-3xl">{university.name}</h1>
-          <p className="mt-1 text-sm text-[#6B6B6B]">{university.shortName}</p>
+        <div className="flex items-center gap-4">
+          {university.logo ? (
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#ECEAE6] bg-white">
+              <Image src={university.logo} alt="Logo" fill className="object-contain p-1" sizes="64px" />
+              <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/0 opacity-0 transition hover:bg-black/40 hover:opacity-100">
+                <Edit className="h-4 w-4 text-white" />
+                <input type="file" accept="image/*,image/svg+xml" className="hidden" onChange={handleLogoUpload} disabled={isUploadingLogo} />
+              </label>
+            </div>
+          ) : (
+            <label className="flex h-16 w-16 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-dashed border-[#D4D2CE] bg-[#FAF9F6] transition hover:bg-gray-100">
+              {isUploadingLogo ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+              ) : (
+                <div className="flex flex-col items-center gap-0.5 text-gray-400">
+                  <ImageIcon className="h-5 w-5" />
+                  <span className="text-[10px] font-medium">Logo</span>
+                </div>
+              )}
+              <input type="file" accept="image/*,image/svg+xml" className="hidden" onChange={handleLogoUpload} disabled={isUploadingLogo} />
+            </label>
+          )}
+          <div>
+            <h1 className="text-2xl font-bold text-[#111] sm:text-3xl">{university.name}</h1>
+            <p className="mt-1 text-sm text-[#6B6B6B]">{university.shortName}</p>
+          </div>
         </div>
         <Badge className={status.className}>{status.label}</Badge>
       </div>
@@ -516,11 +599,32 @@ export default function UniversityDetailPage() {
               {/* Basic Info */}
               <Card size="sm" className="border-[#ECEAE6]">
                 <CardContent className="space-y-3 p-4 sm:p-5">
-                  <SectionHeading icon={Building2} title="Basic Information" />
+                  <SectionHeading
+                    icon={Building2}
+                    title="Basic Information"
+                    onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=basic`)}
+                  />
                   <InfoRow icon={School} label="Full Name" value={university.name} />
                   <InfoRow icon={BookOpen} label="Short Name" value={university.shortName} />
                   <InfoRow icon={Building2} label="Type" value={university.type?.replace("_", " ")} />
                   <InfoRow icon={Calendar} label="Established" value={university.establishedYear} />
+                  {university.website && (
+                    <InfoRow
+                      icon={Globe}
+                      label="Website"
+                      value={
+                        <a
+                          href={university.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[#3730A3] hover:underline"
+                        >
+                          {university.website.replace(/^https?:\/\//, '')}
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      }
+                    />
+                  )}
                   {university.brochureUrl && (
                     <InfoRow
                       icon={Download}
@@ -545,7 +649,11 @@ export default function UniversityDetailPage() {
               {loc && (
                 <Card size="sm" className="border-[#ECEAE6]">
                   <CardContent className="space-y-3 p-4 sm:p-5">
-                    <SectionHeading icon={MapPin} title="Location" />
+                    <SectionHeading
+                      icon={MapPin}
+                      title="Location"
+                      onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=location`)}
+                    />
                     <InfoRow icon={Globe} label="Country" value={loc.country} />
                     <InfoRow icon={MapPin} label="State" value={loc.state} />
                     <InfoRow
@@ -566,7 +674,11 @@ export default function UniversityDetailPage() {
               {contact && (
                 <Card size="sm" className="border-[#ECEAE6]">
                   <CardContent className="space-y-3 p-4 sm:p-5">
-                    <SectionHeading icon={Phone} title="Contact" />
+                    <SectionHeading
+                      icon={Phone}
+                      title="Contact"
+                      onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=contact`)}
+                    />
                     <InfoRow
                       icon={Mail}
                       label="Email"
@@ -606,7 +718,11 @@ export default function UniversityDetailPage() {
               {a && (
                 <Card size="sm" className="border-[#ECEAE6]">
                   <CardContent className="space-y-3 p-4 sm:p-5">
-                    <SectionHeading icon={GraduationCap} title="Academic Snapshot" />
+                    <SectionHeading
+                      icon={GraduationCap}
+                      title="Academic Snapshot"
+                      onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=academic`)}
+                    />
                     <InfoRow
                       icon={BookOpen}
                       label="Programs"
@@ -622,6 +738,103 @@ export default function UniversityDetailPage() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Social Links */}
+              {university.socialLinks && (
+                <Card size="sm" className="border-[#ECEAE6]">
+                  <CardContent className="space-y-3 p-4 sm:p-5">
+                    <SectionHeading
+                      icon={ExternalLink}
+                      title="Social Media"
+                      onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=social`)}
+                    />
+                    {(() => {
+                      const links: Record<string, string> = university.socialLinks as Record<string, string>;
+                      const platformIcons: Record<string, { icon: IconComponent; label: string }> = {
+                        facebook: { icon: Globe, label: "Facebook" },
+                        instagram: { icon: Globe, label: "Instagram" },
+                        youtube: { icon: Globe, label: "YouTube" },
+                        linkedin: { icon: Globe, label: "LinkedIn" },
+                        twitter: { icon: Globe, label: "Twitter / X" },
+                        tiktok: { icon: Globe, label: "TikTok" },
+                      };
+                      const hasLinks = Object.entries(platformIcons).some(([key]) => links[key]);
+                      if (!hasLinks) return <p className="text-xs text-gray-400 italic">No social links added.</p>;
+                      return (
+                        <div className="space-y-2">
+                          {Object.entries(platformIcons).map(([key, config]) => {
+                            const url = links[key];
+                            if (!url) return null;
+                            return (
+                              <div key={key} className="flex items-center gap-3">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100">
+                                  <config.icon className="h-3.5 w-3.5 text-gray-500" />
+                                </div>
+                                <a
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-[#3730A3] hover:underline truncate"
+                                >
+                                  {config.label}
+                                </a>
+                                <ExternalLink className="ml-auto h-3 w-3 shrink-0 text-gray-300" />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </CardContent>
+                </Card>
+              )}
+
+                {/* Student Demographics */}
+              {university.studentDemographics && (() => {
+                const demo = university.studentDemographics as any;
+                const total = demo.totalStudents || 0;
+                const local = demo.localStudents || 0;
+                const foreign = demo.foreignStudents || 0;
+                if (!total && !local && !foreign) return null;
+                return (
+                  <Card size="sm" className="border-[#ECEAE6]">
+                    <CardContent className="space-y-3 p-4 sm:p-5">
+                      <SectionHeading
+                        icon={Users}
+                        title="Student Demographics"
+                        onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=demographics`)}
+                      />
+                      <div className="grid grid-cols-3 gap-3 text-center">
+                        <div className="rounded-lg bg-gray-50 p-3 border border-gray-100">
+                          <p className="text-lg font-extrabold text-[#111]">{total.toLocaleString()}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total</p>
+                        </div>
+                        <div className="rounded-lg bg-gray-50 p-3 border border-gray-100">
+                          <p className="text-lg font-extrabold text-[#111]">{local.toLocaleString()}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Local</p>
+                        </div>
+                        <div className="rounded-lg bg-gray-50 p-3 border border-gray-100">
+                          <p className="text-lg font-extrabold text-[#111]">{foreign.toLocaleString()}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Foreign</p>
+                        </div>
+                      </div>
+                      {demo.foreignByCountry?.length > 0 && (
+                        <div className="pt-1">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">Foreign Students By Country</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {demo.foreignByCountry.map((item: any, i: number) => (
+                              <span key={i} className="inline-flex items-center gap-1 rounded-md border border-[#ECEAE6] bg-white px-2 py-1 text-xs text-[#6B6B6B]">
+                                <Globe className="h-3 w-3" />
+                                {item.country}: {item.count}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })()}
             </div>
 
             {/* Gallery */}
@@ -1070,25 +1283,6 @@ function XIcon({ className }: { className?: string }) {
 }
 
 /* Local SVG icon components for icons not in lucide-react */
-function ImageIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-      <circle cx="9" cy="9" r="2" />
-      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-    </svg>
-  );
-}
-
 function VisaIcon({ className }: { className?: string }) {
   return (
     <svg

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { useSidebarStore } from "@/stores/sidebar-store";
+import { useLogout } from "@/domains/auth";
 import {
   LayoutDashboard,
   Users,
@@ -37,8 +38,18 @@ const nav = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
-  const { user, logout } = useAuthStore();
+  const router = useRouter();
+  const { user } = useAuthStore();
   const { open, close } = useSidebarStore();
+  const logoutMutation = useLogout();
+
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        router.push("/auth/login");
+      },
+    });
+  };
 
   const initials = user?.name
     ?.split(" ")
@@ -108,8 +119,9 @@ export function AdminSidebar() {
             <p className="truncate text-[10px] text-[#9CA3AF]">{user?.email}</p>
           </div>
           <button
-            onClick={logout}
-            className="rounded-md p-1 text-[#9CA3AF] transition-colors hover:bg-[#F0EEF8] hover:text-[#3730A3]"
+            onClick={handleLogout}
+            disabled={logoutMutation.isPending}
+            className="rounded-md p-1 text-[#9CA3AF] transition-colors hover:bg-[#F0EEF8] hover:text-[#3730A3] disabled:opacity-50"
             title="Sign out"
           >
             <LogOut className="h-3.5 w-3.5" />

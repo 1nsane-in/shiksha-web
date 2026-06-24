@@ -550,54 +550,7 @@ function UniversityContent({
                   value={admission.minimumMarks}
                 />
                 <InfoField label="Age Criteria" value={admission.ageCriteria} />
-                {/* Selection Process - Show as timeline if it has steps */}
-                {(() => {
-                  const selectionSteps = admission.selectionProcess?.split("→").map((s: string) => s.trim()).filter(Boolean) || [];
-                  const hasSelectionSteps = selectionSteps.length > 1;
-                  return hasSelectionSteps ? (
-                    <div className="sm:col-span-2">
-                      <p
-                        className="mb-3 text-xs font-medium uppercase tracking-wider"
-                        style={{ color: theme.inkSubtle }}
-                      >
-                        Selection Process
-                      </p>
-                      <div className="space-y-0">
-                        {selectionSteps.map((step: string, idx: number) => (
-                          <div key={idx} className="flex items-start gap-3">
-                            <div className="flex flex-col items-center">
-                              <div
-                                className="flex size-7 items-center justify-center rounded-full text-xs font-bold"
-                                style={{
-                                  background: theme.gold,
-                                  color: "#fff",
-                                }}
-                              >
-                                {idx + 1}
-                              </div>
-                              {idx < selectionSteps.length - 1 && (
-                                <div
-                                  className="mt-1 h-full min-h-[24px] w-0.5"
-                                  style={{ background: theme.hairline }}
-                                />
-                              )}
-                            </div>
-                            <div className="pb-4">
-                              <p className="text-sm font-medium" style={{ color: theme.ink }}>
-                                {step}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <InfoField
-                      label="Selection Process"
-                      value={admission.selectionProcess}
-                    />
-                  );
-                })()}
+
                 {admission.applicationFee != null && admission.applicationFee > 0 ? (
                   <InfoField
                     label="Application Fee"
@@ -667,42 +620,29 @@ function UniversityContent({
           {infra && (
             <SectionCard title="Infrastructure & Facilities">
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                {infra.hospitalBeds != null && (
+                {infra.hospitalBeds != null && infra.hospitalBeds > 0 && (
                   <InfraStat
                     icon={<Hospital />}
                     label="Hospital Beds"
                     value={String(infra.hospitalBeds)}
                   />
                 )}
-                {infra.departments?.length > 0 && (
-                  <InfraStat
-                    icon={<Layers />}
-                    label="Departments"
-                    value={infra.departments.join(", ")}
-                  />
-                )}
-                {infra.laboratories?.length > 0 && (
-                  <InfraStat
-                    icon={<BookMarked />}
-                    label="Labs"
-                    value={infra.laboratories.join(", ")}
-                  />
-                )}
-                {infra.campusArea != null && (
+
+                {infra.campusArea != null && infra.campusArea > 0 && (
                   <InfraStat
                     icon={<Building2 />}
                     label="Campus Area"
                     value={`${infra.campusArea} acres`}
                   />
                 )}
-                {infra.hostelBoys != null && (
+                {infra.hostelBoys != null && infra.hostelBoys > 0 && (
                   <InfraStat
                     icon={<Users />}
                     label="Boys Hostel"
                     value={String(infra.hostelBoys)}
                   />
                 )}
-                {infra.hostelGirls != null && (
+                {infra.hostelGirls != null && infra.hostelGirls > 0 && (
                   <InfraStat
                     icon={<Users />}
                     label="Girls Hostel"
@@ -964,21 +904,21 @@ function UniversityContent({
                         Seat Distribution
                       </p>
                       <div className="grid grid-cols-3 gap-3">
-                        {academic.governmentSeats != null && (
+                        {academic.governmentSeats != null && academic.governmentSeats > 0 && (
                           <SeatBox
                             label="Government"
                             value={academic.governmentSeats}
                             total={academic.totalSeats}
                           />
                         )}
-                        {academic.managementSeats != null && (
+                        {academic.managementSeats != null && academic.managementSeats > 0 && (
                           <SeatBox
                             label="Management"
                             value={academic.managementSeats}
                             total={academic.totalSeats}
                           />
                         )}
-                        {academic.nriSeats != null && (
+                        {academic.nriSeats != null && academic.nriSeats > 0 && (
                           <SeatBox
                             label="NRI"
                             value={academic.nriSeats}
@@ -996,7 +936,7 @@ function UniversityContent({
           {support && (
             <SectionCard title="Support & Career">
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                {support.placementRate != null && (
+                {support.placementRate != null && support.placementRate > 0 && (
                   <div
                     className="rounded-xl px-5 py-4 text-center"
                     style={{
@@ -1018,7 +958,7 @@ function UniversityContent({
                     </p>
                   </div>
                 )}
-                {support.averagePackage != null && (
+                {support.averagePackage != null && support.averagePackage > 0 && (
                   <div
                     className="rounded-xl px-5 py-4 text-center"
                     style={{
@@ -1380,6 +1320,60 @@ function UniversityContent({
             </div>
           )}
 
+          {/* selection process */}
+          <div
+            className="rounded-2xl p-6"
+            style={{
+              background: theme.surface,
+              border: "1px solid " + theme.hairline,
+            }}
+          >
+            <h3
+              className="mb-4 text-sm font-semibold uppercase tracking-wider"
+              style={{ color: theme.inkSubtle }}
+            >
+              Selection Process
+            </h3>
+            <div className="space-y-0">
+              {[
+                "Choose university",
+                "Documents upload",
+                "Admission letter",
+                "Online exam",
+                "Admission confirm on successful passing exam",
+                "Pay 50% fees",
+                "Invitation letter",
+                "Visa",
+                "Departure",
+              ].map((step, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className="flex size-7 items-center justify-center rounded-full text-xs font-bold"
+                      style={{
+                        background: theme.gold,
+                        color: "#fff",
+                      }}
+                    >
+                      {i + 1}
+                    </div>
+                    {i < 8 && (
+                      <div
+                        className="mt-1 h-full min-h-[24px] w-0.5"
+                        style={{ background: theme.hairline }}
+                      />
+                    )}
+                  </div>
+                  <div className="pb-4">
+                    <p className="text-sm font-medium" style={{ color: theme.ink }}>
+                      {step}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* stats */}
           {recognition && (
             <div
@@ -1454,7 +1448,7 @@ function UniversityContent({
                     </span>
                   </div>
                 )}
-                {admission?.applicationFee != null && (
+                {admission?.applicationFee != null && admission.applicationFee > 0 && (
                   <div
                     className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
                     style={{ background: theme.canvas }}
@@ -1470,7 +1464,7 @@ function UniversityContent({
                     </span>
                   </div>
                 )}
-                {support?.averagePackage != null && (
+                {support?.averagePackage != null && support.averagePackage > 0 && (
                   <div
                     className="flex items-center justify-between rounded-lg px-3 py-2 text-sm"
                     style={{ background: theme.canvas }}

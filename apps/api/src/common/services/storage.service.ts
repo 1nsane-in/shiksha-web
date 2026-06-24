@@ -81,4 +81,19 @@ export class StorageService {
       }),
     );
   }
+
+  async deleteFromUrl(url: string): Promise<void> {
+    if (!url) return;
+    // If publicUrl is configured, URLs are `${publicUrl}/${key}`
+    if (this.publicUrl) {
+      const prefix = this.publicUrl.endsWith('/')
+        ? this.publicUrl
+        : `${this.publicUrl}/`;
+      if (url.startsWith(prefix)) {
+        const key = url.slice(prefix.length);
+        await this.delete(key);
+      }
+    }
+    // For signed URLs, extraction is unreliable — skip
+  }
 }
