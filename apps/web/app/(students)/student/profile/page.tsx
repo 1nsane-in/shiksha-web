@@ -12,7 +12,6 @@ import {
   useMyApplications,
   useDashboardOverview,
   useDashboardActivity,
-  useDashboardNextSteps,
 } from "@/domains/student";
 import { useStudentTimeline } from "@/domains/timeline";
 import { AddParentSection } from "@/components/parents/add-parent-section";
@@ -35,6 +34,9 @@ import {
   FileText,
   CreditCard,
   Plane,
+  User,
+  Upload,
+  MessageSquare,
 } from "lucide-react";
 
 export default function StudentDashboardPage() {
@@ -49,9 +51,6 @@ export default function StudentDashboardPage() {
   const { data: appsData, isLoading: appsLoading } = useMyApplications();
   const { data: overview, isLoading: overviewLoading } = useDashboardOverview();
   const { data: activity, isLoading: activityLoading } = useDashboardActivity();
-  const { data: nextSteps, isLoading: nextStepsLoading } =
-    useDashboardNextSteps();
-
   const currentStage = stageInfo?.currentStage ?? 1;
   const applications = appsData?.data ?? [];
   const latestApp = applications[0];
@@ -403,8 +402,8 @@ export default function StudentDashboardPage() {
             </div>
           ) : null}
 
-          {/* Next Steps */}
-          <NextStepsSection />
+          {/* Quick Actions */}
+          <QuickActionsSection currentStage={currentStage} />
 
           {/* Required Actions Based on Stage */}
           <RequiredActionsSection
@@ -536,60 +535,70 @@ function StatCard({
   );
 }
 
-function NextStepsSection() {
-  const { data: nextSteps, isLoading } = useDashboardNextSteps();
-
-  if (isLoading) {
-    return <Skeleton className="h-32 w-full rounded-xl" />;
-  }
-  if (!nextSteps) return null;
+function QuickActionsSection({ currentStage }: { currentStage: number }) {
+  const router = useRouter();
+  const actions = [
+    {
+      icon: User,
+      label: "Update Profile",
+      desc: "Personal details, address, academic info",
+      href: "/student/profile",
+      color: "bg-blue-50 text-blue-600",
+      always: true,
+    },
+    {
+      icon: Upload,
+      label: "Upload Documents",
+      desc: currentStage === 1 ? "Aadhaar, PAN, 10th, 12th, NEET, Passport" : "Stage-specific documents",
+      href: "/student/documents",
+      color: "bg-purple-50 text-purple-600",
+      always: true,
+    },
+    {
+      icon: CreditCard,
+      label: "Make Payment",
+      desc: currentStage === 1 ? "Stage 1 application fee" : currentStage === 2 ? "Admission fee" : "View dues",
+      href: "/student/payments",
+      color: "bg-emerald-50 text-emerald-600",
+      always: true,
+    },
+    {
+      icon: MessageSquare,
+      label: "Contact Support",
+      desc: "Help with admission, documents, or payments",
+      href: "/student/contact",
+      color: "bg-amber-50 text-amber-600",
+      always: true,
+    },
+  ];
 
   return (
-    <div className="p-4 border border-gray-200/80 rounded-xl bg-white shadow-sm">
-      <div className="flex items-center justify-between mb-2.5">
-        <h2 className="text-sm font-semibold text-[#2D2154]">Next Steps</h2>
-        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded">
-          {nextSteps.completionPercentage}% complete
-        </span>
+    <div className="border border-gray-200/80 rounded-xl bg-white shadow-sm">
+      <div className="px-4 py-3 border-b border-gray-50/80">
+        <h2 className="text-sm font-semibold text-[#2D2154]">
+          Quick Actions
+        </h2>
       </div>
-      <div className="w-full h-1.5 bg-gray-100 rounded-full mb-4">
-        <div
-          className="h-1.5 rounded-full bg-emerald-500 transition-all"
-          style={{ width: `${nextSteps.completionPercentage}%` }}
-        />
-      </div>
-      <div className="space-y-2">
-        {nextSteps.nextActions
-          .filter((a) => !a.completed)
-          .slice(0, 4)
-          .map((action) => (
-            <Link
-              key={action.type}
-              href={action.actionUrl}
-              className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-gray-200 hover:bg-gray-50/50 transition-colors"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div
-                  className={`size-2 rounded-full shrink-0 ${
-                    action.priority === "high"
-                      ? "bg-red-400"
-                      : action.priority === "medium"
-                        ? "bg-amber-400"
-                        : "bg-gray-300"
-                  }`}
-                />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-[#2D2154] truncate">
-                    {action.title}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {action.description}
-                  </p>
-                </div>
-              </div>
-              <ArrowRight className="size-4 text-gray-400 shrink-0 ml-2" />
-            </Link>
-          ))}
+      <div className="p-4 grid grid-cols-2 gap-3">
+        {actions.map((action) => (
+          <Link
+            key={action.label}
+            href={action.href}
+            className="flex flex-col items-start gap-2 p-3.5 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50/50 transition-all"
+          >
+            <div className={`size-9 rounded-lg ${action.color} flex items-center justify-center`}>
+              <action.icon className="size-4.5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-[#2D2154]">
+                {action.label}
+              </p>
+              <p className="text-[10px] text-gray-500 mt-0.5 leading-snug">
+                {action.desc}
+              </p>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );

@@ -6,7 +6,6 @@ export {
   useCheckApplication,
   useDashboardOverview,
   useDashboardActivity,
-  useDashboardNextSteps,
 } from "./student.queries";
 export type {
   StudentProfile,
