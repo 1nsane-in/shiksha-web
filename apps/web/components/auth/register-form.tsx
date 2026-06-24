@@ -24,6 +24,7 @@ import { sendOtp, verifyOtp, completeRegistration } from "@/domains/auth";
 import { useAuthStore } from "@/stores/auth-store";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { GoogleLoginButton } from "./GoogleLoginButton";
+import Link from "next/link";
 
 type Step = "email" | "otp" | "password";
 type RoleTab = "student" | "parents" | "admin";
@@ -276,9 +277,9 @@ export function RegisterForm({
           />
           <FieldDescription className="text-center">
             Already have an account?{" "}
-            <a href="/login" className="underline underline-offset-4">
+            <Link href="/login" className="underline underline-offset-4">
               Login
-            </a>
+            </Link>
           </FieldDescription>
         </Field>
       </FieldGroup>
