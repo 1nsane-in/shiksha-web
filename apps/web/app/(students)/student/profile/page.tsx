@@ -275,22 +275,22 @@ export default function StudentDashboardPage() {
 
               <div className="mt-4 space-y-2.5">
                 <a
-                  href="mailto:support@shweb.com"
+                  href="mailto:siksha.sabkaadhikaar@gmail.com"
                   className="flex items-center gap-3 text-xs text-gray-600 hover:text-[#4B2D8E] transition-colors group"
                 >
                   <div className="size-7 rounded-md bg-[#4B2D8E]/5 flex items-center justify-center group-hover:bg-[#4B2D8E]/10 transition-colors">
                     <Mail className="size-3.5 text-[#4B2D8E]" />
                   </div>
-                  <span className="font-medium">support@shweb.com</span>
+                  <span className="font-medium">siksha.sabkaadhikaar@gmail.com</span>
                 </a>
                 <a
-                  href="tel:+91-XXXXXXXXXX"
+                  href="tel:+79184826501"
                   className="flex items-center gap-3 text-xs text-gray-600 hover:text-[#4B2D8E] transition-colors group"
                 >
                   <div className="size-7 rounded-md bg-[#4B2D8E]/5 flex items-center justify-center group-hover:bg-[#4B2D8E]/10 transition-colors">
                     <Phone className="size-3.5 text-[#4B2D8E]" />
                   </div>
-                  <span className="font-medium">+91-XXXXXXXXXX</span>
+                  <span className="font-medium">+7 918 482-65-01</span>
                 </a>
               </div>
 
