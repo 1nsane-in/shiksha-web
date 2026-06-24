@@ -7,9 +7,9 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
-import { Resend } from 'resend';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailValidationService } from '../common/services/email-validation.service';
+import { EmailService } from '../common/services/email.service';
 import {
   LoginDto,
   SendOtpDto,
@@ -27,15 +27,12 @@ import {
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
-  private resend: Resend;
-
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
     private emailValidation: EmailValidationService,
-  ) {
-    this.resend = new Resend(process.env.RESEND_API_KEY);
-  }
+    private emailService: EmailService,
+  ) {}
 
   async sendOtp(dto: SendOtpDto) {
     await this.emailValidation.validateEmailAsync(dto.email);
@@ -50,7 +47,7 @@ export class AuthService {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    await this.prisma.otpVerification.create({
+    const otpRecord = await this.prisma.otpVerification.create({
       data: {
         email: dto.email,
         name: dto.name,
@@ -60,15 +57,12 @@ export class AuthService {
     });
 
     try {
-      await this.resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-        to: dto.email,
-        subject: 'Your OTP for Study Hire Global',
-        html: `<p>Your OTP is: <strong>${otp}</strong></p><p>This OTP expires in 10 minutes.</p>`,
-      });
+      await this.emailService.sendRegistrationOtp(dto.email, otp, dto.name);
     } catch (error) {
       this.logger.error(`Failed to send OTP email: ${(error as Error).message}`);
-      throw new BadRequestException('Failed to send OTP email');
+      // Clean up the OTP record if email fails
+      await this.prisma.otpVerification.delete({ where: { id: otpRecord.id } });
+      throw error;
     }
 
     if (process.env.NODE_ENV === 'development') {
@@ -150,6 +144,11 @@ export class AuthService {
     await this.prisma.otpVerification.update({
       where: { id: record.id },
       data: { completedAt: new Date() },
+    });
+
+    // Send welcome email (don't block on failure)
+    this.emailService.sendWelcomeEmail(user.email, user.name).catch((err) => {
+      this.logger.error(`Failed to send welcome email: ${err.message}`);
     });
 
     const { accessToken, refreshToken } = await this.generateTokens(user);
@@ -392,7 +391,7 @@ export class AuthService {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    await this.prisma.otpVerification.create({
+    const otpRecord = await this.prisma.otpVerification.create({
       data: {
         email: dto.email,
         name: user.name,
@@ -402,17 +401,14 @@ export class AuthService {
     });
 
     try {
-      await this.resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-        to: dto.email,
-        subject: 'Password Reset OTP - Study Hire Global',
-        html: `<p>Your password reset OTP is: <strong>${otp}</strong></p><p>This OTP expires in 10 minutes.</p>`,
-      });
+      await this.emailService.sendPasswordResetOtp(dto.email, otp, user.name);
     } catch (error) {
       this.logger.error(
         `Failed to send password reset OTP email: ${(error as Error).message}`,
       );
-      throw new BadRequestException('Failed to send OTP email');
+      // Clean up the OTP record if email fails
+      await this.prisma.otpVerification.delete({ where: { id: otpRecord.id } });
+      throw error;
     }
 
     if (process.env.NODE_ENV === 'development') {
@@ -437,6 +433,11 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
+    // Get user info for email
+    const user = await this.prisma.user.findUnique({
+      where: { email: record.email },
+    });
+
     await this.prisma.user.update({
       where: { email: record.email },
       data: { passwordHash: hashedPassword },
@@ -446,6 +447,13 @@ export class AuthService {
       where: { id: record.id },
       data: { completedAt: new Date() },
     });
+
+    // Send password changed confirmation (don't block on failure)
+    if (user) {
+      this.emailService.sendPasswordChangedEmail(user.email, user.name).catch((err) => {
+        this.logger.error(`Failed to send password changed email: ${err.message}`);
+      });
+    }
 
     return { message: 'Password reset successful' };
   }

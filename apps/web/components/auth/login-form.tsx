@@ -1,18 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@repo/ui"
-import { Button } from "@repo/ui"
+import { cn } from "@repo/ui";
+import { Button } from "@repo/ui";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@repo/ui"
-import { Input } from "@repo/ui"
+} from "@repo/ui";
+import { Input } from "@repo/ui";
 import { useLogin } from "@/domains/auth";
 import { GoogleLoginButton } from "./GoogleLoginButton";
+import Link from "next/link";
 
 export function LoginForm({
   className,
@@ -36,12 +37,19 @@ export function LoginForm({
           ? (err as { response: { data: { message?: string } } }).response?.data
               ?.message
           : undefined;
-      setError(apiError ?? (err instanceof Error ? err.message : "Invalid email or password"));
+      setError(
+        apiError ??
+          (err instanceof Error ? err.message : "Invalid email or password"),
+      );
     }
   };
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit} {...props}>
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      onSubmit={handleSubmit}
+      {...props}
+    >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Login to your account</h1>
@@ -66,12 +74,13 @@ export function LoginForm({
         <Field>
           <div className="flex items-center">
             <FieldLabel htmlFor="password">Password</FieldLabel>
-            <a
+            <Link
               href="/forgot-password"
               className="ml-auto text-sm underline-offset-4 hover:underline"
+              prefetch={false}
             >
               Forgot your password?
-            </a>
+            </Link>
           </div>
           <Input
             id="password"
@@ -91,14 +100,12 @@ export function LoginForm({
           <GoogleLoginButton mode="login" />
           <FieldDescription className="text-center">
             Don&apos;t have an account?{" "}
-            <a href="/register" className="underline underline-offset-4">
+            <Link href="/register" className="underline underline-offset-4">
               Sign up
-            </a>
+            </Link>
           </FieldDescription>
         </Field>
       </FieldGroup>
     </form>
-  )
+  );
 }
-
-
