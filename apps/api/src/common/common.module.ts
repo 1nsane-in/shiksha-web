@@ -10,6 +10,7 @@ import { AuditLogService } from './services/audit-log.service';
 import { NotificationService } from './services/notification.service';
 import { MetricsService } from './services/metrics.service';
 import { EmailValidationService } from './services/email-validation.service';
+import { EmailService } from './services/email.service';
 import { SentryFilter } from './filters/sentry.filter';
 import { DashboardController } from './controllers/dashboard.controller';
 import { UploadController } from './controllers/upload.controller';
@@ -32,6 +33,7 @@ import { StorageService } from './services/storage.service';
     NotificationService,
     MetricsService,
     EmailValidationService,
+    EmailService,
     PaginatorService,
     TimelineService,
     TimelineService,
@@ -60,6 +62,7 @@ import { StorageService } from './services/storage.service';
     NotificationService,
     MetricsService,
     EmailValidationService,
+    EmailService,
     PaginatorService,
     TimelineService,
     TimelineService,
