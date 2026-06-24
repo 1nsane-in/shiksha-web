@@ -21,13 +21,14 @@ export function useInviteLink() {
   });
 }
 
-export function useFamilyCode() {
+export function useFamilyCode(enabled = true) {
   return useQuery({
     queryKey: parentsKeys.familyCode(),
     queryFn: async () => {
       const { getFamilyCode } = await import("./parents.api");
       return getFamilyCode();
     },
+    enabled,
     staleTime: 5 * 60 * 1000,
   });
 }

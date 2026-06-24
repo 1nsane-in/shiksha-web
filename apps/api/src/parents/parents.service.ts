@@ -77,7 +77,7 @@ export class ParentsService {
     }
 
     // Try family code
-    const student = await this.prisma.student.findFirst({
+    const student = await this.prisma.student.findUnique({
       where: { familyCode: code },
       include: { user: { select: { name: true } } },
     });
@@ -128,7 +128,7 @@ export class ParentsService {
     const student = await this.ensureStudent(userId);
 
     if (!student.familyCode) {
-      const familyCode = this.generateFamilyCode();
+      const familyCode = await this.generateUniqueFamilyCode();
       await this.prisma.student.update({
         where: { id: student.id },
         data: { familyCode },
@@ -142,7 +142,7 @@ export class ParentsService {
   async regenerateFamilyCode(userId: string) {
     const student = await this.ensureStudent(userId);
 
-    const familyCode = this.generateFamilyCode();
+    const familyCode = await this.generateUniqueFamilyCode();
     await this.prisma.student.update({
       where: { id: student.id },
       data: { familyCode },
@@ -197,7 +197,7 @@ export class ParentsService {
       throw new BadRequestException('Parent profile not found');
     }
 
-    const student = await this.prisma.student.findFirst({
+    const student = await this.prisma.student.findUnique({
       where: { familyCode: dto.familyCode },
     });
     if (!student) {
@@ -460,7 +460,7 @@ export class ParentsService {
     relation?: string,
   ) {
     // Try family code first
-    const studentByCode = await this.prisma.student.findFirst({
+    const studentByCode = await this.prisma.student.findUnique({
       where: { familyCode: code },
       include: { user: { select: { name: true } } },
     });
@@ -684,10 +684,22 @@ export class ParentsService {
   // Helpers
   // ──────────────────────────────────────────────
 
-  private generateFamilyCode(): string {
+  private async generateUniqueFamilyCode(): Promise<string> {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    for (let attempt = 0; attempt < 10; attempt++) {
+      let code = '';
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      const existing = await this.prisma.student.findUnique({
+        where: { familyCode: code },
+        select: { id: true },
+      });
+      if (!existing) return code;
+    }
+    // Extremely unlikely — fallback to 7-char
     let code = '';
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 7; i++) {
       code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return code;

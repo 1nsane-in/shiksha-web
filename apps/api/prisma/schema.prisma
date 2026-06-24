@@ -103,7 +103,7 @@ model Student {
   passportIssueCountry    String?
   passportIssueDate       DateTime?
   passportNumber          String?
-  familyCode              String?
+  familyCode              String?                      @unique
   parentInvites           ParentInvite[]
   parentLinks             ParentStudent[]
   aiJobs                  AIJob[]

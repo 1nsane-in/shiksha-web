@@ -40,8 +40,8 @@ export function ParentLinksList() {
 
   if (isLoading) {
     return (
-      <Card className="p-5">
-        <div className="flex items-center gap-2 mb-4">
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-3">
           <Users className="w-5 h-5 text-gray-600" />
           <h2 className="font-medium text-gray-900">My Parents</h2>
         </div>

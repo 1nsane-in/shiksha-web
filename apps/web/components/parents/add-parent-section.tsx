@@ -14,8 +14,8 @@ export function AddParentSection() {
   const generateMutation = useGenerateInviteLink();
   const inviteLink = generateMutation.data;
 
-  // Family Code
-  const { data: familyCodeData, isLoading: familyCodeLoading } = useFamilyCode();
+  // Family Code — only fetch when tab is active
+  const { data: familyCodeData, isLoading: familyCodeLoading } = useFamilyCode(activeTab === "family-code");
   const regenerateMutation = useRegenerateFamilyCode();
 
   const handleCopy = useCallback(async (text: string, field: string) => {
@@ -56,19 +56,19 @@ export function AddParentSection() {
   }, [regenerateMutation]);
 
   return (
-    <Card className="p-5">
-      <div className="flex items-center gap-2 mb-4">
+    <Card className="p-4">
+      <div className="flex items-center gap-2 mb-3">
         <Users className="w-5 h-5 text-gray-600" />
         <h2 className="font-medium text-gray-900">Add Parent</h2>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="invite-link" className="flex items-center gap-1.5">
+        <TabsList className="mb-4 w-full border border-gray-200/80 bg-gray-50/50 p-0.5 rounded-lg">
+          <TabsTrigger value="invite-link" className="flex items-center gap-1.5 flex-1 py-1.5 data-active:border data-active:border-gray-200 data-active:shadow-sm data-active:bg-white rounded-md text-xs">
             <Link className="w-3.5 h-3.5" />
             Share Link
           </TabsTrigger>
-          <TabsTrigger value="family-code" className="flex items-center gap-1.5">
+          <TabsTrigger value="family-code" className="flex items-center gap-1.5 flex-1 py-1.5 data-active:border data-active:border-gray-200 data-active:shadow-sm data-active:bg-white rounded-md text-xs">
             <QrCode className="w-3.5 h-3.5" />
             Family Code
           </TabsTrigger>
@@ -166,9 +166,17 @@ export function AddParentSection() {
         {/* ─── Family Code Tab ─── */}
         <TabsContent value="family-code" className="space-y-4">
           {familyCodeLoading ? (
-            <div className="space-y-3">
-              <Skeleton className="h-16 w-40 mx-auto" />
-              <Skeleton className="h-4 w-64 mx-auto" />
+            <div className="flex flex-col items-center gap-4 py-4">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-[68px] w-[220px] rounded-xl" />
+              <div className="flex gap-2">
+                <Skeleton className="h-9 w-28 rounded-md" />
+                <Skeleton className="h-9 w-28 rounded-md" />
+              </div>
+              <div className="space-y-1.5">
+                <Skeleton className="h-3 w-72" />
+                <Skeleton className="h-3 w-56 mx-auto" />
+              </div>
             </div>
           ) : (
             <>
