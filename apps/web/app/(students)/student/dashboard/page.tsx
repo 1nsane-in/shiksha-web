@@ -5,6 +5,8 @@ import { Card } from "@repo/ui";
 import { Badge } from "@repo/ui";
 import { Skeleton } from "@repo/ui";
 import { useDashboardOverview, useDashboardActivity, useDashboardNextSteps } from "@/domains/student/student.queries";
+import { AddParentSection } from "@/components/parents/add-parent-section";
+import { ParentLinksList } from "@/components/parents/parent-links-list";
 import { FileText, CreditCard, GraduationCap, ArrowRight, Bell, Calendar, Plane } from "lucide-react";
 
 export default function StudentDashboardPage() {
@@ -92,6 +94,10 @@ export default function StudentDashboardPage() {
           <Stat icon={Plane} label="Letters" value={`${(overview.lettersAvailability.admissionLetter ? 1 : 0) + (overview.lettersAvailability.invitationLetter ? 1 : 0)}/2`} sub="available" cls="bg-amber-50 text-amber-600" />
         </div>
       )}
+
+      {/* Add Parent Section */}
+      <AddParentSection />
+      <ParentLinksList />
 
       {/* Applications List */}
       {overview && overview.applicationSummary.applications.length > 0 && (

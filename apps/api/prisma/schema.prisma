@@ -103,6 +103,9 @@ model Student {
   passportIssueCountry    String?
   passportIssueDate       DateTime?
   passportNumber          String?
+  familyCode              String?
+  parentInvites           ParentInvite[]
+  parentLinks             ParentStudent[]
   aiJobs                  AIJob[]
   admissionLetter         AdmissionLetter?
   timelineEvents          ApplicationTimeline[]
@@ -1172,10 +1175,54 @@ model Announcement {
   @@index([isActive])
 }
 
+enum ParentLinkStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ParentStudent {
+  id         String           @id @default(uuid())
+  parentId   String
+  studentId  String
+  relation   String?
+  status     ParentLinkStatus @default(PENDING)
+  invitedBy  String           // STUDENT | PARENT | ADMIN
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  parent  Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, studentId])
+  @@index([parentId])
+  @@index([studentId])
+  @@index([status])
+}
+
+model ParentInvite {
+  id         String   @id @default(uuid())
+  studentId  String
+  email      String?
+  phone      String?
+  relation   String?
+  code       String   @unique
+  method     String   // LINK | CODE
+  status     String   @default("PENDING") // PENDING | ACCEPTED | EXPIRED
+  expiresAt  DateTime?
+  createdAt  DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([code])
+  @@index([studentId])
+}
+
 model Parent {
-  id     String @id @default(uuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String           @id @default(uuid())
+  userId     String           @unique
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  childLinks ParentStudent[]
 }
 
 model VisaApplication {
