@@ -9,6 +9,8 @@ import type {
   User,
 } from "./auth.types";
 
+// Make sure useRouter is available for useLogout
+
 function sanitizeUser(user: User): User {
   // Drop sensitive fields that may leak via the auth response.
   const safe = { ...user } as User & Record<string, unknown>;
@@ -92,6 +94,7 @@ export function useGoogleRegister(redirectUrl?: string) {
 
 export function useLogout() {
   const logoutStore = useAuthStore((s) => s.logout);
+  const router = useRouter();
   return useMutation({
     mutationFn: async () => {
       const { logout } = await import("./auth.api");
@@ -99,6 +102,7 @@ export function useLogout() {
     },
     onSuccess: () => {
       logoutStore();
+      router.push("/auth/login");
     },
   });
 }

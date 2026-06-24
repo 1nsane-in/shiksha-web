@@ -437,16 +437,24 @@ export class UniversitiesService {
   }
 
   async update(id: string, dto: UpdateUniversityDto) {
-    await this.findByIdOrThrow(id);
+    const existing = await this.findByIdOrThrow(id);
+
+    // Delete old files from R2 before replacing
+    if (dto.logo !== undefined && existing.logo && dto.logo !== existing.logo) {
+      await this.storage.deleteFromUrl(existing.logo).catch(() => {});
+    }
+    if (dto.bannerImage !== undefined && existing.bannerImage && dto.bannerImage !== existing.bannerImage) {
+      await this.storage.deleteFromUrl(existing.bannerImage).catch(() => {});
+    }
 
     if (dto.name) {
       const slug = this.generateSlug(dto.name);
 
-      const existing = await this.prisma.university.findFirst({
+      const slugConflict = await this.prisma.university.findFirst({
         where: { slug, NOT: { id } },
       });
 
-      if (existing) {
+      if (slugConflict) {
         throw new ConflictException(
           'University with similar name already exists',
         );

@@ -29,6 +29,7 @@ export class UploadController {
           'image/jpeg',
           'image/png',
           'image/jpg',
+          'image/svg+xml',
           'application/pdf',
           'application/msword',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -40,7 +41,7 @@ export class UploadController {
             new BadRequestException(
               'Unsupported file type: ' +
                 file.mimetype +
-                '. Allowed: JPEG, PNG, PDF, DOC, DOCX',
+                '. Allowed: JPEG, PNG, SVG, PDF, DOC, DOCX',
             ),
             false,
           );
