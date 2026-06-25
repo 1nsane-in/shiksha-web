@@ -26,6 +26,7 @@ import { GalleryModule } from './gallery/gallery.module';
 import { ConsultationModule } from './consultation/consultation.module';
 import { ParentsModule } from './parents/parents.module';
 import { UniversityRequestModule } from './university-requests/university-request.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { UniversityRequestModule } from './university-requests/university-reques
     RateLimitingModule,
     SharedJwtModule,
     PrismaModule,
+    RedisModule,
     AuthModule,
     UsersModule,
     UniversitiesModule,
