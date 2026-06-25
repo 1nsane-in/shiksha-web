@@ -5,6 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import {
   UpdateStudentProfileDto,
   UpdateAcademicDto,
@@ -20,38 +21,45 @@ export class StudentsService {
   constructor(
     private prisma: PrismaService,
     private paginator: PaginatorService,
+    private redis: RedisService,
   ) {}
 
   async getProfile(userId: string) {
-    const student = await this.prisma.student.findUnique({
-      where: { userId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            phone: true,
-            avatarUrl: true,
-          },
-        },
-        documents: {
-          include: { documentType: true },
-        },
-        payments: true,
-        applications: {
+    return this.redis.getOrSet(
+      `student:profile:${userId}`,
+      async () => {
+        const student = await this.prisma.student.findUnique({
+          where: { userId },
           include: {
-            university: true,
+            user: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                phone: true,
+                avatarUrl: true,
+              },
+            },
+            documents: {
+              include: { documentType: true },
+            },
+            payments: true,
+            applications: {
+              include: {
+                university: true,
+              },
+            },
           },
-        },
+        });
+
+        if (!student) {
+          throw new NotFoundException('Student not found');
+        }
+
+        return student;
       },
-    });
-
-    if (!student) {
-      throw new NotFoundException('Student not found');
-    }
-
-    return student;
+      300, // Cache for 5 minutes
+    );
   }
 
   async updateProfile(
@@ -66,10 +74,15 @@ export class StudentsService {
       throw new NotFoundException('Student not found');
     }
 
-    return this.prisma.student.update({
+    const result = await this.prisma.student.update({
       where: { userId },
       data: dto,
     });
+    
+    // Invalidate profile cache
+    await this.redis.del(`student:profile:${userId}`);
+    
+    return result;
   }
 
   async getStageInfo(userId: string) {

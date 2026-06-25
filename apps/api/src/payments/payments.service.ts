@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { TimelineService } from '../common/services/timeline.service';
 import { NotificationService } from '../common/services/notification.service';
 import {
@@ -29,6 +30,7 @@ export class PaymentsService {
     private config: ConfigService,
     private timeline: TimelineService,
     private notification: NotificationService,
+    private redis: RedisService,
   ) {
     this.payuKey = this.config.get<string>('PAYU_KEY') || '';
     this.payuSalt = this.config.get<string>('PAYU_SALT') || '';
@@ -250,14 +252,22 @@ export class PaymentsService {
   }
 
   async getPaymentHistory(userId: string, applicationId?: string) {
-    const student = await this.prisma.student.findUnique({ where: { userId } });
-    if (!student) throw new NotFoundException('Student profile not found');
-    const where: any = { studentId: student.id };
-    if (applicationId) where.applicationId = applicationId;
-    return this.prisma.payment.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
+    const cacheKey = `payments:history:${userId}:${applicationId || 'all'}`;
+    
+    return this.redis.getOrSet(
+      cacheKey,
+      async () => {
+        const student = await this.prisma.student.findUnique({ where: { userId } });
+        if (!student) throw new NotFoundException('Student profile not found');
+        const where: any = { studentId: student.id };
+        if (applicationId) where.applicationId = applicationId;
+        return this.prisma.payment.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+        });
+      },
+      300, // Cache for 5 minutes
+    );
   }
 
   async getPaymentById(paymentId: string, userId: string, userRole: string) {
@@ -294,6 +304,10 @@ export class PaymentsService {
       },
     });
 
+    // Invalidate caches
+    await this.redis.deletePattern('payments:history:*');
+    await this.redis.deletePattern('payments:pending:*');
+
     await this.advanceAfterPayment(payment);
 
     await this.notification.create({
@@ -309,24 +323,32 @@ export class PaymentsService {
   }
 
   async getPendingPayments(page: number = 1, limit: number = 20) {
-    const skip = (page - 1) * limit;
-    const [items, total] = await Promise.all([
-      this.prisma.payment.findMany({
-        where: { status: { in: ['PENDING', 'PROCESSING'] } },
-        include: {
-          student: {
-            include: { user: { select: { name: true, email: true } } },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      this.prisma.payment.count({
-        where: { status: { in: ['PENDING', 'PROCESSING'] } },
-      }),
-    ]);
-    return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
+    const cacheKey = `payments:pending:${page}:${limit}`;
+    
+    return this.redis.getOrSet(
+      cacheKey,
+      async () => {
+        const skip = (page - 1) * limit;
+        const [items, total] = await Promise.all([
+          this.prisma.payment.findMany({
+            where: { status: { in: ['PENDING', 'PROCESSING'] } },
+            include: {
+              student: {
+                include: { user: { select: { name: true, email: true } } },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+            skip,
+            take: limit,
+          }),
+          this.prisma.payment.count({
+            where: { status: { in: ['PENDING', 'PROCESSING'] } },
+          }),
+        ]);
+        return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
+      },
+      300, // Cache for 5 minutes
+    );
   }
 
   getStageConfig() {

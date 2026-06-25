@@ -4,6 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import {
   UploadDocumentDto,
   VerifyDocumentDto,
@@ -17,6 +18,7 @@ export class DocumentsService {
   constructor(
     private prisma: PrismaService,
     private paginator: PaginatorService,
+    private redis: RedisService,
   ) {}
 
   async getStudentDocuments(studentId: string) {
@@ -174,10 +176,14 @@ export class DocumentsService {
   }
 
   async getDocumentTypes() {
-    return this.prisma.documentType.findMany({
-      where: { isActive: true },
-      orderBy: { requiredForStage: 'asc' },
-    });
+    return this.redis.getOrSet(
+      'document:types',
+      () => this.prisma.documentType.findMany({
+        where: { isActive: true },
+        orderBy: { requiredForStage: 'asc' },
+      }),
+      86400, // Cache for 24 hours
+    );
   }
 
   async createDocumentType(dto: CreateDocumentTypeDto) {
@@ -191,7 +197,12 @@ export class DocumentsService {
       );
     }
 
-    return this.prisma.documentType.create({ data: dto });
+    const result = await this.prisma.documentType.create({ data: dto });
+    
+    // Invalidate cache
+    await this.redis.del('document:types');
+    
+    return result;
   }
 
   async updateDocumentType(id: string, dto: UpdateDocumentTypeDto) {
@@ -203,10 +214,15 @@ export class DocumentsService {
       throw new NotFoundException('Document type not found');
     }
 
-    return this.prisma.documentType.update({
+    const result = await this.prisma.documentType.update({
       where: { id },
       data: dto,
     });
+    
+    // Invalidate cache
+    await this.redis.del('document:types');
+    
+    return result;
   }
 
   async deleteDocumentType(id: string) {
@@ -218,9 +234,14 @@ export class DocumentsService {
       throw new NotFoundException('Document type not found');
     }
 
-    return this.prisma.documentType.update({
+    const result = await this.prisma.documentType.update({
       where: { id },
       data: { isActive: false },
     });
+    
+    // Invalidate cache
+    await this.redis.del('document:types');
+    
+    return result;
   }
 }

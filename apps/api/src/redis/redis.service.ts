@@ -8,8 +8,8 @@ export class RedisService implements OnModuleDestroy {
 
   constructor(private configService: ConfigService) {
     this.redis = new Redis({
-      url: this.configService.get<string>('UPSTASH_REDIS_REST_URL'),
-      token: this.configService.get<string>('UPSTASH_REDIS_REST_TOKEN'),
+      url: this.configService.get<string>('UPSTASH_REDIS_REST_URL')!,
+      token: this.configService.get<string>('UPSTASH_REDIS_REST_TOKEN')!,
     });
   }
 

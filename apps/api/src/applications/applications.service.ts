@@ -4,6 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { PaginatorService } from '../common/services/paginator.service';
 
 @Injectable()
@@ -11,114 +12,129 @@ export class ApplicationsService {
   constructor(
     private prisma: PrismaService,
     private paginator: PaginatorService,
+    private redis: RedisService,
   ) {}
 
   async findAll(page = 1, limit = 10, status?: string, search?: string) {
-    const where: Record<string, unknown> = {};
+    const cacheKey = `applications:list:${page}:${limit}:${status || 'all'}:${search || 'none'}`;
 
-    if (status) {
-      where.status = status;
-    }
+    return this.redis.getOrSet(
+      cacheKey,
+      async () => {
+        const where: Record<string, unknown> = {};
 
-    if (search) {
-      where.OR = [
-        { firstName: { contains: search, mode: 'insensitive' } },
-        { lastName: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-      ];
-    }
+        if (status) {
+          where.status = status;
+        }
 
-    const [applications, total] = await Promise.all([
-      this.prisma.universityApplication.findMany({
-        where,
-        skip: this.paginator.getSkip({ page, limit }),
-        take: limit,
-        orderBy: { submittedAt: 'desc' },
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          selectedProgram: true,
-          status: true,
-          submittedAt: true,
-          createdAt: true,
-          updatedAt: true,
-          university: {
+        if (search) {
+          where.OR = [
+            { firstName: { contains: search, mode: 'insensitive' } },
+            { lastName: { contains: search, mode: 'insensitive' } },
+            { email: { contains: search, mode: 'insensitive' } },
+          ];
+        }
+
+        const [applications, total] = await Promise.all([
+          this.prisma.universityApplication.findMany({
+            where,
+            skip: this.paginator.getSkip({ page, limit }),
+            take: limit,
+            orderBy: { submittedAt: 'desc' },
             select: {
               id: true,
-              name: true,
-              shortName: true,
-              slug: true,
-            },
-          },
-          student: {
-            select: {
-              id: true,
-              currentStage: true,
-              applicationStatus: true,
-              user: {
+              firstName: true,
+              lastName: true,
+              email: true,
+              selectedProgram: true,
+              status: true,
+              submittedAt: true,
+              createdAt: true,
+              updatedAt: true,
+              university: {
                 select: {
                   id: true,
                   name: true,
-                  email: true,
-                  phone: true,
+                  shortName: true,
+                  slug: true,
+                },
+              },
+              student: {
+                select: {
+                  id: true,
+                  currentStage: true,
+                  applicationStatus: true,
+                  user: {
+                    select: {
+                      id: true,
+                      name: true,
+                      email: true,
+                      phone: true,
+                    },
+                  },
                 },
               },
             },
-          },
-        },
-      }),
-      this.prisma.universityApplication.count({ where }),
-    ]);
+          }),
+          this.prisma.universityApplication.count({ where }),
+        ]);
 
-    return this.paginator.wrapResult(applications, total, { page, limit });
+        return this.paginator.wrapResult(applications, total, { page, limit });
+      },
+      300, // Cache for 5 minutes
+    );
   }
 
   async findOne(id: string) {
-    const application = await this.prisma.universityApplication.findUnique({
-      where: { id },
-      include: {
-        university: true,
-        admissionLetter: true,
-        student: {
+    return this.redis.getOrSet(
+      `application:${id}`,
+      async () => {
+        const application = await this.prisma.universityApplication.findUnique({
+          where: { id },
           include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                phone: true,
+            university: true,
+            admissionLetter: true,
+            student: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    phone: true,
+                  },
+                },
+                documents: {
+                  include: { documentType: true },
+                },
+                // Scope to this application only: Payment.studentId is shared
+                // across the student's applications, so without a filter every
+                // payment record (incl. pre-seeded or other applications)
+                // would surface in the per-application Payment Ledger.
+                payments: {
+                  where: { applicationId: id },
+                  orderBy: { createdAt: 'desc' },
+                },
               },
             },
-            documents: {
-              include: { documentType: true },
+            timelineEvents: {
+              orderBy: { occurredAt: 'desc' },
             },
-            // Scope to this application only: Payment.studentId is shared
-            // across the student's applications, so without a filter every
-            // payment record (incl. pre-seeded or other applications)
-            // would surface in the per-application Payment Ledger.
-            payments: {
-              where: { applicationId: id },
+            tickets: {
+              take: 5,
               orderBy: { createdAt: 'desc' },
             },
           },
-        },
-        timelineEvents: {
-          orderBy: { occurredAt: 'desc' },
-        },
-        tickets: {
-          take: 5,
-          orderBy: { createdAt: 'desc' },
-        },
+        });
+
+        if (!application) {
+          throw new NotFoundException('Application not found');
+        }
+
+        return application;
       },
-    });
-
-    if (!application) {
-      throw new NotFoundException('Application not found');
-    }
-
-    return application;
+      300, // Cache for 5 minutes
+    );
   }
 
   async updateStatus(id: string, status: string) {
@@ -142,6 +158,10 @@ export class ApplicationsService {
       where: { id },
       data: { status },
     });
+
+    // Invalidate caches
+    await this.redis.del(`application:${id}`);
+    await this.redis.deletePattern('applications:list:*');
 
     if (status === 'approved') {
       await this.prisma.student.update({
