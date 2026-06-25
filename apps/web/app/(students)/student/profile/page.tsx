@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
+import { Card } from "@repo/ui";
 import { Button } from "@repo/ui";
 import { Badge } from "@repo/ui";
 import { Skeleton } from "@repo/ui";
@@ -28,15 +28,13 @@ import {
   Calendar,
   Phone,
   LifeBuoy,
-  MapPin,
-  Cake,
-  VenusAndMars,
   FileText,
   CreditCard,
   Plane,
   User,
   Upload,
-  MessageSquare,
+  Zap,
+  BarChart3,
 } from "lucide-react";
 
 export default function StudentDashboardPage() {
@@ -53,7 +51,6 @@ export default function StudentDashboardPage() {
   const { data: activity, isLoading: activityLoading } = useDashboardActivity();
   const currentStage = stageInfo?.currentStage ?? 1;
   const applications = appsData?.data ?? [];
-  const latestApp = applications[0];
   const recentActivity = timeline?.slice(0, 5) ?? [];
 
   const profile = overview?.profile;
@@ -94,119 +91,84 @@ export default function StudentDashboardPage() {
         {/* ============================================ */}
         <div className="space-y-4">
           {/* 1. Personal Details */}
-          <Card className="border-gray-200/80 shadow-sm bg-white overflow-hidden">
-            <CardContent className="p-0">
-              {overviewLoading ? (
-                <div className="p-5">
-                  <Skeleton className="h-32 w-full rounded-md" />
+          <Card className="p-4">
+            {overviewLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-12 w-full rounded-lg" />
+              </div>
+            ) : profile ? (
+              <div className="flex items-center gap-3">
+                <div className="size-12 rounded-xl bg-[#4B2D8E] flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm shadow-[#4B2D8E]/20">
+                  {(profile.name || user?.name || "?")
+                    .charAt(0)
+                    .toUpperCase()}
                 </div>
-              ) : profile ? (
-                <>
-                  {/* Avatar area with subtle gradient */}
-                  <div className="relative">
-                    <div className="flex items-center gap-3">
-                      <div className="size-12 rounded-2xl bg-[#4B2D8E] flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm shadow-[#4B2D8E]/20">
-                        {(profile.name || user?.name || "?")
-                          .charAt(0)
-                          .toUpperCase()}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-base font-bold text-[#2D2154] truncate">
-                          {profile.name || user?.name}
-                        </p>
-                        <p className="text-xs text-gray-500 truncate mt-0.5">
-                          {profile.email || user?.email}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  {/* <div className="px-4 pb-4 pt-3">
-                    <div className="grid grid-cols-2 gap-y-2 gap-x-2">
-                      {profile.phone && (
-                        <div className="bg-[#F8F6FC] rounded-lg px-2.5 py-2">
-                          <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Phone</p>
-                          <p className="text-xs font-semibold text-[#2D2154] mt-0.5 truncate">{profile.phone}</p>
-                        </div>
-                      )}
-                      {profile.dob && (
-                        <div className="bg-[#F8F6FC] rounded-lg px-2.5 py-2">
-                          <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">DOB</p>
-                          <p className="text-xs font-semibold text-[#2D2154] mt-0.5">{profile.dob}</p>
-                        </div>
-                      )}
-                      {profile.gender && (
-                        <div className="bg-[#F8F6FC] rounded-lg px-2.5 py-2">
-                          <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Gender</p>
-                          <p className="text-xs font-semibold text-[#2D2154] mt-0.5 capitalize">{profile.gender}</p>
-                        </div>
-                      )}
-                      {(profile.city || profile.country) && (
-                        <div className="bg-[#F8F6FC] rounded-lg px-2.5 py-2">
-                          <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Location</p>
-                          <p className="text-xs font-semibold text-[#2D2154] mt-0.5 truncate">
-                            {[profile.city, profile.state, profile.country].filter(Boolean).join(", ")}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div> */}
-                </>
-              ) : (
-                <div className="p-5">
-                  <p className="text-xs text-gray-400">No details available</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-base font-semibold text-gray-900 truncate">
+                    {profile.name || user?.name}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate mt-0.5">
+                    {profile.email || user?.email}
+                  </p>
                 </div>
-              )}
-            </CardContent>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400">No details available</p>
+            )}
           </Card>
 
           {/* 2. Quick Stats */}
-          <div className="grid grid-cols-2 gap-2">
-            {overviewLoading ? (
-              <>
-                <Skeleton className="h-20 rounded-lg" />
-                <Skeleton className="h-20 rounded-lg" />
-                <Skeleton className="h-20 rounded-lg" />
-                <Skeleton className="h-20 rounded-lg" />
-              </>
-            ) : applications.length > 0 ||
-              approvedCount > 0 ||
-              pendingDocs > 0 ? (
-              <>
-                <div className="bg-[#F8F6FC] rounded-xl p-3">
-                  <p className="text-xl font-bold text-[#4B2D8E]">
-                    {applications.length}
-                  </p>
-                  <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
-                    Applications
-                  </p>
+          {(overviewLoading || applications.length > 0 || approvedCount > 0 || pendingDocs > 0) && (
+            <Card className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <BarChart3 className="w-5 h-5 text-gray-600" />
+                <h2 className="font-medium text-gray-900">Overview</h2>
+              </div>
+              {overviewLoading ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <Skeleton className="h-20 rounded-lg" />
+                  <Skeleton className="h-20 rounded-lg" />
+                  <Skeleton className="h-20 rounded-lg" />
+                  <Skeleton className="h-20 rounded-lg" />
                 </div>
-                <div className="bg-emerald-50/70 rounded-xl p-3">
-                  <p className="text-xl font-bold text-emerald-600">
-                    {approvedCount}
-                  </p>
-                  <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
-                    Approved
-                  </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-[#F8F6FC] rounded-lg p-3">
+                    <p className="text-xl font-bold text-[#4B2D8E]">
+                      {applications.length}
+                    </p>
+                    <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
+                      Applications
+                    </p>
+                  </div>
+                  <div className="bg-emerald-50/70 rounded-lg p-3">
+                    <p className="text-xl font-bold text-emerald-600">
+                      {approvedCount}
+                    </p>
+                    <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
+                      Approved
+                    </p>
+                  </div>
+                  <div className="bg-amber-50/70 rounded-lg p-3">
+                    <p className="text-xl font-bold text-amber-600">
+                      {pendingDocs}
+                    </p>
+                    <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
+                      Pending Docs
+                    </p>
+                  </div>
+                  <div className="bg-blue-50/70 rounded-lg p-3">
+                    <p className="text-xl font-bold text-blue-600">
+                      {currentStage}
+                    </p>
+                    <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
+                      Current Stage
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-amber-50/70 rounded-xl p-3">
-                  <p className="text-xl font-bold text-amber-600">
-                    {pendingDocs}
-                  </p>
-                  <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
-                    Pending Docs
-                  </p>
-                </div>
-                <div className="bg-blue-50/70 rounded-xl p-3">
-                  <p className="text-xl font-bold text-blue-600">
-                    {currentStage}
-                  </p>
-                  <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
-                    Current Stage
-                  </p>
-                </div>
-              </>
-            ) : null}
-          </div>
+              )}
+            </Card>
+          )}
 
           {/* 3. Add Parent Section */}
           <AddParentSection />
@@ -216,92 +178,72 @@ export default function StudentDashboardPage() {
 
           {/* 5. Important Deadlines */}
           {activityLoading ? (
-            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-lg" />
           ) : deadlines.length > 0 ? (
-            <Card className="border-gray-200/80 shadow-sm bg-white">
-              <CardHeader className="border-b border-gray-50/80 pb-3">
-                <CardTitle className="text-sm font-semibold text-[#2D2154] flex items-center gap-2">
-                  <Calendar className="size-4 text-[#F0A030]" />
-                  Upcoming Deadlines
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="space-y-3">
-                  {deadlines.map((dl, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <div className="size-2 rounded-full bg-[#F0A030] mt-1.5 shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-[#2D2154]">
-                          {dl.title}
+            <Card className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Calendar className="w-5 h-5 text-gray-600" />
+                <h2 className="font-medium text-gray-900">Upcoming Deadlines</h2>
+              </div>
+              <div className="space-y-3">
+                {deadlines.map((dl, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="size-2 rounded-full bg-[#F0A030] mt-1.5 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-gray-900">
+                        {dl.title}
+                      </p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">
+                        {new Date(dl.date).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                      {dl.detail && (
+                        <p className="text-[11px] text-gray-400 mt-0.5">
+                          {dl.detail}
                         </p>
-                        <p className="text-[11px] text-gray-500 mt-0.5">
-                          {new Date(dl.date).toLocaleDateString("en-IN", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </p>
-                        {dl.detail && (
-                          <p className="text-[11px] text-gray-400 mt-0.5">
-                            {dl.detail}
-                          </p>
-                        )}
-                      </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
+                  </div>
+                ))}
+              </div>
             </Card>
           ) : null}
 
           {/* 6. Need Help */}
-          <Card className="border-gray-200/80 shadow-sm bg-gradient-to-br from-[#F8F6FC] to-white p-4">
-            <CardContent className="p-0">
-              <div className="flex items-start gap-3">
-                <div className="size-9 rounded-lg bg-[#4B2D8E]/10 flex items-center justify-center shrink-0">
-                  <LifeBuoy className="size-4.5 text-[#4B2D8E]" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-semibold text-[#2D2154]">
-                    Need Help?
-                  </h3>
-                  <p className="text-xs text-gray-500 leading-relaxed mt-1">
-                    Contact our support team for help with admission, documents,
-                    or payments.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4 space-y-2.5">
-                <a
-                  href="mailto:siksha.sabkaadhikaar@gmail.com"
-                  className="flex items-center gap-3 text-xs text-gray-600 hover:text-[#4B2D8E] transition-colors group"
-                >
-                  <div className="size-7 rounded-md bg-[#4B2D8E]/5 flex items-center justify-center group-hover:bg-[#4B2D8E]/10 transition-colors">
-                    <Mail className="size-3.5 text-[#4B2D8E]" />
-                  </div>
-                  <span className="font-medium">siksha.sabkaadhikaar@gmail.com</span>
-                </a>
-                <a
-                  href="tel:+79184826501"
-                  className="flex items-center gap-3 text-xs text-gray-600 hover:text-[#4B2D8E] transition-colors group"
-                >
-                  <div className="size-7 rounded-md bg-[#4B2D8E]/5 flex items-center justify-center group-hover:bg-[#4B2D8E]/10 transition-colors">
-                    <Phone className="size-3.5 text-[#4B2D8E]" />
-                  </div>
-                  <span className="font-medium">+7 918 482-65-01</span>
-                </a>
-              </div>
-
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full mt-4 text-xs border-gray-200 text-gray-600 hover:text-[#4B2D8E] hover:border-[#4B2D8E]/30"
-                onClick={() => router.push("/student/contact")}
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <LifeBuoy className="w-5 h-5 text-gray-600" />
+              <h2 className="font-medium text-gray-900">Need Help?</h2>
+            </div>
+            <p className="text-xs text-gray-500 leading-relaxed mb-4">
+              Contact our support team for help with admission, documents,
+              or payments.
+            </p>
+            <div className="space-y-2.5">
+              <a
+                href="mailto:siksha.sabkaadhikaar@gmail.com"
+                className="flex items-center gap-3 text-xs text-gray-600 hover:text-gray-900 transition-colors"
               >
-                Contact Support
-              </Button>
-            </CardContent>
+                <div className="size-7 rounded-md bg-gray-50 flex items-center justify-center">
+                  <Mail className="size-3.5 text-gray-500" />
+                </div>
+                <span className="font-medium">
+                  siksha.sabkaadhikaar@gmail.com
+                </span>
+              </a>
+              <a
+                href="tel:+79184826501"
+                className="flex items-center gap-3 text-xs text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <div className="size-7 rounded-md bg-gray-50 flex items-center justify-center">
+                  <Phone className="size-3.5 text-gray-500" />
+                </div>
+                <span className="font-medium">+7 918 482-65-01</span>
+              </a>
+            </div>
           </Card>
         </div>
 
@@ -370,13 +312,13 @@ export default function StudentDashboardPage() {
                 />
               </div>
             ) : (
-              <div className="p-4 border border-gray-200/80 rounded-xl bg-white shadow-sm">
+              <Card className="p-4">
                 <div className="flex items-center gap-4">
-                  <div className="size-10 rounded-xl bg-[#F8F6FC] flex items-center justify-center shrink-0">
+                  <div className="size-10 rounded-lg bg-[#F8F6FC] flex items-center justify-center shrink-0">
                     <GraduationCap className="size-5 text-[#4B2D8E]" />
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[#2D2154]">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-gray-900">
                       Start your admission journey
                     </p>
                     <p className="text-xs text-gray-500 mt-0.5">
@@ -387,17 +329,17 @@ export default function StudentDashboardPage() {
                   <button
                     type="button"
                     onClick={() => router.push("/student/university")}
-                    className="ml-auto shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#4B2D8E] hover:bg-[#3d2473] px-4 py-2 rounded-lg transition-colors"
+                    className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#4B2D8E] hover:bg-[#3d2473] px-4 py-2 rounded-md transition-colors"
                   >
                     Browse Universities <ArrowRight className="size-3" />
                   </button>
                 </div>
-              </div>
+              </Card>
             )
           ) : overviewLoading ? (
             <div className="grid grid-cols-4 gap-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-22 rounded-xl" />
+                <Skeleton key={i} className="h-22 rounded-lg" />
               ))}
             </div>
           ) : null}
@@ -419,9 +361,9 @@ export default function StudentDashboardPage() {
           />
 
           {/* Passport & Travel */}
-          <div className="border border-gray-200/80 rounded-xl overflow-hidden bg-white shadow-sm">
+          <Card className="p-0 overflow-hidden">
             <PassportSection />
-          </div>
+          </Card>
 
           {/* Recent Activity */}
           <RecentActivitySection
@@ -439,10 +381,10 @@ export default function StudentDashboardPage() {
 function StageProgress({ stage, status }: { stage: number; status: string }) {
   const names = ["Registration", "Exam", "Admission", "Invitation", "Visa"];
   return (
-    <div className="p-4 border border-gray-200/80 rounded-xl bg-white shadow-sm">
+    <Card className="p-4">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-[#2D2154]">
+          <span className="text-xs font-semibold text-gray-900">
             Stage {stage} of 5
           </span>
           <span className="text-[10px] text-gray-400">—</span>
@@ -472,7 +414,7 @@ function StageProgress({ stage, status }: { stage: number; status: string }) {
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -523,15 +465,15 @@ function StatCard({
     amber: "bg-amber-50 text-amber-600",
   };
   return (
-    <div className="p-4 border border-gray-200/80 rounded-xl bg-white shadow-sm">
+    <Card className="p-3">
       <div
         className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2.5 ${accentMap[accent]}`}
       >
         <Icon className="size-4" />
       </div>
-      <p className="text-lg font-bold text-[#2D2154]">{value}</p>
+      <p className="text-lg font-bold text-gray-900">{value}</p>
       <p className="text-[11px] text-gray-500 mt-0.5">{sub}</p>
-    </div>
+    </Card>
   );
 }
 
@@ -549,48 +491,36 @@ function QuickActionsSection({ currentStage }: { currentStage: number }) {
     {
       icon: Upload,
       label: "Upload Documents",
-      desc: currentStage === 1 ? "Aadhaar, PAN, 10th, 12th, NEET, Passport" : "Stage-specific documents",
+      desc:
+        currentStage === 1
+          ? "Aadhaar, PAN, 10th, 12th, NEET, Passport"
+          : "Stage-specific documents",
       href: "/student/documents",
       color: "bg-purple-50 text-purple-600",
-      always: true,
-    },
-    {
-      icon: CreditCard,
-      label: "Make Payment",
-      desc: currentStage === 1 ? "Stage 1 application fee" : currentStage === 2 ? "Admission fee" : "View dues",
-      href: "/student/payments",
-      color: "bg-emerald-50 text-emerald-600",
-      always: true,
-    },
-    {
-      icon: MessageSquare,
-      label: "Contact Support",
-      desc: "Help with admission, documents, or payments",
-      href: "/student/contact",
-      color: "bg-amber-50 text-amber-600",
       always: true,
     },
   ];
 
   return (
-    <div className="border border-gray-200/80 rounded-xl bg-white shadow-sm">
-      <div className="px-4 py-3 border-b border-gray-50/80">
-        <h2 className="text-sm font-semibold text-[#2D2154]">
-          Quick Actions
-        </h2>
+    <Card className="p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Zap className="w-5 h-5 text-gray-600" />
+        <h2 className="font-medium text-gray-900">Quick Actions</h2>
       </div>
-      <div className="p-4 grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2.5">
         {actions.map((action) => (
           <Link
             key={action.label}
             href={action.href}
-            className="flex flex-col items-start gap-2 p-3.5 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50/50 transition-all"
+            className="flex flex-col items-start gap-1.5 p-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all"
           >
-            <div className={`size-9 rounded-lg ${action.color} flex items-center justify-center`}>
-              <action.icon className="size-4.5" />
+            <div
+              className={`size-8 rounded-lg ${action.color} flex items-center justify-center`}
+            >
+              <action.icon className="size-4" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-[#2D2154]">
+              <p className="text-xs font-semibold text-gray-900">
                 {action.label}
               </p>
               <p className="text-[10px] text-gray-500 mt-0.5 leading-snug">
@@ -600,7 +530,7 @@ function QuickActionsSection({ currentStage }: { currentStage: number }) {
           </Link>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -674,21 +604,20 @@ function RequiredActionsSection({
   if (visible.length === 0) return null;
 
   return (
-    <div className="space-y-3">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-        Required Actions
-      </h2>
+    <Card className="p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <AlertCircle className="w-5 h-5 text-gray-600" />
+        <h2 className="font-medium text-gray-900">Required Actions</h2>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {visible.map((action) => (
-          <div
+          <Card
             key={action.title}
-            className={`p-4 border rounded-xl bg-white shadow-sm transition-shadow hover:shadow-md ${
-              action.primary ? "border-[#4B2D8E]/20" : "border-gray-200/80"
-            }`}
+            className={`p-4 ${action.primary ? "border-[#4B2D8E]/20" : "border-gray-200/80"}`}
           >
             <div className="flex items-center justify-between h-full gap-3">
               <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-semibold text-[#2D2154]">
+                <h3 className="text-sm font-semibold text-gray-900">
                   {action.title}
                 </h3>
                 <p className="text-xs text-gray-500 mt-1">{action.desc}</p>
@@ -706,10 +635,10 @@ function RequiredActionsSection({
                 {action.btn} <ArrowRight className="size-3" />
               </Button>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -722,98 +651,88 @@ function ApplicationsSection({
   appsLoading: boolean;
   router: any;
 }) {
+  if (appsLoading) {
+    return (
+      <Card className="p-4">
+        <div className="space-y-2">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <Skeleton
+              key={`app-skel-${i}`}
+              className="h-14 w-full rounded-lg"
+            />
+          ))}
+        </div>
+      </Card>
+    );
+  }
+  if (applications.length === 0) return null;
+
   return (
-    <div className="border border-gray-200/80 rounded-xl bg-white shadow-sm">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50/80">
-        <h2 className="text-sm font-semibold text-[#2D2154]">
-          My Applications
-        </h2>
+    <Card className="p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <FileText className="w-5 h-5 text-gray-600" />
+          <h2 className="font-medium text-gray-900">My Applications</h2>
+        </div>
         {applications.length > 0 && (
           <Link
             href="/student/applications"
-            className="text-xs text-[#4B2D8E] font-medium hover:underline"
+            className="text-xs text-gray-600 font-medium hover:text-gray-900"
           >
             View all
           </Link>
         )}
       </div>
-      <div className="p-4">
-        {appsLoading ? (
-          <div className="space-y-2">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <Skeleton
-                key={`app-skel-${i}`}
-                className="h-14 w-full rounded-lg"
-              />
-            ))}
-          </div>
-        ) : applications.length === 0 ? (
-          <div className="flex flex-col items-center py-8 text-center">
-            <GraduationCap className="size-10 text-gray-300 mb-2" />
-            <p className="text-sm text-gray-500 mb-4">
-              You haven&apos;t applied to any universities yet.
-            </p>
-            <Button
-              size="sm"
-              onClick={() => router.push("/student/university")}
-              className="gap-1 bg-[#4B2D8E] hover:bg-[#3d2473] text-white"
+      <div className="space-y-1">
+        {[...applications]
+          .sort(
+            (a, b) =>
+              new Date(b.submittedAt).getTime() -
+              new Date(a.submittedAt).getTime(),
+          )
+          .map((app) => (
+            <button
+              key={app.id}
+              type="button"
+              className="flex w-full items-center gap-4 rounded-lg p-3 transition-all cursor-pointer text-left border border-gray-100 hover:bg-gray-50/50"
+              onClick={() => router.push(`/student/applications/${app.id}`)}
             >
-              Browse Universities <ArrowRight className="size-3" />
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-1">
-            {[...applications]
-              .sort(
-                (a, b) =>
-                  new Date(b.submittedAt).getTime() -
-                  new Date(a.submittedAt).getTime(),
-              )
-              .map((app) => (
-                <button
-                  key={app.id}
-                  type="button"
-                  className="flex w-full items-center gap-4 rounded-lg p-3.5 transition-all cursor-pointer text-left border border-transparent hover:bg-[#F8F6FC]/50 hover:border-gray-100"
-                  onClick={() => router.push(`/student/applications/${app.id}`)}
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#2D2154] truncate">
-                      {app.university.name}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {app.selectedProgram ?? "—"}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={
-                      app.status === "approved" || app.status === "APPROVED"
-                        ? "default"
-                        : app.status === "rejected" || app.status === "REJECTED"
-                          ? "destructive"
-                          : "secondary"
-                    }
-                    className={`shrink-0 text-xs px-2.5 py-0.5 font-medium ${
-                      app.status === "approved" || app.status === "APPROVED"
-                        ? "bg-emerald-600 text-white"
-                        : ""
-                    }`}
-                  >
-                    {app.status}
-                  </Badge>
-                  <span className="text-xs text-gray-400 shrink-0 hidden sm:block">
-                    {new Date(app.submittedAt).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </span>
-                  <ChevronRight className="size-4 text-gray-300 shrink-0" />
-                </button>
-              ))}
-          </div>
-        )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">
+                  {app.university.name}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {app.selectedProgram ?? "—"}
+                </p>
+              </div>
+              <Badge
+                variant={
+                  app.status === "approved" || app.status === "APPROVED"
+                    ? "default"
+                    : app.status === "rejected" || app.status === "REJECTED"
+                      ? "destructive"
+                      : "secondary"
+                }
+                className={`shrink-0 text-xs px-2.5 py-0.5 font-medium ${
+                  app.status === "approved" || app.status === "APPROVED"
+                    ? "bg-emerald-600 text-white"
+                    : ""
+                }`}
+              >
+                {app.status}
+              </Badge>
+              <span className="text-xs text-gray-400 shrink-0 hidden sm:block">
+                {new Date(app.submittedAt).toLocaleDateString("en-IN", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </span>
+              <ChevronRight className="size-4 text-gray-300 shrink-0" />
+            </button>
+          ))}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -825,45 +744,42 @@ function RecentActivitySection({
   timelineLoading: boolean;
 }) {
   if (timelineLoading) {
-    return <Skeleton className="h-40 w-full rounded-xl" />;
+    return <Skeleton className="h-40 w-full rounded-lg" />;
   }
   if (recentActivity.length === 0) return null;
 
   return (
-    <div className="border border-gray-200/80 rounded-xl bg-white shadow-sm">
-      <div className="px-4 py-3 border-b border-gray-50/80">
-        <h2 className="text-sm font-semibold text-[#2D2154]">
-          Recent Activity
-        </h2>
+    <Card className="p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Clock className="w-5 h-5 text-gray-600" />
+        <h2 className="font-medium text-gray-900">Recent Activity</h2>
       </div>
-      <div className="p-4">
-        <div className="space-y-1">
-          {recentActivity.map((event) => (
-            <div
-              key={event.id}
-              className="flex items-start gap-4 rounded-lg p-3.5 hover:bg-[#F8F6FC] transition-colors border border-transparent"
-            >
-              <div className="size-2 rounded-full bg-[#4B2D8E] mt-1.5 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#2D2154]">
-                  {event.title}
+      <div className="space-y-1">
+        {recentActivity.map((event) => (
+          <div
+            key={event.id}
+            className="flex items-start gap-4 rounded-lg p-3 hover:bg-gray-50/50 transition-colors border border-gray-100"
+          >
+            <div className="size-2 rounded-full bg-[#4B2D8E] mt-1.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900">
+                {event.title}
+              </p>
+              {event.description && (
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                  {event.description}
                 </p>
-                {event.description && (
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                    {event.description}
-                  </p>
-                )}
-              </div>
-              <span className="text-xs text-gray-400 shrink-0 self-start mt-0.5">
-                {new Date(event.occurredAt).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                })}
-              </span>
+              )}
             </div>
-          ))}
-        </div>
+            <span className="text-xs text-gray-400 shrink-0 self-start mt-0.5">
+              {new Date(event.occurredAt).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+              })}
+            </span>
+          </div>
+        ))}
       </div>
-    </div>
+    </Card>
   );
 }

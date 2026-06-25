@@ -19,7 +19,7 @@ export function uploadMyDocument(data: UploadDocumentPayload) {
 }
 
 export function getDocumentTypes() {
-  return client.get<DocumentType[]>("/admin/documents/types");
+  return client.get<DocumentType[]>("/student/documents/types");
 }
 
 /* ---- File Upload ---- */

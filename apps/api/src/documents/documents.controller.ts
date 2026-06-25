@@ -32,6 +32,11 @@ export class StudentDocumentsController {
     return this.documentsService.getMyDocuments(req.user.id);
   }
 
+  @Get('types')
+  async getDocumentTypes() {
+    return this.documentsService.getDocumentTypes();
+  }
+
   @Post()
   async uploadDocument(@Request() req: any, @Body() dto: UploadDocumentDto) {
     return this.documentsService.uploadMyDocument(req.user.id, dto);

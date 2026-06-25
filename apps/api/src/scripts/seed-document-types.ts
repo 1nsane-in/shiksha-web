@@ -37,7 +37,7 @@ const documentTypes = [
   {
     name: '12th Marksheet',
     code: 'twelfth',
-    description: 'Class XII marksheet with PCB marks',
+    description: 'Class XII marksheet',
     requiredForStage: 1,
   },
   {
