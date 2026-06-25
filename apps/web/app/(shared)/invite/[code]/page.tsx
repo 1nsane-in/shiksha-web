@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { Button, Input, Field, FieldDescription, FieldGroup, FieldLabel } from "@repo/ui";
 import { useAuthStore } from "@/stores/auth-store";
@@ -212,7 +213,7 @@ export default function InviteRegisterPage() {
       <div className="flex flex-col p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start mb-6">
           <Link href="/" className="flex items-center gap-2 font-medium">
-            <img src="/img/logo.png" alt="" className="h-8" />
+            <Image src="/img/logo.png" alt="" width={32} height={32} className="h-8 w-auto" />
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
@@ -531,10 +532,13 @@ export default function InviteRegisterPage() {
         </div>
       </div>
       <div className="relative hidden lg:block bg-muted">
-        <img
+        <Image
           src="https://images.unsplash.com/photo-1607013407627-6ee814329547?q=80&w=964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
+          priority
+          sizes="50vw"
         />
       </div>
     </div>
