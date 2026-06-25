@@ -1,0 +1,146 @@
+// ============================================
+// Student & Parent Schema
+// ============================================
+
+model Student {
+  id                      String                  @id @default(uuid())
+  userId                  String                  @unique
+  fatherName              String?
+  motherName              String?
+  dob                     DateTime?
+  gender                  String?
+  address                 String?
+  city                    String?
+  state                   String?
+  country                 String?
+  pincode                 String?
+  neetScore               Int?
+  neetRank                Int?
+  twelfthPercentage       Float?
+  tenthPercentage         Float?
+  currentStage            Int                     @default(1)
+  applicationStatus       ApplicationStatus       @default(NOT_STARTED)
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  passportExpiry          DateTime?
+  passportIssueCountry    String?
+  passportIssueDate       DateTime?
+  passportNumber          String?
+  familyCode              String?                 @unique
+  parentInvites           ParentInvite[]
+  parentLinks             ParentStudent[]
+  aiJobs                  AIJob[]
+  admissionLetter         AdmissionLetter?
+  timelineEvents          ApplicationTimeline[]
+  automationEvents        AutomationEvent[]
+  examRecords             ExamRecord[]
+  invitationLetter        InvitationLetter?
+  notificationPreferences NotificationPreference?
+  payments                Payment[]
+  stageHistories          StageHistory[]
+  user                    User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents               StudentDocument[]
+  applications            UniversityApplication[]
+
+  @@index([userId])
+  @@index([applicationStatus])
+  @@index([currentStage])
+}
+
+model StageHistory {
+  id         String             @id @default(uuid())
+  studentId  String
+  fromStage  Int?
+  toStage    Int
+  fromStatus ApplicationStatus?
+  toStatus   ApplicationStatus
+  changedBy  String?
+  changedAt  DateTime           @default(now())
+  reason     String?
+  metadata   Json?
+  student    Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([changedAt])
+}
+
+enum ParentLinkStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ParentStudent {
+  id         String           @id @default(uuid())
+  parentId   String
+  studentId  String
+  relation   String?
+  status     ParentLinkStatus @default(PENDING)
+  invitedBy  String
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  parent  Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, studentId])
+  @@index([parentId])
+  @@index([studentId])
+  @@index([status])
+}
+
+model ParentInvite {
+  id         String   @id @default(uuid())
+  studentId  String
+  email      String?
+  phone      String?
+  relation   String?
+  code       String   @unique
+  method     String
+  status     String   @default("PENDING")
+  expiresAt  DateTime?
+  createdAt  DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([code])
+  @@index([studentId])
+}
+
+model Parent {
+  id         String           @id @default(uuid())
+  userId     String           @unique
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  childLinks ParentStudent[]
+}
+
+model NotificationPreference {
+  id               String   @id @default(uuid())
+  studentId        String   @unique
+  emailEnabled     Boolean  @default(true)
+  smsEnabled       Boolean  @default(false)
+  pushEnabled      Boolean  @default(true)
+  documentUpdates  Boolean  @default(true)
+  paymentReminders Boolean  @default(true)
+  stageChanges     Boolean  @default(true)
+  announcements    Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  student          Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+enum ApplicationStatus {
+  NOT_STARTED
+  STAGE_1_PENDING
+  STAGE_1_IN_REVIEW
+  STAGE_1_APPROVED
+  STAGE_2_PENDING
+  STAGE_2_IN_REVIEW
+  STAGE_2_APPROVED
+  STAGE_3_ACTIVE
+  STAGE_4_PENDING
+  STAGE_4_APPROVED
+  STAGE_5_UNLOCKED
+  COMPLETED
+  REJECTED
+}

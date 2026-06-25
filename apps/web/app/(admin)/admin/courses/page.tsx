@@ -4,20 +4,7 @@ import { useState } from "react";
 import {
   Button,
   Input,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Badge,
-} from "@repo/ui";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from "@repo/ui";
 import {
   Plus,
@@ -26,22 +13,17 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
-  Eye,
   Loader2,
-  RefreshCw,
+  GraduationCap,
+  Building2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const durationColors: Record<string, string> = {
-  "4 years": "bg-blue-50 text-blue-700 border-blue-200",
-  "5 years": "bg-purple-50 text-purple-700 border-purple-200",
-  "6 years": "bg-amber-50 text-amber-700 border-amber-200",
-  "3 years": "bg-teal-50 text-teal-700 border-teal-200",
-};
-
-const statusColors: Record<string, string> = {
-  ACTIVE: "bg-green-50 text-green-700 border-green-200",
-  INACTIVE: "bg-gray-50 text-gray-700 border-gray-200",
+  "4 years": "bg-blue-50 text-blue-700",
+  "5 years": "bg-purple-50 text-purple-700",
+  "6 years": "bg-amber-50 text-amber-700",
+  "3 years": "bg-teal-50 text-teal-700",
 };
 
 // Mock data - replace with actual API hook
@@ -87,8 +69,6 @@ const mockCourses = [
 export default function CoursesPage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [degreeFilter, setDegreeFilter] = useState("all");
   const [page, setPage] = useState(1);
   const isLoading = false;
 
@@ -98,8 +78,6 @@ export default function CoursesPage() {
         !course.fullName.toLowerCase().includes(search.toLowerCase())) {
       return false;
     }
-    if (statusFilter !== "all" && course.status !== statusFilter) return false;
-    if (degreeFilter !== "all" && course.degreeType !== degreeFilter) return false;
     return true;
   });
 
@@ -127,9 +105,9 @@ export default function CoursesPage() {
         </Button>
       </div>
 
-      {/* Filters */}
+      {/* Search */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center bg-[#FAFAF8] border border-[#ECEAE6] rounded-xl p-4">
-        <div className="relative flex-1 sm:max-w-xs">
+        <div className="relative flex-1 sm:max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
             placeholder="Search courses..."
@@ -141,216 +119,66 @@ export default function CoursesPage() {
             className="pl-10 bg-white border-[#E5E7EB] text-sm h-10"
           />
         </div>
-        <div className="flex flex-wrap gap-2">
-          {/* Status Filter */}
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Status</label>
-            <Select
-              value={statusFilter}
-              onValueChange={(value) => setStatusFilter(value ?? "all")}
-            >
-              <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-9">
-                <SelectValue placeholder="All Statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="ACTIVE">Active</SelectItem>
-                <SelectItem value="INACTIVE">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Degree Type Filter */}
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Type</label>
-            <Select
-              value={degreeFilter}
-              onValueChange={(value) => setDegreeFilter(value ?? "all")}
-            >
-              <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-9">
-                <SelectValue placeholder="All Types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                <SelectItem value="Postgraduate">Postgraduate</SelectItem>
-                <SelectItem value="Diploma">Diploma</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Refresh Button */}
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-semibold text-transparent uppercase tracking-wider">Action</label>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={isLoading}
-              className="h-9 px-3 border-[#E5E7EB] hover:bg-white"
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
-          </div>
-        </div>
       </div>
 
-      {/* Mobile Card List */}
-      <div className="flex flex-col gap-3 md:hidden">
-        {isLoading ? (
-          <div className="py-12 flex justify-center items-center">
-            <Loader2 className="h-6 w-6 text-[#3730A3] animate-spin" />
-          </div>
-        ) : courses.length === 0 ? (
-          <div className="text-center py-12 text-sm text-gray-500 bg-white border border-[#ECEAE6] rounded-xl">
-            No courses found.
-          </div>
-        ) : (
-          courses.map((course) => (
+      {/* Course Grid */}
+      {isLoading ? (
+        <div className="py-12 flex justify-center items-center">
+          <Loader2 className="h-6 w-6 text-[#3730A3] animate-spin" />
+        </div>
+      ) : courses.length === 0 ? (
+        <div className="text-center py-12 text-sm text-gray-500 bg-white border border-[#ECEAE6] rounded-xl">
+          No courses found.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {courses.map((course) => (
             <div
               key={course.id}
-              className="cursor-pointer rounded-xl border border-[#ECEAE6] bg-white p-4 transition-all hover:shadow-md active:bg-[#FAFAF8]"
+              className="cursor-pointer rounded-xl border border-[#ECEAE6] bg-white p-5 transition-all hover:shadow-md hover:border-[#3730A3]/20 group"
               onClick={() => router.push(`/admin/courses/${course.id}`)}
             >
-              <div className="flex items-start justify-between gap-3">
+              {/* Icon & Name */}
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-[#3730A3]/10 flex items-center justify-center shrink-0 group-hover:bg-[#3730A3]/20 transition-colors">
+                  <GraduationCap className="h-6 w-6 text-[#3730A3]" />
+                </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-[#3730A3]" />
-                    <h4 className="truncate text-base font-bold text-[#111]">
-                      {course.name}
-                    </h4>
-                  </div>
-                  <p className="text-xs text-gray-400 font-medium mt-1">
+                  <h3 className="font-bold text-lg text-[#111] truncate">
+                    {course.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 line-clamp-2 mt-0.5">
                     {course.fullName}
                   </p>
                 </div>
+              </div>
+
+              {/* Duration Badge */}
+              <div className="mb-4">
                 <Badge
-                  className={`shrink-0 text-[10px] uppercase font-bold py-0.5 px-2 border ${
-                    statusColors[course.status] || "bg-gray-100 text-gray-800"
-                  }`}
+                  className={`${durationColors[course.duration] || "bg-gray-50 text-gray-700"} border-0 font-semibold text-xs`}
                 >
-                  {course.status}
+                  <Clock className="h-3 w-3 mr-1" />
+                  {course.duration}
                 </Badge>
               </div>
-              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-gray-500 border-t pt-3 border-gray-100">
-                <span className="flex items-center gap-1 font-semibold text-[10px] text-[#3730A3]">
-                  <Clock className="h-3 w-3" /> {course.duration}
-                </span>
-                <span className="text-[10px]">{course.degreeType}</span>
-                <span className="text-[10px]">{course.universityCount} universities</span>
+
+              {/* Stats */}
+              <div className="flex items-center gap-4 text-sm text-gray-600 pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-1.5">
+                  <Building2 className="h-4 w-4 text-gray-400" />
+                  <span className="font-medium">{course.universityCount}</span>
+                  <span className="text-gray-400">universities</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <BookOpen className="h-4 w-4 text-gray-400" />
+                  <span className="text-gray-400">{course.degreeType}</span>
+                </div>
               </div>
             </div>
-          ))
-        )}
-      </div>
-
-      {/* Desktop Table View */}
-      <div className="hidden md:block overflow-hidden rounded-xl border p-2 border-[#ECEAE6] bg-white">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-[#FAFAF8] border-[#ECEAE6]">
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
-                Course
-              </TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
-                Duration
-              </TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
-                Type
-              </TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-center">
-                Status
-              </TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-center">
-                Universities
-              </TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-right">
-                Actions
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-12">
-                  <Loader2 className="h-6 w-6 text-[#3730A3] animate-spin mx-auto" />
-                </TableCell>
-              </TableRow>
-            ) : courses.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="text-center py-12 text-sm text-[#888]"
-                >
-                  No courses found matching current filters.
-                </TableCell>
-              </TableRow>
-            ) : (
-              courses.map((course) => (
-                <TableRow
-                  key={course.id}
-                  className="cursor-pointer border-[#ECEAE6] hover:bg-[#F2F1ED] transition-colors"
-                  onClick={() => router.push(`/admin/courses/${course.id}`)}
-                >
-                  <TableCell className="py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-[#3730A3]/10 flex items-center justify-center">
-                        <BookOpen className="h-4 w-4 text-[#3730A3]" />
-                      </div>
-                      <div>
-                        <div className="font-bold text-sm text-[#111]">
-                          {course.name}
-                        </div>
-                        <div className="text-xs text-gray-400 font-medium mt-0.5">
-                          {course.fullName}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      className={`border uppercase text-[10px] font-bold ${
-                        durationColors[course.duration] || "bg-gray-50 text-gray-700 border-gray-200"
-                      }`}
-                    >
-                      {course.duration}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-[#111]">{course.degreeType}</span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Badge
-                      className={`uppercase text-[10px] font-bold py-0.5 px-2.5 rounded-full border ${
-                        statusColors[course.status] || "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {course.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-center text-sm text-[#111]">
-                    {course.universityCount}
-                  </TableCell>
-                  <TableCell
-                    className="text-right py-4"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        router.push(`/admin/courses/${course.id}`)
-                      }
-                      className="text-[#3730A3] hover:text-[#2e288a] font-semibold text-xs cursor-pointer"
-                    >
-                      <Eye className="h-4 w-4 mr-1" /> View
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (

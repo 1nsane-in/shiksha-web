@@ -1,0 +1,25 @@
+// ============================================
+// Consultation & Gallery Schema
+// ============================================
+
+model Consultation {
+  id        String   @id
+  name      String
+  email     String
+  phone     String
+  neetScore Int?
+  state     String?
+  country   String?
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model GalleryImage {
+  id        String   @id
+  title     String?
+  url       String
+  key       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
