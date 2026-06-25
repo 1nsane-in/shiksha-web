@@ -15,8 +15,8 @@ export class ApplicationsService {
     private redis: RedisService,
   ) {}
 
-  async findAll(page = 1, limit = 10, status?: string, search?: string) {
-    const cacheKey = `applications:list:${page}:${limit}:${status || 'all'}:${search || 'none'}`;
+  async findAll(page = 1, limit = 10, status?: string, search?: string, fields?: string) {
+    const cacheKey = `applications:list:${page}:${limit}:${status || 'all'}:${search || 'none'}:${fields || 'default'}`;
 
     return this.redis.getOrSet(
       cacheKey,
@@ -35,46 +35,15 @@ export class ApplicationsService {
           ];
         }
 
+        const select = this.buildApplicationSelect(fields);
+
         const [applications, total] = await Promise.all([
           this.prisma.universityApplication.findMany({
             where,
             skip: this.paginator.getSkip({ page, limit }),
             take: limit,
             orderBy: { submittedAt: 'desc' },
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              email: true,
-              selectedProgram: true,
-              status: true,
-              submittedAt: true,
-              createdAt: true,
-              updatedAt: true,
-              university: {
-                select: {
-                  id: true,
-                  name: true,
-                  shortName: true,
-                  slug: true,
-                },
-              },
-              student: {
-                select: {
-                  id: true,
-                  currentStage: true,
-                  applicationStatus: true,
-                  user: {
-                    select: {
-                      id: true,
-                      name: true,
-                      email: true,
-                      phone: true,
-                    },
-                  },
-                },
-              },
-            },
+            select,
           }),
           this.prisma.universityApplication.count({ where }),
         ]);
@@ -85,46 +54,54 @@ export class ApplicationsService {
     );
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, fields?: string) {
+    const cacheKey = fields
+      ? `application:${id}:fields:${fields}`
+      : `application:${id}`;
+
     return this.redis.getOrSet(
-      `application:${id}`,
+      cacheKey,
       async () => {
+        const select = this.buildApplicationDetailSelect(fields);
+
         const application = await this.prisma.universityApplication.findUnique({
           where: { id },
-          include: {
-            university: true,
-            admissionLetter: true,
-            student: {
-              include: {
-                user: {
-                  select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    phone: true,
+          ...(select ? { select } : {
+            include: {
+              university: true,
+              admissionLetter: true,
+              student: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      name: true,
+                      email: true,
+                      phone: true,
+                    },
+                  },
+                  documents: {
+                    include: { documentType: true },
+                  },
+                  // Scope to this application only: Payment.studentId is shared
+                  // across the student's applications, so without a filter every
+                  // payment record (incl. pre-seeded or other applications)
+                  // would surface in the per-application Payment Ledger.
+                  payments: {
+                    where: { applicationId: id },
+                    orderBy: { createdAt: 'desc' },
                   },
                 },
-                documents: {
-                  include: { documentType: true },
-                },
-                // Scope to this application only: Payment.studentId is shared
-                // across the student's applications, so without a filter every
-                // payment record (incl. pre-seeded or other applications)
-                // would surface in the per-application Payment Ledger.
-                payments: {
-                  where: { applicationId: id },
-                  orderBy: { createdAt: 'desc' },
-                },
+              },
+              timelineEvents: {
+                orderBy: { occurredAt: 'desc' },
+              },
+              tickets: {
+                take: 5,
+                orderBy: { createdAt: 'desc' },
               },
             },
-            timelineEvents: {
-              orderBy: { occurredAt: 'desc' },
-            },
-            tickets: {
-              take: 5,
-              orderBy: { createdAt: 'desc' },
-            },
-          },
+          }),
         });
 
         if (!application) {
@@ -135,6 +112,165 @@ export class ApplicationsService {
       },
       300, // Cache for 5 minutes
     );
+  }
+
+  private buildApplicationSelect(fields?: string) {
+    if (!fields) {
+      return {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        selectedProgram: true,
+        status: true,
+        submittedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        university: {
+          select: {
+            id: true,
+            name: true,
+            shortName: true,
+            slug: true,
+          },
+        },
+        student: {
+          select: {
+            id: true,
+            currentStage: true,
+            applicationStatus: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+      };
+    }
+
+    const fieldList = fields.split(',').map(f => f.trim()).filter(Boolean);
+    if (fieldList.length === 0) return undefined;
+
+    const select: any = { id: true };
+
+    const allowedScalars = ['firstName', 'lastName', 'email', 'selectedProgram', 'status', 'submittedAt', 'createdAt', 'updatedAt', 'studentId', 'universityId', 'courseId'];
+
+    for (const field of allowedScalars) {
+      if (fieldList.includes(field)) {
+        select[field] = true;
+      }
+    }
+
+    // Handle university fields
+    const uniFields = fieldList.filter(f => f.startsWith('university.'));
+    if (uniFields.length > 0) {
+      select.university = { select: {} as Record<string, boolean> };
+      const allowedUni = ['id', 'name', 'shortName', 'slug', 'logo', 'type', 'status'];
+      for (const uf of uniFields) {
+        const key = uf.replace('university.', '');
+        if (allowedUni.includes(key)) {
+          select.university.select[key] = true;
+        }
+      }
+      if (!select.university.select.id) {
+        select.university.select.id = true;
+      }
+    }
+
+    // Handle student fields
+    const studentFields = fieldList.filter(f => f.startsWith('student.'));
+    if (studentFields.length > 0) {
+      select.student = { select: {} as Record<string, any> };
+      const allowedStudent = ['id', 'currentStage', 'applicationStatus'];
+      const allowedStudentUser = ['id', 'name', 'email', 'phone'];
+
+      for (const sf of studentFields) {
+        if (sf.startsWith('student.user.')) {
+          const key = sf.replace('student.user.', '');
+          if (!select.student.select.user) {
+            select.student.select.user = { select: {} as Record<string, boolean> };
+          }
+          if (allowedStudentUser.includes(key)) {
+            select.student.select.user.select[key] = true;
+          }
+        } else {
+          const key = sf.replace('student.', '');
+          if (allowedStudent.includes(key)) {
+            select.student.select[key] = true;
+          }
+        }
+      }
+      if (!select.student.select.id) {
+        select.student.select.id = true;
+      }
+    }
+
+    return select;
+  }
+
+  private buildApplicationDetailSelect(fields?: string) {
+    if (!fields) return undefined;
+
+    const fieldList = fields.split(',').map(f => f.trim()).filter(Boolean);
+    if (fieldList.length === 0) return undefined;
+
+    const select: any = { id: true };
+
+    const allowedScalars = ['firstName', 'lastName', 'email', 'selectedProgram', 'status', 'submittedAt', 'createdAt', 'updatedAt', 'studentId', 'universityId', 'courseId', 'formData'];
+
+    for (const field of allowedScalars) {
+      if (fieldList.includes(field)) {
+        select[field] = true;
+      }
+    }
+
+    const uniFields = fieldList.filter(f => f.startsWith('university.'));
+    if (uniFields.length > 0) {
+      select.university = { select: {} as Record<string, boolean> };
+      const allowedUni = ['id', 'name', 'shortName', 'slug', 'logo', 'bannerImage', 'type', 'status', 'website', 'establishedYear'];
+      for (const uf of uniFields) {
+        const key = uf.replace('university.', '');
+        if (allowedUni.includes(key)) {
+          select.university.select[key] = true;
+        }
+      }
+      if (!select.university.select.id) {
+        select.university.select.id = true;
+      }
+    }
+
+    if (fieldList.includes('admissionLetter')) {
+      select.admissionLetter = true;
+    }
+
+    if (fieldList.includes('timelineEvents')) {
+      select.timelineEvents = { orderBy: { occurredAt: 'desc' as const } };
+    }
+
+    if (fieldList.includes('tickets')) {
+      select.tickets = { take: 5, orderBy: { createdAt: 'desc' as const } };
+    }
+
+    // Student fields for detail
+    const studentFields = fieldList.filter(f => f.startsWith('student.') || f === 'student');
+    if (studentFields.length > 0) {
+      select.student = { include: {} as Record<string, any> };
+      if (fieldList.includes('student') || studentFields.some(f => f.startsWith('student.user'))) {
+        select.student.include.user = { select: { id: true, name: true, email: true, phone: true } };
+      }
+      if (fieldList.includes('student') || studentFields.some(f => f.startsWith('student.documents'))) {
+        select.student.include.documents = { include: { documentType: true } };
+      }
+      if (fieldList.includes('student') || studentFields.some(f => f.startsWith('student.payments'))) {
+        select.student.include.payments = { where: {} };
+      }
+    }
+
+    return select;
   }
 
   async updateStatus(id: string, status: string) {

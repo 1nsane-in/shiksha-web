@@ -160,6 +160,7 @@ export class AdminStudentsController {
   @ApiQuery({ name: 'limit', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, type: String })
   @ApiQuery({ name: 'stage', required: false, type: String })
+  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields to return. E.g. id,user.name,currentStage,neetScore' })
   @ApiResponse({ status: 200, description: 'List of students' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
@@ -168,12 +169,14 @@ export class AdminStudentsController {
     @Query('limit') limit?: string,
     @Query('status') status?: string,
     @Query('stage') stage?: string,
+    @Query('fields') fields?: string,
   ) {
     return this.studentsService.findAll(
       page ? parseInt(page) : 1,
       limit ? parseInt(limit) : 10,
       status,
       stage ? parseInt(stage) : undefined,
+      fields,
     );
   }
 
@@ -189,12 +192,13 @@ export class AdminStudentsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get student by ID (Admin)' })
   @ApiParam({ name: 'id', description: 'Student ID' })
+  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields to return. E.g. id,user.name,currentStage,documents' })
   @ApiResponse({ status: 200, description: 'Student details' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Student not found' })
-  async findOne(@Param('id') id: string) {
-    return this.studentsService.findOne(id);
+  async findOne(@Param('id') id: string, @Query('fields') fields?: string) {
+    return this.studentsService.findOne(id, fields);
   }
 
   @Put(':id')
