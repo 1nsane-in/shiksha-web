@@ -92,6 +92,19 @@ export class RedisService implements OnModuleDestroy {
     return value;
   }
 
+  // Rate limiting operations
+  async incr(key: string): Promise<number> {
+    return this.redis.incr(key);
+  }
+
+  async expire(key: string, seconds: number): Promise<void> {
+    await this.redis.expire(key, seconds);
+  }
+
+  async ttl(key: string): Promise<number> {
+    return this.redis.ttl(key);
+  }
+
   // Health check
   async ping(): Promise<string> {
     return this.redis.ping();
