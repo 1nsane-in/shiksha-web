@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import compression from 'compression';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
@@ -108,6 +109,23 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
+
+  // Response compression - reduces bandwidth by 60-80%
+  app.use(
+    compression({
+      level: 6, // Compression level (0-9, 6 is default)
+      filter: (req, res) => {
+        // Don't compress responses with this header
+        if (req.headers['x-no-compression']) {
+          return false;
+        }
+        // Use compression for all other responses
+        return compression.filter(req, res);
+      },
+      // Compress responses larger than 1KB
+      threshold: 1024,
+    }),
+  );
 
   // Security headers with Helmet
   app.use(
