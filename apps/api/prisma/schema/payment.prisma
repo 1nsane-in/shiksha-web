@@ -32,6 +32,8 @@ model Payment {
   @@index([applicationId])
   @@index([status])
   @@index([createdAt])
+  @@index([studentId, status, createdAt]) // For payment history queries
+  @@index([status, createdAt]) // For admin pending payments
 }
 
 enum PaymentStatus {

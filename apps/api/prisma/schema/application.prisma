@@ -29,6 +29,8 @@ model UniversityApplication {
   @@index([studentId])
   @@index([status])
   @@index([universityId])
+  @@index([status, createdAt]) // For admin queries with status filter
+  @@index([studentId, status]) // For student application queries
 }
 
 model ApplicationTimeline {
@@ -103,6 +105,8 @@ model StudentDocument {
 
   @@index([studentId])
   @@index([status])
+  @@index([studentId, status]) // For student document queries
+  @@index([status, createdAt]) // For admin pending documents
 }
 
 model AdmissionLetter {
