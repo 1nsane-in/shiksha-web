@@ -19,6 +19,7 @@ import {
 } from './universities.dto';
 import { PaginatorService } from '../common/services/paginator.service';
 import { createQueryBuilder } from '../common/helpers/prisma-query-builder';
+import { parseFields, ALLOWED_UNIVERSITY_FIELDS } from '../common/helpers/field-selection';
 
 const UNIVERSITY_INCLUDES = {
   location: true,
@@ -71,13 +72,81 @@ export class UniversitiesService {
     return university;
   }
 
+  private buildUniversitySelect(fields?: string) {
+    // If no fields specified, return default selection
+    if (!fields) {
+      return {
+        id: true,
+        name: true,
+        shortName: true,
+        slug: true,
+        establishedYear: true,
+        type: true,
+        status: true,
+        logo: true,
+        bannerImage: true,
+        brochureUrl: true,
+        website: true,
+        location: { select: { country: true, city: true, state: true } },
+        contact: { select: { email: true, phone: true } },
+        academic: { select: { medium: true } },
+      };
+    }
+
+    // Parse requested fields
+    const fieldList = fields.split(',').map(f => f.trim()).filter(Boolean);
+    const select: any = {};
+
+    // Always include id
+    select.id = true;
+
+    // Simple fields
+    const simpleFields = ['name', 'shortName', 'slug', 'logo', 'bannerImage', 'brochureUrl', 'website', 'establishedYear', 'type', 'status', 'createdAt', 'updatedAt'];
+    for (const field of simpleFields) {
+      if (fieldList.includes(field)) {
+        select[field] = true;
+      }
+    }
+
+    // Nested fields
+    if (fieldList.some(f => f.startsWith('location'))) {
+      select.location = { select: {} };
+      if (fieldList.includes('location.country')) select.location.select.country = true;
+      if (fieldList.includes('location.city')) select.location.select.city = true;
+      if (fieldList.includes('location.state')) select.location.select.state = true;
+      if (Object.keys(select.location.select).length === 0) {
+        select.location.select = { country: true, city: true, state: true };
+      }
+    }
+
+    if (fieldList.some(f => f.startsWith('contact'))) {
+      select.contact = { select: {} };
+      if (fieldList.includes('contact.email')) select.contact.select.email = true;
+      if (fieldList.includes('contact.phone')) select.contact.select.phone = true;
+      if (Object.keys(select.contact.select).length === 0) {
+        select.contact.select = { email: true, phone: true };
+      }
+    }
+
+    if (fieldList.some(f => f.startsWith('academic'))) {
+      select.academic = { select: {} };
+      if (fieldList.includes('academic.medium')) select.academic.select.medium = true;
+      if (fieldList.includes('academic.programs')) select.academic.select.programs = true;
+      if (Object.keys(select.academic.select).length === 0) {
+        select.academic.select = { medium: true };
+      }
+    }
+
+    return select;
+  }
+
   async findAll(query: UniversityQueryDto) {
     const { page, limit } = this.paginator.parseOptions(
       query.page,
       query.limit,
     );
 
-    const cacheKey = `universities:list:${page}:${limit}:${query.status || 'all'}:${query.country || 'all'}:${query.type || 'all'}:${query.search || 'none'}`;
+    const cacheKey = `universities:list:${page}:${limit}:${query.status || 'all'}:${query.country || 'all'}:${query.type || 'all'}:${query.search || 'none'}:${query.fields || 'default'}`;
 
     return this.redis.getOrSet(
       cacheKey,
@@ -89,49 +158,15 @@ export class UniversitiesService {
           .search(query.search, ['name', 'shortName', 'slug'])
           .build();
 
+        const select = this.buildUniversitySelect(query.fields);
+
         const [universities, total] = await Promise.all([
           this.prisma.university.findMany({
             where,
             skip: this.paginator.getSkip({ page, limit }),
             take: limit,
             orderBy: { createdAt: 'desc' },
-            select: {
-              id: true,
-              name: true,
-              shortName: true,
-              slug: true,
-              establishedYear: true,
-              type: true,
-              status: true,
-              logo: true,
-              bannerImage: true,
-              brochureUrl: true,
-              website: true,
-              location: {
-                select: {
-                  country: true,
-                  city: true,
-                  state: true,
-                  address: true,
-                },
-              },
-              contact: {
-                select: {
-                  email: true,
-                  phone: true,
-                },
-              },
-              academic: {
-                select: {
-                  medium: true,
-                },
-              },
-              content: {
-                select: {
-                  gallery: true,
-                },
-              },
-            },
+            select,
           }),
           this.prisma.university.count({ where }),
         ]);

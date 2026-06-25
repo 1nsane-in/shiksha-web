@@ -8,4 +8,5 @@ export class UniversityQueryDto {
   @IsOptional() @IsEnum(UniversityStatus) status?: UniversityStatus;
   @IsOptional() @IsEnum(UniversityType) type?: UniversityType;
   @IsOptional() @IsString() search?: string;
+  @IsOptional() @IsString() fields?: string; // Comma-separated field names
 }
