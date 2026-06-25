@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 import { useGalleryImages, GalleryImage } from "@/domains/gallery";
@@ -51,11 +52,13 @@ export default function GalleryPage() {
         {/* Hero Banner Section */}
         <section className="relative py-20 overflow-hidden bg-[#1A153A]">
           <div className="pointer-events-none absolute inset-0 opacity-20">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               alt="Medical Campus"
               src="https://images.unsplash.com/photo-1527613426441-4da17471b66d?auto=format&fit=crop&w=1920&q=80"
-              className="size-full object-cover"
+              fill
+              className="object-cover"
+              priority
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-[#1A153A]/90" />
           </div>
@@ -110,12 +113,13 @@ export default function GalleryPage() {
                   className="group relative aspect-video overflow-hidden rounded-2xl border bg-white transition-all duration-300 hover:shadow-xl cursor-pointer"
                   style={{ borderColor: theme.hairline }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={img.url}
                     alt={img.title || "Gallery Image"}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                   <div
                     className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5"

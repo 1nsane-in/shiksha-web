@@ -7,7 +7,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
 import {
   InitiatePayUPaymentDto,
@@ -46,11 +46,13 @@ export class PaymentsController {
 
   @Get('history')
   @ApiOperation({ summary: 'Get payment history' })
+  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,amount,status,stage,paidAt' })
   async getHistory(
     @AuthUser() user: AuthenticatedUser,
     @Query('applicationId') applicationId?: string,
+    @Query('fields') fields?: string,
   ) {
-    return this.paymentsService.getPaymentHistory(user.id, applicationId);
+    return this.paymentsService.getPaymentHistory(user.id, applicationId, fields);
   }
 
   @Get('config')
@@ -63,11 +65,13 @@ export class PaymentsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get payment by ID' })
+  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,amount,status,stage' })
   async getPayment(
     @Param('id') id: string,
     @AuthUser() user: AuthenticatedUser,
+    @Query('fields') fields?: string,
   ) {
-    return this.paymentsService.getPaymentById(id, user.id, user.role);
+    return this.paymentsService.getPaymentById(id, user.id, user.role, fields);
   }
 
   // --- Admin endpoints ---
@@ -87,13 +91,16 @@ export class PaymentsController {
   @Roles('ADMIN', 'SUPER_ADMIN')
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Get all pending payments (Admin)' })
+  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,amount,student.user.name' })
   async getPending(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('fields') fields?: string,
   ) {
     return this.paymentsService.getPendingPayments(
       Number(page) || 1,
       Number(limit) || 20,
+      fields,
     );
   }
 }

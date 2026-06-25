@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 import {
@@ -33,10 +34,13 @@ export default function AboutUsPage() {
         {/* ═══ HERO ═══ minimal, high-end typography */}
         <section className="relative flex min-h-[75vh] items-center overflow-hidden py-24">
           <div className="absolute inset-0 z-0">
-            <img
+            <Image
               alt="Medical students walking across university campus"
               src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1920&q=80"
-              className="size-full object-cover select-none"
+              fill
+              className="object-cover select-none"
+              priority
+              sizes="100vw"
             />
             <div
               className="absolute inset-0"

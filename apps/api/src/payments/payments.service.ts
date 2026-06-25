@@ -251,8 +251,8 @@ export class PaymentsService {
     }
   }
 
-  async getPaymentHistory(userId: string, applicationId?: string) {
-    const cacheKey = `payments:history:${userId}:${applicationId || 'all'}`;
+  async getPaymentHistory(userId: string, applicationId?: string, fields?: string) {
+    const cacheKey = `payments:history:${userId}:${applicationId || 'all'}:${fields || 'default'}`;
     
     return this.redis.getOrSet(
       cacheKey,
@@ -261,27 +261,38 @@ export class PaymentsService {
         if (!student) throw new NotFoundException('Student profile not found');
         const where: any = { studentId: student.id };
         if (applicationId) where.applicationId = applicationId;
-        return this.prisma.payment.findMany({
-          where,
-          orderBy: { createdAt: 'desc' },
-        });
+
+        const select = this.buildPaymentSelect(fields);
+        const queryOptions: any = { where, orderBy: { createdAt: 'desc' as const } };
+        if (select) queryOptions.select = select;
+
+        return this.prisma.payment.findMany(queryOptions);
       },
       300, // Cache for 5 minutes
     );
   }
 
-  async getPaymentById(paymentId: string, userId: string, userRole: string) {
-    const payment = await this.prisma.payment.findUnique({
-      where: { id: paymentId },
-      include: { student: true },
-    });
+  async getPaymentById(paymentId: string, userId: string, userRole: string, fields?: string) {
+    const select = this.buildPaymentSelect(fields);
+    const queryOptions: any = { where: { id: paymentId } };
+    if (select) {
+      queryOptions.select = select;
+    } else {
+      queryOptions.include = { student: true };
+    }
+
+    const payment = await this.prisma.payment.findUnique(queryOptions);
     if (!payment) throw new NotFoundException('Payment not found');
     if (
       userRole !== 'ADMIN' &&
       userRole !== 'SUPER_ADMIN' &&
-      payment.student.userId !== userId
+      (payment as any).student?.userId !== userId
     ) {
-      throw new ForbiddenException('Access denied');
+      // If no student included, fetch to check
+      if (!(payment as any).student) {
+        const full = await this.prisma.payment.findUnique({ where: { id: paymentId }, include: { student: true } });
+        if (full?.student?.userId !== userId) throw new ForbiddenException('Access denied');
+      }
     }
     return payment;
   }
@@ -322,13 +333,31 @@ export class PaymentsService {
     return { message: 'Payment approved successfully' };
   }
 
-  async getPendingPayments(page: number = 1, limit: number = 20) {
-    const cacheKey = `payments:pending:${page}:${limit}`;
+  async getPendingPayments(page: number = 1, limit: number = 20, fields?: string) {
+    const cacheKey = `payments:pending:${page}:${limit}:${fields || 'default'}`;
     
     return this.redis.getOrSet(
       cacheKey,
       async () => {
         const skip = (page - 1) * limit;
+
+        if (fields) {
+          const select = this.buildPaymentSelect(fields);
+          const [items, total] = await Promise.all([
+            this.prisma.payment.findMany({
+              where: { status: { in: ['PENDING', 'PROCESSING'] } },
+              select,
+              orderBy: { createdAt: 'desc' },
+              skip,
+              take: limit,
+            }),
+            this.prisma.payment.count({
+              where: { status: { in: ['PENDING', 'PROCESSING'] } },
+            }),
+          ]);
+          return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
+        }
+
         const [items, total] = await Promise.all([
           this.prisma.payment.findMany({
             where: { status: { in: ['PENDING', 'PROCESSING'] } },
@@ -349,6 +378,44 @@ export class PaymentsService {
       },
       300, // Cache for 5 minutes
     );
+  }
+
+  private buildPaymentSelect(fields?: string) {
+    if (!fields) return undefined;
+
+    const fieldList = fields.split(',').map(f => f.trim()).filter(Boolean);
+    if (fieldList.length === 0) return undefined;
+
+    const select: any = { id: true };
+
+    const allowedScalars = ['stage', 'amount', 'currency', 'status', 'razorpayOrderId', 'razorpayPaymentId', 'paymentMethod', 'bankReference', 'paidAt', 'createdAt', 'updatedAt', 'studentId', 'applicationId', 'approvalNote', 'manuallyApproved'];
+
+    for (const field of allowedScalars) {
+      if (fieldList.includes(field)) {
+        select[field] = true;
+      }
+    }
+
+    // Handle student.user nested fields
+    const studentFields = fieldList.filter(f => f.startsWith('student.'));
+    if (studentFields.length > 0) {
+      select.student = { include: {} as Record<string, any> };
+      const studentUserFields = studentFields.filter(f => f.startsWith('student.user.'));
+      if (studentUserFields.length > 0 || studentFields.includes('student.user')) {
+        select.student.include.user = { select: {} as Record<string, boolean> };
+        const allowedUser = ['name', 'email', 'phone'];
+        if (studentFields.includes('student.user')) {
+          for (const u of allowedUser) select.student.include.user.select[u] = true;
+        } else {
+          for (const sf of studentUserFields) {
+            const key = sf.replace('student.user.', '');
+            if (allowedUser.includes(key)) select.student.include.user.select[key] = true;
+          }
+        }
+      }
+    }
+
+    return select;
   }
 
   getStageConfig() {

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 import { useCreateConsultation } from "@/domains/consultations";
@@ -248,10 +249,13 @@ function ContactUsPage() {
         {/* Banner Section */}
         <section className="relative py-16 overflow-hidden bg-[#1A153A]">
           <div className="pointer-events-none absolute inset-0 opacity-15">
-            <img
+            <Image
               alt="Medical counseling consultation"
               src="https://images.unsplash.com/photo-1516841273335-e39b37888115?auto=format&fit=crop&w=1920&q=80"
-              className="size-full object-cover select-none"
+              fill
+              className="object-cover select-none"
+              priority
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-[#1A153A]/95" />
           </div>
