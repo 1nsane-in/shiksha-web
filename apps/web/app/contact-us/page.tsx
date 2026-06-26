@@ -11,15 +11,7 @@ import { toast } from "sonner";
 import { Phone, Mail, MapPin, Clock, Send, ShieldCheck, Loader2, Building2, Globe, BookOpen, GraduationCap } from "lucide-react";
 import { Country, State } from "country-state-city";
 
-const theme = {
-  ink: "#1A153A",
-  inkMuted: "#6B6599",
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.10)",
-  canvas: "#FAF9F6",
-  surface: "#FFFFFF",
-  hairline: "rgba(26, 21, 58, 0.08)",
-};
+import { brand as theme } from "@/lib/brand";
 
 // Loading fallback for Suspense
 function ContactPageLoading() {

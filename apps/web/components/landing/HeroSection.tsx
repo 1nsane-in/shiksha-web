@@ -6,15 +6,7 @@ import Image from "next/image";
 import { AnimatedHeading } from "./AnimatedHeading";
 import { FadeIn } from "./FadeIn";
 
-/* ─── Brand tokens ─── */
-const theme = {
-  ink: "#1A153A",
-  inkMuted: "#6B6599",
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.10)",
-  canvas: "#FAF9F6",
-  surface: "#FFFFFF",
-};
+import { brand } from "@/lib/brand";
 
 const navLinks = [
   { name: "Students", href: "#" },
@@ -170,7 +162,7 @@ export function HeroSection() {
                   <Link
                     href={link.href}
                     className="text-sm transition-colors duration-200 hover:text-[#C4953B]"
-                    style={{ color: theme.inkMuted }}
+                    style={{ color: brand.inkMuted }}
                   >
                     {link.name}
                   </Link>
@@ -183,8 +175,8 @@ export function HeroSection() {
               href="/register"
               className="rounded-lg px-6 py-2 text-sm font-medium transition-colors duration-200 hover:bg-[#FAF9F6]"
               style={{
-                background: theme.surface,
-                color: theme.ink,
+                background: brand.surface,
+                color: brand.ink,
               }}
             >
               Get Started
@@ -216,7 +208,7 @@ export function HeroSection() {
               <FadeIn delay={800} duration={1000}>
                 <p
                   className="mb-5 max-w-prose text-base md:text-lg"
-                  style={{ color: theme.canvas, opacity: 0.8 }}
+                  style={{ color: brand.canvas, opacity: 0.8 }}
                 >
                   We simplify medical admissions so you can focus on what
                   matters &mdash; becoming a doctor.
@@ -230,8 +222,8 @@ export function HeroSection() {
                     href="/register"
                     className="rounded-lg px-8 py-3 font-medium transition-colors duration-200 hover:bg-[#FAF9F6]"
                     style={{
-                      background: theme.surface,
-                      color: theme.ink,
+                      background: brand.surface,
+                      color: brand.ink,
                     }}
                   >
                     Explore Programs
@@ -242,9 +234,9 @@ export function HeroSection() {
                     className="rounded-lg border border-white/10 px-8 py-3 font-medium transition-all duration-300"
                     style={{
                       background: btnHovered
-                        ? theme.gold
+                        ? brand.gold
                         : "rgba(255,255,255,0.04)",
-                      color: btnHovered ? theme.ink : theme.canvas,
+                      color: btnHovered ? brand.ink : brand.canvas,
                       backdropFilter: btnHovered ? "none" : "blur(6px)",
                       WebkitBackdropFilter: btnHovered
                         ? "none"
@@ -265,7 +257,7 @@ export function HeroSection() {
                 <div className="liquid-glass rounded-xl border border-white/10 px-6 py-3">
                   <p
                     className="text-lg font-light md:text-xl lg:text-2xl"
-                    style={{ color: theme.canvas }}
+                    style={{ color: brand.canvas }}
                   >
                     Admissions. Guidance. Excellence.
                   </p>
@@ -288,7 +280,7 @@ export function HeroSection() {
               height: 6,
               background:
                 index === currentSlide
-                  ? theme.gold
+                  ? brand.gold
                   : "rgba(255,255,255,0.25)",
             }}
             onClick={() => {

@@ -9,7 +9,9 @@ import {
   HttpStatus,
   Res,
   Query,
+  Inject,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import {
   ApiTags,
@@ -47,12 +49,15 @@ import { Public } from './decorators/public.decorator';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService,
+  ) {}
 
   private readonly COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: this.configService.get('NODE_ENV') === 'production',
+    sameSite: this.configService.get('NODE_ENV') === 'production' ? 'none' as const : 'lax' as const,
     path: '/auth',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   } as const;

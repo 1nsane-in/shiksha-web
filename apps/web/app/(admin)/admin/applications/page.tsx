@@ -45,15 +45,7 @@ const statusConfig: Record<string, { label: string; bg: string; border: string; 
   in_review: { label: "In Review", bg: "bg-blue-50/50", border: "border-blue-200", text: "text-blue-800", icon: AlertCircle },
 };
 
-const theme = {
-  ink: "#1A153A",
-  inkMuted: "#6B6599",
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.08)",
-  canvas: "#FAF9F6",
-  surface: "#FFFFFF",
-  hairline: "rgba(26, 21, 58, 0.08)",
-};
+import { brand as theme } from "@/lib/brand";
 
 export default function AdminApplicationsPage() {
   const router = useRouter();

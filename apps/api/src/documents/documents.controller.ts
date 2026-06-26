@@ -9,11 +9,13 @@ import {
   Query,
   UseGuards,
   Request,
+  UseInterceptors,
 } from '@nestjs/common';
 import { DocumentsService } from './documents.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { Auditable } from '../common/interceptors/audit-log.interceptor';
 import {
   UploadDocumentDto,
   VerifyDocumentDto,
@@ -71,6 +73,7 @@ export class AdminDocumentsController {
   }
 
   @Put(':id/verify')
+  @UseInterceptors(Auditable({ entityType: 'document', entityIdParam: 'id' }))
   async verifyDocument(
     @Param('id') id: string,
     @Request() req: any,
@@ -80,6 +83,7 @@ export class AdminDocumentsController {
   }
 
   @Put(':id/reupload')
+  @UseInterceptors(Auditable({ entityType: 'document', entityIdParam: 'id' }))
   async markForReupload(
     @Param('id') id: string,
     @Body('remarks') remarks: string,
@@ -88,11 +92,13 @@ export class AdminDocumentsController {
   }
 
   @Post('types')
+  @UseInterceptors(Auditable({ entityType: 'document_type' }))
   async createDocumentType(@Body() dto: CreateDocumentTypeDto) {
     return this.documentsService.createDocumentType(dto);
   }
 
   @Put('types/:id')
+  @UseInterceptors(Auditable({ entityType: 'document_type', entityIdParam: 'id' }))
   async updateDocumentType(
     @Param('id') id: string,
     @Body() dto: UpdateDocumentTypeDto,
@@ -101,6 +107,7 @@ export class AdminDocumentsController {
   }
 
   @Delete('types/:id')
+  @UseInterceptors(Auditable({ entityType: 'document_type', entityIdParam: 'id' }))
   async deleteDocumentType(@Param('id') id: string) {
     return this.documentsService.deleteDocumentType(id);
   }

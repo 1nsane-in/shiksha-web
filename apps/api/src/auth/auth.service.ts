@@ -4,6 +4,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
@@ -32,6 +33,7 @@ export class AuthService {
     private jwtService: JwtService,
     private emailValidation: EmailValidationService,
     private emailService: EmailService,
+    private config: ConfigService,
   ) {}
 
   async sendOtp(dto: SendOtpDto) {
@@ -65,7 +67,7 @@ export class AuthService {
       throw error;
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (this.config.get('NODE_ENV') === 'development') {
       return { message: 'OTP sent to your email', devOtp: otp };
     }
     return { message: 'OTP sent to your email' };
@@ -411,7 +413,7 @@ export class AuthService {
       throw error;
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (this.config.get('NODE_ENV') === 'development') {
       return { message: 'Password reset OTP sent to your email', devOtp: otp };
     }
     return { message: 'Password reset OTP sent to your email' };
@@ -506,8 +508,8 @@ export class AuthService {
             },
             body: new URLSearchParams({
               code: token,
-              client_id: process.env.GOOGLE_CLIENT_ID || '',
-              client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
+              client_id: this.config.get<string>('GOOGLE_CLIENT_ID', ''),
+              client_secret: this.config.get<string>('GOOGLE_CLIENT_SECRET', ''),
               redirect_uri: 'http://localhost:3000/auth/callback',
               grant_type: 'authorization_code',
             }),
@@ -561,7 +563,7 @@ export class AuthService {
         this.logger.debug(`Token info: ${JSON.stringify(tokenInfo)}`);
 
         // Verify the audience matches our client ID
-        const expectedAudience = process.env.GOOGLE_CLIENT_ID;
+        const expectedAudience = this.config.get('GOOGLE_CLIENT_ID');
         if (tokenInfo.aud !== expectedAudience) {
           this.logger.warn(
             `Token audience mismatch: ${tokenInfo.aud} !== ${expectedAudience}`,

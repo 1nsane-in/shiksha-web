@@ -4,6 +4,7 @@ import {
   NotFoundException,
   Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
@@ -32,6 +33,7 @@ export class ParentsService {
   >();
 
   constructor(
+    private config: ConfigService,
     private prisma: PrismaService,
     private jwtService: JwtService,
     private emailService: EmailService,
@@ -296,7 +298,7 @@ export class ParentsService {
       throw error;
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (this.config.get('NODE_ENV') === 'development') {
       return { message: 'OTP sent to your email', devOtp: otp };
     }
     return { message: 'OTP sent to your email' };
@@ -312,7 +314,7 @@ export class ParentsService {
     // In production, integrate with SMS provider (e.g., Twilio)
     this.logger.log(`Phone OTP for ${dto.phone}: ${otp}`);
 
-    if (process.env.NODE_ENV === 'development') {
+    if (this.config.get('NODE_ENV') === 'development') {
       return { message: 'OTP sent to your phone', devOtp: otp };
     }
     return { message: 'OTP sent to your phone' };

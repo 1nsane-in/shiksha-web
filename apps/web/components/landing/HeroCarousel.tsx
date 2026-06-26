@@ -5,13 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import Image from "next/image";
 
-/* ─── brand tokens (matching UniversityCards) ─── */
-const theme = {
-  canvas: "#FAF9F6",
-  ink: "#1A153A",
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.10)",
-};
+import { brand } from "@/lib/brand";
 
 const slides = [
   {
@@ -114,9 +108,9 @@ export function HeroCarousel() {
         style={{
           background:
             "linear-gradient(135deg, " +
-            theme.ink +
+            brand.ink +
             "dd 0%, " +
-            theme.ink +
+            brand.ink +
             "99 40%, transparent 100%)",
         }}
       />
@@ -141,9 +135,9 @@ export function HeroCarousel() {
                 <span
                   className="mb-4 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-medium tracking-wide uppercase"
                   style={{
-                    background: theme.goldLight,
-                    color: theme.gold,
-                    border: "1px solid " + theme.gold + "33",
+                    background: brand.goldLight,
+                    color: brand.gold,
+                    border: "1px solid " + brand.gold + "33",
                   }}
                 >
                   Admissions Open 2026
@@ -171,8 +165,8 @@ export function HeroCarousel() {
                     href="/register"
                     className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.97]"
                     style={{
-                      background: theme.gold,
-                      color: theme.ink,
+                      background: brand.gold,
+                      color: brand.ink,
                       borderRadius: 10,
                     }}
                   >
@@ -209,7 +203,7 @@ export function HeroCarousel() {
               width: index === current ? 28 : 8,
               borderRadius: 4,
               background:
-                index === current ? theme.gold : "rgba(255,255,255,0.3)",
+                index === current ? brand.gold : "rgba(255,255,255,0.3)",
             }}
             aria-label={"Go to slide " + (index + 1)}
           />

@@ -62,16 +62,6 @@ import Image from "next/image";
 
 type IconComponent = React.ComponentType<{ className?: string }>;
 
-const theme = {
-  canvas: "#FAF9F6",
-  ink: "#1A153A",
-  inkMuted: "#6B6599",
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.10)",
-  hairline: "rgba(26, 21, 58, 0.08)",
-  white: "#FFFFFF",
-};
-
 const statusConfig: Record<string, { label: string; className: string }> = {
   ACTIVE: {
     label: "Active",

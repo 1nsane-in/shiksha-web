@@ -8,15 +8,7 @@ import { useGalleryImages, GalleryImage } from "@/domains/gallery";
 import { X, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
-const theme = {
-  ink: "#1A153A",
-  inkMuted: "#6B6599",
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.10)",
-  canvas: "#FAF9F6",
-  surface: "#FFFFFF",
-  hairline: "rgba(26, 21, 58, 0.08)",
-};
+import { brand as theme } from "@/lib/brand";
 
 export default function GalleryPage() {
   const { data: images = [], isLoading } = useGalleryImages();

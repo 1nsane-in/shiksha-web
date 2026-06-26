@@ -10,11 +10,13 @@ import {
   UseGuards,
   Request,
   Patch,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { Auditable } from '../common/interceptors/audit-log.interceptor';
 import {
   CreateAdminDto,
   UpdateAdminDto,
@@ -52,6 +54,7 @@ export class AdminController {
   // Create new admin (SUPER_ADMIN only)
   @Post()
   @Roles('SUPER_ADMIN')
+  @UseInterceptors(Auditable({ entityType: 'admin' }))
   async create(@Body() dto: CreateAdminDto, @Request() req: any) {
     return this.adminService.create(dto, req.user.id);
   }
@@ -59,6 +62,7 @@ export class AdminController {
   // Update admin (SUPER_ADMIN only)
   @Put(':id')
   @Roles('SUPER_ADMIN')
+  @UseInterceptors(Auditable({ entityType: 'admin', entityIdParam: 'id' }))
   async update(@Param('id') id: string, @Body() dto: UpdateAdminDto) {
     return this.adminService.update(id, dto);
   }
@@ -66,6 +70,7 @@ export class AdminController {
   // Delete admin (SUPER_ADMIN only)
   @Delete(':id')
   @Roles('SUPER_ADMIN')
+  @UseInterceptors(Auditable({ entityType: 'admin', entityIdParam: 'id' }))
   async delete(@Param('id') id: string, @Request() req: any) {
     return this.adminService.delete(id, req.user.id);
   }
@@ -73,6 +78,7 @@ export class AdminController {
   // Toggle admin status (SUPER_ADMIN only)
   @Patch(':id/toggle-status')
   @Roles('SUPER_ADMIN')
+  @UseInterceptors(Auditable({ entityType: 'admin', entityIdParam: 'id' }))
   async toggleStatus(@Param('id') id: string, @Request() req: any) {
     return this.adminService.toggleStatus(id, req.user.id);
   }
@@ -87,6 +93,7 @@ export class AdminController {
   // Reset admin password (SUPER_ADMIN only)
   @Post(':id/reset-password')
   @Roles('SUPER_ADMIN')
+  @UseInterceptors(Auditable({ entityType: 'admin', entityIdParam: 'id' }))
   async resetPassword(
     @Param('id') id: string,
     @Body() dto: ResetAdminPasswordDto,

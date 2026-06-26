@@ -8,26 +8,8 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@repo/ui";
 import { motion, AnimatePresence } from "motion/react";
-
-/* ─── brand tokens (matching UniversityCards) ─── */
-const theme = {
-  canvas: "#FAF9F6",
-  ink: "#1A153A",
-  inkMuted: "#6B6599",
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.10)",
-  hairline: "rgba(26, 21, 58, 0.08)",
-};
-
-const navLinks = [
-  { name: "Home", href: "/" },
-  { name: "About Us", href: "/about-us" },
-  { name: "Our Universities", href: "/universities" },
-  { name: "Gallery", href: "/gallery" },
-  { name: "Online Payment", href: "#" },
-  { name: "Courses", href: "#courses" },
-  { name: "Contact Us", href: "/contact-us" },
-];
+import { brand } from "@/lib/brand";
+import { navLinks } from "@/lib/brand-data";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,8 +22,8 @@ export function Header() {
     <header
       className="sticky top-0 z-50"
       style={{
-        background: theme.canvas,
-        borderBottom: "1px solid " + theme.hairline,
+        background: brand.canvas,
+        borderBottom: `1px solid ${brand.hairline}`,
       }}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -62,14 +44,14 @@ export function Header() {
             {navLinks.map((link) => (
               <li key={link.name}>
                 <Link
-                   href={link.href}
-                   className="group relative text-sm font-medium transition-colors duration-200"
-                   style={{ color: theme.inkMuted }}
+                  href={link.href}
+                  className="group relative text-sm font-medium transition-colors duration-200"
+                  style={{ color: brand.inkMuted }}
                 >
                   {link.name}
                   <span
                     className="absolute -bottom-1 left-0 h-px w-0 bg-current transition-all duration-300 group-hover:w-full"
-                    style={{ color: theme.gold }}
+                    style={{ color: brand.gold }}
                   />
                 </Link>
               </li>
@@ -81,13 +63,17 @@ export function Header() {
         <div className="flex items-center gap-3">
           {isAuthenticated && user ? (
             <Link
-              href={user.role === "ADMIN" || user.role === "SUPER_ADMIN" ? "/admin/profile" : "/student/profile"}
+              href={
+                user.role === "ADMIN" || user.role === "SUPER_ADMIN"
+                  ? "/admin/profile"
+                  : "/student/profile"
+              }
             >
               <Avatar className="size-8 cursor-pointer transition-opacity hover:opacity-80">
                 <AvatarFallback
                   style={{
-                    background: theme.goldLight,
-                    color: theme.gold,
+                    background: brand.goldLight,
+                    color: brand.gold,
                     fontSize: 13,
                     fontWeight: 600,
                   }}
@@ -102,7 +88,7 @@ export function Header() {
                 href={loginUrl}
                 className="inline-flex items-center justify-center px-5 py-2 text-sm font-medium transition-all duration-200 active:scale-[0.97]"
                 style={{
-                  background: theme.ink,
+                  background: brand.ink,
                   color: "#fff",
                   borderRadius: 10,
                 }}
@@ -117,7 +103,7 @@ export function Header() {
             type="button"
             className="flex size-10 items-center justify-center rounded-lg lg:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            style={{ color: theme.ink }}
+            style={{ color: brand.ink }}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -134,7 +120,7 @@ export function Header() {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
             className="overflow-hidden lg:hidden"
-            style={{ background: theme.ink }}
+            style={{ background: brand.ink }}
           >
             <nav className="space-y-1 px-4 pb-6 pt-2">
               {navLinks.map((link) => (
@@ -154,8 +140,8 @@ export function Header() {
                     href={loginUrl}
                     className="flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium"
                     style={{
-                      background: theme.gold,
-                      color: theme.ink,
+                      background: brand.gold,
+                      color: brand.ink,
                     }}
                     onClick={() => setIsMenuOpen(false)}
                   >

@@ -20,20 +20,10 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-/* ─── theme tokens ─── */
-const theme = {
-  bg: "#FAF9F6",
-  surface: "#FFFFFF",
-  ink: "#1A153A",
-  inkMuted: "#6B6599",
-  inkSubtle: "#9590B5",
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.10)",
-  goldBorder: "rgba(196, 149, 59, 0.20)",
-  hairline: "rgba(26, 21, 58, 0.08)",
-  cardRadius: 16,
-  btnRadius: 10,
-};
+import { brand } from "@/lib/brand";
+
+/* ─── component-local layout tokens ─── */
+const radius = { card: 16, btn: 10 };
 
 const mockUniversities = [
   {
@@ -134,16 +124,16 @@ export function EligibilityCalculator() {
   }, [eligibility.qualified, budget, prefType, selectedFeatures]);
 
   return (
-    <section className="py-20 md:py-28" style={{ background: theme.bg }}>
+    <section className="py-20 md:py-28" style={{ background: brand.canvas }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mx-auto mb-14 max-w-3xl text-center">
           <div
             className="mb-4 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-medium tracking-wide uppercase"
             style={{
-              background: theme.goldLight,
-              color: theme.gold,
-              border: "1px solid " + theme.goldBorder,
+              background: brand.goldLight,
+              color: brand.gold,
+              border: "1px solid " + brand.gold + "33",
             }}
           >
             <Award className="size-3" />
@@ -151,13 +141,13 @@ export function EligibilityCalculator() {
           </div>
           <h2
             className="text-balance text-3xl font-bold leading-tight tracking-tight md:text-4xl"
-            style={{ color: theme.ink }}
+            style={{ color: brand.ink }}
           >
             Interactive NEET Eligibility Calculator
           </h2>
           <p
             className="mt-3 text-balance leading-relaxed"
-            style={{ color: theme.inkMuted }}
+            style={{ color: brand.inkMuted }}
           >
             Input your NEET score and preferences to see your qualified universities and admission chances in Kyrgyzstan instantly.
           </p>
@@ -169,14 +159,14 @@ export function EligibilityCalculator() {
           <div
             className="rounded-2xl p-6 shadow-md border lg:col-span-5"
             style={{
-              background: theme.surface,
-              borderColor: theme.hairline,
-              borderRadius: theme.cardRadius,
+              background: brand.surface,
+              borderColor: brand.hairline,
+              borderRadius: radius.card,
             }}
           >
             <h3
               className="text-lg font-bold mb-6 flex items-center gap-2"
-              style={{ color: theme.ink }}
+              style={{ color: brand.ink }}
             >
               <TrendingUp className="size-5 text-[#C4953B]" />
               Calculator Parameters
@@ -187,7 +177,7 @@ export function EligibilityCalculator() {
               <div>
                 <label
                   className="block text-xs font-semibold uppercase tracking-wider mb-2"
-                  style={{ color: theme.inkMuted }}
+                  style={{ color: brand.inkMuted }}
                 >
                   Candidate Category
                 </label>
@@ -203,10 +193,10 @@ export function EligibilityCalculator() {
                       className="flex items-center justify-center py-2.5 px-4 rounded-xl text-sm font-semibold border transition-all duration-200"
                       style={{
                         background:
-                          category === cat.id ? theme.goldLight : "transparent",
+                          category === cat.id ? brand.goldLight : "transparent",
                         borderColor:
-                          category === cat.id ? theme.gold : theme.hairline,
-                        color: category === cat.id ? theme.ink : theme.inkMuted,
+                          category === cat.id ? brand.gold : brand.hairline,
+                        color: category === cat.id ? brand.ink : brand.inkMuted,
                       }}
                     >
                       {cat.label}
@@ -219,7 +209,7 @@ export function EligibilityCalculator() {
               <div>
                 <label
                   className="block text-xs font-semibold uppercase tracking-wider mb-2"
-                  style={{ color: theme.inkMuted }}
+                  style={{ color: brand.inkMuted }}
                 >
                   NEET Score (out of 720)
                 </label>
@@ -232,9 +222,9 @@ export function EligibilityCalculator() {
                     onChange={(e) => setNeetScore(e.target.value)}
                     className="w-full py-3 px-4 rounded-xl border text-base font-medium focus:outline-none focus:ring-1 transition-all duration-200"
                     style={{
-                      borderColor: theme.hairline,
-                      background: theme.bg,
-                      color: theme.ink,
+                      borderColor: brand.hairline,
+                      background: brand.canvas,
+                      color: brand.ink,
                     }}
                     placeholder="Enter your NEET UG Score"
                   />
@@ -257,10 +247,10 @@ export function EligibilityCalculator() {
               <div>
                 <label
                   className="block text-xs font-semibold uppercase tracking-wider mb-1 flex justify-between"
-                  style={{ color: theme.inkMuted }}
+                  style={{ color: brand.inkMuted }}
                 >
                   <span>Max Budget / Year</span>
-                  <span className="font-bold text-[#C4953B]" style={{ color: theme.gold }}>
+                  <span className="font-bold text-[#C4953B]" style={{ color: brand.gold }}>
                     ${budget.toLocaleString()}
                   </span>
                 </label>
@@ -284,7 +274,7 @@ export function EligibilityCalculator() {
               <div>
                 <label
                   className="block text-xs font-semibold uppercase tracking-wider mb-2"
-                  style={{ color: theme.inkMuted }}
+                  style={{ color: brand.inkMuted }}
                 >
                   University Type
                 </label>
@@ -301,10 +291,10 @@ export function EligibilityCalculator() {
                       className="flex items-center justify-center py-2 px-1.5 rounded-xl text-[11px] sm:text-xs font-semibold border transition-all duration-200"
                       style={{
                         background:
-                          prefType === t.id ? theme.goldLight : "transparent",
+                          prefType === t.id ? brand.goldLight : "transparent",
                         borderColor:
-                          prefType === t.id ? theme.gold : theme.hairline,
-                        color: prefType === t.id ? theme.ink : theme.inkMuted,
+                          prefType === t.id ? brand.gold : brand.hairline,
+                        color: prefType === t.id ? brand.ink : brand.inkMuted,
                       }}
                     >
                       {t.label}
@@ -317,7 +307,7 @@ export function EligibilityCalculator() {
               <div>
                 <label
                   className="block text-xs font-semibold uppercase tracking-wider mb-3"
-                  style={{ color: theme.inkMuted }}
+                  style={{ color: brand.inkMuted }}
                 >
                   Must-Have Facilities
                 </label>
@@ -335,16 +325,16 @@ export function EligibilityCalculator() {
                         onClick={() => handleFeatureToggle(feat.id)}
                         className="flex items-center w-full gap-3 text-left py-2.5 px-4 rounded-xl text-sm border transition-all duration-150"
                         style={{
-                          background: checked ? theme.goldLight : "transparent",
-                          borderColor: checked ? theme.gold : theme.hairline,
-                          color: checked ? theme.ink : theme.inkMuted,
+                          background: checked ? brand.goldLight : "transparent",
+                          borderColor: checked ? brand.gold : brand.hairline,
+                          color: checked ? brand.ink : brand.inkMuted,
                         }}
                       >
                         <div
                           className="flex size-4 items-center justify-center rounded border transition-all duration-150"
                           style={{
-                            borderColor: checked ? theme.gold : theme.inkSubtle,
-                            background: checked ? theme.gold : "transparent",
+                            borderColor: checked ? brand.gold : brand.inkSubtle,
+                            background: checked ? brand.gold : "transparent",
                           }}
                         >
                           {checked && <Check className="size-3 text-white stroke-[3px]" />}
@@ -373,7 +363,7 @@ export function EligibilityCalculator() {
                   style={{
                     background: "rgba(239, 68, 68, 0.02)",
                     borderColor: "rgba(239, 68, 68, 0.15)",
-                    borderRadius: theme.cardRadius,
+                    borderRadius: radius.card,
                   }}
                 >
                   <div className="size-16 rounded-full bg-red-50 flex items-center justify-center mb-6">
@@ -381,13 +371,13 @@ export function EligibilityCalculator() {
                   </div>
                   <h4
                     className="text-xl font-bold mb-3"
-                    style={{ color: theme.ink }}
+                    style={{ color: brand.ink }}
                   >
                     NEET Score Not Qualified
                   </h4>
                   <p
                     className="text-sm max-w-md leading-relaxed mb-6"
-                    style={{ color: theme.inkMuted }}
+                    style={{ color: brand.inkMuted }}
                   >
                     To study MBBS abroad legally under NMC guidelines, you need a minimum qualifying NEET UG score of{" "}
                     <span className="font-bold text-red-500">{eligibility.requiredMin}</span> for the{" "}
@@ -397,7 +387,7 @@ export function EligibilityCalculator() {
                   <div
                     className="flex gap-3 text-left p-4 rounded-xl text-xs max-w-md leading-relaxed border"
                     style={{
-                      background: theme.surface,
+                      background: brand.surface,
                       borderColor: "rgba(239, 68, 68, 0.1)",
                     }}
                   >
@@ -424,7 +414,7 @@ export function EligibilityCalculator() {
                     style={{
                       background: "rgba(16, 185, 129, 0.03)",
                       borderColor: "rgba(16, 185, 129, 0.15)",
-                      borderRadius: theme.cardRadius,
+                      borderRadius: radius.card,
                     }}
                   >
                     <div className="size-12 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
@@ -450,7 +440,7 @@ export function EligibilityCalculator() {
                   {/* Matching results */}
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-sm font-bold uppercase tracking-wider" style={{ color: theme.inkMuted }}>
+                      <h4 className="text-sm font-bold uppercase tracking-wider" style={{ color: brand.inkMuted }}>
                         Matching Kyrgyzstan Universities ({matchingUniversities.length})
                       </h4>
                       <span className="text-xs text-slate-400 font-medium">
@@ -473,19 +463,19 @@ export function EligibilityCalculator() {
                             key={uni.id}
                             className="p-4 border rounded-xl flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-all duration-200 hover:shadow-sm"
                             style={{
-                              background: theme.surface,
-                              borderColor: theme.hairline,
+                              background: brand.surface,
+                              borderColor: brand.hairline,
                             }}
                           >
                             <div>
                               <div className="flex items-center gap-2">
                                 <span
                                   className="py-0.5 px-1.5 rounded text-[9px] font-bold uppercase tracking-wide bg-slate-100 text-slate-600 border"
-                                  style={{ borderColor: theme.hairline }}
+                                  style={{ borderColor: brand.hairline }}
                                 >
                                   {uni.type}
                                 </span>
-                                <h5 className="font-bold text-sm" style={{ color: theme.ink }}>
+                                <h5 className="font-bold text-sm" style={{ color: brand.ink }}>
                                   {uni.name} ({uni.shortName})
                                 </h5>
                               </div>
@@ -497,7 +487,7 @@ export function EligibilityCalculator() {
                                   <span
                                     key={t}
                                     className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-50 border text-slate-400"
-                                    style={{ borderColor: theme.hairline }}
+                                    style={{ borderColor: brand.hairline }}
                                   >
                                     {t}
                                   </span>
@@ -507,14 +497,14 @@ export function EligibilityCalculator() {
                             <div className="flex sm:flex-col items-end shrink-0 gap-3 sm:gap-1.5 justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-dashed">
                               <div className="text-right">
                                 <span className="text-[10px] font-semibold text-slate-400 block leading-none">Annual Fee</span>
-                                <span className="text-base font-extrabold text-[#C4953B]" style={{ color: theme.gold }}>
+                                <span className="text-base font-extrabold text-[#C4953B]" style={{ color: brand.gold }}>
                                   ${uni.feePerYear.toLocaleString()}
                                 </span>
                               </div>
                               <button
                                 onClick={() => router.push("/student/university/" + uni.slug + "?apply=true")}
                                 className="inline-flex items-center justify-center gap-1 text-[11px] font-bold py-1.5 px-3 rounded-lg bg-[#1A153A] text-white hover:bg-opacity-90 transition-all duration-200 active:scale-[0.97]"
-                                style={{ background: theme.ink }}
+                                style={{ background: brand.ink }}
                               >
                                 Apply Now
                                 <ArrowRight className="size-3" />
@@ -530,13 +520,13 @@ export function EligibilityCalculator() {
                   <div
                     className="p-5 border rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 shadow-sm"
                     style={{
-                      background: theme.surface,
-                      borderColor: theme.goldBorder,
-                      borderRadius: theme.cardRadius,
+                      background: brand.surface,
+                      borderColor: brand.gold + "33",
+                      borderRadius: radius.card,
                     }}
                   >
                     <div className="max-w-md text-center sm:text-left">
-                      <h5 className="text-sm font-bold flex items-center justify-center sm:justify-start gap-1.5" style={{ color: theme.ink }}>
+                      <h5 className="text-sm font-bold flex items-center justify-center sm:justify-start gap-1.5" style={{ color: brand.ink }}>
                         <GraduationCap className="size-4 text-[#C4953B]" />
                         Want a Professional Free Consultation?
                       </h5>
@@ -548,8 +538,8 @@ export function EligibilityCalculator() {
                       onClick={() => router.push("/register")}
                       className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider py-3 px-5 rounded-xl transition-all duration-200 active:scale-[0.97] shrink-0"
                       style={{
-                        background: theme.gold,
-                        color: theme.ink,
+                        background: brand.gold,
+                        color: brand.ink,
                       }}
                     >
                       Book Session

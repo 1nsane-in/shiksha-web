@@ -8,6 +8,7 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 const mockPrismaService = {
   course: {
     findUnique: jest.fn(),
+    findFirst: jest.fn(),
     create: jest.fn(),
     findMany: jest.fn(),
     update: jest.fn(),
@@ -65,7 +66,7 @@ describe('CoursesService', () => {
         updatedAt: new Date(),
       };
 
-      mockPrismaService.course.findUnique.mockResolvedValue(null);
+      mockPrismaService.course.findFirst.mockResolvedValue(null);
       mockPrismaService.course.create.mockResolvedValue(mockCourse);
 
       const result = await service.create(createCourseDto);
@@ -102,7 +103,7 @@ describe('CoursesService', () => {
         updatedAt: new Date(),
       };
 
-      mockPrismaService.course.findUnique.mockResolvedValue(mockExistingCourse);
+      mockPrismaService.course.findFirst.mockResolvedValue(mockExistingCourse);
 
       await expect(service.create(createCourseDto)).rejects.toThrow(
         new ConflictException('Course with this title already exists'),
@@ -214,10 +215,8 @@ describe('CoursesService', () => {
         updatedAt: new Date(),
       };
 
-      mockPrismaService.course.findUnique.mockImplementation((args) => {
-        if (args.where.id === '1') return Promise.resolve(mockExistingCourse);
-        return Promise.resolve(null);
-      });
+      mockPrismaService.course.findUnique.mockResolvedValue(mockExistingCourse);
+      mockPrismaService.course.findFirst.mockResolvedValue(null);
       mockPrismaService.course.update.mockResolvedValue(mockUpdatedCourse);
 
       const result = await service.update('1', updateCourseDto);
@@ -275,12 +274,8 @@ describe('CoursesService', () => {
         updatedAt: new Date(),
       };
 
-      mockPrismaService.course.findUnique.mockImplementation((args) => {
-        if (args.where.id === '1') return Promise.resolve(mockExistingCourse);
-        if (args.where.title === 'Advanced Computer Science')
-          return Promise.resolve(mockDuplicateCourse);
-        return Promise.resolve(null);
-      });
+      mockPrismaService.course.findUnique.mockResolvedValue(mockExistingCourse);
+      mockPrismaService.course.findFirst.mockResolvedValue(mockDuplicateCourse);
 
       await expect(service.update('1', updateCourseDto)).rejects.toThrow(
         new ConflictException('Course with this title already exists'),

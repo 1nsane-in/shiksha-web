@@ -1,11 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailValidationService } from '../common/services/email-validation.service';
+import { EmailService } from '../common/services/email.service';
 import { UnauthorizedException, BadRequestException } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
+
+jest.mock('bcryptjs', () => ({
+  compare: jest.fn(),
+  hash: jest.fn(),
+  genSalt: jest.fn(),
+}));
+import * as bcrypt from 'bcryptjs';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -67,6 +75,20 @@ describe('AuthService', () => {
             validateEmail: jest.fn().mockReturnValue(true),
           },
         },
+        {
+          provide: EmailService,
+          useValue: {
+            sendRegistrationOtp: jest.fn().mockResolvedValue(undefined),
+            sendPasswordResetOtp: jest.fn().mockResolvedValue(undefined),
+            sendWelcomeEmail: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('development'),
+          },
+        },
       ],
     }).compile();
 
@@ -82,10 +104,8 @@ describe('AuthService', () => {
         password: 'correctpassword',
       };
 
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
-      jest
-        .spyOn(bcrypt, 'compare')
-        .mockImplementation(() => Promise.resolve(true));
 
       const result = await service.login(loginDto);
 
@@ -129,10 +149,8 @@ describe('AuthService', () => {
         password: 'wrongpassword',
       };
 
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
       jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
-      jest
-        .spyOn(bcrypt, 'compare')
-        .mockImplementation(() => Promise.resolve(false));
 
       await expect(service.login(loginDto)).rejects.toThrow(
         UnauthorizedException,

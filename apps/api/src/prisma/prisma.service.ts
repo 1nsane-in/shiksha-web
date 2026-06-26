@@ -1,4 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaClient, Prisma } from '@prisma/client';
 
 @Injectable()
@@ -8,7 +9,7 @@ export class PrismaService
 {
   private readonly logger = new Logger('PrismaService');
 
-  constructor() {
+  constructor(config: ConfigService) {
     super({
       log: [
         { emit: 'event', level: 'query' },
@@ -18,7 +19,7 @@ export class PrismaService
     });
 
     // Log slow queries in development
-    if (process.env.NODE_ENV === 'development') {
+    if (config.get('NODE_ENV') === 'development') {
       this.$on('query', (e: Prisma.QueryEvent) => {
         if (e.duration > 1000) {
           this.logger.warn(`Slow query (${e.duration}ms): ${e.query.substring(0, 100)}...`);

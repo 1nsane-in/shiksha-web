@@ -23,11 +23,17 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get('profile')
-  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,name,email,student.currentStage' })
+  @ApiQuery({
+    name: 'fields',
+    required: false,
+    type: String,
+    description:
+      'Comma-separated fields. E.g. id,name,email,student.currentStage',
+  })
   async getProfile(
     @Request() req: AuthenticatedRequest,
     @Query('fields') fields?: string,
-  ) {
+  ): Promise<unknown> {
     return this.usersService.getProfile(req.user.id, fields);
   }
 
@@ -35,7 +41,7 @@ export class UsersController {
   async updateProfile(
     @Request() req: AuthenticatedRequest,
     @Body() dto: UpdateProfileDto,
-  ) {
+  ) :Promise<unknown> {
     return this.usersService.updateProfile(req.user.id, dto);
   }
 }
@@ -47,7 +53,13 @@ export class AdminUsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
-  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,name,email,role,student.currentStage' })
+  @ApiQuery({
+    name: 'fields',
+    required: false,
+    type: String,
+    description:
+      'Comma-separated fields. E.g. id,name,email,role,student.currentStage',
+  })
   async findAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -63,11 +75,14 @@ export class AdminUsersController {
   }
 
   @Get(':id')
-  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,name,email,student.currentStage' })
-  async findOne(
-    @Param('id') id: string,
-    @Query('fields') fields?: string,
-  ) {
+  @ApiQuery({
+    name: 'fields',
+    required: false,
+    type: String,
+    description:
+      'Comma-separated fields. E.g. id,name,email,student.currentStage',
+  })
+  async findOne(@Param('id') id: string, @Query('fields') fields?: string) {
     return this.usersService.findOne(id, fields);
   }
 

@@ -40,15 +40,7 @@ import {
 } from "@/domains/consultations";
 import type { Consultation } from "@/domains/consultations";
 
-const theme = {
-  ink: "#1A153A",
-  inkMuted: "#6B6599",
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.08)",
-  canvas: "#FAF9F6",
-  surface: "#FFFFFF",
-  hairline: "rgba(26, 21, 58, 0.08)",
-};
+import { brand as theme } from "@/lib/brand";
 
 const statusDetails: Record<string, { label: string; dot: string; cls: string }> = {
   PENDING: { label: "Pending", dot: "bg-amber-500", cls: "text-amber-800 bg-amber-50/50 border-amber-200" },

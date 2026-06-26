@@ -10,6 +10,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { versionMiddleware } from './common/middleware/version-middleware';
+import { Request, Response, NextFunction } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -30,14 +31,14 @@ async function bootstrap() {
 
   app.use(versionMiddleware);
 
-  app.use((req: any, res: any, next: any) => {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     res.on('finish', () => {
       const duration = Date.now() - start;
       logger.log(
         `${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`,
       );
-      if (req.body && Object.keys(req.body).length > 0) {
+      if (req.body && Object.keys(req.body ).length > 0) {
         logger.debug(`Request Body: ${JSON.stringify(req.body)}`);
       }
     });

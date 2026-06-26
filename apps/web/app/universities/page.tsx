@@ -22,19 +22,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 
-const theme = {
-  bg: "#FAF9F6",
-  surface: "#FFFFFF",
-  ink: "#1A153A",
-  inkMuted: "#6B6599",
-  inkSubtle: "#9590B5",
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.10)",
-  goldBorder: "rgba(196, 149, 59, 0.20)",
-  hairline: "rgba(26, 21, 58, 0.08)",
-  cardRadius: 16,
-  btnRadius: 10,
-};
+import { brand as theme } from "@/lib/brand";
 
 const seedUniversities = [
   {

@@ -18,20 +18,10 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 
-/* ─── brand tokens ─── */
-const theme = {
-  bg: "#FAF9F6",
-  surface: "#FFFFFF",
-  ink: "#1A153A",
-  inkMuted: "#6B6599",
-  inkSubtle: "#9590B5",
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.10)",
-  goldBorder: "rgba(196, 149, 59, 0.20)",
-  hairline: "rgba(26, 21, 58, 0.08)",
-  cardRadius: 16,
-  btnRadius: 10,
-};
+import { brand } from "@/lib/brand";
+
+/* ─── component-local layout tokens (not shared) ─── */
+const radius = { card: 16, btn: 10 };
 
 /* ─── static seed data fallback ─── */
 const seedUniversities = [
@@ -157,20 +147,20 @@ function statusIndicator(status: string | null | undefined) {
 /* ─── loading skeleton ─── */
 function Skeleton() {
   return (
-    <section className="py-20" style={{ background: theme.bg }}>
+    <section className="py-20" style={{ background: brand.canvas }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-14 flex flex-col items-center gap-4">
           <div
             className="h-4 w-28 animate-pulse rounded-full"
-            style={{ background: theme.hairline }}
+            style={{ background: brand.hairline }}
           />
           <div
             className="h-8 w-80 animate-pulse rounded-lg"
-            style={{ background: theme.hairline }}
+            style={{ background: brand.hairline }}
           />
           <div
             className="h-4 w-96 animate-pulse rounded-md"
-            style={{ background: theme.hairline }}
+            style={{ background: brand.hairline }}
           />
         </div>
         <div className="grid gap-6 md:grid-cols-2">
@@ -179,14 +169,14 @@ function Skeleton() {
               key={i}
               className="animate-pulse overflow-hidden rounded-2xl"
               style={{
-                background: theme.surface,
+                background: brand.surface,
                 boxShadow: "0 1px 3px rgba(26,21,58,0.06)",
               }}
             >
               <div className="flex flex-col sm:flex-row">
                 <div
                   className="h-48 w-full shrink-0 sm:h-auto sm:w-44"
-                  style={{ background: theme.hairline }}
+                  style={{ background: brand.hairline }}
                 />
                 <div className="flex-1 space-y-3 p-5">
                   <div className="h-4 w-3/4 rounded bg-gray-200" />
@@ -213,22 +203,22 @@ function ErrorState({
   onRetry: () => void;
 }) {
   return (
-    <section className="py-20" style={{ background: theme.bg }}>
+    <section className="py-20" style={{ background: brand.canvas }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex min-h-[320px] flex-col items-center justify-center gap-5 text-center">
           <div
             className="flex size-16 items-center justify-center rounded-full"
-            style={{ background: theme.goldLight }}
+            style={{ background: brand.goldLight }}
           >
-            <AlertCircle className="size-7" style={{ color: theme.gold }} />
+            <AlertCircle className="size-7" style={{ color: brand.gold }} />
           </div>
           <div>
-            <p className="text-lg font-medium" style={{ color: theme.ink }}>
+            <p className="text-lg font-medium" style={{ color: brand.ink }}>
               {error
                 ? "Unable to load universities"
                 : "No universities available"}
             </p>
-            <p className="mt-1 text-sm" style={{ color: theme.inkMuted }}>
+            <p className="mt-1 text-sm" style={{ color: brand.inkMuted }}>
               {error
                 ? "Please check your connection and try again."
                 : "Check back later for new university listings."}
@@ -238,9 +228,9 @@ function ErrorState({
             <Button
               onClick={onRetry}
               style={{
-                background: theme.ink,
+                background: brand.ink,
                 color: "#fff",
-                borderRadius: theme.btnRadius,
+                borderRadius: radius.btn,
                 padding: "10px 24px",
                 fontSize: 14,
                 fontWeight: 500,
@@ -266,16 +256,16 @@ export function UniversityCards() {
     return <ErrorState error={error} onRetry={() => refetch()} />;
 
   return (
-    <section className="py-20 md:py-28" style={{ background: theme.bg }}>
+    <section className="py-20 md:py-28" style={{ background: brand.canvas }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* ─── heading ─── */}
         <div className="mx-auto mb-14 max-w-3xl text-center">
           <div
             className="mb-4 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-medium tracking-wide uppercase"
             style={{
-              background: theme.goldLight,
-              color: theme.gold,
-              border: "1px solid " + theme.goldBorder,
+              background: brand.goldLight,
+              color: brand.gold,
+              border: "1px solid " + brand.gold + "33",
             }}
           >
             <Star className="size-3" />
@@ -283,13 +273,13 @@ export function UniversityCards() {
           </div>
           <h2
             className="text-balance text-3xl font-bold leading-tight tracking-tight md:text-4xl"
-            style={{ color: theme.ink }}
+            style={{ color: brand.ink }}
           >
             Top Medical Universities in Kyrgyzstan
           </h2>
           <p
             className="mt-3 text-balance leading-relaxed"
-            style={{ color: theme.inkMuted }}
+            style={{ color: brand.inkMuted }}
           >
             Affordable MBBS programs with global recognition, English medium
             instruction, and world-class clinical training approved by NMC, WHO,
@@ -319,8 +309,8 @@ export function UniversityCards() {
                 <div
                   className="group relative overflow-hidden transition-all duration-300"
                   style={{
-                    background: theme.surface,
-                    borderRadius: theme.cardRadius,
+                    background: brand.surface,
+                    borderRadius: radius.card,
                     boxShadow:
                       "0 1px 3px rgba(26,21,58,0.06), 0 1px 2px rgba(26,21,58,0.04)",
                   }}
@@ -331,9 +321,9 @@ export function UniversityCards() {
                     style={{
                       background:
                         "linear-gradient(90deg, " +
-                        theme.gold +
+                        brand.gold +
                         ", " +
-                        theme.gold +
+                        brand.gold +
                         "88)",
                     }}
                   />
@@ -356,19 +346,19 @@ export function UniversityCards() {
                             style={{
                               background:
                                 "linear-gradient(135deg, " +
-                                theme.ink +
+                                brand.ink +
                                 "08, " +
-                                theme.ink +
+                                brand.ink +
                                 "03)",
                             }}
                           >
                             <Building2
                               className="size-10"
-                              style={{ color: theme.inkSubtle }}
+                              style={{ color: "#9590B5" }}
                             />
                             <span
                               className="text-xs font-medium"
-                              style={{ color: theme.inkMuted }}
+                              style={{ color: brand.inkMuted }}
                             >
                               {uni.shortName || "University"}
                             </span>
@@ -413,14 +403,14 @@ export function UniversityCards() {
                         <div className="min-w-0">
                           <h3
                             className="text-[15px] font-semibold leading-snug tracking-tight"
-                            style={{ color: theme.ink }}
+                            style={{ color: brand.ink }}
                           >
                             {uni.name}
                           </h3>
                           {uni.shortName && (
                             <span
                               className="text-xs font-medium tracking-wide uppercase"
-                              style={{ color: theme.inkSubtle }}
+                              style={{ color: "#9590B5" }}
                             >
                               {uni.shortName}
                             </span>
@@ -432,7 +422,7 @@ export function UniversityCards() {
                       {uni.content?.shortDescription && (
                         <p
                           className="mt-1.5 line-clamp-2 text-sm leading-relaxed"
-                          style={{ color: theme.inkMuted }}
+                          style={{ color: brand.inkMuted }}
                         >
                           {uni.content.shortDescription}
                         </p>
@@ -444,7 +434,7 @@ export function UniversityCards() {
                           className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-medium leading-none"
                           style={{
                             background: "rgba(26,21,58,0.05)",
-                            color: theme.inkMuted,
+                            color: brand.inkMuted,
                           }}
                         >
                           <Calendar className="size-3" />
@@ -454,7 +444,7 @@ export function UniversityCards() {
                           className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-medium leading-none"
                           style={{
                             background: "rgba(26,21,58,0.05)",
-                            color: theme.inkMuted,
+                            color: brand.inkMuted,
                           }}
                         >
                           <GraduationCap className="size-3" />
@@ -465,7 +455,7 @@ export function UniversityCards() {
                             className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-medium leading-none"
                             style={{
                               background: "rgba(26,21,58,0.05)",
-                              color: theme.inkMuted,
+                              color: brand.inkMuted,
                             }}
                           >
                             <MapPin className="size-3" />
@@ -507,7 +497,7 @@ export function UniversityCards() {
                       {uni.contact?.email && (
                         <div
                           className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px]"
-                          style={{ color: theme.inkSubtle }}
+                          style={{ color: "#9590B5" }}
                         >
                           <span className="inline-flex items-center gap-1">
                             <Globe className="size-3" />
@@ -528,7 +518,7 @@ export function UniversityCards() {
                       {/* divider */}
                       <hr
                         className="my-3 border-0"
-                        style={{ height: 1, background: theme.hairline }}
+                        style={{ height: 1, background: brand.hairline }}
                       />
 
                       {/* actions */}
@@ -544,12 +534,12 @@ export function UniversityCards() {
                           style={{
                             background:
                               "linear-gradient(135deg, " +
-                              theme.gold +
+                              brand.gold +
                               ", " +
-                              theme.gold +
+                              brand.gold +
                               "dd)",
                             color: "#fff",
-                            borderRadius: theme.btnRadius,
+                            borderRadius: radius.btn,
                             padding: "10px 18px",
                           }}
                         >
@@ -564,10 +554,10 @@ export function UniversityCards() {
                           className="inline-flex flex-1 items-center justify-center gap-1.5 text-sm font-medium transition-all duration-200"
                           style={{
                             background: "transparent",
-                            color: theme.ink,
-                            borderRadius: theme.btnRadius,
+                            color: brand.ink,
+                            borderRadius: radius.btn,
                             padding: "10px 18px",
-                            border: "1px solid " + theme.hairline,
+                            border: "1px solid " + brand.hairline,
                           }}
                         >
                           View Details
@@ -588,10 +578,10 @@ export function UniversityCards() {
             className="inline-flex items-center gap-2 text-sm font-medium transition-all duration-200"
             style={{
               background: "transparent",
-              color: theme.ink,
-              borderRadius: theme.btnRadius,
+              color: brand.ink,
+              borderRadius: radius.btn,
               padding: "12px 28px",
-              border: "1px solid " + theme.hairline,
+              border: "1px solid " + brand.hairline,
             }}
           >
             View All Universities

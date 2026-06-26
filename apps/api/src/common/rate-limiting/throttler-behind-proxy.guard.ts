@@ -1,12 +1,17 @@
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
 @Injectable()
 export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
+  constructor(private readonly config: ConfigService) {
+    super();
+  }
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Skip throttling in development mode
-    const nodeEnv = process.env.NODE_ENV;
+    const nodeEnv = this.config.get<string>('NODE_ENV');
     if (nodeEnv === 'development' || nodeEnv === 'dev') {
       return true;
     }
