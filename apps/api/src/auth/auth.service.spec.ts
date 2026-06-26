@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import type { Mock } from 'jest-mock';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { EmailValidationService } from '../common/services/email-validation.service';
 import { EmailService } from '../common/services/email.service';
 import { UnauthorizedException, BadRequestException } from '@nestjs/common';
@@ -16,6 +18,7 @@ jest.mock('bcryptjs', () => ({
 import * as bcrypt from 'bcryptjs';
 
 describe('AuthService', () => {
+  let module: TestingModule;
   let service: AuthService;
   let prisma: PrismaService;
   let jwtService: JwtService;
@@ -31,7 +34,7 @@ describe('AuthService', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [
         AuthService,
         {
@@ -81,6 +84,16 @@ describe('AuthService', () => {
             sendRegistrationOtp: jest.fn().mockResolvedValue(undefined),
             sendPasswordResetOtp: jest.fn().mockResolvedValue(undefined),
             sendWelcomeEmail: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: RedisService,
+          useValue: {
+            get: jest.fn().mockResolvedValue(null),
+            incr: jest.fn().mockResolvedValue(1),
+            expire: jest.fn().mockResolvedValue(undefined),
+            del: jest.fn().mockResolvedValue(undefined),
+            ttl: jest.fn().mockResolvedValue(600),
           },
         },
         {
@@ -170,6 +183,25 @@ describe('AuthService', () => {
 
       await expect(service.login(loginDto)).rejects.toThrow(
         UnauthorizedException,
+      );
+    });
+
+    it('should throw UnauthorizedException when account is locked', async () => {
+      const loginDto = {
+        email: 'locked@example.com',
+        password: 'password',
+      };
+
+      jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(mockUser as any);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+      // Override Redis mock to simulate 5 failed attempts
+      const redisService = module.get<RedisService>(RedisService);
+      jest.spyOn(redisService, 'get').mockResolvedValue(5);
+      jest.spyOn(redisService, 'ttl').mockResolvedValue(600);
+
+      await expect(service.login(loginDto)).rejects.toThrow(
+        'Account temporarily locked',
       );
     });
   });

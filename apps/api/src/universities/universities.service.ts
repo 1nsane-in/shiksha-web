@@ -400,26 +400,6 @@ export class UniversitiesService {
     await this.redis.deletePattern('universities:list:*');
 
     return university;
-          : undefined,
-        admin: dto.admin ? { create: dto.admin as any } : undefined,
-        studentDemographics: (dto.studentDemographics as any) ?? undefined,
-        socialLinks: (dto.socialLinks as any) ?? undefined,
-      },
-      include: {
-        location: true,
-        contact: true,
-        academic: true,
-        recognition: true,
-        fees: true,
-        infrastructure: true,
-        admission: true,
-        support: true,
-        content: true,
-        admin: true,
-      },
-    });
-
-    return university;
   }
 
   private sanitizeLocation(loc: any) {

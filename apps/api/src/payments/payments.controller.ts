@@ -14,6 +14,7 @@ import {
   VerifyPayUPaymentDto,
   ManualPaymentApprovalDto,
 } from './dto/payment.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -23,12 +24,14 @@ import type { AuthenticatedUser } from '../common/types/request.type';
 @ApiTags('Payments')
 @ApiBearerAuth()
 @Controller('payments')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class PaymentsController {
   constructor(private paymentsService: PaymentsService) {}
 
   // --- Student endpoints ---
 
   @Post('initiate')
+  @Roles('STUDENT')
   @ApiOperation({ summary: 'Initiate PayU payment for a stage' })
   async initiate(
     @Body() dto: InitiatePayUPaymentDto,
@@ -45,6 +48,7 @@ export class PaymentsController {
   }
 
   @Get('history')
+  @Roles('STUDENT')
   @ApiOperation({ summary: 'Get payment history' })
   @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,amount,status,stage,paidAt' })
   async getHistory(
@@ -64,6 +68,7 @@ export class PaymentsController {
   // --- Single payment detail ---
 
   @Get(':id')
+  @Roles('STUDENT', 'ADMIN', 'SUPER_ADMIN')
   @ApiOperation({ summary: 'Get payment by ID' })
   @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,amount,status,stage' })
   async getPayment(

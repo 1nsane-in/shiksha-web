@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { EmailValidationService } from '../common/services/email-validation.service';
 import { EmailService } from '../common/services/email.service';
 import {
@@ -31,6 +32,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private redis: RedisService,
     private emailValidation: EmailValidationService,
     private emailService: EmailService,
     private config: ConfigService,
@@ -176,13 +178,33 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Account lockout: check failed attempts before comparing password
+    const lockoutKey = `lockout:email:${dto.email}`;
+    const maxAttempts = 5;
+    const lockoutDuration = 15 * 60; // 15 minutes
+    const attempts = await this.redis.get<number>(lockoutKey);
+    if (attempts && attempts >= maxAttempts) {
+      const ttl = await this.redis.ttl(lockoutKey);
+      throw new UnauthorizedException(
+        `Account temporarily locked. Try again in ${Math.ceil(ttl / 60)} minutes.`,
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(
       dto.password,
       user.passwordHash,
     );
     if (!isPasswordValid) {
+      // Increment failed attempt counter; set TTL on first failure
+      const newCount = await this.redis.incr(lockoutKey);
+      if (newCount === 1) {
+        await this.redis.expire(lockoutKey, lockoutDuration);
+      }
       throw new UnauthorizedException('Invalid credentials');
     }
+
+    // Successful login — clear lockout counter
+    await this.redis.del(lockoutKey);
 
     const { accessToken, refreshToken } = await this.generateTokens(user);
 
@@ -510,7 +532,7 @@ export class AuthService {
               code: token,
               client_id: this.config.get<string>('GOOGLE_CLIENT_ID', ''),
               client_secret: this.config.get<string>('GOOGLE_CLIENT_SECRET', ''),
-              redirect_uri: 'http://localhost:3000/auth/callback',
+              redirect_uri: this.config.get<string>('GOOGLE_REDIRECT_URI', 'http://localhost:3000/auth/callback'),
               grant_type: 'authorization_code',
             }),
           },

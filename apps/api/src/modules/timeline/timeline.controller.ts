@@ -16,7 +16,25 @@ export class TimelineController {
 
   @Get('application/:applicationId')
   @ApiOperation({ summary: 'Get timeline events for an application' })
-  async getApplicationTimeline(@Param('applicationId') applicationId: string) {
+  async getApplicationTimeline(
+    @Param('applicationId') applicationId: string,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
+    // Ownership check: student can only see own timeline; admin can see any
+    if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
+      const student = await this.prisma.student.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      });
+      if (!student) throw new NotFoundException('Student profile not found');
+      const app = await this.prisma.application.findUnique({
+        where: { id: applicationId },
+        select: { studentId: true },
+      });
+      if (!app || app.studentId !== student.id) {
+        throw new NotFoundException('Application not found');
+      }
+    }
     return this.timelineService.getApplicationTimeline(applicationId);
   }
 
