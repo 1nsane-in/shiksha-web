@@ -3,8 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Header } from "@/components/landing/Header";
-import { Footer } from "@/components/landing/Footer";
+
 import { useUniversities } from "@/domains/universities/universities.queries";
 import {
   MapPin,
@@ -147,10 +146,7 @@ export default function PublicUniversitiesPage() {
   }, [universities, searchTerm, typeFilter]);
 
   return (
-    <>
-      <Header />
-      <main className="min-h-screen bg-[#FAF9F6] pt-24 sm:pt-28 pb-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Header Banner */}
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider bg-amber-50 text-gold border border-amber-200/50 mb-4">
@@ -387,8 +383,5 @@ export default function PublicUniversitiesPage() {
             </div>
           )}
         </div>
-      </main>
-      <Footer />
-    </>
   );
 }

@@ -1,8 +1,4 @@
-import React from "react";
 import type { Metadata } from "next";
-import { Header } from "@/components/landing/Header";
-import { Footer } from "@/components/landing/Footer";
-import { brand } from "@/lib/brand";
 import { HeroSection } from "@/components/about-us/hero-section";
 import { StorySection } from "@/components/about-us/story-section";
 import { WhyWciecSection } from "@/components/about-us/why-wciec-section";
@@ -28,18 +24,14 @@ export const metadata: Metadata = {
 
 export default function AboutUsPage() {
   return (
-    <div className="min-h-screen" style={{ background: brand.canvas }}>
-      <Header />
-      <main>
-        <HeroSection />
-        <StorySection />
-        <WhyWciecSection />
-        <PartnerSection />
-        <FoundationSection />
-        <ServicesSection />
-        <CtaSection />
-      </main>
-      <Footer />
-    </div>
+    <>
+      <HeroSection />
+      <StorySection />
+      <WhyWciecSection />
+      <PartnerSection />
+      <FoundationSection />
+      <ServicesSection />
+      <CtaSection />
+    </>
   );
 }

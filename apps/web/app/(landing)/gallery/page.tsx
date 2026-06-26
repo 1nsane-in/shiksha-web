@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Header } from "@/components/landing/Header";
-import { Footer } from "@/components/landing/Footer";
 import { useGalleryImages } from "@/domains/gallery";
-import { brand as theme } from "@/lib/brand";
 import { GalleryHero } from "@/components/gallery/gallery-hero";
 import { GalleryGrid } from "@/components/gallery/gallery-grid";
 import { GalleryLightbox } from "@/components/gallery/gallery-lightbox";
@@ -31,18 +28,13 @@ export default function GalleryPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: theme.canvas }}>
-      <Header />
-
-      <main className="flex-1">
-        <GalleryHero />
-        <GalleryGrid
-          images={images}
-          isLoading={isLoading}
-          onOpenLightbox={openLightbox}
-        />
-      </main>
-
+    <>
+      <GalleryHero />
+      <GalleryGrid
+        images={images}
+        isLoading={isLoading}
+        onOpenLightbox={openLightbox}
+      />
       <GalleryLightbox
         images={images}
         activeIndex={activeIndex}
@@ -50,8 +42,6 @@ export default function GalleryPage() {
         onNext={showNext}
         onPrev={showPrev}
       />
-
-      <Footer />
-    </div>
+    </>
   );
 }

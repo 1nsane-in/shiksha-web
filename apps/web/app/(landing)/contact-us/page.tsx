@@ -3,8 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Header } from "@/components/landing/Header";
-import { Footer } from "@/components/landing/Footer";
+
 import { useCreateConsultation } from "@/domains/consultations";
 import { useCreateUniversityRequest } from "@/domains/university-requests";
 import { toast } from "sonner";
@@ -13,18 +12,14 @@ import { Country, State } from "country-state-city";
 
 import { brand as theme } from "@/lib/brand";
 
-// Loading fallback for Suspense
+// Loading fallback for Suspense — layout provides Header/Footer/wrapper
 function ContactPageLoading() {
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: theme.canvas }}>
-      <Header />
-      <main className="flex-1 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block size-8 animate-spin rounded-full border-4 border-solid border-gold border-r-transparent" />
-          <p className="text-sm text-gray-500 mt-4">Loading...</p>
-        </div>
-      </main>
-      <Footer />
+    <div className="flex items-center justify-center py-32">
+      <div className="text-center">
+        <div className="inline-block size-8 animate-spin rounded-full border-4 border-solid border-gold border-r-transparent" />
+        <p className="text-sm text-gray-500 mt-4">Loading...</p>
+      </div>
     </div>
   );
 }
@@ -234,11 +229,8 @@ function ContactUsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: theme.canvas }}>
-      <Header />
-
-      <main className="flex-1">
-        {/* Banner Section */}
+    <>
+      {/* Banner Section */}
         <section className="relative py-16 overflow-hidden bg-[#1A153A]">
           <div className="pointer-events-none absolute inset-0 opacity-15">
             <Image
@@ -784,9 +776,6 @@ function ContactUsPage() {
             
           </div>
         </section>
-      </main>
-
-      <Footer />
-    </div>
+    </>
   );
 }
