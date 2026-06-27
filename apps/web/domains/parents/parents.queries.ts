@@ -1,4 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type {
+  ParentRegisterRequest,
+  LinkByCodeRequest,
+  CreateParentLinkRequest,
+  UpdateParentLinkStatusRequest,
+} from "./parents.types";
 
 const parentsKeys = {
   all: ["parents"] as const,
@@ -109,7 +115,7 @@ export function useLinkedChildren() {
 export function useParentRegister() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: import("./parents.types").ParentRegisterRequest) => {
+    mutationFn: async (data: ParentRegisterRequest) => {
       const { parentRegister } = await import("./parents.api");
       return parentRegister(data);
     },
@@ -122,7 +128,7 @@ export function useParentRegister() {
 export function useLinkByFamilyCode() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: import("./parents.types").LinkByCodeRequest) => {
+    mutationFn: async (data: LinkByCodeRequest) => {
       const { linkByFamilyCode } = await import("./parents.api");
       return linkByFamilyCode(data);
     },
@@ -158,9 +164,7 @@ export function useAdminParentLinks(params?: {
 export function useCreateAdminParentLink() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (
-      data: import("./parents.types").CreateParentLinkRequest
-    ) => {
+    mutationFn: async (data: CreateParentLinkRequest) => {
       const { createAdminParentLink } = await import("./parents.api");
       return createAdminParentLink(data);
     },
@@ -180,7 +184,7 @@ export function useUpdateAdminParentLinkStatus() {
       data,
     }: {
       id: string;
-      data: import("./parents.types").UpdateParentLinkStatusRequest;
+      data: UpdateParentLinkStatusRequest;
     }) => {
       const { updateAdminParentLinkStatus } = await import("./parents.api");
       return updateAdminParentLinkStatus(id, data);

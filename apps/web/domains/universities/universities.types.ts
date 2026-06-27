@@ -239,4 +239,78 @@ export interface UniversityFilters {
   search?: string;
 }
 
+// ── University Mutations ──
+export interface CreateUniversityPayload {
+  name?: string;
+  shortName?: string;
+  establishedYear?: number;
+  type?: string;
+  website?: string;
+  logo?: string;
+  bannerImage?: string;
+  brochureUrl?: string;
+  location?: Partial<UniversityLocation>;
+  contact?: Partial<UniversityContact>;
+  academic?: Partial<UniversityAcademic>;
+  recognition?: Partial<UniversityRecognition>;
+  fees?: Partial<UniversityFees>;
+  infrastructure?: Partial<UniversityInfrastructure>;
+  admission?: Partial<UniversityAdmission>;
+  support?: Partial<UniversitySupport>;
+  content?: Partial<UniversityContent>;
+  admin?: Partial<UniversityAdmin>;
+  studentDemographics?: Partial<StudentDemographics>;
+  socialLinks?: Partial<SocialLinks>;
+}
+
+export interface UpdateUniversityPayload {
+  name?: string;
+  shortName?: string;
+  establishedYear?: number;
+  type?: string;
+  website?: string;
+  logo?: string;
+  bannerImage?: string;
+  brochureUrl?: string;
+  status?: string;
+  location?: Partial<UniversityLocation>;
+  contact?: Partial<UniversityContact>;
+  academic?: Partial<UniversityAcademic>;
+  recognition?: Partial<UniversityRecognition>;
+  fees?: Partial<UniversityFees>;
+  infrastructure?: Partial<UniversityInfrastructure>;
+  admission?: Partial<UniversityAdmission>;
+  support?: Partial<UniversitySupport>;
+  content?: Partial<UniversityContent>;
+  admin?: Partial<UniversityAdmin>;
+  studentDemographics?: Partial<StudentDemographics>;
+  socialLinks?: Partial<SocialLinks>;
+}
+
+export interface AddCoursePayload {
+  name: string;
+  duration: number;
+  fees: number;
+  seats?: number;
+  currency?: string;
+  eligibility?: string;
+}
+
+export interface UpdateCoursePayload {
+  name?: string;
+  duration?: number;
+  fees?: number;
+  seats?: number;
+  currency?: string;
+  eligibility?: string;
+  isActive?: boolean;
+}
+
+export interface UploadDocumentPayload {
+  type: string;
+  fileUrl: string;
+  fileName: string;
+  fileSize: number;
+}
+
 export type { PaginatedResponse, PaginationMeta };

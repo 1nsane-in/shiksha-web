@@ -8,63 +8,85 @@ import type {
   ChildProgress,
   LinkByCodeRequest,
   LinkByCodeResponse,
+  AdminParentLinksResponse,
+  CreateParentLinkRequest,
+  UpdateParentLinkStatusRequest,
+  AdminParentLink,
 } from "./parents.types";
 import type { AuthResponse } from "@/domains/auth/auth.types";
+
+const route = {
+  inviteLink: "/parents/invite-link",
+  familyCode: "/parents/family-code",
+  regenerateFamilyCode: "/parents/regenerate-family-code",
+  myLinks: "/parents/my-links",
+  removeLink: (id: string) => `/parents/link/${id}`,
+  inviteDetails: (code: string) => `/parents/invite/${code}`,
+  linkByCode: "/parents/link-by-code",
+  children: "/parents/children",
+  parentSendEmailOtp: "/auth/parent-send-email-otp",
+  parentVerifyEmailOtp: "/auth/parent-verify-email-otp",
+  parentSendPhoneOtp: "/auth/parent-send-phone-otp",
+  parentVerifyPhoneOtp: "/auth/parent-verify-phone-otp",
+  parentRegister: "/auth/parent-register",
+  adminList: "/admin/parent-links",
+  adminDetail: (id: string) => `/admin/parent-links/${id}`,
+} as const;
 
 /* ─── Student-side endpoints ─── */
 
 export function generateInviteLink() {
-  return client.post<InviteLinkResponse>("/parents/invite-link");
+  return client.post<InviteLinkResponse>(route.inviteLink);
 }
 
 export function getFamilyCode() {
-  return client.get<FamilyCodeResponse>("/parents/family-code");
+  return client.get<FamilyCodeResponse>(route.familyCode);
 }
 
 export function regenerateFamilyCode() {
-  return client.post<FamilyCodeResponse>("/parents/regenerate-family-code");
+  return client.post<FamilyCodeResponse>(route.regenerateFamilyCode);
 }
 
 export function getMyParentLinks() {
-  return client.get<ParentLink[]>("/parents/my-links");
+  return client.get<ParentLink[]>(route.myLinks);
 }
 
 export function removeParentLink(id: string) {
-  return client.delete<void>(`/parents/link/${id}`);
+  return client.delete<void>(route.removeLink(id));
 }
 
 /* ─── Parent-side endpoints ─── */
 
 export function validateInviteCode(code: string) {
-  return client.get<InviteDetails>(`/parents/invite/${code}`);
+  return client.get<InviteDetails>(route.inviteDetails(code));
 }
 
 export function sendEmailOtp(email: string, name?: string) {
-  return client.post<{ message: string }>("/auth/parent-send-email-otp", { email, name });
+  return client.post<{ message: string }>(route.parentSendEmailOtp, { email, name });
 }
 
 export function verifyEmailOtp(email: string, otp: string) {
-  return client.post<{ message: string }>("/auth/parent-verify-email-otp", { email, otp });
+  return client.post<{ message: string }>(route.parentVerifyEmailOtp, { email, otp });
 }
 
 export function sendPhoneOtp(phone: string) {
-  return client.post<{ message: string }>("/auth/parent-send-phone-otp", { phone });
+  return client.post<{ message: string }>(route.parentSendPhoneOtp, { phone });
 }
 
 export function verifyPhoneOtp(phone: string, otp: string) {
-  return client.post<{ message: string }>("/auth/parent-verify-phone-otp", { phone, otp });
+  return client.post<{ message: string }>(route.parentVerifyPhoneOtp, { phone, otp });
 }
 
 export function parentRegister(data: ParentRegisterRequest) {
-  return client.post<AuthResponse>("/auth/parent-register", data);
+  return client.post<AuthResponse>(route.parentRegister, data);
 }
 
 export function linkByFamilyCode(data: LinkByCodeRequest) {
-  return client.post<LinkByCodeResponse>("/parents/link-by-code", data);
+  return client.post<LinkByCodeResponse>(route.linkByCode, data);
 }
 
 export function getLinkedChildren() {
-  return client.get<ChildProgress[]>("/parents/children");
+  return client.get<ChildProgress[]>(route.children);
 }
 
 /* ─── Admin endpoints ─── */
@@ -75,25 +97,22 @@ export function getAdminParentLinks(params?: {
   status?: string;
   search?: string;
 }) {
-  return client.get<import("./parents.types").AdminParentLinksResponse>("/admin/parent-links", { params });
+  return client.get<AdminParentLinksResponse>(route.adminList, { params });
 }
 
 export function createAdminParentLink(
-  data: import("./parents.types").CreateParentLinkRequest
+  data: CreateParentLinkRequest
 ) {
-  return client.post<import("./parents.types").AdminParentLink>("/admin/parent-links", data);
+  return client.post<AdminParentLink>(route.adminList, data);
 }
 
 export function updateAdminParentLinkStatus(
   id: string,
-  data: import("./parents.types").UpdateParentLinkStatusRequest
+  data: UpdateParentLinkStatusRequest
 ) {
-  return client.patch<import("./parents.types").AdminParentLink>(
-    `/admin/parent-links/${id}`,
-    data
-  );
+  return client.patch<AdminParentLink>(route.adminDetail(id), data);
 }
 
 export function deleteAdminParentLink(id: string) {
-  return client.delete<void>(`/admin/parent-links/${id}`);
+  return client.delete<void>(route.adminDetail(id));
 }

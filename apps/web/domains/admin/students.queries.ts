@@ -11,6 +11,7 @@ import type {
   AdminStudentFilters,
   UpdateStudentStagePayload,
   AssignUniversityPayload,
+  UpdateAdminStudentPayload,
 } from "./students.types";
 
 export function useAdminStudents(filters: AdminStudentFilters = {}) {
@@ -31,7 +32,7 @@ export function useAdminStudent(id: string) {
 export function useUpdateAdminStudent() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateAdminStudentPayload }) =>
       updateAdminStudent(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin", "students"] });

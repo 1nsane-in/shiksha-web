@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
-import type { UniversityFilters } from "./universities.types";
+import type {
+  UniversityFilters,
+  CreateUniversityPayload,
+  UpdateUniversityPayload,
+  AddCoursePayload,
+  UpdateCoursePayload,
+  UploadDocumentPayload,
+} from "./universities.types";
 
 export function useUniversities(filters: UniversityFilters = {}) {
   return useQuery({
@@ -62,7 +69,7 @@ export function useDeleteUniversity() {
 export function useCreateUniversity() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: Record<string, unknown>) => {
+    mutationFn: async (data: CreateUniversityPayload) => {
       const { createUniversity } = await import("./universities.api");
       return createUniversity(data);
     },
@@ -76,7 +83,7 @@ export function useCreateUniversity() {
 export function useUpdateUniversity() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: UpdateUniversityPayload }) => {
       const { updateUniversity } = await import("./universities.api");
       return updateUniversity(id, data);
     },
@@ -104,7 +111,7 @@ export function useUpdateUniversityStatus() {
 export function useAddUniversityCourse() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ uniId, data }: { uniId: string; data: Record<string, unknown> }) => {
+    mutationFn: async ({ uniId, data }: { uniId: string; data: AddCoursePayload }) => {
       const { addUniversityCourse } = await import("./universities.api");
       return addUniversityCourse(uniId, data);
     },
@@ -118,7 +125,7 @@ export function useAddUniversityCourse() {
 export function useUpdateUniversityCourse() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ courseId, data }: { courseId: string; data: Record<string, unknown> }) => {
+    mutationFn: async ({ courseId, data }: { courseId: string; data: UpdateCoursePayload }) => {
       const { updateUniversityCourse } = await import("./universities.api");
       return updateUniversityCourse(courseId, data);
     },
@@ -146,7 +153,7 @@ export function useDeleteUniversityCourse() {
 export function useUploadUniversityDocument() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ uniId, data }: { uniId: string; data: Record<string, unknown> }) => {
+    mutationFn: async ({ uniId, data }: { uniId: string; data: UploadDocumentPayload }) => {
       const { uploadUniversityDocument } = await import("./universities.api");
       return uploadUniversityDocument(uniId, data);
     },
