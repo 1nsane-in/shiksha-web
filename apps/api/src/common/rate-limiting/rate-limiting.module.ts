@@ -4,13 +4,14 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerBehindProxyGuard } from './throttler-behind-proxy.guard';
 import { RedisThrottlerStorage } from './redis-throttler-storage';
 import { RedisModule } from '../../redis/redis.module';
+import { RedisService } from '../../redis/redis.service';
 
 @Module({
   imports: [
     ThrottlerModule.forRootAsync({
       imports: [RedisModule],
-      inject: [RedisThrottlerStorage],
-      useFactory: (storage: RedisThrottlerStorage) => ({
+      inject: [RedisService],
+      useFactory: (redis: RedisService) => ({
         throttlers: [
           {
             name: 'short',
@@ -33,13 +34,12 @@ import { RedisModule } from '../../redis/redis.module';
             limit: 60,
           },
         ],
-        storage,
+        storage: new RedisThrottlerStorage(redis),
       }),
     }),
     RedisModule,
   ],
   providers: [
-    RedisThrottlerStorage,
     {
       provide: APP_GUARD,
       useClass: ThrottlerBehindProxyGuard,

@@ -216,7 +216,7 @@ export class StudentsService {
 
         const student = await this.prisma.student.findUnique({
           where: { id },
-          ...(select ? { select } : { include: { user: true, documents: { include: { documentType: true } }, payments: true, applications: { include: { university: true } } } }),
+          ...(select ? { select } : { include: { user: true, documents: { include: { documentType: true } }, payments: true, applications: { include: { university: true } } } }) as any,
         });
 
         if (!student) {

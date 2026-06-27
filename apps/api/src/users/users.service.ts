@@ -22,7 +22,7 @@ export class UsersService {
 
         const user = await this.prisma.user.findUnique({
           where: { id: userId },
-          ...(select ? { select } : { include: { student: true } }),
+          ...(select ? { select } : { include: { student: true } }) as any,
         });
 
         if (!user) {
@@ -64,7 +64,7 @@ export class UsersService {
             skip,
             take: limit,
             orderBy: { createdAt: 'desc' },
-            ...(select ? { select } : { include: { student: true } }),
+            ...(select ? { select } : { include: { student: true } }) as any,
           }),
           this.prisma.user.count({ where }),
         ]);
@@ -95,7 +95,7 @@ export class UsersService {
 
         const user = await this.prisma.user.findUnique({
           where: { id },
-          ...(select ? { select } : { include: { student: true } }),
+          ...(select ? { select } : { include: { student: true } }) as any,
         });
 
         if (!user) {

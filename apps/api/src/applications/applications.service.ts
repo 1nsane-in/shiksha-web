@@ -101,7 +101,7 @@ export class ApplicationsService {
                 orderBy: { createdAt: 'desc' },
               },
             },
-          }),
+          }) as any,
         });
 
         if (!application) {

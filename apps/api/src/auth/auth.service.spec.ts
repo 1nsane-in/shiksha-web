@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import type { Mock } from 'jest-mock';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';

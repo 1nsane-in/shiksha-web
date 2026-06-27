@@ -1,12 +1,16 @@
 import { Injectable, ExecutionContext } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 
 @Injectable()
 export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
-  constructor(private readonly config: ConfigService) {
-    super();
+  constructor(
+    private readonly config: ConfigService,
+    reflector: Reflector,
+  ) {
+    super({ throttlers: [] }, undefined as any, reflector);
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

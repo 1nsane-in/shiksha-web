@@ -315,9 +315,7 @@ describe('AdminService', () => {
 
   describe('getStatistics', () => {
     it('should return admin statistics', async () => {
-      prisma.user.count.mockResolvedValues
-        ? prisma.user.count.mockResolvedValues([10, 8, 2, 7, 3, 1])
-        : prisma.user.count.mockResolvedValue(10);
+      prisma.user.count.mockResolvedValue(10);
 
       // Mock each count call individually
       prisma.user.count

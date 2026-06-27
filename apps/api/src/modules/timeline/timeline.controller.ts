@@ -27,7 +27,7 @@ export class TimelineController {
         select: { id: true },
       });
       if (!student) throw new NotFoundException('Student profile not found');
-      const app = await this.prisma.application.findUnique({
+      const app = await this.prisma.universityApplication.findUnique({
         where: { id: applicationId },
         select: { studentId: true },
       });

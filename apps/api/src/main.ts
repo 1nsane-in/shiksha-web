@@ -37,7 +37,7 @@ async function bootstrap() {
       logger.log(
         `${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`,
       );
-      if (req.body && Object.keys(req.body ).length > 0) {
+      if (req.body && Object.keys(req.body).length > 0) {
         logger.debug(`Request Body: ${JSON.stringify(req.body)}`);
       }
     });

@@ -3,7 +3,9 @@
  * Converts field string like "id,name,location.country" to Prisma select object
  */
 
-export type FieldSelection = Record<string, boolean | FieldSelection>;
+export interface FieldSelection {
+  [key: string]: boolean | FieldSelection;
+}
 
 /**
  * Parse field selection string into Prisma select object
@@ -39,7 +41,7 @@ export function parseFields(
       let current: FieldSelection = select;
       
       for (let i = 0; i < parts.length; i++) {
-        const part = parts[i];
+        const part = parts[i]!;
         
         if (i === parts.length - 1) {
           // Last part - set to true

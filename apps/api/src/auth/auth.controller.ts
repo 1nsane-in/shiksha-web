@@ -54,13 +54,15 @@ export class AuthController {
     private configService: ConfigService,
   ) {}
 
-  private readonly COOKIE_OPTIONS = {
-    httpOnly: true,
-    secure: this.configService.get('NODE_ENV') === 'production',
-    sameSite: this.configService.get('NODE_ENV') === 'production' ? 'none' as const : 'lax' as const,
-    path: '/auth',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  } as const;
+  private get COOKIE_OPTIONS() {
+    return {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      sameSite: this.configService.get('NODE_ENV') === 'production' ? 'none' as const : 'lax' as const,
+      path: '/auth',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    } as const;
+  }
 
   @Public()
   @Post('send-otp')
