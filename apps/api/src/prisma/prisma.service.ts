@@ -1,6 +1,13 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import type { PoolConfig } from '@neondatabase/serverless';
 
 @Injectable()
 export class PrismaService
@@ -10,7 +17,14 @@ export class PrismaService
   private readonly logger = new Logger('PrismaService');
 
   constructor(config: ConfigService) {
+    const connectionString = config.get<string>('DATABASE_URL');
+    if (!connectionString) {
+      throw new Error('DATABASE_URL environment variable is required');
+    }
+    const poolConfig: PoolConfig = { connectionString };
+    const adapter = new PrismaNeon(poolConfig);
     super({
+      adapter,
       log: [
         { emit: 'event', level: 'query' },
         { emit: 'event', level: 'error' },
@@ -22,7 +36,9 @@ export class PrismaService
     if (config.get('NODE_ENV') === 'development') {
       this.$on('query', (e: Prisma.QueryEvent) => {
         if (e.duration > 1000) {
-          this.logger.warn(`Slow query (${e.duration}ms): ${e.query.substring(0, 100)}...`);
+          this.logger.warn(
+            `Slow query (${e.duration}ms): ${e.query.substring(0, 100)}...`,
+          );
         }
       });
     }
