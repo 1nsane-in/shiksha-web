@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { AdminSidebar } from "@/components/admin-sidebar";
-import { AdminMobileToggle } from "@/components/admin-mobile-toggle";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminMobileToggle } from "@/components/admin/admin-mobile-toggle";
 
 export const metadata: Metadata = {
   title: {

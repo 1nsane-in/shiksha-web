@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { useGalleryImages } from "@/domains/gallery";
-import { GalleryHero } from "@/components/gallery/gallery-hero";
-import { GalleryGrid } from "@/components/gallery/gallery-grid";
-import { GalleryLightbox } from "@/components/gallery/gallery-lightbox";
+import { GalleryHero } from "@/components/landing/gallery/gallery-hero";
+import { GalleryGrid } from "@/components/landing/gallery/gallery-grid";
+import { GalleryLightbox } from "@/components/landing/gallery/gallery-lightbox";
 
 export default function GalleryPage() {
   const { data: images = [], isLoading } = useGalleryImages();

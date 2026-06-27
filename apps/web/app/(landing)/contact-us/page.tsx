@@ -2,10 +2,10 @@
 
 import React, { Suspense } from "react";
 import { brand } from "@/lib/brand";
-import { ContactHero } from "@/components/contact-us/contact-hero";
-import { ContactInfo } from "@/components/contact-us/contact-info";
-import { ContactPageLoading } from "@/components/contact-us/contact-page-loading";
-import { ContactUsTabsSection } from "@/components/contact-us/contact-us-tabs-section";
+import { ContactHero } from "@/components/landing/contact-us/contact-hero";
+import { ContactInfo } from "@/components/landing/contact-us/contact-info";
+import { ContactPageLoading } from "@/components/landing/contact-us/contact-page-loading";
+import { ContactUsTabsSection } from "@/components/landing/contact-us/contact-us-tabs-section";
 
 /**
  * Contact-us page with hero, contact info sidebar, and tabbed forms.

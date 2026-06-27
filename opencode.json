@@ -71,6 +71,11 @@
       ],
       "enabled": true
     },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true
+    },
     "postman": {
       "type": "remote",
       "url": "https://mcp.postman.com/mcp",

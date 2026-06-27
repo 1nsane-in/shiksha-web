@@ -1,8 +1,8 @@
 import React from "react";
 import { brand } from "@/lib/brand";
 import { partnerUniversities } from "@/lib/brand-data";
-import { SectionHeader } from "@/components/about-us/section-header";
-import { UniversityCard } from "@/components/about-us/university-card";
+import { SectionHeader } from "@/components/landing/about-us/section-header";
+import { UniversityCard } from "@/components/landing/about-us/university-card";
 
 /**
  * Partner universities directory listing.

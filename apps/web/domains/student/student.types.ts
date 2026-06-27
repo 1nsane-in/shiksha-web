@@ -150,6 +150,23 @@ export interface SubmitApplicationFormData {
   signatureDate: string;
 }
 
+// ── Update Profile ──
+export interface UpdateStudentProfileData {
+  fatherName?: string;
+  motherName?: string;
+  dob?: string;
+  gender?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  passportNumber?: string;
+  passportExpiry?: string;
+  passportIssueDate?: string;
+  passportIssueCountry?: string;
+}
+
 // Dashboard Types
 export interface DashboardOverview {
   profile: {

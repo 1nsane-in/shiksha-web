@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { brand } from "@/lib/brand";
-import { FormTabs, type TabId } from "@/components/contact-us/form-tabs";
+import { FormTabs, type TabId } from "@/components/landing/contact-us/form-tabs";
 import {
   LazyConsultationForm,
   LazyUniversityRequestForm,
-} from "@/components/contact-us/form-loader";
+} from "@/components/landing/contact-us/form-loader";
 
 // ---------------------------------------------------------------------------
 // Tab content config — mapping each tab to its title and description.

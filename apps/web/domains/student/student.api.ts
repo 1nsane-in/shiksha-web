@@ -6,14 +6,32 @@ import type {
   SubmitApplicationFormData,
   ApplicationCheckResult,
   ApplicationDetail,
+  DashboardOverview,
+  DashboardActivity,
+  DashboardNextSteps,
+  UpdateStudentProfileData,
 } from "./student.types";
 
+// ponytail: routes grouped here, one file. Extract to shared constants if a 2nd consumer appears.
+const route = {
+  profile: "/student/profile",
+  stage: "/student/stage",
+  applications: "/student/applications",
+  applicationById: (id: string) => `/student/applications/${id}`,
+  apply: "/student/apply",
+  check: (universityId: string) =>
+    `/student/applications/check/${universityId}`,
+  dashboardOverview: "/student/dashboard/overview",
+  dashboardActivity: "/student/dashboard/activity",
+  dashboardNextSteps: "/student/dashboard/next-steps",
+} as const;
+
 export function getStudentProfile() {
-  return client.get<StudentProfile>("/student/profile");
+  return client.get<StudentProfile>(route.profile);
 }
 
 export function getStageInfo() {
-  return client.get<StageInfo>("/student/stage");
+  return client.get<StageInfo>(route.stage);
 }
 
 export function getMyApplications(page = 1, limit = 10) {
@@ -23,44 +41,36 @@ export function getMyApplications(page = 1, limit = 10) {
     page: number;
     limit: number;
     totalPages: number;
-  }>("/student/applications", { params: { page, limit } });
+  }>(route.applications, { params: { page, limit } });
 }
 
 export function getMyApplicationById(id: string) {
-  return client.get<ApplicationDetail>("/student/applications/" + id);
+  return client.get<ApplicationDetail>(route.applicationById(id));
 }
 
 export function submitApplication(data: SubmitApplicationFormData) {
   return client.post<{ message: string; applicationId: string }>(
-    "/student/apply",
+    route.apply,
     data,
   );
 }
 
 export function checkApplication(universityId: string) {
-  return client.get<ApplicationCheckResult>(
-    `/student/applications/check/${universityId}`,
-  );
+  return client.get<ApplicationCheckResult>(route.check(universityId));
 }
 
-export function updateStudentProfile(data: Record<string, unknown>) {
-  return client.put("/student/profile", data);
+export function updateStudentProfile(data: UpdateStudentProfileData) {
+  return client.put(route.profile, data);
 }
 
 export function getDashboardOverview() {
-  return client.get<import("./student.types").DashboardOverview>(
-    "/student/dashboard/overview",
-  );
+  return client.get<DashboardOverview>(route.dashboardOverview);
 }
 
 export function getDashboardActivity() {
-  return client.get<import("./student.types").DashboardActivity>(
-    "/student/dashboard/activity",
-  );
+  return client.get<DashboardActivity>(route.dashboardActivity);
 }
 
 export function getDashboardNextSteps() {
-  return client.get<import("./student.types").DashboardNextSteps>(
-    "/student/dashboard/next-steps",
-  );
+  return client.get<DashboardNextSteps>(route.dashboardNextSteps);
 }

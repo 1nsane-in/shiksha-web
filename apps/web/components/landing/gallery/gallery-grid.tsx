@@ -4,7 +4,7 @@ import React from "react";
 import { Maximize2 } from "lucide-react";
 import { brand } from "@/lib/brand";
 import type { GalleryImage } from "@/domains/gallery";
-import { GalleryImageCard } from "@/components/gallery/gallery-image-card";
+import { GalleryImageCard } from "@/components/landing/gallery/gallery-image-card";
 
 interface GalleryGridProps {
   images: GalleryImage[];

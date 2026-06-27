@@ -4,21 +4,21 @@ import React, { useState, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useUniversities } from "@/domains/universities/universities.queries";
-import { seedUniversities } from "@/components/universities/universities-data";
-import { UniversityHero } from "@/components/universities/university-hero";
+import { seedUniversities } from "@/components/landing/universities/universities-data";
+import { UniversityHero } from "@/components/landing/universities/university-hero";
 import {
   UniversitySearchToolbar,
   type UniversityTypeFilter,
-} from "@/components/universities/university-search-toolbar";
-import { UniversityLoading, UniversityEmptyState } from "@/components/universities/university-list-section";
-import { RequestBanner } from "@/components/universities/request-banner";
+} from "@/components/landing/universities/university-search-toolbar";
+import { UniversityLoading, UniversityEmptyState } from "@/components/landing/universities/university-list-section";
+import { RequestBanner } from "@/components/landing/universities/request-banner";
 
 // ---------------------------------------------------------------------------
 // Dynamic imports — UniversityCardGrid uses motion/react (~20 KB), defer it
 // ---------------------------------------------------------------------------
 const UniversityCardGrid = dynamic(
   () =>
-    import("@/components/universities/university-list-section").then(
+    import("@/components/landing/universities/university-list-section").then(
       (mod) => ({ default: mod.UniversityCardGrid })
     ),
   { loading: () => <UniversityLoading /> }

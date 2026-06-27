@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { HeroSection } from "@/components/about-us/hero-section";
-import { StorySection } from "@/components/about-us/story-section";
-import { WhyWciecSection } from "@/components/about-us/why-wciec-section";
-import { PartnerSection } from "@/components/about-us/partner-section";
-import { FoundationSection } from "@/components/about-us/foundation-section";
-import { ServicesSection } from "@/components/about-us/services-section";
-import { CtaSection } from "@/components/about-us/cta-section";
+import { HeroSection } from "@/components/landing/about-us/hero-section";
+import { StorySection } from "@/components/landing/about-us/story-section";
+import { WhyWciecSection } from "@/components/landing/about-us/why-wciec-section";
+import { PartnerSection } from "@/components/landing/about-us/partner-section";
+import { FoundationSection } from "@/components/landing/about-us/foundation-section";
+import { ServicesSection } from "@/components/landing/about-us/services-section";
+import { CtaSection } from "@/components/landing/about-us/cta-section";
 
 /* ─── Metadata ─── */
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { brand } from "@/lib/brand";
 import { foundationStats } from "@/lib/brand-data";
-import { StatBadge } from "@/components/about-us/stat-badge";
+import { StatBadge } from "@/components/landing/about-us/stat-badge";
 
 /**
  * Charity foundation section. Dark background with stats.

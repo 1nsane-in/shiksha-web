@@ -41,7 +41,7 @@ export class UsersController {
   async updateProfile(
     @Request() req: AuthenticatedRequest,
     @Body() dto: UpdateProfileDto,
-  ) :Promise<unknown> {
+  ): Promise<unknown> {
     return this.usersService.updateProfile(req.user.id, dto);
   }
 }
@@ -82,12 +82,18 @@ export class AdminUsersController {
     description:
       'Comma-separated fields. E.g. id,name,email,student.currentStage',
   })
-  async findOne(@Param('id') id: string, @Query('fields') fields?: string) {
+  async findOne(
+    @Param('id') id: string,
+    @Query('fields') fields?: string,
+  ): Promise<unknown> {
     return this.usersService.findOne(id, fields);
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateUserByAdminDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserByAdminDto,
+  ): Promise<unknown> {
     return this.usersService.update(id, dto);
   }
 

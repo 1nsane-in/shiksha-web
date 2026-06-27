@@ -1,8 +1,8 @@
 import React from "react";
 import { brand } from "@/lib/brand";
 import { whyWciecItems } from "@/lib/brand-data";
-import { SectionHeader } from "@/components/about-us/section-header";
-import { WhyWciecCard } from "@/components/about-us/why-wciec-card";
+import { SectionHeader } from "@/components/landing/about-us/section-header";
+import { WhyWciecCard } from "@/components/landing/about-us/why-wciec-card";
 
 /**
  * "Why WCIEC" — Feature grid displaying accommodation, scholarships,
