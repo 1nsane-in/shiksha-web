@@ -35,14 +35,6 @@ function map-web {
     pnpm --filter @repo/web dev
 }
 
-# End session (save progress)
-function map-end {
-    Set-Location "C:\Tushar\tussxar-projects\sh-web"
-    powershell -File ".\scripts\session-end.ps1"
-    git add .
-    Write-Output "Session saved. Remember to commit if needed."
-}
-
 # View TODO
 function map-todo {
     Set-Location "C:\Tushar\tussxar-projects\sh-web"
@@ -102,14 +94,6 @@ function map-dev {
     pnpm dev
 }
 
-# End session
-function map-end {
-    cd "/c/Tushar/tussxar-projects/sh-web"
-    bash ./scripts/session-end.sh
-    git add .
-    echo "Session saved. Remember to commit if needed."
-}
-
 # View TODO
 function map-todo {
     cd "/c/Tushar/tussxar-projects/sh-web"
@@ -133,7 +117,6 @@ function map-sessions {
 | `map-dev` | Start full development (web + api) |
 | `map-api` | Start API only |
 | `map-web` | Start Web only |
-| `map-end` | Save session progress |
 | `map-todo` | Open TODO.md |
 | `map-sessions` | List all session files |
 | `map-prisma-migrate` | Run Prisma migrations |

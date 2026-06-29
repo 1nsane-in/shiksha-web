@@ -24,6 +24,7 @@ import {
   ResetAdminPasswordDto,
   AdminQueryDto,
 } from './admin.dto';
+import type { AuthenticatedRequest } from '../common/types/request.type';
 
 @Controller('admin/admins')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -55,8 +56,8 @@ export class AdminController {
   @Post()
   @Roles('SUPER_ADMIN')
   @UseInterceptors(Auditable({ entityType: 'admin' }))
-  async create(@Body() dto: CreateAdminDto, @Request() req: any) {
-    return this.adminService.create(dto, req.user.id);
+  async create(@Body() dto: CreateAdminDto) {
+    return this.adminService.create(dto);
   }
 
   // Update admin (SUPER_ADMIN only)
@@ -71,7 +72,7 @@ export class AdminController {
   @Delete(':id')
   @Roles('SUPER_ADMIN')
   @UseInterceptors(Auditable({ entityType: 'admin', entityIdParam: 'id' }))
-  async delete(@Param('id') id: string, @Request() req: any) {
+  async delete(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.adminService.delete(id, req.user.id);
   }
 
@@ -79,14 +80,20 @@ export class AdminController {
   @Patch(':id/toggle-status')
   @Roles('SUPER_ADMIN')
   @UseInterceptors(Auditable({ entityType: 'admin', entityIdParam: 'id' }))
-  async toggleStatus(@Param('id') id: string, @Request() req: any) {
+  async toggleStatus(
+    @Param('id') id: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
     return this.adminService.toggleStatus(id, req.user.id);
   }
 
   // Change own password (ADMIN or SUPER_ADMIN)
   @Post('change-password')
   @Roles('ADMIN', 'SUPER_ADMIN')
-  async changePassword(@Body() dto: ChangePasswordDto, @Request() req: any) {
+  async changePassword(
+    @Body() dto: ChangePasswordDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
     return this.adminService.changePassword(req.user.id, dto);
   }
 

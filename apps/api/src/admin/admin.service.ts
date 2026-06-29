@@ -4,6 +4,7 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import {
@@ -24,7 +25,7 @@ export class AdminService {
     const limit = parseInt(query.limit || '10');
     const skip = (page - 1) * limit;
 
-    const where: any = {
+    const where: Prisma.UserWhereInput = {
       role: {
         in: ['ADMIN', 'SUPER_ADMIN'],
       },
@@ -110,7 +111,7 @@ export class AdminService {
   }
 
   // Create new admin
-  async create(dto: CreateAdminDto, createdBy: string) {
+  async create(dto: CreateAdminDto) {
     // Check if email already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },

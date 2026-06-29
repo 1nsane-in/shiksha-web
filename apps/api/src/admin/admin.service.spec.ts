@@ -151,7 +151,7 @@ describe('AdminService', () => {
     it('should throw BadRequestException when email exists', async () => {
       prisma.user.findUnique.mockResolvedValue(mockAdmin);
 
-      await expect(service.create(dto, 'admin-1')).rejects.toThrow(
+      await expect(service.create(dto)).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -160,7 +160,7 @@ describe('AdminService', () => {
       prisma.user.findUnique.mockResolvedValue(null);
       prisma.user.create.mockResolvedValue(mockAdmin);
 
-      const result = await service.create(dto, 'admin-1');
+      const result = await service.create(dto);
 
       expect(result.message).toBe('Admin created successfully');
       expect(result.admin).toEqual(mockAdmin);
