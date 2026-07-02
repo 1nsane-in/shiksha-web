@@ -101,9 +101,13 @@ function ChipList({ items, limit }: { items: string[]; limit?: number }) {
 function SectionCard({
   title,
   children,
+  isEmpty,
+  emptyMessage,
 }: {
   title: string;
   children: React.ReactNode;
+  isEmpty?: boolean;
+  emptyMessage?: string;
 }) {
   return (
     <div
@@ -121,7 +125,15 @@ function SectionCard({
       <h2 className="mb-5 text-lg font-semibold" style={{ color: theme.ink }}>
         {title}
       </h2>
-      {children}
+      {isEmpty ? (
+        <div className="py-8 text-center">
+          <p className="text-sm" style={{ color: theme.inkMuted }}>
+            {emptyMessage || "Information not available at this time."}
+          </p>
+        </div>
+      ) : (
+        children
+      )}
     </div>
   );
 }
@@ -220,6 +232,20 @@ export default function UniversityDetailPage() {
   if (error || !uni)
     return <ErrorState error={error as Error} onRetry={() => refetch?.()} />;
 
+  // ponytail: validate required fields — show error if name or location missing
+  if (!uni.name || !uni.location) {
+    return (
+      <ErrorState
+        error={
+          new Error(
+            "University data incomplete. Required information (name or location) is missing."
+          )
+        }
+        onRetry={() => refetch?.()}
+      />
+    );
+  }
+
   return <UniversityContent uni={uni} />;
 }
 
@@ -304,6 +330,19 @@ function UniversityContent({
   const hasGallery = content?.gallery && content.gallery.length > 0;
   const hasCourses = courses && courses.length > 0;
 
+  // ponytail: check if any content sections have data
+  const hasAnyContent =
+    academic ||
+    admission ||
+    infra ||
+    support ||
+    content?.shortDescription ||
+    content?.longDescription ||
+    hasGallery ||
+    hasCourses ||
+    recognition ||
+    fees;
+
   const locationParts = [loc?.city, loc?.state, loc?.country].filter(Boolean);
   const fullAddress = loc?.address || locationParts.join(", ");
   const website = uni.website;
@@ -331,49 +370,18 @@ function UniversityContent({
             background: theme.surface,
           }}
         >
-          {uni.bannerImage ? (
-            <Image
-              src={uni.bannerImage}
-              alt={uni.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1200px) 100vw, 1200px"
-            />
-          ) : (
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{
-                background: `linear-gradient(135deg, ${theme.ink} 0%, #2D2860 100%)`,
-              }}
-            >
-              <Building2
-                className="size-20"
-                style={{ color: "rgba(255,255,255,0.15)" }}
-              />
-            </div>
-          )}
+          <Image
+            src={uni.bannerImage || "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1920&q=85"}
+            alt={uni.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 1200px) 100vw, 1200px"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           {/* badges */}
           <div className="absolute right-4 top-4 flex flex-wrap gap-2">
-            <span
-              className="rounded-md px-3 py-1 text-xs font-semibold tracking-wide uppercase"
-              style={{
-                background: typeBadgeStyle(uni.type).cls.split(" ")[0],
-                color:
-                  typeBadgeStyle(uni.type)
-                    .cls.split(" ")[1]
-                    .replace("text-", "#") || "#fff",
-              }}
-            >
-              {typeBadgeStyle(uni.type).label}
-            </span>
-            {/* ponytail: Active badge removed — redundant with type badge */}
-            {uni.establishedYear && (
-              <span className="rounded-md bg-white/15 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur-sm">
-                Est. {uni.establishedYear}
-              </span>
-            )}
-          </div>
+            {/* ponytail: type badge removed — GOVERNMENT already shown in subtitle */}
+                      </div>
           {/* text overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
             <div className="flex items-center gap-3">
@@ -394,7 +402,7 @@ function UniversityContent({
                   {uni.name}
                 </p>
                 <p className="mt-0.5 text-sm text-white/70 md:text-base">
-                  {uni.shortName} &middot; {uni.type.replace(/_/g, " ")}
+                  {[uni.shortName, uni.type.replace(/_/g, " "), uni.establishedYear ? `Est. ${uni.establishedYear}` : null].filter(Boolean).join(" · ")}
                 </p>
               </div>
             </div>
@@ -409,13 +417,13 @@ function UniversityContent({
           {/* quick-stats row */}
           {academic && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              {uni.establishedYear && (
+              {/* {uni.establishedYear && (
                 <StatBox
                   icon={<Calendar className="size-4" />}
                   label="Founded"
                   value={String(uni.establishedYear)}
                 />
-              )}
+              )} */}
               {academic.duration && (
                 <StatBox
                   icon={<GraduationCap className="size-4" />}
@@ -528,8 +536,20 @@ function UniversityContent({
           )}
 
           {/* ── Admission Details ── */}
-          {admission && (
-            <SectionCard title="Admission Details">
+          {admission ? (
+            <SectionCard
+              title="Admission Details"
+              isEmpty={
+                !admission.eligibility &&
+                !admission.minimumMarks &&
+                !admission.ageCriteria &&
+                admission.applicationFee == null &&
+                !admission.applicationDeadline &&
+                !admission.entranceExams?.length &&
+                !admission.requiredDocuments?.length
+              }
+              emptyMessage="Detailed admission information will be updated soon."
+            >
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <InfoField label="Eligibility" value={admission.eligibility} />
                 <InfoField
@@ -601,11 +621,32 @@ function UniversityContent({
                   )}
               </div>
             </SectionCard>
+          ) : (
+            <SectionCard
+              title="Admission Details"
+              isEmpty
+              emptyMessage="Admission information will be available soon."
+            />
           )}
 
           {/* ── Infrastructure & Facilities ── */}
-          {infra && (
-            <SectionCard title="Infrastructure & Facilities">
+          {infra ? (
+            <SectionCard
+              title="Infrastructure & Facilities"
+              isEmpty={
+                !infra.hospitalBeds &&
+                !infra.campusArea &&
+                !infra.hostelBoys &&
+                !infra.hostelGirls &&
+                !infra.departments?.length &&
+                !infra.laboratories?.length &&
+                !infra.cafeteria &&
+                !infra.wifiCampus &&
+                !infra.transportation &&
+                !infra.facilities?.length
+              }
+              emptyMessage="Infrastructure details will be updated soon."
+            >
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                 {infra.hospitalBeds != null && infra.hospitalBeds > 0 && (
                   <InfraStat
@@ -737,6 +778,12 @@ function UniversityContent({
                 </div>
               )}
             </SectionCard>
+          ) : (
+            <SectionCard
+              title="Infrastructure & Facilities"
+              isEmpty
+              emptyMessage="Infrastructure details will be available soon."
+            />
           )}
 
           {/* ── Fees ── */}
@@ -1430,6 +1477,47 @@ function UniversityContent({
           )}
         </aside>
       </div>
+
+      {/* ponytail: empty state when no content sections available */}
+      {!hasAnyContent && (
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
+          <div
+            className="rounded-2xl p-12 text-center border"
+            style={{
+              background: theme.surface,
+              borderColor: theme.hairline,
+            }}
+          >
+            <div
+              className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full"
+              style={{ background: theme.goldLight }}
+            >
+              <Building2 className="size-8" style={{ color: theme.gold }} />
+            </div>
+            <h3
+              className="text-lg font-semibold mb-2"
+              style={{ color: theme.ink }}
+            >
+              Detailed Information Coming Soon
+            </h3>
+            <p className="text-sm max-w-md mx-auto" style={{ color: theme.inkMuted }}>
+              We&apos;re currently updating detailed information about this university.
+              Please check back later or contact us for more details.
+            </p>
+            <button
+              onClick={() => window.history.back()}
+              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-lg transition-colors"
+              style={{
+                background: theme.ink,
+                color: "#fff",
+              }}
+            >
+              <ArrowLeft className="size-4" />
+              Back to Universities
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
