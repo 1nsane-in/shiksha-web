@@ -162,7 +162,7 @@ export class ParentsService {
         parent: {
           include: {
             user: {
-              select: { id: true, email: true, name: true, phone: true },
+              select: { email: true, name: true, phone: true },
             },
           },
         },
@@ -170,7 +170,18 @@ export class ParentsService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return links;
+    return links.map((link) => ({
+      id: link.id,
+      parentId: link.parentId,
+      studentId: link.studentId,
+      relation: link.relation,
+      status: link.status,
+      invitedBy: link.invitedBy,
+      createdAt: link.createdAt,
+      parentEmail: link.parent.user.email,
+      parentName: link.parent.user.name,
+      parentPhone: link.parent.user.phone,
+    }));
   }
 
   async removeParentLink(userId: string, linkId: string) {

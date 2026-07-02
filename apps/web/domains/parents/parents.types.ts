@@ -3,6 +3,7 @@ export interface ParentLink {
   parentId: string;
   parentName: string;
   parentEmail: string;
+  parentPhone?: string | null;
   relation: string | null;
   status: "PENDING" | "APPROVED" | "REJECTED";
   invitedBy: string;
