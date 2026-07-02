@@ -74,7 +74,7 @@ export function ParentLinksList() {
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
                 <span className="text-sm font-medium text-gray-600">
-                  {link.parentName.charAt(0).toUpperCase()}
+                  {(link.parentName ?? "?").charAt(0).toUpperCase()}
                 </span>
               </div>
               <div className="min-w-0">

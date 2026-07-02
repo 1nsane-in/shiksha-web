@@ -228,13 +228,6 @@ export class ParentsService {
         status: 'APPROVED',
         invitedBy: 'PARENT',
       },
-      include: {
-        student: {
-          include: {
-            user: { select: { name: true, email: true } },
-          },
-        },
-      },
     });
 
     return link;

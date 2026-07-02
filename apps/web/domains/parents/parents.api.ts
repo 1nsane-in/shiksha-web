@@ -85,8 +85,23 @@ export function linkByFamilyCode(data: LinkByCodeRequest) {
   return client.post<LinkByCodeResponse>(route.linkByCode, data);
 }
 
-export function getLinkedChildren() {
-  return client.get<ChildProgress[]>(route.children);
+export async function getLinkedChildren() {
+  const data = await client.get<any[]>(route.children);
+  return data.map((item) => ({
+    id: item.id,
+    studentId: item.id,
+    studentName: item.name ?? "",
+    studentEmail: item.email ?? "",
+    relation: item.relation ?? "",
+    currentStage: item.currentStage ?? 0,
+    totalStages: item.totalStages ?? 5,
+    applicationStatus: item.applicationStatus ?? "PENDING",
+    documentProgress: {
+      uploaded: item.documentsCount ?? 0,
+      total: item.documentsCount ?? 0,
+    },
+    universityCount: item.universityCount ?? 0,
+  })) satisfies ChildProgress[];
 }
 
 /* ─── Admin endpoints ─── */

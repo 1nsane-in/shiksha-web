@@ -75,7 +75,7 @@ export function Header() {
             <Link
               href={
                 user.role === "ADMIN" || user.role === "SUPER_ADMIN"
-                  ? "/admin/profile"
+                  ? "/admin/dashboard"
                   : "/student/profile"
               }
             >
