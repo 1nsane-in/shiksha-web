@@ -21,11 +21,13 @@ export const brand = {
   /* ─── Text ─── */
   ink: "#1A153A",
   inkMuted: "#6B6599",
+  inkSubtle: "#9794BA",
 
   /* ─── Chromatic accent ─── */
   gold: "#C4953B",
   goldLight: "rgba(196, 149, 59, 0.10)",
   goldGlow: "rgba(196, 149, 59, 0.15)",
+  goldBorder: "rgba(196, 149, 59, 0.25)",
 
   /* ─── Surfaces ─── */
   canvas: "#FAF9F6",
@@ -36,6 +38,9 @@ export const brand = {
 
   /* ─── Utility tints ─── */
   purpleLight: "rgba(75, 45, 142, 0.05)",
+
+  /* ─── Component tokens ─── */
+  btnRadius: "0.5rem",
 } as const;
 
 export type BrandToken = keyof typeof brand;

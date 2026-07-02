@@ -34,4 +34,12 @@ export class CreateConsultationDto {
   @IsString()
   @IsOptional()
   country?: string;
+
+  @IsString()
+  @IsOptional()
+  preferredUniversity?: string;
+
+  @IsString()
+  @IsOptional()
+  preferredIntake?: string;
 }

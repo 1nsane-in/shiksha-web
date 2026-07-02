@@ -6,6 +6,8 @@ export interface Consultation {
   neetScore: number | null;
   state: string | null;
   country: string | null;
+  preferredUniversity: string | null;
+  preferredIntake: string | null;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -18,4 +20,6 @@ export interface CreateConsultationPayload {
   neetScore?: number;
   state?: string;
   country?: string;
+  preferredUniversity?: string;
+  preferredIntake?: string;
 }

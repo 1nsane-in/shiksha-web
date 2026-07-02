@@ -6,12 +6,19 @@ import { Loader2, Send } from "lucide-react";
 import { Country, State } from "country-state-city";
 import { brand } from "@/lib/brand";
 import { useCreateConsultation } from "@/domains/consultations";
+import type { CreateConsultationPayload } from "@/domains/consultations/consultations.types";
 
 /**
  * Self-contained consultation request form.
  * Manages its own form state, country/state dropdowns, validation, and submission.
  */
-export function ConsultationForm() {
+export function ConsultationForm({
+  title,
+  submitLabel,
+}: {
+  title?: string;
+  submitLabel?: string;
+}) {
   const createMutation = useCreateConsultation();
   const countries = Country.getAllCountries();
 
@@ -22,6 +29,8 @@ export function ConsultationForm() {
     neetScore: "",
     state: "",
     country: "",
+    preferredUniversity: "",
+    preferredIntake: "",
   });
 
   const [selectedCountryIso, setSelectedCountryIso] = useState("");
@@ -31,7 +40,7 @@ export function ConsultationForm() {
     ? State.getStatesOfCountry(selectedCountryIso)
     : [];
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -91,22 +100,26 @@ export function ConsultationForm() {
       ? `${selectedCountryPhoneCode} ${form.phone.trim()}`
       : form.phone.trim();
 
-    const payload: Record<string, unknown> = {
-      name: form.name.trim(),
-      email: form.email.trim(),
-      phone: fullPhone,
-      state: form.state.trim() || undefined,
-      country: form.country.trim() || undefined,
-    };
-
+    let neetScore: number | undefined;
     if (form.neetScore.trim()) {
       const scoreNum = parseInt(form.neetScore.trim(), 10);
       if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 720) {
         toast.error("Please enter a valid NEET Score (0 to 720)");
         return;
       }
-      payload.neetScore = scoreNum;
+      neetScore = scoreNum;
     }
+
+    const payload: CreateConsultationPayload = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: fullPhone,
+      state: form.state.trim() || undefined,
+      country: form.country.trim() || undefined,
+      neetScore,
+      preferredUniversity: form.preferredUniversity.trim() || undefined,
+      preferredIntake: form.preferredIntake.trim() || undefined,
+    };
 
     try {
       await createMutation.mutateAsync(payload);
@@ -120,6 +133,8 @@ export function ConsultationForm() {
         neetScore: "",
         state: "",
         country: "",
+        preferredUniversity: "",
+        preferredIntake: "",
       });
       setSelectedCountryIso("");
       setSelectedCountryPhoneCode("");
@@ -283,6 +298,59 @@ export function ConsultationForm() {
             max="720"
             className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm"
           />
+        </div>
+      </div>
+
+      {/* Preferred University & Intake */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="space-y-1.5">
+          <label
+            htmlFor="preferredUniversity"
+            className="text-xs font-semibold uppercase tracking-wider"
+            style={{ color: brand.inkMuted }}
+          >
+            Preferred University
+          </label>
+          <select
+            id="preferredUniversity"
+            name="preferredUniversity"
+            value={form.preferredUniversity}
+            onChange={handleChange}
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm bg-white"
+          >
+            <option value="">Select University</option>
+            <option value="Jalal-Abad State University">Jalal-Abad State Univ</option>
+            <option value="Bishkek International Medical Institute">Bishkek Int. Medical Institute</option>
+            <option value="Jalalabad International University">Jalalabad International Univ</option>
+            <option value="Osh State University">Osh State Univ</option>
+            <option value="Andijan State Medical Institute">Andijan State Medical Institute</option>
+            <option value="North Kazakhstan State Medical University">North Kazakhstan State Medical Univ</option>
+            <option value="Sevastopol State University">Sevastopol State Univ</option>
+            <option value="Kemerovo State University">Kemerovo State Univ</option>
+            <option value="Maykop State Medical Institute">Maykop State Medical Institute</option>
+            <option value="Kirov State Medical University">Kirov State Medical Univ</option>
+          </select>
+        </div>
+
+        <div className="space-y-1.5">
+          <label
+            htmlFor="preferredIntake"
+            className="text-xs font-semibold uppercase tracking-wider"
+            style={{ color: brand.inkMuted }}
+          >
+            Preferred Intake
+          </label>
+          <select
+            id="preferredIntake"
+            name="preferredIntake"
+            value={form.preferredIntake}
+            onChange={handleChange}
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm bg-white"
+          >
+            <option value="">Select Intake</option>
+            <option value="Summer">Summer Intake (May/Jun)</option>
+            <option value="Winter">Winter Intake (Sep/Oct)</option>
+          </select>
         </div>
       </div>
 

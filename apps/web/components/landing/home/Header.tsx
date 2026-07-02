@@ -17,6 +17,10 @@ export function Header() {
   const { isAuthenticated, user } = useAuth();
   const initials = user?.name?.charAt(0)?.toUpperCase() || "U";
   const loginUrl = `/login${pathname !== "/" ? `?redirect=${encodeURIComponent(pathname)}` : ""}`;
+  const isLinkActive = (href: string) =>
+    pathname === href ||
+    pathname.startsWith(href + "/") ||
+    (href === "/universities" && pathname.startsWith("/student/university"));
 
   return (
     <header
@@ -42,20 +46,20 @@ export function Header() {
         <nav className="hidden lg:block">
           <ul className="flex items-center gap-10">
             {navLinks.map((link) => {
-              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              const active = isLinkActive(link.href);
               return (
                 <li key={link.name}>
                   <Link
                     href={link.href}
                     className="group relative text-sm font-medium transition-colors duration-200"
-                    style={{ color: isActive ? brand.ink : brand.inkMuted }}
+                    style={{ color: active ? brand.ink : brand.inkMuted }}
                   >
                     {link.name}
                     <span
                       className="absolute -bottom-1 left-0 h-px bg-current transition-all duration-300"
                       style={{
                         color: brand.gold,
-                        width: isActive ? "100%" : "0%",
+                        width: active ? "100%" : "0%",
                       }}
                     />
                   </Link>
@@ -130,15 +134,15 @@ export function Header() {
           >
             <nav className="space-y-1 px-4 pb-6 pt-2">
               {navLinks.map((link) => {
-                const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+                const active = isLinkActive(link.href);
                 return (
                   <Link
                     key={link.name}
                     href={link.href}
                     className="block rounded-lg px-4 py-2.5 text-sm font-medium transition-colors duration-200"
                     style={{
-                      color: isActive ? "#fff" : "rgba(255,255,255,0.7)",
-                      background: isActive ? "rgba(255,255,255,0.1)" : "transparent",
+                      color: active ? "#fff" : "rgba(255,255,255,0.7)",
+                      background: active ? "rgba(255,255,255,0.1)" : "transparent",
                     }}
                     onClick={() => setIsMenuOpen(false)}
                   >

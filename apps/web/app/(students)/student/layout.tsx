@@ -1,4 +1,5 @@
 import { Header } from "@/components/landing/home/Header";
+import { Footer } from "@/components/landing/home/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,11 +16,12 @@ export default function StudentLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#FAF9F6] pb-20 md:pb-0">
+    <div className="min-h-screen bg-[#FAF9F6]">
       <Header />
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6">
         <main>{children}</main>
       </div>
+      <Footer />
     </div>
   );
 }

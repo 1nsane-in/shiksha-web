@@ -79,14 +79,14 @@ export default function PublicUniversitiesPage() {
       ) : filteredUniversities.length === 0 ? (
         <UniversityEmptyState onRequestUniversity={handleRequestUniversity} />
       ) : (
-        <>
+        <div className="mb-16">
           <UniversityCardGrid
             universities={filteredUniversities}
             onApply={handleApply}
             onViewDetails={handleViewDetails}
           />
           <RequestBanner onRequestUniversity={handleRequestUniversity} />
-        </>
+        </div>
       )}
     </div>
   );

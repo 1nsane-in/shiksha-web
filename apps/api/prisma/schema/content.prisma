@@ -3,16 +3,18 @@
 // ============================================
 
 model Consultation {
-  id        String   @id
-  name      String
-  email     String
-  phone     String
-  neetScore Int?
-  state     String?
-  country   String?
-  status    String   @default("PENDING")
-  createdAt DateTime @default(now())
-  updatedAt DateTime
+  id                  String   @id
+  name                String
+  email               String
+  phone               String
+  neetScore           Int?
+  state               String?
+  country             String?
+  preferredUniversity String?
+  preferredIntake     String?
+  status              String   @default("PENDING")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime
 }
 
 model GalleryImage {
