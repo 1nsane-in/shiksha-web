@@ -27,7 +27,7 @@ export function StorySection() {
                 className="text-3xl sm:text-4xl font-extrabold tracking-tight"
                 style={{ color: brand.ink }}
               >
-                More Than a Consultancy, a Dedicated Life Guide
+                Igniting Ambition, Building Future Doctors
               </h2>
             </div>
             <div
@@ -35,20 +35,22 @@ export function StorySection() {
               style={{ color: brand.inkMuted }}
             >
               <p>
-                WCIEC Organization stands as a premier educational consultancy.
-                Built on uncompromising transparency and reliable service, we
-                guide medical aspirants toward world-class academic institutions
-                based purely on merit and budget.
+                Shiksha International is a global education consultancy
+                specializing in MBBS Abroad admissions. Built on uncompromising
+                transparency and reliable service, we guide medical aspirants
+                toward world-class academic institutions based purely on merit
+                and budget.
               </p>
               <p>
-                Acknowledged as a legal leader across India, Nepal, Bangladesh,
-                and the UAE, WCIEC provides continuous local support, bridging
-                the distance between home and international universities.
+                We work with officially recognized universities in Kyrgyzstan,
+                Uzbekistan, Kazakhstan, and Russia — offering English-medium
+                programs, affordable tuition, and globally recognized degrees
+                (eligible for FMGE, NEXT, USMLE, PLAB).
               </p>
               <p>
-                We provide professional advising to resolve queries and
-                uncertainties, ensuring you proceed toward your future medical
-                career with absolute clarity and complete safety.
+                Our mission is to guide students with honesty and transparency,
+                help them secure quality medical education abroad, and provide
+                strong international support through every step of their journey.
               </p>
             </div>
           </div>
@@ -80,9 +82,10 @@ export function StorySection() {
                 className="text-xs sm:text-sm leading-relaxed"
                 style={{ color: brand.inkMuted }}
               >
-                Placed in WHO and MCI recognized medical universities globally,
-                establishing a legal, safe path for students from diverse
-                backgrounds.
+                Placed in NMC & WHO recognized medical universities across
+                Kyrgyzstan, Uzbekistan, Kazakhstan, and Russia — with
+                transparent fee structures, no hidden charges, and on-ground
+                international support.
               </p>
               <div
                 className="border-t pt-4"

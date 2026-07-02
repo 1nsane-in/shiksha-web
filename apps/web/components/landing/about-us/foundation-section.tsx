@@ -21,18 +21,18 @@ export function FoundationSection() {
           className="text-[11px] font-bold uppercase tracking-[0.2em]"
           style={{ color: brand.gold }}
         >
-          Doing Good Foundation
+          Shiksha Entrance Scholarship Program 2026
         </span>
 
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-3 text-white">
-          Caring for Tomorrow&apos;s Doctors
+          Academic Excellence Reward Program
         </h2>
 
         <p className="mx-auto mt-6 max-w-2xl text-xs sm:text-sm leading-relaxed opacity-80">
-          A charity program established by WCIEC to promote professional ethics
-          and service within our students. We believe true medical excellence
-          begins with empathy, so we fund local healthcare initiatives and
-          provide medical scholarships to outstanding applicants.
+          We reward students for dedication, discipline, and academic excellence.
+          Internal scholarship examinations are held after every academic year.
+          High performers receive up to 70% tuition fee scholarships to
+          encourage better performance and long-term success in medical education.
         </p>
 
         <div className="mt-12 grid grid-cols-3 gap-4 max-w-lg mx-auto border-t border-white/10 pt-8">

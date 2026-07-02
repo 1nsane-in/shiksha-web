@@ -183,16 +183,23 @@ export function FinalCTA() {
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
                         Preferred University
                       </label>
-                      <select
-                        name="prefUniversity"
-                        value={formData.prefUniversity}
-                        onChange={handleChange}
-                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#C4953B] bg-slate-50/50 cursor-pointer"
-                      >
-                        <option value="Jalalabad International University">Jalalabad Int. Univ (JAIU)</option>
-                        <option value="Osh State University">Osh State Univ (OSMU)</option>
-                        <option value="Asian Medical Institute">Asian Medical Institute (ASI)</option>
-                      </select>
+                        <select
+                          name="prefUniversity"
+                          value={formData.prefUniversity}
+                          onChange={handleChange}
+                          className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#C4953B] bg-slate-50/50 cursor-pointer"
+                        >
+                          <option value="Jalal-Abad State University">Jalal-Abad State Univ</option>
+                          <option value="Bishkek International Medical Institute">Bishkek Int. Medical Institute</option>
+                          <option value="Jalalabad International University">Jalalabad International Univ</option>
+                          <option value="Osh State University">Osh State Univ</option>
+                          <option value="Andijan State Medical Institute">Andijan State Medical Institute</option>
+                          <option value="North Kazakhstan State Medical University">North Kazakhstan State Medical Univ</option>
+                          <option value="Sevastopol State University">Sevastopol State Univ</option>
+                          <option value="Kemerovo State University">Kemerovo State Univ</option>
+                          <option value="Maykop State Medical Institute">Maykop State Medical Institute</option>
+                          <option value="Kirov State Medical University">Kirov State Medical Univ</option>
+                        </select>
                     </div>
 
                     {/* Preferred Intake */}

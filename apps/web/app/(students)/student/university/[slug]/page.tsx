@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
+import { brand as theme } from "@/lib/brand";
 import Link from "next/link";
 import { useUniversity } from "@/domains/universities/universities.queries";
 import {
@@ -210,6 +211,11 @@ export default function UniversityDetailPage() {
   const slug = params?.slug as string;
   const { data: uni, isLoading, error, refetch } = useUniversity(slug);
 
+  // ponytail: scroll to top on mount so back button is visible
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
   if (isLoading) return <Skeleton />;
   if (error || !uni)
     return <ErrorState error={error as Error} onRetry={() => refetch?.()} />;
@@ -300,7 +306,7 @@ function UniversityContent({
 
   const locationParts = [loc?.city, loc?.state, loc?.country].filter(Boolean);
   const fullAddress = loc?.address || locationParts.join(", ");
-  const website = (uni as any).website || (uni as any).detailUrl;
+  const website = uni.website;
 
   return (
     <div className="min-h-screen pb-16" style={{ background: theme.canvas }}>
@@ -361,11 +367,7 @@ function UniversityContent({
             >
               {typeBadgeStyle(uni.type).label}
             </span>
-            {uni.status === "ACTIVE" && (
-              <span className="rounded-md bg-emerald-500/20 px-3 py-1 text-xs font-semibold tracking-wide uppercase text-emerald-200">
-                Active
-              </span>
-            )}
+            {/* ponytail: Active badge removed — redundant with type badge */}
             {uni.establishedYear && (
               <span className="rounded-md bg-white/15 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur-sm">
                 Est. {uni.establishedYear}
@@ -1263,47 +1265,7 @@ function UniversityContent({
             </div>
           </div>
 
-          {/* contact */}
-          {uni.contact && (
-            <div
-              className="rounded-2xl p-6"
-              style={{
-                background: theme.surface,
-                border: "1px solid " + theme.hairline,
-              }}
-            >
-              <h3
-                className="mb-4 text-sm font-semibold uppercase tracking-wider"
-                style={{ color: theme.inkSubtle }}
-              >
-                Contact
-              </h3>
-              <div className="space-y-3.5">
-                {uni.contact.email && (
-                  <SideInfo
-                    icon={<Mail className="size-4" />}
-                    label="Email"
-                    value={uni.contact.email}
-                    link
-                  />
-                )}
-                {uni.contact.phone && (
-                  <SideInfo
-                    icon={<Phone className="size-4" />}
-                    label="Phone"
-                    value={uni.contact.phone}
-                  />
-                )}
-                {uni.contact.admissionOfficeHours && (
-                  <SideInfo
-                    icon={<Clock className="size-4" />}
-                    label="Office Hours"
-                    value={uni.contact.admissionOfficeHours}
-                  />
-                )}
-              </div>
-            </div>
-          )}
+          {/* ponytail: contact section hidden — email, phone, office hours removed */}
 
           {/* selection process */}
           <div
@@ -1642,14 +1604,14 @@ function SideInfo({
             href={value.startsWith("http") ? value : `https://${value}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 truncate font-medium underline-offset-2 hover:underline"
+            className="inline-flex items-center gap-1 font-medium underline-offset-2 hover:underline"
             style={{ color: theme.ink }}
           >
             {value}
             <Globe className="size-3 shrink-0" style={{ color: theme.gold }} />
           </a>
         ) : (
-          <p className="truncate font-medium" style={{ color: theme.ink }}>
+          <p className="font-medium" style={{ color: theme.ink }}>
             {value}
           </p>
         )}

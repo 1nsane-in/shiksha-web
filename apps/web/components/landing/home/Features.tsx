@@ -1,73 +1,116 @@
 "use client";
 
-import { Card, CardContent } from "@repo/ui";
+import { brand } from "@/lib/brand";
+import {
+  LayoutDashboard,
+  FileText,
+  GitBranch,
+  CreditCard,
+  ShieldCheck,
+  Bell,
+  Users,
+  Mail,
+} from "lucide-react";
+
+const features = [
+  {
+    icon: LayoutDashboard,
+    title: "Student Dashboard",
+    desc: "Every admission activity, one place. See your stage, pending items, deadlines — at a glance.",
+  },
+  {
+    icon: FileText,
+    title: "Document Management",
+    desc: "Upload, track, and review documents in a secure vault. Re-upload if rejected. All metadata stored.",
+  },
+  {
+    icon: GitBranch,
+    title: "Stage-wise Tracking",
+    desc: "From application to visa — each stage unlocks only when the previous is approved. No guesswork.",
+  },
+  {
+    icon: CreditCard,
+    title: "Payment Milestones",
+    desc: "Clear payment schedule with stage-linked milestones. Confirmed via Razorpay webhooks, not just frontend.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Admin Review Flow",
+    desc: "Every document and application verified by Shiksha admins. Transparent feedback and remarks.",
+  },
+  {
+    icon: Bell,
+    title: "Real-time Notifications",
+    desc: "Instant alerts for status changes, document approvals, payment confirmations, and new remarks.",
+  },
+  {
+    icon: Users,
+    title: "Multi-user Access",
+    desc: "Students, parents, agents, and admins — each with role-based views. Everyone stays in sync.",
+  },
+  {
+    icon: Mail,
+    title: "Letters & Communication",
+    desc: "Admission letters, invitation letters, and visa support documents — all accessible from your dashboard.",
+  },
+];
 
 export function Features() {
-  const features = [
-    {
-      title: "Student Dashboard",
-      description: "Centralized view of all your admission activities"
-    },
-    {
-      title: "Document Management",
-      description: "Upload, track, and review all documents securely"
-    },
-    {
-      title: "Application Stage Tracking",
-      description: "Clear progress visualization through each stage"
-    },
-    {
-      title: "Payment Milestones",
-      description: "Transparent payment process with deadlines"
-    },
-    {
-      title: "Admin Review Flow",
-      description: "Professional review process with feedback"
-    },
-    {
-      title: "Notifications",
-      description: "Real-time alerts for important updates"
-    },
-    {
-      title: "Agent Management",
-      description: "Seamless coordination with your admission agent"
-    },
-    {
-      title: "Admission Letter Updates",
-      description: "Access to invitation and admission letters"
-    }
-  ];
-
   return (
-    <section className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-            Platform Features
+    <section className="py-20 sm:py-28" style={{ background: brand.canvas }}>
+      <div className="mx-auto max-w-6xl px-6">
+        {/* Header */}
+        <div className="max-w-2xl mb-16">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em]"
+            style={{ background: brand.goldLight, color: brand.gold }}
+          >
+            The Platform
+          </span>
+          <h2
+            className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-4 leading-[1.15]"
+            style={{ color: brand.ink }}
+          >
+            Everything you need,
+            <br />
+            <span style={{ color: brand.gold }}>tracked and transparent.</span>
           </h2>
-          <p className="text-xl text-gray-600 leading-relaxed">
-            Comprehensive tools designed to streamline your medical university admission process.
+          <p
+            className="mt-4 text-sm sm:text-base leading-relaxed max-w-xl"
+            style={{ color: brand.inkMuted }}
+          >
+            Our platform gives students, parents, and admins a single source of truth for the entire
+            admission journey — from document upload to visa support.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => (
-            <Card key={index} className="border border-gray-200 hover:border-primary/50 transition-colors duration-300">
-              <CardContent className="p-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="mb-4 p-3 bg-primary/10 rounded-full">
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                      <span className="text-primary font-bold text-sm">
-                        {index + 1}
-                      </span>
-                    </div>
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-gray-600 text-sm">{feature.description}</p>
+        {/* Feature grid — left-aligned, no cards, no numbers */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+          {features.map((f) => {
+            const Icon = f.icon;
+            return (
+              <div key={f.title}>
+                <div
+                  className="flex size-10 items-center justify-center rounded-lg mb-4"
+                  style={{ background: brand.goldLight }}
+                >
+                  <Icon className="size-5" style={{ color: brand.gold }} />
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <h3
+                  className="text-sm font-extrabold leading-snug mb-1.5"
+                  style={{ color: brand.ink }}
+                >
+                  {f.title}
+                </h3>
+                <p
+                  className="text-xs leading-relaxed"
+                  style={{ color: brand.inkMuted }}
+                >
+                  {f.desc}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

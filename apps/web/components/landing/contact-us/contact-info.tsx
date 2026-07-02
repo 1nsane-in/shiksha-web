@@ -10,18 +10,19 @@ export function ContactInfo() {
   const cards = [
     {
       icon: Phone,
-      title: "Mobile Number",
+      title: "International Helpline",
       value: "+7 918 482-65-01",
+      extra: "India: +91 88264 27297",
     },
     {
       icon: Mail,
       title: "Email Address",
-      value: "siksha.sabkaadhikaar@gmail.com",
+      value: "info@shiksha.study",
     },
     {
       icon: MapPin,
       title: "Corporate Office",
-      value: "WCIEC Corporate Towers, Suite 504, Sector 62, Noida, NCR, India",
+      value: "Shiksha International — India Office & International Support Offices",
     },
     {
       icon: Clock,
@@ -34,12 +35,13 @@ export function ContactInfo() {
   return (
     <div className="space-y-8">
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold tracking-tight" style={{ color: brand.ink }}>
+          <h2 className="text-2xl font-bold tracking-tight" style={{ color: brand.ink }}>
           Contact Information
         </h2>
         <p className="text-sm leading-relaxed" style={{ color: brand.inkMuted }}>
-          Connect with our overseas medical consultants directly. We offer support with university shortlisting,
-          MCI/NMC screening exam assistance, documentation, and student visa support.
+          Connect with Shiksha International directly for MBBS abroad admissions.
+          We offer university shortlisting, application assistance, documentation,
+          visa support, and free FMGE/NEXT coaching.
         </p>
       </div>
 

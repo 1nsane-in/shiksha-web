@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Shiksha | Medical Admission Platform",
+  title: "Shiksha International | MBBS Abroad Admissions 2026",
   description:
-    "Your gateway to medical education abroad. Apply to top medical universities worldwide with guided admission support.",
+    "Shiksha International — your trusted global education ally. MBBS admissions in Kyrgyzstan, Uzbekistan, Kazakhstan & Russia. Official university collaborations, free FMGE/NEXT coaching, and transparent admissions.",
 };
 
 import { Header } from "@/components/landing/home/Header";
@@ -37,12 +37,18 @@ export default function Home() {
         <HeroCarousel />
       </div>
       {/* Rest of the page */}
-      <main className=" max-w-6xl mx-auto">
-        {/* <EligibilityCalculator /> */}
+      <main className="mx-auto">
         <UniversityCards />
-        {/* <UniversityComparison />
-        <UniversityAdvantages />
-        <WhyTrustUs /> */}
+        <TrustBar />
+        <ProblemSection />
+        <SolutionSection />
+        <HowItWorks />
+        <Features />
+        <UniversityComparison />
+        {/* <UniversityAdvantages /> */}
+        {/* <WhyTrustUs /> */}
+        {/* <AudienceSection /> */}
+        <FinalCTA />
       </main>
       <Footer />
     </>

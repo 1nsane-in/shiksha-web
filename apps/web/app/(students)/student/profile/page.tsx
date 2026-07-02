@@ -224,14 +224,14 @@ export default function StudentDashboardPage() {
             </p>
             <div className="space-y-2.5">
               <a
-                href="mailto:siksha.sabkaadhikaar@gmail.com"
+                href="mailto:info@shiksha.study"
                 className="flex items-center gap-3 text-xs text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <div className="size-7 rounded-md bg-gray-50 flex items-center justify-center">
                   <Mail className="size-3.5 text-gray-500" />
                 </div>
                 <span className="font-medium">
-                  siksha.sabkaadhikaar@gmail.com
+                  info@shiksha.study
                 </span>
               </a>
               <a
@@ -426,7 +426,7 @@ function ScholarshipBanner() {
           Scholarship Alert
         </span>
         <h2 className="text-sm font-bold text-[#1A153A]">
-          WCIEC Doing Good Merit Scholarship
+          Shiksha Entrance Scholarship Program
         </h2>
         <p className="text-xs text-slate-500 leading-relaxed max-w-xl">
           Up to <strong className="text-[#1A153A]">$100,000+</strong> total

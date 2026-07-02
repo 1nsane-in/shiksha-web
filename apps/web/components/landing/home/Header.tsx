@@ -41,21 +41,27 @@ export function Header() {
         {/* ─── Desktop nav ─── */}
         <nav className="hidden lg:block">
           <ul className="flex items-center gap-10">
-            {navLinks.map((link) => (
-              <li key={link.name}>
-                <Link
-                  href={link.href}
-                  className="group relative text-sm font-medium transition-colors duration-200"
-                  style={{ color: brand.inkMuted }}
-                >
-                  {link.name}
-                  <span
-                    className="absolute -bottom-1 left-0 h-px w-0 bg-current transition-all duration-300 group-hover:w-full"
-                    style={{ color: brand.gold }}
-                  />
-                </Link>
-              </li>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              return (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="group relative text-sm font-medium transition-colors duration-200"
+                    style={{ color: isActive ? brand.ink : brand.inkMuted }}
+                  >
+                    {link.name}
+                    <span
+                      className="absolute -bottom-1 left-0 h-px bg-current transition-all duration-300"
+                      style={{
+                        color: brand.gold,
+                        width: isActive ? "100%" : "0%",
+                      }}
+                    />
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
@@ -123,17 +129,23 @@ export function Header() {
             style={{ background: brand.ink }}
           >
             <nav className="space-y-1 px-4 pb-6 pt-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className="block rounded-lg px-4 py-2.5 text-sm font-medium transition-colors duration-200"
-                  style={{ color: "rgba(255,255,255,0.7)" }}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {link.name}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+                return (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    className="block rounded-lg px-4 py-2.5 text-sm font-medium transition-colors duration-200"
+                    style={{
+                      color: isActive ? "#fff" : "rgba(255,255,255,0.7)",
+                      background: isActive ? "rgba(255,255,255,0.1)" : "transparent",
+                    }}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
+                );
+              })}
               {!isAuthenticated && (
                 <div className="pt-3">
                   <Link

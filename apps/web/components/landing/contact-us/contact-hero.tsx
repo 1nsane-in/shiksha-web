@@ -30,11 +30,12 @@ export function ContactHero() {
           Admissions open 2026-27
         </p>
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">
-          Get Free <span style={{ color: brand.gold }}>Admission Consultation</span>
+          Get Free <span style={{ color: brand.gold }}>MBBS Abroad Consultation</span>
         </h1>
         <p className="max-w-2xl mx-auto text-base text-gray-300 leading-relaxed">
-          Have questions about medical studies abroad? Submit your score and eligibility details below
-          to receive personalized matching with top international medical universities.
+          Have questions about medical studies abroad? Submit your details below
+          to receive personalized matching with top international medical universities
+          in Kyrgyzstan, Uzbekistan, Kazakhstan, and Russia.
         </p>
       </div>
     </section>

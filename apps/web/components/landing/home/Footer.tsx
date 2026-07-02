@@ -71,7 +71,7 @@ export function Footer() {
                 className="h-10 w-auto"
               />
               <span className="text-xl font-bold tracking-tight" style={{ color: brand.ink }}>
-                Shiksha Global
+                Shiksha International
               </span>
             </Link>
 
@@ -114,9 +114,10 @@ export function Footer() {
               Contact Center
             </h4>
             <ul className="space-y-3">
-              <ContactRow icon={Phone} label="Call Advisors" value={contactInfo.phone} />
-              <ContactRow icon={Mail} label="Email Queries" value={contactInfo.email} />
-              <ContactRow icon={MapPin} label="Noida HQ" value={contactInfo.address} />
+              <ContactRow icon={Phone} label="Russia Helpline" value="+7 918 482-65-01" />
+              <ContactRow icon={Phone} label="India Helpline" value="+91 88264 27297" />
+              <ContactRow icon={Mail} label="Email Us" value="info@shiksha.study" />
+              <ContactRow icon={MapPin} label="Head Office" value="Noida, India" />
             </ul>
           </div>
 
@@ -137,7 +138,7 @@ export function Footer() {
                   color: "#fff",
                 }}
               >
-                Submit Score Details
+                Request Free Callback
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>
@@ -152,7 +153,7 @@ export function Footer() {
             color: brand.inkMuted,
           }}
         >
-          <p>© {new Date().getFullYear()} Shiksha Global. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Shiksha International. All rights reserved.</p>
           <p className="text-center md:text-right font-medium">
             Registered Partner & Approved Educational Consultancy of Premier Foreign Medical
             Universities.

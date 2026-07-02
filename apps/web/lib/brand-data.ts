@@ -1,6 +1,7 @@
 /**
  * Shared data used across landing page components.
  * Extracted here so components stay DRY and data is centralised.
+ * Updated with Shiksha International brand info.
  */
 
 /* ─── Navigation ─── */
@@ -15,39 +16,50 @@ export const navLinks: NavLink[] = [
   { name: "About Us", href: "/about-us" },
   { name: "Our Universities", href: "/universities" },
   { name: "Gallery", href: "/gallery" },
-  { name: "Online Payment", href: "#" },
-  { name: "Courses", href: "#courses" },
+  // ponytail: hidden until payment/courses features ready
+  // { name: "Online Payment", href: "#" },
+  // { name: "Courses", href: "#courses" },
   { name: "Contact Us", href: "/contact-us" },
 ];
 
-/* ─── Why WCIEC (features) ─── */
+/* ─── Why Shiksha (features) ─── */
 
-export interface WhyWciecItem {
+export interface WhyShikshaItem {
   icon: string; // lucide icon name
   title: string;
   desc: string;
 }
 
-export const whyWciecItems: WhyWciecItem[] = [
+export const whyShikshaItems: WhyShikshaItem[] = [
   {
-    icon: "Home",
-    title: "Accommodation & Culinary Comforts",
-    desc: "Fully secure hostels managed by native personnel, featuring clean Indian dining, custom dietary options, and traditional festivals.",
+    icon: "Building2",
+    title: "Official University Collaborations",
+    desc: "Direct partnerships with government-approved medical universities across Kyrgyzstan, Uzbekistan, Kazakhstan & Russia.",
   },
   {
-    icon: "Heart",
-    title: "Doing Good Scholarship Program",
-    desc: "Merit-focused financial awards for high achievers, providing essential tuition assistance to ease family financial stress.",
-  },
-  {
-    icon: "BookOpen",
-    title: "FMGE & NExT Coaching Support",
-    desc: "Integrated tutoring and regular evaluations designed by expert medical educators to prepare students for domestic licensing tests.",
+    icon: "ScrollText",
+    title: "Transparent & Legal Admission Process",
+    desc: "Full fee disclosure before admission. No hidden charges, no donation or capitation fees — only official university fees.",
   },
   {
     icon: "Plane",
-    title: "Visa, Logistics & Travel Support",
-    desc: "Direct flight arrangements, secure visa application processing, and immediate airport reception to campus.",
+    title: "Visa & Travel Assistance",
+    desc: "Direct flight arrangements, secure visa application processing, and on-ground reception at partner universities.",
+  },
+  {
+    icon: "Globe",
+    title: "On-Ground International Support",
+    desc: "Local representatives and university support teams provide continuous assistance with housing, meals, and safety.",
+  },
+  {
+    icon: "Users",
+    title: "Parent-Oriented Guidance",
+    desc: "Regular updates and transparent communication with families. Secure hostels with CCTV and Indian mess facilities.",
+  },
+  {
+    icon: "BookOpen",
+    title: "FMGE/NEXT Academic Support",
+    desc: "Free FMGE/NEXT coaching, subject-wise classes, annual revision programs, mock tests, and clinical case discussions.",
   },
 ];
 
@@ -56,14 +68,106 @@ export const whyWciecItems: WhyWciecItem[] = [
 export interface PartnerUniversity {
   name: string;
   location: string;
+  country: "Kyrgyzstan" | "Uzbekistan" | "Kazakhstan" | "Russia";
+  established?: string;
+  studentStrength?: string;
+  features: string[];
+  highlights?: string[];
+  recognitions?: string[];
+  approvals?: string[];
+  tuition?: string;
+  duration?: string;
+  specialFocus?: string[];
+  academicStructure?: string;
 }
 
 export const partnerUniversities: PartnerUniversity[] = [
-  { name: "Jalal-Abad State University", location: "Kyrgyzstan" },
-  { name: "Central Asian International Medical University", location: "Kyrgyzstan" },
-  { name: "Osh International Medical University", location: "Kyrgyzstan" },
-  { name: "Osh State University (International Faculty)", location: "Kyrgyzstan" },
-  { name: "Jalal-Abad International Medical University", location: "Kyrgyzstan" },
+  // Kyrgyzstan
+  {
+    name: "Jalal-Abad State University",
+    location: "Jalal-Abad, Kyrgyzstan",
+    country: "Kyrgyzstan",
+    features: ["Government University", "Recognized Medical Faculty", "Budget-Friendly Fees"],
+    highlights: ["Popular among Indian students", "English-medium instruction", "Globally recognized"],
+  },
+  {
+    name: "Bishkek International Medical Institute (BIMI)",
+    location: "Bishkek, Kyrgyzstan",
+    country: "Kyrgyzstan",
+    features: ["English-medium MBBS", "Modern laboratories", "Affordable tuition", "Large Indian student community"],
+    highlights: ["Focused on international students", "Affordable MBBS education"],
+  },
+  {
+    name: "Jalalabad International University",
+    location: "Jalalabad, Kyrgyzstan",
+    country: "Kyrgyzstan",
+    recognitions: ["Ministry of Health & Science Education, Kyrgyzstan", "NMC Approved", "WDOMS Listed"],
+    features: ["Modern infrastructure", "Updated medical curriculum"],
+  },
+  {
+    name: "Osh State University",
+    location: "Osh, Kyrgyzstan",
+    country: "Kyrgyzstan",
+    established: "1939",
+    studentStrength: "40,000+",
+    academicStructure: "18 Departments, 6 Colleges",
+    features: ["Modern infrastructure", "Updated medical curriculum", "English-medium MBBS"],
+  },
+  // Uzbekistan
+  {
+    name: "Andijan State Medical Institute (ASMI)",
+    location: "Andijan, Uzbekistan",
+    country: "Uzbekistan",
+    established: "1955",
+    features: ["Government Medical Institute", "English-medium MBBS", "Advanced laboratory facilities", "Strong hospital training", "Growing international recognition"],
+  },
+  // Kazakhstan
+  {
+    name: "North Kazakhstan State Medical University",
+    location: "Petropavl, Kazakhstan",
+    country: "Kazakhstan",
+    established: "1937",
+    features: ["Government Medical Institute", "English-medium MBBS", "Advanced laboratories", "Strong hospital training", "Growing international recognition"],
+    approvals: ["NMC Approved", "WHO Approved"],
+    duration: "6 Years",
+    highlights: ["Affordable tuition", "Modern infrastructure", "Safe on-campus accommodation"],
+  },
+  // Russia
+  {
+    name: "Sevastopol State University (SevSU)",
+    location: "Sevastopol, Russia",
+    country: "Russia",
+    established: "2014",
+    features: ["Government Federal University", "Modern simulation laboratories", "English-medium MBBS"],
+    approvals: ["NMC Approved", "WHO Approved"],
+    specialFocus: ["Maritime Studies", "Nuclear Energy", "Technical Research", "Underwater Archaeology", "Digital Cultural Heritage"],
+  },
+  {
+    name: "Kemerovo State University (KemSU)",
+    location: "Kemerovo, Russia",
+    country: "Russia",
+    established: "1974",
+    studentStrength: "21,000+",
+    features: ["Strong academic reputation", "Multi-specialty hospital training"],
+    specialFocus: ["Pedagogy", "Technology", "Science"],
+  },
+  {
+    name: "Maykop State Medical Institute",
+    location: "Maykop, Russia",
+    country: "Russia",
+    tuition: "Approximately USD 3,000/year",
+    features: ["Affordable tuition", "Personalized academic support"],
+    highlights: ["NMC Approved", "English-medium curriculum", "Strong clinical practice", "Modern infrastructure", "Globally recognized degree"],
+  },
+  {
+    name: "Kirov State Medical University (KSMU)",
+    location: "Kirov, Russia",
+    country: "Russia",
+    tuition: "Approximately USD 2,100–4,000/year",
+    features: ["Internationally recognized", "Research-oriented education", "Strong Indian student community"],
+    approvals: ["NMC Approved", "WHO Approved"],
+    highlights: ["English-medium MBBS", "Modern technology-based labs", "Dedicated clinic", "Safe environment"],
+  },
 ];
 
 /* ─── End-to-End Services ─── */
@@ -73,20 +177,23 @@ export const e2eServices: string[] = [
   "Direct liaison with medical state boards",
   "Guaranteed visa approval support",
   "Secure on-campus student counselors",
+  "Free FMGE/NEXT coaching included",
 ];
 
 /* ─── Contact Info ─── */
 
 export interface ContactInfo {
   phone: string;
+  phoneSecondary?: string;
   email: string;
   address: string;
 }
 
 export const contactInfo: ContactInfo = {
   phone: "+7 918 482-65-01",
-  email: "siksha.sabkaadhikaar@gmail.com",
-  address: "Sector 62, Noida, NCR",
+  phoneSecondary: "+91 88264 27297",
+  email: "info@shiksha.study",
+  address: "India Office & International Support Offices",
 };
 
 /* ─── Social Links ─── */
@@ -133,9 +240,9 @@ export interface Stat {
 }
 
 export const foundationStats: Stat[] = [
-  { value: "1,000+", label: "Beneficiaries" },
-  { value: "$100k+", label: "Scholarships" },
-  { value: "5+", label: "Institutions" },
+  { value: "70%", label: "Scholarship Available" },
+  { value: "4+", label: "Countries" },
+  { value: "10+", label: "Partner Universities" },
 ];
 
 /* ─── Impact Stats ─── */
@@ -144,7 +251,56 @@ export const impactStats: Stat[] = [
   { value: "12,000+", label: "Successful Admissions" },
 ];
 
-/* ─── Icon map (for dynamic icon rendering) ─── */
+/* ─── Why Study MBBS Abroad Benefits ─── */
+
+export interface MBBSBenefit {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export const mbbsBenefits: MBBSBenefit[] = [
+  {
+    icon: "Wallet",
+    title: "Affordable Tuition Fees",
+    description: "Cheaper than many private medical colleges in India.",
+  },
+  {
+    icon: "Ban",
+    title: "No Donation or Capitation Fees",
+    description: "Students only pay official university fees. No hidden charges.",
+  },
+  {
+    icon: "Languages",
+    title: "English-Medium Programs",
+    description: "Courses taught fully in English for international students.",
+  },
+  {
+    icon: "Globe",
+    title: "Globally Recognized Degrees",
+    description: "Eligible for FMGE, NEXT, USMLE, PLAB exams worldwide.",
+  },
+  {
+    icon: "Microscope",
+    title: "Modern Laboratories & Hospitals",
+    description: "Access to simulation centers, modern labs, and affiliated hospitals.",
+  },
+  {
+    icon: "Stethoscope",
+    title: "Strong Clinical Exposure",
+    description: "Hands-on patient interaction and hospital training from early years.",
+  },
+  {
+    icon: "Users",
+    title: "International Learning Environment",
+    description: "Exposure to students from various countries and cultures.",
+  },
+  {
+    icon: "BookOpen",
+    title: "FMGE/NEXT Preparation",
+    description: "Includes coaching, mock tests, and revision programs.",
+  },
+];
 
 import {
   Heart,
@@ -153,6 +309,17 @@ import {
   ShieldCheck,
   BookOpen,
   GraduationCap,
+  Building2,
+  ScrollText,
+  Globe,
+  Users,
+  Wallet,
+  Ban,
+  Languages,
+  Microscope,
+  Stethoscope,
+  Rocket,
+  Award,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -163,4 +330,142 @@ export const iconMap: Record<string, LucideIcon> = {
   ShieldCheck,
   BookOpen,
   GraduationCap,
+  Building2,
+  ScrollText,
+  Globe,
+  Users,
+  Wallet,
+  Ban,
+  Languages,
+  Microscope,
+  Stethoscope,
+  Rocket,
+  Award,
 } as const;
+
+/* ─── Parents FAQ Data ─── */
+
+export interface FAQItem {
+  question: string;
+  answer: string | string[];
+}
+
+export const parentsFAQ: FAQItem[] = [
+  {
+    question: "Is the degree valid in India?",
+    answer: "Yes, students must qualify FMGE/NEXT according to NMC guidelines to practice in India. Our partner universities are NMC approved and WHO recognized.",
+  },
+  {
+    question: "Is it safe for Indian students?",
+    answer: [
+      "Yes, universities provide:",
+      "Secure hostels with 24/7 security",
+      "CCTV monitoring across campus",
+      "Local support teams and representatives",
+      "Indian mess facilities for familiar food",
+    ],
+  },
+  {
+    question: "What about food?",
+    answer: "Indian mess facilities are available at most partner universities. We ensure students have access to home-style Indian food throughout their stay.",
+  },
+  {
+    question: "Are there hidden charges?",
+    answer: "No. Fees are communicated transparently before admission. We provide complete fee breakdown including tuition, hostel, and living expenses. No donation or capitation fees.",
+  },
+  {
+    question: "Who supports students abroad?",
+    answer: [
+      "Shiksha provides:",
+      "Local representatives in each country",
+      "University support teams",
+      "24/7 emergency contact",
+      "Regular parent updates",
+      "On-ground assistance for accommodation and travel",
+    ],
+  },
+];
+
+/* ─── Admissions 2026 Benefits ─── */
+
+export interface AdmissionBenefit {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export const admissions2026Benefits: AdmissionBenefit[] = [
+  {
+    icon: "Users",
+    title: "Limited Seats Available",
+    description: "Apply early to secure your seat at top medical universities.",
+  },
+  {
+    icon: "Rocket",
+    title: "Early Application Advantage",
+    description: "Better admission chances with priority processing.",
+  },
+  {
+    icon: "Plane",
+    title: "Priority Visa Processing",
+    description: "Faster visa support for early applicants.",
+  },
+  {
+    icon: "Building2",
+    title: "Direct University Admission",
+    description: "No unnecessary intermediaries — direct university partnerships.",
+  },
+  {
+    icon: "Award",
+    title: "Scholarship Eligibility",
+    description: "Opportunity for scholarships based on performance.",
+  },
+];
+
+/* ─── Country Comparison Data ─── */
+
+export interface CountryComparison {
+  country: string;
+  duration: string;
+  language: string;
+  cost: string;
+  livingCost: string;
+}
+
+export const countryComparison: CountryComparison[] = [
+  {
+    country: "Kyrgyzstan",
+    duration: "6 Years",
+    language: "English",
+    cost: "Affordable",
+    livingCost: "Low",
+  },
+  {
+    country: "Uzbekistan",
+    duration: "6 Years",
+    language: "English",
+    cost: "Moderate",
+    livingCost: "Moderate",
+  },
+  {
+    country: "Kazakhstan",
+    duration: "6 Years",
+    language: "English",
+    cost: "Moderate-Premium",
+    livingCost: "Moderate",
+  },
+  {
+    country: "Russia",
+    duration: "6 Years",
+    language: "English",
+    cost: "Moderate",
+    livingCost: "Moderate",
+  },
+];
+
+export const commonBenefits = [
+  "No Donation Required",
+  "Hostel Available",
+  "Indian Mess Facility",
+  "Transparent Fee Structure",
+];

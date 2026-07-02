@@ -128,6 +128,27 @@ export function WhyTrustUs() {
             ))}
           </div>
 
+          {/* Free FMGE/NEXT Coaching Breakdown */}
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[
+              { title: "Subject-Wise Coaching", desc: "Extra coaching after every subject" },
+              { title: "Annual Revision Programs", desc: "Yearly revision classes" },
+              { title: "Mock Tests & Practice Papers", desc: "Regular practice examinations" },
+              { title: "Clinical Case Discussions", desc: "Real-world medical case discussions" },
+              { title: "NEXT Preparation Support", desc: "Dedicated guidance for NEXT examination" },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="rounded-xl p-4 text-center border"
+                style={{ borderColor: "rgba(196, 149, 59, 0.15)", background: "rgba(196, 149, 59, 0.04)" }}
+              >
+                <BookOpen className="size-5 mx-auto mb-2" style={{ color: "#C4953B" }} />
+                <h4 className="text-xs font-bold mb-1" style={{ color: "#1A153A" }}>{item.title}</h4>
+                <p className="text-[10px] leading-relaxed" style={{ color: "rgb(100, 116, 139)" }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
           {/* FMGE stat banner */}
           <div className="mt-10 p-5 rounded-xl border border-dashed border-amber-200/60 bg-amber-50/20 text-center text-xs text-slate-500 max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-3">
             <BookOpen className="size-5 text-[#C4953B] shrink-0" />

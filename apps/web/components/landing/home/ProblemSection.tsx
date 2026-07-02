@@ -1,65 +1,104 @@
 "use client";
 
-import { Card, CardContent } from "@repo/ui";
+import { brand } from "@/lib/brand";
+import { IndianRupee, GraduationCap, Globe, ShieldAlert, PhoneOff, FileQuestion } from "lucide-react";
+
+const problems = [
+  {
+    icon: IndianRupee,
+    title: "Soaring Costs in India",
+    desc: "Private medical colleges charge ₹60 Lacs to ₹1.5 Cr. Government seats are vanishingly rare.",
+  },
+  {
+    icon: ShieldAlert,
+    title: "Scams & Unverified Agents",
+    desc: "Fake consultancies take money and disappear. Students need a verified, legal pathway.",
+  },
+  {
+    icon: Globe,
+    title: "Which Country? Which University?",
+    desc: "Kyrgyzstan? Uzbekistan? Russia? Without expert guidance, the options feel overwhelming.",
+  },
+  {
+    icon: GraduationCap,
+    title: "Degree Recognition Worries",
+    desc: "Will my degree be valid in India? Is the university NMC/WHO approved? These doubts paralyze decisions.",
+  },
+  {
+    icon: PhoneOff,
+    title: "Zero Support Once Abroad",
+    desc: "Many agents disappear after admission. Students are left alone with accommodation, food, and safety issues.",
+  },
+  {
+    icon: FileQuestion,
+    title: "Visa & Paperwork Maze",
+    desc: "Document translation, notarization, embassy interviews — one mistake can derail your entire plan.",
+  },
+];
 
 export function ProblemSection() {
-  const problems = [
-    {
-      title: "Confusing Admission Steps",
-      description: "Too many scattered processes with unclear next steps"
-    },
-    {
-      title: "Scattered Document Communication",
-      description: "Documents sent via email, WhatsApp, and various platforms"
-    },
-    {
-      title: "No Clear Payment Visibility",
-      description: "Unclear payment milestones and deadlines"
-    },
-    {
-      title: "Delayed Updates",
-      description: "Long waits for status changes and feedback"
-    },
-    {
-      title: "Lack of Transparent Tracking",
-      description: "No clear visibility into application progress"
-    },
-    {
-      title: "Dependency on Manual Follow-ups",
-      description: "Constantly chasing administrators for updates"
-    }
-  ];
-
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-            The Problems Students Face
+    <section className="py-20 sm:py-28" style={{ background: "#FAF9F6" }}>
+      <div className="mx-auto max-w-6xl px-6">
+        {/* Header */}
+        <div className="max-w-2xl mb-16">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em]"
+            style={{ background: brand.goldLight, color: brand.gold }}
+          >
+            The Reality
+          </span>
+          <h2
+            className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-4 leading-[1.15]"
+            style={{ color: brand.ink }}
+          >
+            MBBS in India is getting harder.
+            <br />
+            <span style={{ color: brand.gold }}>Every year.</span>
           </h2>
-          <p className="text-xl text-gray-600 leading-relaxed">
-            We understand the challenges you encounter when navigating the complex medical university admission process.
+          <p
+            className="mt-4 text-sm sm:text-base leading-relaxed max-w-xl"
+            style={{ color: brand.inkMuted }}
+          >
+            Between skyrocketing fees, limited seats, and opaque agents — the path to becoming a
+            doctor is littered with obstacles. Here is what students actually face.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {problems.map((problem, index) => (
-            <Card key={index} className="border border-gray-200 hover:border-primary/50 transition-colors duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-start space-x-4">
-                  <div className="mt-1">
-                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                      <span className="text-red-500 font-bold text-sm">!</span>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{problem.title}</h3>
-                    <p className="text-gray-600">{problem.description}</p>
-                  </div>
+        {/* Problem grid — 3x2 with alternating visual weight */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {problems.map((p) => {
+            const Icon = p.icon;
+            return (
+              <div
+                key={p.title}
+                className="rounded-xl p-6 transition-all duration-200 hover:translate-y-[-2px]"
+                style={{
+                  background: "#fff",
+                  border: `1px solid ${brand.hairline}`,
+                }}
+              >
+                <div
+                  className="flex size-10 items-center justify-center rounded-lg mb-4"
+                  style={{ background: brand.goldLight }}
+                >
+                  <Icon className="size-5" style={{ color: brand.gold }} />
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <h3
+                  className="text-sm font-extrabold leading-snug mb-2"
+                  style={{ color: brand.ink }}
+                >
+                  {p.title}
+                </h3>
+                <p
+                  className="text-xs leading-relaxed"
+                  style={{ color: brand.inkMuted }}
+                >
+                  {p.desc}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

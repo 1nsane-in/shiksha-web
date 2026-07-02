@@ -1,13 +1,13 @@
 import { brand } from "@/lib/brand";
 import { GraduationCap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { iconMap, type WhyWciecItem } from "@/lib/brand-data";
+import { iconMap, type WhyShikshaItem } from "@/lib/brand-data";
 
 /**
- * A single feature card for the "Why WCIEC" section.
+ * A single feature card for the "Why Shiksha" section.
  * Renders an icon, title, and description.
  */
-export function WhyWciecCard({ icon, title, desc }: WhyWciecItem) {
+export function WhyWciecCard({ icon, title, desc }: WhyShikshaItem) {
   const Icon: LucideIcon = iconMap[icon] ?? GraduationCap;
 
   return (

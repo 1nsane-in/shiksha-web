@@ -34,8 +34,9 @@ export function ServicesSection() {
               style={{ color: brand.inkMuted }}
             >
               We coordinate with embassies, prepare legal translations, and
-              manage S3-compliant secure document vaults so your files are
-              completely protected and immediately processed.
+              manage secure document handling so your files are completely
+              protected and immediately processed — with zero company charges
+              for Panchayat &amp; Army families under our OTC initiative.
             </p>
             <div className="space-y-3">
               {e2eServices.map((service) => (
@@ -56,27 +57,28 @@ export function ServicesSection() {
             style={{ borderColor: brand.hairline }}
           >
             <h3 className="font-bold text-sm text-[#2D2154] uppercase tracking-wider">
-              FMGE Exam Prep Coaching
+              Free FMGE / NEXT Coaching
             </h3>
             <p
               className="text-xs sm:text-sm leading-relaxed"
               style={{ color: brand.inkMuted }}
             >
-              Every student gains access to structured exam coaching materials
-              and licensing mock tests to clear major state licensing
-              examinations with absolute ease.
+              Every student gains access to subject-wise coaching, annual
+              revision programs, mock tests, clinical case discussions, and
+              dedicated NEXT preparation support — all included at no extra
+              cost.
             </p>
             <div
               className="rounded-lg bg-white p-4 border"
               style={{ borderColor: brand.hairline }}
             >
               <p className="text-xs italic text-gray-500">
-                &quot;WCIEC provided incredible guidance during my visa phase,
+                &quot;Shiksha provided incredible guidance during my visa phase,
                 and the hostel staff ensured I had home-style Indian food from
                 day one.&quot;
               </p>
               <p className="text-[10px] font-bold mt-2 text-[#2D2154]">
-                - Medical Graduate, CAIMU
+                - Medical Student, Jalal-Abad State University
               </p>
             </div>
           </div>

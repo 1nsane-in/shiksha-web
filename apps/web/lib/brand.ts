@@ -1,10 +1,13 @@
 /**
- * Landing page brand tokens.
+ * Landing page brand tokens — Shiksha International.
  *
  * These are the visual primitives for the marketing surface (landing, about,
  * contact, gallery, universities). They are intentionally distinct from the
  * app/dashboard palette (purple-based) to give the marketing pages a warm,
  * editorial feel.
+ *
+ * Tagline: Your Trusted Global Education Ally
+ * Motto: Shiksha — Igniting Ambition. Building Future Doctors.
  *
  * Usage:
  *   import { brand } from "@/lib/brand";
