@@ -34,7 +34,7 @@ export function ParentSidebar() {
   const handleLogout = () => {
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
-        router.push("/auth/login");
+        router.push("/");
       },
     });
   };
