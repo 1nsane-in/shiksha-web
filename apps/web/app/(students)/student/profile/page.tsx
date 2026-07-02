@@ -7,6 +7,7 @@ import { Button } from "@repo/ui";
 import { Badge } from "@repo/ui";
 import { Skeleton } from "@repo/ui";
 import { useAuth } from "@/hooks/useAuth";
+import { useLogout } from "@/domains/auth";
 import {
   useStageInfo,
   useMyApplications,
@@ -35,11 +36,14 @@ import {
   Upload,
   Zap,
   BarChart3,
+  LogOut,
+  Loader2,
 } from "lucide-react";
 
 export default function StudentDashboardPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const logoutMutation = useLogout();
   const {
     data: stageInfo,
     isError: stageError,
@@ -99,9 +103,7 @@ export default function StudentDashboardPage() {
             ) : profile ? (
               <div className="flex items-center gap-3">
                 <div className="size-12 rounded-xl bg-[#4B2D8E] flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm shadow-[#4B2D8E]/20">
-                  {(profile.name || user?.name || "?")
-                    .charAt(0)
-                    .toUpperCase()}
+                  {(profile.name || user?.name || "?").charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-base font-semibold text-gray-900 truncate">
@@ -118,7 +120,10 @@ export default function StudentDashboardPage() {
           </Card>
 
           {/* 2. Quick Stats */}
-          {(overviewLoading || applications.length > 0 || approvedCount > 0 || pendingDocs > 0) && (
+          {(overviewLoading ||
+            applications.length > 0 ||
+            approvedCount > 0 ||
+            pendingDocs > 0) && (
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-3">
                 <BarChart3 className="w-5 h-5 text-gray-600" />
@@ -183,7 +188,9 @@ export default function StudentDashboardPage() {
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Calendar className="w-5 h-5 text-gray-600" />
-                <h2 className="font-medium text-gray-900">Upcoming Deadlines</h2>
+                <h2 className="font-medium text-gray-900">
+                  Upcoming Deadlines
+                </h2>
               </div>
               <div className="space-y-3">
                 {deadlines.map((dl, i) => (
@@ -213,14 +220,14 @@ export default function StudentDashboardPage() {
           ) : null}
 
           {/* 6. Need Help */}
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-3">
+          {/* <Card className="p-4">
+            <div className="flex items-center gap-2">
               <LifeBuoy className="w-5 h-5 text-gray-600" />
               <h2 className="font-medium text-gray-900">Need Help?</h2>
             </div>
-            <p className="text-xs text-gray-500 leading-relaxed mb-4">
-              Contact our support team for help with admission, documents,
-              or payments.
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Contact our support team for help with admission, documents, or
+              payments.
             </p>
             <div className="space-y-2.5">
               <a
@@ -230,9 +237,7 @@ export default function StudentDashboardPage() {
                 <div className="size-7 rounded-md bg-gray-50 flex items-center justify-center">
                   <Mail className="size-3.5 text-gray-500" />
                 </div>
-                <span className="font-medium">
-                  info@shiksha.study
-                </span>
+                <span className="font-medium">info@shiksha.study</span>
               </a>
               <a
                 href="tel:+79184826501"
@@ -244,7 +249,22 @@ export default function StudentDashboardPage() {
                 <span className="font-medium">+7 918 482-65-01</span>
               </a>
             </div>
-          </Card>
+          </Card> */}
+
+          {/* Logout button */}
+          <button
+            type="button"
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
+            className="w-full py-2 px-4 border border-red-200 rounded-lg text-sm font-medium text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {logoutMutation.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <LogOut className="size-4" />
+            )}
+            {logoutMutation.isPending ? "Logging out..." : "Logout"}
+          </button>
         </div>
 
         {/* ============================================ */}

@@ -60,16 +60,22 @@ export class AuthService {
       },
     });
 
+    const isDev = this.config.get('NODE_ENV') === 'development';
+
     try {
       await this.emailService.sendRegistrationOtp(dto.email, otp, dto.name);
     } catch (error) {
       this.logger.error(`Failed to send OTP email: ${(error as Error).message}`);
-      // Clean up the OTP record if email fails
+      // Clean up OTP record regardless of env
       await this.prisma.otpVerification.delete({ where: { id: otpRecord.id } });
-      throw error;
+      if (!isDev) {
+        throw error;
+      }
+      // Dev: log warning but proceed — devOtp returned for testing
+      this.logger.warn('Dev mode: continuing without email send');
     }
 
-    if (this.config.get('NODE_ENV') === 'development') {
+    if (isDev) {
       return { message: 'OTP sent to your email', devOtp: otp };
     }
     return { message: 'OTP sent to your email' };
