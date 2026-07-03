@@ -13,6 +13,9 @@ import {
   Clock,
   BookOpen
 } from "lucide-react";
+import Image from "next/image";
+
+const LOGO_DIR = "/img/universities";
 
 interface UniversityCardProps extends PartnerUniversity {
   index: number;
@@ -25,7 +28,8 @@ interface UniversityCardProps extends PartnerUniversity {
 export function UniversityCard({ 
   name, 
   location, 
-  country, 
+  country,
+  logo,
   established, 
   studentStrength,
   features,
@@ -68,15 +72,27 @@ export function UniversityCard({
       {/* Card Header */}
       <div className="p-5 pb-3">
         <div className="flex items-start gap-3">
-          <span
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold"
-            style={{
-              backgroundColor: colors.bg,
-              color: colors.text,
-            }}
-          >
-            {String(index + 1).padStart(2, "0")}
-          </span>
+          {logo ? (
+            <div className="relative h-10 w-10 shrink-0 rounded-lg overflow-hidden">
+              <Image
+                src={`${LOGO_DIR}/${logo}`}
+                alt={name}
+                fill
+                className="object-contain p-1"
+                sizes="40px"
+              />
+            </div>
+          ) : (
+            <span
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold"
+              style={{
+                backgroundColor: colors.bg,
+                color: colors.text,
+              }}
+            >
+              {String(index + 1).padStart(2, "0")}
+            </span>
+          )}
           <div className="min-w-0 flex-1 pr-16">
             <h3
               className="font-semibold text-base leading-tight"
