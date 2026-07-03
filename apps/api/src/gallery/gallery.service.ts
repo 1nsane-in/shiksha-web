@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { StorageService } from '../common/services/storage.service';
 
 @Injectable()
@@ -8,18 +9,23 @@ export class GalleryService {
   constructor(
     private prisma: PrismaService,
     private storage: StorageService,
+    private redis: RedisService,
   ) {}
 
   async getAll() {
-    return this.prisma.galleryImage.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.redis.getOrSet(
+      'gallery:images:all',
+      () => this.prisma.galleryImage.findMany({
+        orderBy: { createdAt: 'desc' },
+      }),
+      3600, // Cache for 1 hour
+    );
   }
 
   async uploadImage(file: Express.Multer.File, title?: string) {
     // Store in a separate folder named "gallery-images"
     const uploadResult = await this.storage.upload(file, 'gallery-images');
-    return this.prisma.galleryImage.create({
+    const result = await this.prisma.galleryImage.create({
       data: {
         id: randomUUID(),
         title: title || file.originalname,
@@ -28,6 +34,11 @@ export class GalleryService {
         updatedAt: new Date(),
       },
     });
+    
+    // Invalidate gallery cache
+    await this.redis.del('gallery:images:all');
+    
+    return result;
   }
 
   async deleteImage(id: string) {
@@ -40,8 +51,13 @@ export class GalleryService {
     // Delete from R2 storage
     await this.storage.delete(image.key);
     // Delete from database
-    return this.prisma.galleryImage.delete({
+    const result = await this.prisma.galleryImage.delete({
       where: { id },
     });
+    
+    // Invalidate gallery cache
+    await this.redis.del('gallery:images:all');
+    
+    return result;
   }
 }

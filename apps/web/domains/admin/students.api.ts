@@ -5,7 +5,16 @@ import type {
   AdminStudentStats,
   UpdateStudentStagePayload,
   AssignUniversityPayload,
+  UpdateAdminStudentPayload,
 } from "./students.types";
+
+const route = {
+  list: "/admin/students" as const,
+  detail: (id: string) => `/admin/students/${id}` as const,
+  stage: (id: string) => `/admin/students/${id}/stage` as const,
+  assignUniversity: (id: string) => `/admin/students/${id}/assign-university` as const,
+  stats: "/admin/students/stats" as const,
+} as const;
 
 export function getAdminStudents(filters: AdminStudentFilters = {}) {
   return client.get<{
@@ -14,28 +23,28 @@ export function getAdminStudents(filters: AdminStudentFilters = {}) {
     page: number;
     limit: number;
     totalPages: number;
-  }>("/admin/students", { params: filters });
+  }>(route.list, { params: filters });
 }
 
 export function getAdminStudent(id: string) {
-  return client.get<AdminStudentListItem>(`/admin/students/${id}`);
+  return client.get<AdminStudentListItem>(route.detail(id));
 }
 
-export function updateAdminStudent(id: string, data: Record<string, unknown>) {
-  return client.put<AdminStudentListItem>(`/admin/students/${id}`, data);
+export function updateAdminStudent(id: string, data: UpdateAdminStudentPayload) {
+  return client.put<AdminStudentListItem>(route.detail(id), data);
 }
 
 export function updateStudentStage(id: string, payload: UpdateStudentStagePayload) {
-  return client.put<AdminStudentListItem>(`/admin/students/${id}/stage`, payload);
+  return client.put<AdminStudentListItem>(route.stage(id), payload);
 }
 
 export function assignUniversity(id: string, payload: AssignUniversityPayload) {
-  return client.post<{ message: string; application: any }>(
-    `/admin/students/${id}/assign-university`,
+  return client.post<{ message: string; application: unknown }>(
+    route.assignUniversity(id),
     payload
   );
 }
 
 export function getStudentStats() {
-  return client.get<AdminStudentStats>("/admin/students/stats");
+  return client.get<AdminStudentStats>(route.stats);
 }

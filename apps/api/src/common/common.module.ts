@@ -3,6 +3,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { HealthController } from './health/health.controller';
 import { DatabaseHealthIndicator } from './health/db.health';
+import { RedisHealthIndicator } from './health/redis.health';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AnalyticsService } from './services/analytics.service';
 import { ActivityLogService } from './services/activity-log.service';
@@ -27,6 +28,7 @@ import { StorageService } from './services/storage.service';
   controllers: [HealthController, DashboardController, UploadController],
   providers: [
     DatabaseHealthIndicator,
+    RedisHealthIndicator,
     AnalyticsService,
     ActivityLogService,
     AuditLogService,
@@ -35,7 +37,6 @@ import { StorageService } from './services/storage.service';
     EmailValidationService,
     EmailService,
     PaginatorService,
-    TimelineService,
     TimelineService,
     StorageService,
     {
@@ -64,7 +65,6 @@ import { StorageService } from './services/storage.service';
     EmailValidationService,
     EmailService,
     PaginatorService,
-    TimelineService,
     TimelineService,
     StorageService,
   ],

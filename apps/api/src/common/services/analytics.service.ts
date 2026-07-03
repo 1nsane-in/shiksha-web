@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PostHog } from 'posthog-node';
 
 export interface AnalyticsEvent {
@@ -12,12 +13,11 @@ export class AnalyticsService {
   private posthog: PostHog | null = null;
   private enabled: boolean;
 
-  constructor() {
-    const apiKey = process.env.POSTHOG_KEY;
-    const host = process.env.POSTHOG_HOST || 'https://us.i.posthog.com';
-    this.enabled = !!(
-      process.env.NODE_ENV === 'production' || process.env.POSTHOG_KEY
-    );
+  constructor(config: ConfigService) {
+    const apiKey = config.get<string>('POSTHOG_KEY');
+    const host = config.get<string>('POSTHOG_HOST', 'https://us.i.posthog.com');
+    const nodeEnv = config.get<string>('NODE_ENV');
+    this.enabled = !!(nodeEnv === 'production' || apiKey);
 
     if (this.enabled && apiKey) {
       this.posthog = new PostHog(apiKey, { host });

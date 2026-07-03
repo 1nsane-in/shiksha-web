@@ -4,8 +4,8 @@ import {
   createUniversityRequest,
   getUniversityRequests,
   getUniversityRequestStats,
-  CreateUniversityRequestPayload,
 } from "./university-requests.api";
+import type { CreateUniversityRequestPayload } from "./university-requests.types";
 
 export function useCreateUniversityRequest() {
   const queryClient = useQueryClient();

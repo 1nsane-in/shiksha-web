@@ -1,22 +1,38 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { UpdateProfileDto, UpdateUserByAdminDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private redis: RedisService,
+  ) {}
 
-  async getProfile(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: { student: true },
-    });
+  async getProfile(userId: string, fields?: string) {
+    const cacheKey = fields
+      ? `user:profile:${userId}:fields:${fields}`
+      : `user:profile:${userId}`;
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    return this.redis.getOrSet(
+      cacheKey,
+      async () => {
+        const select = this.buildUserSelect(fields, true);
 
-    return user;
+        const user = await this.prisma.user.findUnique({
+          where: { id: userId },
+          ...(select ? { select } : { include: { student: true } }) as any,
+        });
+
+        if (!user) {
+          throw new NotFoundException('User not found');
+        }
+
+        return user;
+      },
+      300, // Cache for 5 minutes
+    );
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
@@ -25,47 +41,109 @@ export class UsersService {
       data: dto,
     });
 
+    // Invalidate profile cache
+    await this.redis.del(`user:profile:${userId}`);
+
     return user;
   }
 
-  async findAll(page: number = 1, limit: number = 10, role?: string) {
-    const skip = (page - 1) * limit;
+  async findAll(page: number = 1, limit: number = 10, role?: string, fields?: string) {
+    const cacheKey = `users:list:${page}:${limit}:${role || 'all'}:${fields || 'default'}`;
 
-    const where = role ? { role: role as any } : {};
+    return this.redis.getOrSet(
+      cacheKey,
+      async () => {
+        const skip = (page - 1) * limit;
 
-    const [users, total] = await Promise.all([
-      this.prisma.user.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: { student: true },
-      }),
-      this.prisma.user.count({ where }),
-    ]);
+        const where = role ? { role: role as any } : {};
+        const select = this.buildUserSelect(fields);
 
-    return {
-      data: users,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        const [users, total] = await Promise.all([
+          this.prisma.user.findMany({
+            where,
+            skip,
+            take: limit,
+            orderBy: { createdAt: 'desc' },
+            ...(select ? { select } : { include: { student: true } }) as any,
+          }),
+          this.prisma.user.count({ where }),
+        ]);
+
+        return {
+          data: users,
+          meta: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
+        };
       },
-    };
+      300, // Cache for 5 minutes
+    );
   }
 
-  async findOne(id: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-      include: { student: true },
-    });
+  async findOne(id: string, fields?: string) {
+    const cacheKey = fields
+      ? `user:${id}:fields:${fields}`
+      : `user:${id}`;
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+    return this.redis.getOrSet(
+      cacheKey,
+      async () => {
+        const select = this.buildUserSelect(fields);
+
+        const user = await this.prisma.user.findUnique({
+          where: { id },
+          ...(select ? { select } : { include: { student: true } }) as any,
+        });
+
+        if (!user) {
+          throw new NotFoundException('User not found');
+        }
+
+        return user;
+      },
+      300, // Cache for 5 minutes
+    );
+  }
+
+  private buildUserSelect(fields?: string, includeStudent?: boolean) {
+    if (!fields) return undefined;
+
+    const fieldList = fields.split(',').map(f => f.trim()).filter(Boolean);
+    if (fieldList.length === 0) return undefined;
+
+    const select: any = { id: true };
+
+    const allowedScalars = ['email', 'name', 'phone', 'role', 'isActive', 'avatarUrl', 'createdAt', 'updatedAt'];
+
+    for (const field of allowedScalars) {
+      if (fieldList.includes(field)) {
+        select[field] = true;
+      }
     }
 
-    return user;
+    const studentFields = fieldList.filter(f => f.startsWith('student.'));
+    if (studentFields.length > 0 || (includeStudent && fieldList.includes('student'))) {
+      select.student = { select: {} as Record<string, boolean> };
+      const allowedStudent = ['id', 'currentStage', 'applicationStatus', 'neetScore', 'neetRank', 'twelfthPercentage', 'tenthPercentage', 'userId'];
+      if (fieldList.includes('student')) {
+        for (const s of allowedStudent) select.student.select[s] = true;
+      } else {
+        for (const sf of studentFields) {
+          const key = sf.replace('student.', '');
+          if (allowedStudent.includes(key)) {
+            select.student.select[key] = true;
+          }
+        }
+        if (!select.student.select.id) {
+          select.student.select.id = true;
+        }
+      }
+    }
+
+    return select;
   }
 
   async update(id: string, dto: UpdateUserByAdminDto) {
@@ -73,6 +151,10 @@ export class UsersService {
       where: { id },
       data: dto,
     });
+
+    // Invalidate caches
+    await this.redis.del(`user:profile:${id}`);
+    await this.redis.deletePattern('users:list:*');
 
     return user;
   }
@@ -83,6 +165,10 @@ export class UsersService {
       data: { isActive: false },
     });
 
+    // Invalidate caches
+    await this.redis.del(`user:profile:${id}`);
+    await this.redis.deletePattern('users:list:*');
+
     return { message: 'User deactivated', user };
   }
 
@@ -91,6 +177,10 @@ export class UsersService {
       where: { id },
       data: { isActive: true },
     });
+
+    // Invalidate caches
+    await this.redis.del(`user:profile:${id}`);
+    await this.redis.deletePattern('users:list:*');
 
     return { message: 'User activated', user };
   }

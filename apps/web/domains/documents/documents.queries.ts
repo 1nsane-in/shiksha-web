@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
-import type { DocumentFilters } from "./documents.types";
+import type { DocumentFilters, UploadDocumentPayload } from "./documents.types";
 
 /* ───── Student Hooks ───── */
 
@@ -17,7 +17,7 @@ export function useMyDocuments() {
 export function useUploadMyDocument() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { documentTypeId: string; fileUrl: string; fileName: string; fileSize: number }) => {
+    mutationFn: async (data: UploadDocumentPayload) => {
       const { uploadMyDocument } = await import("./documents.api");
       return uploadMyDocument(data);
     },

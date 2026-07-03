@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   HttpStatus,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,14 +22,20 @@ import {
 import { SectionsService } from './sections.service';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { Public } from '../../auth/decorators/public.decorator';
 
 @ApiTags('Sections')
 @ApiBearerAuth()
 @Controller('sections')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class SectionsController {
   constructor(private readonly sectionsService: SectionsService) {}
 
   @Post()
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({
     description: 'Section created successfully.',
@@ -39,6 +46,7 @@ export class SectionsController {
   }
 
   @Get()
+  @Public()
   @ApiOkResponse({ description: 'List of sections' })
   @ApiOperation({ summary: 'Get all sections' })
   async findAll() {
@@ -46,6 +54,7 @@ export class SectionsController {
   }
 
   @Get(':id')
+  @Public()
   @ApiResponse({ status: 200, description: 'Section found' })
   @ApiResponse({ status: 404, description: 'Section not found' })
   @ApiOperation({ summary: 'Get a section by ID' })
@@ -54,6 +63,7 @@ export class SectionsController {
   }
 
   @Put(':id')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @ApiResponse({ status: 200, description: 'Section updated' })
   @ApiResponse({ status: 404, description: 'Section not found' })
   @ApiOperation({ summary: 'Update a section by ID' })
@@ -65,6 +75,7 @@ export class SectionsController {
   }
 
   @Delete(':id')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @ApiResponse({ status: 200, description: 'Section deleted' })
   @ApiResponse({ status: 404, description: 'Section not found' })
   @ApiOperation({ summary: 'Delete a section by ID' })

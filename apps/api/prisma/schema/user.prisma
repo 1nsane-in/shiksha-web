@@ -1,0 +1,111 @@
+// ============================================
+// User & Authentication Schema
+// ============================================
+
+model User {
+  id              String               @id @default(uuid())
+  email           String               @unique
+  passwordHash    String?
+  name            String
+  phone           String?
+  role            Role                 @default(STUDENT)
+  avatarUrl       String?
+  isActive        Boolean              @default(true)
+  emailVerified   Boolean              @default(false)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  lastLoginAt     DateTime?
+  lastLoginIp     String?
+  aiConversations AIConversation[]
+  deviceTokens    DeviceToken[]
+  notifications   Notification[]
+  orgMemberships  OrganizationMember[]
+  parent          Parent?
+  student         Student?
+  activityLogs    UserActivityLog[]
+  sessions        UserSession[]
+  courses           PlatformCourse[]
+  courseEnrollments PlatformCourseEnrollment[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model UserSession {
+  id         String   @id @default(uuid())
+  userId     String
+  tokenHash  String   @unique
+  deviceInfo String?
+  ipAddress  String?
+  userAgent  String?
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model DeviceToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String
+  platform  String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, token])
+  @@index([userId])
+}
+
+model OtpVerification {
+  id          String    @id @default(uuid())
+  email       String
+  name        String?
+  otp         String
+  token       String?   @unique
+  attempts    Int       @default(0)
+  expiresAt   DateTime
+  verifiedAt  DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([email])
+  @@index([token])
+}
+
+model TwoFactorAuth {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  secret      String
+  backupCodes String[]
+  verified    Boolean   @default(false)
+  enabledAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model LoginAttempt {
+  id            String   @id @default(uuid())
+  email         String
+  ipAddress     String
+  success       Boolean
+  failureReason String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+
+  @@index([email])
+  @@index([ipAddress])
+  @@index([createdAt])
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  STUDENT
+  PARENT
+}

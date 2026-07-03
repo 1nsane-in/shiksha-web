@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,6 +18,7 @@ import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { useSearchParams } from "next/navigation";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useLogin } from "@/domains/auth";
+import Link from "next/link";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -76,9 +78,9 @@ function LoginContent() {
               <FieldGroup>
                 {/* Logo + Header */}
                 <div className="flex flex-col items-center gap-4 mb-2">
-                  <a href="/">
-                    <img src="/img/logo.png" alt="Shiksha Health" className="h-8" />
-                  </a>
+                  <Link href="/">
+                    <Image src="/img/logo.png" alt="Shiksha Health" width={32} height={32} className="h-8 w-auto" />
+                  </Link>
                   <div className="text-center">
                     <h1 className="text-2xl font-semibold tracking-tight text-[#111]">
                       Welcome back
@@ -118,12 +120,12 @@ function LoginContent() {
                 <Field>
                   <div className="flex items-center justify-between">
                     <FieldLabel htmlFor="password">Password</FieldLabel>
-                    <a
+                    <Link
                       href="/forgot-password"
                       className="text-xs text-[#626260] hover:text-[#111] underline-offset-4 hover:underline transition-colors"
                     >
                       Forgot password?
-                    </a>
+                    </Link>
                   </div>
                   <div className="relative">
                     <Input
@@ -174,12 +176,12 @@ function LoginContent() {
                   />
                   <FieldDescription className="text-center mt-4">
                     Don&apos;t have an account?{" "}
-                    <a
+                    <Link
                       href="/register"
                       className="font-medium text-[#111] underline underline-offset-4 hover:no-underline"
                     >
                       Create account
-                    </a>
+                    </Link>
                   </FieldDescription>
                 </Field>
               </FieldGroup>
@@ -190,10 +192,13 @@ function LoginContent() {
 
       {/* Right — Image */}
       <div className="relative hidden lg:block overflow-hidden">
-        <img
+        <Image
           src="https://images.unsplash.com/photo-1607013407627-6ee814329547?q=80&w=964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
+          priority
+          sizes="50vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
         <div className="absolute bottom-10 left-10 right-10">

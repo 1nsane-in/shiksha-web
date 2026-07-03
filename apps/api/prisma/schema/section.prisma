@@ -1,0 +1,16 @@
+// ============================================
+// Section Schema (Course Content)
+// ============================================
+
+model Section {
+  id          String   @id @default(uuid())
+  title       String
+  courseId    String
+  description String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([courseId, title])
+  @@index([courseId])
+}

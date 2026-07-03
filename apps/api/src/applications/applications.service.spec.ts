@@ -3,6 +3,7 @@ import { NotFoundException } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginatorService } from '../common/services/paginator.service';
+import { RedisService } from '../redis/redis.service';
 
 /**
  * Regression test: Payment Ledger on the admin application details page
@@ -31,6 +32,15 @@ describe('ApplicationsService.findOne - per-application payment scoping', () => 
         {
           provide: PaginatorService,
           useValue: { getSkip: () => 0, wrapResult: (items: unknown) => items },
+        },
+        {
+          provide: RedisService,
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+            del: jest.fn(),
+            getOrSet: jest.fn().mockImplementation((_key, factory) => factory()),
+          },
         },
       ],
     }).compile();

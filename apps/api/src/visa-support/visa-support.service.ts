@@ -4,6 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { VisaApplicationStatus } from '@prisma/client';
 import {
   CreateVisaCenterDto,
@@ -16,14 +17,23 @@ import {
 
 @Injectable()
 export class VisaSupportService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private redis: RedisService,
+  ) {}
 
   // ===== Visa Centers ===== //
   async createVisaCenter(dto: CreateVisaCenterDto) {
-    return this.prisma.visaCenter.create({ data: dto });
+    const result = await this.prisma.visaCenter.create({ data: dto });
+    await this.redis.del('visa:centers:all');
+    return result;
   }
   async getAllVisaCenters() {
-    return this.prisma.visaCenter.findMany({ orderBy: { createdAt: 'desc' } });
+    return this.redis.getOrSet(
+      'visa:centers:all',
+      () => this.prisma.visaCenter.findMany({ orderBy: { createdAt: 'desc' } }),
+      86400, // Cache for 24 hours
+    );
   }
   async getVisaCenter(id: string) {
     const c = await this.prisma.visaCenter.findUnique({ where: { id } });
@@ -32,22 +42,33 @@ export class VisaSupportService {
   }
   async updateVisaCenter(id: string, dto: UpdateVisaCenterDto) {
     await this.getVisaCenter(id);
-    return this.prisma.visaCenter.update({ where: { id }, data: dto });
+    const result = await this.prisma.visaCenter.update({ where: { id }, data: dto });
+    await this.redis.del('visa:centers:all');
+    return result;
   }
   async deleteVisaCenter(id: string) {
     await this.getVisaCenter(id);
-    return this.prisma.visaCenter.delete({ where: { id } });
+    const result = await this.prisma.visaCenter.delete({ where: { id } });
+    await this.redis.del('visa:centers:all');
+    return result;
   }
 
   // ===== Visa Checklists ===== //
   async createVisaChecklist(dto: CreateVisaChecklistDto) {
-    return this.prisma.visaChecklist.create({ data: dto });
+    const result = await this.prisma.visaChecklist.create({ data: dto });
+    await this.redis.deletePattern('visa:checklists:*');
+    return result;
   }
   async getAllVisaChecklists(country?: string) {
-    return this.prisma.visaChecklist.findMany({
-      where: country ? { country } : {},
-      orderBy: { createdAt: 'desc' },
-    });
+    const cacheKey = `visa:checklists:${country || 'all'}`;
+    return this.redis.getOrSet(
+      cacheKey,
+      () => this.prisma.visaChecklist.findMany({
+        where: country ? { country } : {},
+        orderBy: { createdAt: 'desc' },
+      }),
+      86400, // Cache for 24 hours
+    );
   }
   async getVisaChecklist(id: string) {
     const cl = await this.prisma.visaChecklist.findUnique({ where: { id } });
@@ -56,11 +77,15 @@ export class VisaSupportService {
   }
   async updateVisaChecklist(id: string, dto: UpdateVisaChecklistDto) {
     await this.getVisaChecklist(id);
-    return this.prisma.visaChecklist.update({ where: { id }, data: dto });
+    const result = await this.prisma.visaChecklist.update({ where: { id }, data: dto });
+    await this.redis.deletePattern('visa:checklists:*');
+    return result;
   }
   async deleteVisaChecklist(id: string) {
     await this.getVisaChecklist(id);
-    return this.prisma.visaChecklist.delete({ where: { id } });
+    const result = await this.prisma.visaChecklist.delete({ where: { id } });
+    await this.redis.deletePattern('visa:checklists:*');
+    return result;
   }
 
   // ===== Visa Applications ===== //

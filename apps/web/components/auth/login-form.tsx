@@ -72,15 +72,17 @@ export function LoginForm({
           />
         </Field>
         <Field>
-          <div className="flex items-center">
+          <div className="flex items-center justify-between">
             <FieldLabel htmlFor="password">Password</FieldLabel>
-            <Link
-              href="/forgot-password"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-              prefetch={false}
+            <span
+              className="text-sm underline-offset-4 hover:underline cursor-pointer text-primary"
+              onClick={() => {
+                console.log("Span clicked");
+                window.location.href = "/forgot-password";
+              }}
             >
               Forgot your password?
-            </Link>
+            </span>
           </div>
           <Input
             id="password"

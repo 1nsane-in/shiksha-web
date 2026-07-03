@@ -2,13 +2,14 @@
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
-import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import compression from 'compression';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { versionMiddleware } from './common/middleware/version-middleware';
+import { Request, Response, NextFunction } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -29,7 +30,7 @@ async function bootstrap() {
 
   app.use(versionMiddleware);
 
-  app.use((req: any, res: any, next: any) => {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     res.on('finish', () => {
       const duration = Date.now() - start;
@@ -97,7 +98,8 @@ async function bootstrap() {
     exposedHeaders: ['Set-Cookie'],
   });
 
-  app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
+  // Static file serving removed for security. Use StorageService (signed URLs via R2/S3).
+  // app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -108,6 +110,23 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
+
+  // Response compression - reduces bandwidth by 60-80%
+  app.use(
+    compression({
+      level: 6, // Compression level (0-9, 6 is default)
+      filter: (req, res) => {
+        // Don't compress responses with this header
+        if (req.headers['x-no-compression']) {
+          return false;
+        }
+        // Use compression for all other responses
+        return compression.filter(req, res);
+      },
+      // Compress responses larger than 1KB
+      threshold: 1024,
+    }),
+  );
 
   // Security headers with Helmet
   app.use(

@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   HttpStatus,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,14 +22,20 @@ import {
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { Public } from '../../auth/decorators/public.decorator';
 
 @ApiTags('Courses')
 @ApiBearerAuth()
 @Controller('courses')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Post()
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({
     description: 'Course created successfully.',
@@ -39,6 +46,7 @@ export class CoursesController {
   }
 
   @Get()
+  @Public()
   @ApiOkResponse({ description: 'List of courses' })
   @ApiOperation({ summary: 'Get all courses' })
   async findAll() {
@@ -46,6 +54,7 @@ export class CoursesController {
   }
 
   @Get(':id')
+  @Public()
   @ApiResponse({ status: 200, description: 'Course found' })
   @ApiResponse({ status: 404, description: 'Course not found' })
   @ApiOperation({ summary: 'Get a course by ID' })
@@ -54,6 +63,7 @@ export class CoursesController {
   }
 
   @Put(':id')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @ApiResponse({ status: 200, description: 'Course updated' })
   @ApiResponse({ status: 404, description: 'Course not found' })
   @ApiOperation({ summary: 'Update a course by ID' })
@@ -65,6 +75,7 @@ export class CoursesController {
   }
 
   @Delete(':id')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @ApiResponse({ status: 200, description: 'Course deleted' })
   @ApiResponse({ status: 404, description: 'Course not found' })
   @ApiOperation({ summary: 'Delete a course by ID' })
@@ -73,6 +84,7 @@ export class CoursesController {
   }
 
   @Post(':id/publish')
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @ApiResponse({ status: 200, description: 'Course published' })
   @ApiResponse({ status: 404, description: 'Course not found' })
   @ApiOperation({ summary: 'Publish a course by ID' })

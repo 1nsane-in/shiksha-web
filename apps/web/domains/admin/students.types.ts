@@ -65,3 +65,23 @@ export interface UpdateStudentStagePayload {
 export interface AssignUniversityPayload {
   courseId: string;
 }
+
+export interface UpdateAdminStudentPayload {
+  name?: string;
+  email?: string;
+  phone?: string;
+  fatherName?: string;
+  motherName?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  passportNumber?: string;
+  passportExpiry?: string;
+  neetScore?: number;
+  twelfthPercentage?: number;
+  tenthPercentage?: number;
+  gender?: string;
+  dob?: string;
+}

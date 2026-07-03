@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../common/services/storage.service';
+import { RedisService } from '../redis/redis.service';
 import {
   CreateUniversityDto,
   UpdateUniversityDto,
@@ -18,6 +19,7 @@ import {
 } from './universities.dto';
 import { PaginatorService } from '../common/services/paginator.service';
 import { createQueryBuilder } from '../common/helpers/prisma-query-builder';
+import { parseFields, ALLOWED_UNIVERSITY_FIELDS } from '../common/helpers/field-selection';
 
 const UNIVERSITY_INCLUDES = {
   location: true,
@@ -48,6 +50,7 @@ export class UniversitiesService {
     private prisma: PrismaService,
     private paginator: PaginatorService,
     private storage: StorageService,
+    private redis: RedisService,
   ) {}
 
   private generateSlug(name: string): string {
@@ -69,67 +72,109 @@ export class UniversitiesService {
     return university;
   }
 
+  private buildUniversitySelect(fields?: string) {
+    // If no fields specified, return default selection
+    if (!fields) {
+      return {
+        id: true,
+        name: true,
+        shortName: true,
+        slug: true,
+        establishedYear: true,
+        type: true,
+        status: true,
+        logo: true,
+        bannerImage: true,
+        brochureUrl: true,
+        website: true,
+        location: { select: { country: true, city: true, state: true } },
+        contact: { select: { email: true, phone: true } },
+        academic: { select: { medium: true } },
+      };
+    }
+
+    // Parse requested fields
+    const fieldList = fields.split(',').map(f => f.trim()).filter(Boolean);
+    const select: any = {};
+
+    // Always include id
+    select.id = true;
+
+    // Simple fields
+    const simpleFields = ['name', 'shortName', 'slug', 'logo', 'bannerImage', 'brochureUrl', 'website', 'establishedYear', 'type', 'status', 'createdAt', 'updatedAt'];
+    for (const field of simpleFields) {
+      if (fieldList.includes(field)) {
+        select[field] = true;
+      }
+    }
+
+    // Nested fields
+    if (fieldList.some(f => f.startsWith('location'))) {
+      select.location = { select: {} };
+      if (fieldList.includes('location.country')) select.location.select.country = true;
+      if (fieldList.includes('location.city')) select.location.select.city = true;
+      if (fieldList.includes('location.state')) select.location.select.state = true;
+      if (Object.keys(select.location.select).length === 0) {
+        select.location.select = { country: true, city: true, state: true };
+      }
+    }
+
+    if (fieldList.some(f => f.startsWith('contact'))) {
+      select.contact = { select: {} };
+      if (fieldList.includes('contact.email')) select.contact.select.email = true;
+      if (fieldList.includes('contact.phone')) select.contact.select.phone = true;
+      if (Object.keys(select.contact.select).length === 0) {
+        select.contact.select = { email: true, phone: true };
+      }
+    }
+
+    if (fieldList.some(f => f.startsWith('academic'))) {
+      select.academic = { select: {} };
+      if (fieldList.includes('academic.medium')) select.academic.select.medium = true;
+      if (fieldList.includes('academic.programs')) select.academic.select.programs = true;
+      if (Object.keys(select.academic.select).length === 0) {
+        select.academic.select = { medium: true };
+      }
+    }
+
+    return select;
+  }
+
   async findAll(query: UniversityQueryDto) {
     const { page, limit } = this.paginator.parseOptions(
       query.page,
       query.limit,
     );
 
-    const where = createQueryBuilder()
-      .where('status', query.status)
-      .whereNested('location', 'country', query.country)
-      .where('type', query.type)
-      .search(query.search, ['name', 'shortName', 'slug'])
-      .build();
+    const cacheKey = `universities:list:${page}:${limit}:${query.status || 'all'}:${query.country || 'all'}:${query.type || 'all'}:${query.search || 'none'}:${query.fields || 'default'}`;
 
-    const [universities, total] = await Promise.all([
-      this.prisma.university.findMany({
-        where,
-        skip: this.paginator.getSkip({ page, limit }),
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          name: true,
-          shortName: true,
-          slug: true,
-          establishedYear: true,
-          type: true,
-          status: true,
-          logo: true,
-          bannerImage: true,
-          brochureUrl: true,
-          website: true,
-          location: {
-            select: {
-              country: true,
-              city: true,
-              state: true,
-              address: true,
-            },
-          },
-          contact: {
-            select: {
-              email: true,
-              phone: true,
-            },
-          },
-          academic: {
-            select: {
-              medium: true,
-            },
-          },
-          content: {
-            select: {
-              gallery: true,
-            },
-          },
-        },
-      }),
-      this.prisma.university.count({ where }),
-    ]);
+    return this.redis.getOrSet(
+      cacheKey,
+      async () => {
+        const where = createQueryBuilder()
+          .where('status', query.status)
+          .whereNested('location', 'country', query.country)
+          .where('type', query.type)
+          .search(query.search, ['name', 'shortName', 'slug'])
+          .build();
 
-    return this.paginator.wrapResult(universities, total, { page, limit });
+        const select = this.buildUniversitySelect(query.fields);
+
+        const [universities, total] = await Promise.all([
+          this.prisma.university.findMany({
+            where,
+            skip: this.paginator.getSkip({ page, limit }),
+            take: limit,
+            orderBy: { createdAt: 'desc' },
+            select,
+          }),
+          this.prisma.university.count({ where }),
+        ]);
+
+        return this.paginator.wrapResult(universities, total, { page, limit });
+      },
+      3600, // Cache for 1 hour
+    );
   }
 
   async findAllAdmin(query: UniversityQueryDto) {
@@ -169,111 +214,117 @@ export class UniversitiesService {
   }
 
   async findOne(identifier: string) {
-    const university = await this.prisma.university.findFirst({
-      where: {
-        OR: [{ id: identifier }, { slug: identifier }],
-      },
-      select: {
-        id: true,
-        name: true,
-        shortName: true,
-        slug: true,
-        establishedYear: true,
-        type: true,
-        status: true,
-        logo: true,
-        bannerImage: true,
-        brochureUrl: true,
-        location: {
-          select: {
-            country: true,
-            state: true,
-            city: true,
-            address: true,
-            latitude: true,
-            longitude: true,
+    return this.redis.getOrSet(
+      `university:${identifier}`,
+      async () => {
+        const university = await this.prisma.university.findFirst({
+          where: {
+            OR: [{ id: identifier }, { slug: identifier }],
           },
-        },
-        contact: {
-          select: {
-            email: true,
-            phone: true,
-            admissionOfficeHours: true,
-          },
-        },
-        academic: {
-          select: {
-            programs: true,
-            duration: true,
-            medium: true,
-            specializations: true,
-            intakeMonths: true,
-            totalSeats: true,
-            governmentSeats: true,
-            managementSeats: true,
-            nriSeats: true,
-          },
-        },
-        content: {
-          select: {
-            gallery: true,
-          },
-        },
-        infrastructure: {
-          select: {
-            hospitalBeds: true,
-            departments: true,
-            hostelBoys: true,
-            hostelGirls: true,
-            laboratories: true,
-            campusArea: true,
-            facilities: true,
-            cafeteria: true,
-            wifiCampus: true,
-            transportation: true,
-          },
-        },
-        admission: {
-          select: {
-            entranceExams: true,
-            minimumMarks: true,
-            ageCriteria: true,
-            eligibility: true,
-            requiredDocuments: true,
-            applicationDeadline: true,
-            applicationFee: true,
-            selectionProcess: true,
-          },
-        },
-        support: {
-          select: {
-            placementRate: true,
-            averagePackage: true,
-            visaAssistance: true,
-            languageSupport: true,
-            counselingServices: true,
-            careerGuidance: true,
-          },
-        },
-        courses: {
-          where: { isActive: true },
           select: {
             id: true,
             name: true,
-            duration: true,
-            fees: true,
-            seats: true,
-            isActive: true,
+            shortName: true,
+            slug: true,
+            establishedYear: true,
+            type: true,
+            status: true,
+            logo: true,
+            bannerImage: true,
+            brochureUrl: true,
+            location: {
+              select: {
+                country: true,
+                state: true,
+                city: true,
+                address: true,
+                latitude: true,
+                longitude: true,
+              },
+            },
+            contact: {
+              select: {
+                email: true,
+                phone: true,
+                admissionOfficeHours: true,
+              },
+            },
+            academic: {
+              select: {
+                programs: true,
+                duration: true,
+                medium: true,
+                specializations: true,
+                intakeMonths: true,
+                totalSeats: true,
+                governmentSeats: true,
+                managementSeats: true,
+                nriSeats: true,
+              },
+            },
+            content: {
+              select: {
+                gallery: true,
+              },
+            },
+            infrastructure: {
+              select: {
+                hospitalBeds: true,
+                departments: true,
+                hostelBoys: true,
+                hostelGirls: true,
+                laboratories: true,
+                campusArea: true,
+                facilities: true,
+                cafeteria: true,
+                wifiCampus: true,
+                transportation: true,
+              },
+            },
+            admission: {
+              select: {
+                entranceExams: true,
+                minimumMarks: true,
+                ageCriteria: true,
+                eligibility: true,
+                requiredDocuments: true,
+                applicationDeadline: true,
+                applicationFee: true,
+                selectionProcess: true,
+              },
+            },
+            support: {
+              select: {
+                placementRate: true,
+                averagePackage: true,
+                visaAssistance: true,
+                languageSupport: true,
+                counselingServices: true,
+                careerGuidance: true,
+              },
+            },
+            courses: {
+              where: { isActive: true },
+              select: {
+                id: true,
+                name: true,
+                duration: true,
+                fees: true,
+                seats: true,
+                isActive: true,
+              },
+            },
           },
-        },
+        });
+
+        if (!university) {
+          throw new NotFoundException('University not found');
+        }
+
+        return university;
       },
-    });
-
-    if (!university) {
-      throw new NotFoundException('University not found');
-    }
-
-    return university;
+      1800, // Cache for 30 minutes
+    );
   }
 
   async findOneAdmin(identifier: string) {
@@ -342,23 +393,11 @@ export class UniversitiesService {
         content: dto.content
           ? { create: this.sanitizeContent(dto.content) as any }
           : undefined,
-        admin: dto.admin ? { create: dto.admin as any } : undefined,
-        studentDemographics: (dto.studentDemographics as any) ?? undefined,
-        socialLinks: (dto.socialLinks as any) ?? undefined,
-      },
-      include: {
-        location: true,
-        contact: true,
-        academic: true,
-        recognition: true,
-        fees: true,
-        infrastructure: true,
-        admission: true,
-        support: true,
-        content: true,
-        admin: true,
       },
     });
+
+    // Invalidate university list cache
+    await this.redis.deletePattern('universities:list:*');
 
     return university;
   }
@@ -552,6 +591,10 @@ export class UniversitiesService {
       },
     });
 
+    // Invalidate caches
+    await this.redis.del(`university:${id}`);
+    await this.redis.deletePattern('universities:list:*');
+
     return university;
   }
 
@@ -563,13 +606,17 @@ export class UniversitiesService {
       data: { status: UniversityStatus.INACTIVE },
     });
 
+    // Invalidate caches
+    await this.redis.del(`university:${id}`);
+    await this.redis.deletePattern('universities:list:*');
+
     return { message: 'University deleted successfully', university };
   }
 
   async updateStatus(id: string, status: UniversityStatus) {
     await this.findByIdOrThrow(id);
 
-    return this.prisma.university.update({
+    const result = await this.prisma.university.update({
       where: { id },
       data: {
         status,
@@ -578,6 +625,12 @@ export class UniversitiesService {
           : {}),
       },
     });
+
+    // Invalidate caches
+    await this.redis.del(`university:${id}`);
+    await this.redis.deletePattern('universities:list:*');
+
+    return result;
   }
 
   async uploadDocument(id: string, dto: UploadUniversityDocumentDto) {

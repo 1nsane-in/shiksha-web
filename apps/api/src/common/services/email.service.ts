@@ -1,4 +1,5 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
 
 interface EmailTemplate {
@@ -11,14 +12,16 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private resend: Resend;
   private fromEmail: string;
+  private config: ConfigService;
 
-  constructor() {
-    const apiKey = process.env.RESEND_API_KEY;
+  constructor(config: ConfigService) {
+    this.config = config;
+    const apiKey = config.get<string>('RESEND_API_KEY');
     if (!apiKey || apiKey === 're_xxx') {
       this.logger.error('RESEND_API_KEY is not configured properly');
     }
     this.resend = new Resend(apiKey);
-    this.fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    this.fromEmail = config.get<string>('RESEND_FROM_EMAIL', 'onboarding@resend.dev');
   }
 
   /**
@@ -59,7 +62,7 @@ export class EmailService {
   private async sendEmail(to: string, subject: string, html: string): Promise<void> {
     try {
       // Validate Resend API key
-      const apiKey = process.env.RESEND_API_KEY;
+      const apiKey = this.config.get<string>('RESEND_API_KEY');
       if (!apiKey || apiKey === 're_xxx') {
         throw new BadRequestException(
           'Email service is not configured. Please contact support.'
@@ -250,7 +253,7 @@ export class EmailService {
                 <li>Connect with admission counselors</li>
               </ul>
               <center>
-                <a href="${process.env.FRONTEND_URL}/dashboard" class="cta-button">Go to Dashboard</a>
+                <a href="${this.config.get<string>('FRONTEND_URL', 'http://localhost:3000')}/dashboard" class="cta-button">Go to Dashboard</a>
               </center>
             </div>
             <div class="footer">

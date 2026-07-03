@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@repo/ui";
 import { Input } from "@repo/ui";
-import { AlertCircle, ArrowLeft, CheckCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { forgotPassword, verifyOtp, resetPassword } from "@/domains/auth";
 import { getApiErrorMessage } from "@/lib/api-error";
 
@@ -19,6 +20,7 @@ export default function ForgotPasswordPage() {
   const [token, setToken] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +71,7 @@ export default function ForgotPasswordPage() {
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <a href="/" className="flex items-center gap-2 font-medium">
-            <img src="/img/logo.png" alt="" className="h-8" />
+            <Image src="/img/logo.png" alt="" width={32} height={32} className="h-8 w-auto" />
           </a>
         </div>
         <div className="flex flex-1 items-center justify-center">
@@ -163,15 +165,26 @@ export default function ForgotPasswordPage() {
                   <label htmlFor="password" className="text-sm font-medium mb-1 block">
                     New Password
                   </label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="At least 6 characters"
-                    required
-                    minLength={6}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="At least 6 characters"
+                      required
+                      minLength={6}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((p) => !p)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  </div>
                 </div>
                 <Button type="submit" disabled={loading || password.length < 6}>
                   {loading ? "Resetting..." : "Reset Password"}
@@ -194,10 +207,13 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
       <div className="relative hidden bg-muted lg:block">
-        <img
+        <Image
           src="https://images.unsplash.com/photo-1607013407627-6ee814329547?q=80&w=964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          fill
+          className="object-cover dark:brightness-[0.2] dark:grayscale"
+          priority
+          sizes="50vw"
         />
       </div>
     </div>

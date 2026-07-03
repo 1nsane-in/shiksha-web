@@ -1,0 +1,53 @@
+// ============================================
+// Support Ticket Schema
+// ============================================
+
+model SupportTicket {
+  id             String                 @id @default(uuid())
+  organizationId String?
+  userId         String
+  subject        String
+  description    String
+  categoryId     String?
+  priority       TicketPriority         @default(MEDIUM)
+  status         TicketStatus           @default(OPEN)
+  assignedTo     String?
+  resolvedAt     DateTime?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  applicationId  String?
+  application    UniversityApplication? @relation(fields: [applicationId], references: [id])
+  messages       SupportTicketMessage[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([applicationId])
+}
+
+model SupportTicketMessage {
+  id          String        @id @default(uuid())
+  ticketId    String
+  senderId    String
+  senderRole  String
+  content     String
+  attachments String[]
+  createdAt   DateTime      @default(now())
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_CUSTOMER
+  RESOLVED
+  CLOSED
+}

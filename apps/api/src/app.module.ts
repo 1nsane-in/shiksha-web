@@ -24,7 +24,9 @@ import { VisaSupportModule } from './visa-support/visa-support.module';
 import { RateLimitingModule } from './common/rate-limiting/rate-limiting.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { ConsultationModule } from './consultation/consultation.module';
+import { ParentsModule } from './parents/parents.module';
 import { UniversityRequestModule } from './university-requests/university-request.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { UniversityRequestModule } from './university-requests/university-reques
     RateLimitingModule,
     SharedJwtModule,
     PrismaModule,
+    RedisModule,
     AuthModule,
     UsersModule,
     UniversitiesModule,
@@ -53,6 +56,7 @@ import { UniversityRequestModule } from './university-requests/university-reques
     GalleryModule,
     ConsultationModule,
     UniversityRequestModule,
+    ParentsModule,
   ],
   controllers: [AppController],
   providers: [

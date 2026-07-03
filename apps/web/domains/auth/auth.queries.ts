@@ -98,11 +98,19 @@ export function useLogout() {
   return useMutation({
     mutationFn: async () => {
       const { logout } = await import("./auth.api");
-      await logout();
+      try {
+        await logout();
+      } catch {
+        // Server unreachable — still clear local session
+      }
     },
     onSuccess: () => {
       logoutStore();
-      router.push("/auth/login");
+      router.push("/");
+    },
+    onError: () => {
+      logoutStore();
+      router.push("/");
     },
   });
 }

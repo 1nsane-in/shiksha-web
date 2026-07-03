@@ -19,13 +19,17 @@ import {
   GraduationCap,
   Users,
   Shield,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { sendOtp, verifyOtp, completeRegistration } from "@/domains/auth";
+import { useLinkByFamilyCode } from "@/domains/parents";
 import { useAuthStore } from "@/stores/auth-store";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { GoogleLoginButton } from "./GoogleLoginButton";
+import Link from "next/link";
 
-type Step = "email" | "otp" | "password";
+type Step = "email" | "otp" | "password" | "code";
 type RoleTab = "student" | "parents" | "admin";
 
 const roleConfig: Record<
@@ -57,6 +61,12 @@ export function RegisterForm({
   const [token, setToken] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [familyCode, setFamilyCode] = useState("");
+  const [codeStepLoading, setCodeStepLoading] = useState(false);
+  const [codeStepSkipped, setCodeStepSkipped] = useState(false);
+  const linkMutation = useLinkByFamilyCode();
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,10 +111,10 @@ export function RegisterForm({
       const roleValue = role === "parents" ? "PARENT" : role.toUpperCase();
       const result = await completeRegistration({ token, password, confirmPassword, role: roleValue });
       useAuthStore.getState().login(result.user, result.accessToken);
-      if (result.user.role === "ADMIN" || result.user.role === "SUPER_ADMIN") {
+      if (roleValue === "PARENT") {
+        setStep("code");
+      } else if (result.user.role === "ADMIN" || result.user.role === "SUPER_ADMIN") {
         router.push("/admin/dashboard");
-      } else if (result.user.role === "PARENT") {
-        router.push("/parents/dashboard");
       } else {
         router.push("/");
       }
@@ -112,6 +122,20 @@ export function RegisterForm({
       setError(getApiErrorMessage(err, "Registration failed"));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLinkCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setCodeStepLoading(true);
+    try {
+      await linkMutation.mutateAsync({ familyCode: familyCode.trim().toUpperCase() });
+      router.push("/parents/dashboard");
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Failed to link. You can try again from your dashboard."));
+    } finally {
+      setCodeStepLoading(false);
     }
   };
 
@@ -140,11 +164,13 @@ export function RegisterForm({
             {step === "email" && "Create your account"}
             {step === "otp" && "Check your email"}
             {step === "password" && "Set your password"}
+            {step === "code" && "Link to your child"}
           </h1>
           <p className="text-sm text-balance text-muted-foreground">
             {step === "email" && "Enter your email to get started"}
             {step === "otp" && `We sent a code to ${email}`}
             {step === "password" && "Choose a strong password"}
+            {step === "code" && "Enter the family code from your child"}
           </p>
         </div>
 
@@ -232,26 +258,48 @@ export function RegisterForm({
           <>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input
-                id="password"
-                type="password"
-                placeholder="At least 6 characters"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="At least 6 characters"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((p) => !p)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
             </Field>
             <Field>
               <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Re-enter password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Re-enter password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((p) => !p)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
             </Field>
             {passError && (
               <div className="text-sm text-red-600 text-center">{passError}</div>
@@ -268,6 +316,42 @@ export function RegisterForm({
           </>
         )}
 
+        {step === "code" && (
+          <>
+            <Field>
+              <FieldLabel htmlFor="familyCode">Family Code</FieldLabel>
+              <Input
+                id="familyCode"
+                type="text"
+                placeholder="e.g. AB12CD"
+                value={familyCode}
+                onChange={(e) => setFamilyCode(e.target.value.toUpperCase())}
+                maxLength={10}
+                className="text-center text-lg tracking-[0.25em] font-bold uppercase"
+              />
+            </Field>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span className="text-sm">{error}</span>
+              </div>
+            )}
+            <div className="flex flex-col gap-2">
+              <Button type="button" disabled={codeStepLoading || !familyCode.trim()} onClick={handleLinkCode}>
+                {codeStepLoading ? "Linking..." : "Link & Continue"}
+              </Button>
+              <Button
+                variant="ghost"
+                type="button"
+                disabled={codeStepLoading}
+                onClick={() => router.push("/parents/dashboard")}
+              >
+                Skip for now
+              </Button>
+            </div>
+          </>
+        )}
+
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>
           <GoogleLoginButton
@@ -276,9 +360,9 @@ export function RegisterForm({
           />
           <FieldDescription className="text-center">
             Already have an account?{" "}
-            <a href="/login" className="underline underline-offset-4">
+            <Link href="/login" className="underline underline-offset-4">
               Login
-            </a>
+            </Link>
           </FieldDescription>
         </Field>
       </FieldGroup>

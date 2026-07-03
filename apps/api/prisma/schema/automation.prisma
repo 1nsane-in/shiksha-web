@@ -1,0 +1,37 @@
+// ============================================
+// Automation & Rules Schema
+// ============================================
+
+model AutomationRule {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  trigger      String
+  conditions   Json
+  actions      Json
+  priority     Int      @default(5)
+  isActive     Boolean  @default(true)
+  runCount     Int      @default(0)
+  successCount Int      @default(0)
+  failureCount Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AutomationEvent {
+  id          String    @id @default(uuid())
+  ruleId      String?
+  studentId   String?
+  eventType   String
+  payload     Json
+  status      String    @default("pending")
+  processedAt DateTime?
+  result      Json?
+  error       String?
+  createdAt   DateTime  @default(now())
+  student     Student?  @relation(fields: [studentId], references: [id])
+
+  @@index([eventType])
+  @@index([status])
+  @@index([createdAt])
+}

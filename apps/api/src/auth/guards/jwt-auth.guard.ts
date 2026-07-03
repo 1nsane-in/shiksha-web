@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
@@ -14,6 +15,7 @@ export class JwtAuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private reflector: Reflector,
+    private configService: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -34,10 +36,11 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret:
-          process.env.JWT_SECRET || 'your-secret-key-change-in-production',
-      });
+      const secret = this.configService.get<string>('JWT_SECRET');
+      if (!secret) {
+        throw new UnauthorizedException('JWT not configured');
+      }
+      const payload = await this.jwtService.verifyAsync(token, { secret });
       (request as unknown as Record<string, unknown>)['user'] = payload;
     } catch {
       throw new UnauthorizedException();
