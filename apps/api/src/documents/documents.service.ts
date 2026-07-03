@@ -178,12 +178,45 @@ export class DocumentsService {
   async getDocumentTypes() {
     return this.redis.getOrSet(
       'document:types',
-      () => this.prisma.documentType.findMany({
-        where: { isActive: true },
-        orderBy: { requiredForStage: 'asc' },
-      }),
+      async () => {
+        let types = await this.prisma.documentType.findMany({
+          where: { isActive: true },
+          orderBy: { requiredForStage: 'asc' },
+        });
+
+        if (types.length === 0) {
+          types = await this.createDefaultTypes();
+        }
+
+        return types;
+      },
       86400, // Cache for 24 hours
     );
+  }
+
+  private async createDefaultTypes() {
+    const defaults = [
+      { code: 'aadhaar-front', name: 'Aadhaar Card (Front)', description: 'Front side — photo, DOB, Aadhaar number', requiredForStage: 1 },
+      { code: 'aadhaar-back', name: 'Aadhaar Card (Back)', description: 'Back side — address', requiredForStage: 1 },
+      { code: 'pan-front', name: 'PAN Card (Front)', description: 'Front side — photo, PAN number, name', requiredForStage: 1 },
+      { code: 'pan-back', name: 'PAN Card (Back)', description: 'Back side', requiredForStage: 1 },
+      { code: 'tenth', name: '10th Marksheet', description: 'Class X marksheet', requiredForStage: 1 },
+      { code: 'twelfth', name: '12th Marksheet', description: 'Class XII marksheet', requiredForStage: 1 },
+      { code: 'neet', name: 'NEET Scorecard', description: 'NEET UG admit card or scorecard', requiredForStage: 1 },
+      { code: 'passport-front', name: 'Passport (Photo Page)', description: 'Photo, passport number, personal details', requiredForStage: 1 },
+      { code: 'passport-back', name: 'Passport (Back Page)', description: 'Spouse, address, emergency info', requiredForStage: 1 },
+    ];
+
+    const created: any[] = [];
+    for (const doc of defaults) {
+      const existing = await this.prisma.documentType.findUnique({ where: { code: doc.code } });
+      if (!existing) {
+        created.push(await this.prisma.documentType.create({ data: doc }));
+      } else {
+        created.push(existing);
+      }
+    }
+    return created;
   }
 
   async createDocumentType(dto: CreateDocumentTypeDto) {
