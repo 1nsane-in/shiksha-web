@@ -79,7 +79,11 @@ export interface PartnerUniversity {
   duration?: string;
   specialFocus?: string[];
   academicStructure?: string;
+  /** Logo image filename in /img/universities/ */
+  logo?: string;
 }
+
+const LOGO_DIR = "/img/universities";
 
 export const partnerUniversities: PartnerUniversity[] = [
   // ─── Russia (8) ───
@@ -87,6 +91,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Sevastopol State University (SevSU)",
     location: "Sevastopol, Russia",
     country: "Russia",
+    logo: "sevastopol-state-university.png",
     established: "2014",
     tuition: "287,500 RUB/year",
     duration: "6 Years",
@@ -99,6 +104,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Kemerovo State Medical University",
     location: "Kemerovo, Russia",
     country: "Russia",
+    logo: "kemerovo-state-medical.svg",
     established: "1974",
     studentStrength: "21,000+",
     tuition: "335,000 RUB/year",
@@ -111,6 +117,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "North Caucasus Federal University (Stavropol)",
     location: "Stavropol, Russia",
     country: "Russia",
+    logo: "north-caucasus-federal.svg",
     tuition: "300,000 RUB/year",
     duration: "6 Years",
     features: ["Federal University", "English-medium programs", "Modern research facilities"],
@@ -121,6 +128,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Nevinnomyssk Medical Institute",
     location: "Nevinnomyssk, Russia",
     country: "Russia",
+    logo: "nevinnomyssk-medical.png",
     tuition: "270,000 RUB/year",
     duration: "6 Years",
     features: ["Specialized Medical Institute", "Affordable tuition", "Hands-on clinical training"],
@@ -131,6 +139,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Kirov State Medical University (KSMU)",
     location: "Kirov, Russia",
     country: "Russia",
+    logo: "kirov-state-medical.png",
     established: "1987",
     studentStrength: "4,000+",
     tuition: "350,000 RUB/year",
@@ -143,6 +152,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Kazan State Medical University",
     location: "Kazan, Russia",
     country: "Russia",
+    logo: "kazan-state-medical.png",
     established: "1814",
     tuition: "636,000 RUB/year",
     duration: "6 Years",
@@ -154,6 +164,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Saint Petersburg Medical Social Institute",
     location: "Saint Petersburg, Russia",
     country: "Russia",
+    logo: "saint-petersburg-medical.png",
     tuition: "460,000 RUB/year",
     duration: "6 Years",
     features: ["Located in cultural capital of Russia", "English-medium MBBS", "Modern teaching methods"],
@@ -164,6 +175,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Maikop State Technology University",
     location: "Maykop, Russia",
     country: "Russia",
+    logo: "maikop-state-technology.png",
     tuition: "350,000 RUB/year",
     duration: "6 Years",
     features: ["Government University", "English-medium MBBS", "Affordable tuition", "Personalized academic support"],
@@ -176,6 +188,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Jalal-Abad State University",
     location: "Jalal-Abad, Kyrgyzstan",
     country: "Kyrgyzstan",
+    logo: "jalalabad-state-university.png",
     duration: "6 Years",
     features: ["Government University", "Recognized Medical Faculty", "Budget-Friendly Fees"],
     highlights: ["Popular among Indian students", "English-medium instruction", "Globally recognized"],
@@ -184,6 +197,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Bishkek International Medical Institute (BIMI)",
     location: "Bishkek, Kyrgyzstan",
     country: "Kyrgyzstan",
+    logo: "bishkek-international-medical.png",
     duration: "6 Years",
     features: ["English-medium MBBS", "Modern laboratories", "Affordable tuition", "Large Indian student community"],
     highlights: ["Focused on international students", "Affordable MBBS education"],
@@ -192,6 +206,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Jalalabad International University",
     location: "Jalalabad, Kyrgyzstan",
     country: "Kyrgyzstan",
+    logo: "jalalabad-international.png",
     duration: "6 Years",
     recognitions: ["Ministry of Health & Science Education, Kyrgyzstan", "NMC Approved", "WDOMS Listed"],
     features: ["Modern infrastructure", "Updated medical curriculum"],
@@ -200,6 +215,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Osh State University",
     location: "Osh, Kyrgyzstan",
     country: "Kyrgyzstan",
+    logo: "osh-state-university.png",
     established: "1939",
     studentStrength: "40,000+",
     duration: "6 Years",
@@ -211,6 +227,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "Andijan State Medical Institute (ASMI)",
     location: "Andijan, Uzbekistan",
     country: "Uzbekistan",
+    logo: "andijan-state-medical.png",
     established: "1955",
     tuition: "3,500 USD/year",
     duration: "6 Years",
@@ -221,6 +238,7 @@ export const partnerUniversities: PartnerUniversity[] = [
     name: "North Kazakhstan State Medical University (M. Kozybayev NKSU)",
     location: "Petropavl, Kazakhstan",
     country: "Kazakhstan",
+    logo: "north-kazakhstan-medical.png",
     established: "1937",
     duration: "6 Years",
     features: ["Government University", "English-medium MBBS", "Advanced laboratories", "Strong hospital training", "Safe on-campus accommodation"],

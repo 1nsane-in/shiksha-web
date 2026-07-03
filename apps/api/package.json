@@ -5,6 +5,7 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "packageManager": "pnpm@10.10.0",
   "engines": {
     "node": "22.x",
     "npm": "10.x"
@@ -16,7 +17,8 @@
       "@scarf/scarf",
       "@sentry/node-cpu-profiler",
       "esbuild",
-      "prisma"
+      "prisma",
+      "unrs-resolver"
     ]
   },
   "scripts": {
