@@ -3,6 +3,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { HealthController } from './health/health.controller';
 import { DatabaseHealthIndicator } from './health/db.health';
+import { RedisHealthIndicator } from './health/redis.health';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AnalyticsService } from './services/analytics.service';
 import { ActivityLogService } from './services/activity-log.service';
@@ -10,6 +11,7 @@ import { AuditLogService } from './services/audit-log.service';
 import { NotificationService } from './services/notification.service';
 import { MetricsService } from './services/metrics.service';
 import { EmailValidationService } from './services/email-validation.service';
+import { EmailService } from './services/email.service';
 import { SentryFilter } from './filters/sentry.filter';
 import { DashboardController } from './controllers/dashboard.controller';
 import { UploadController } from './controllers/upload.controller';
@@ -26,14 +28,15 @@ import { StorageService } from './services/storage.service';
   controllers: [HealthController, DashboardController, UploadController],
   providers: [
     DatabaseHealthIndicator,
+    RedisHealthIndicator,
     AnalyticsService,
     ActivityLogService,
     AuditLogService,
     NotificationService,
     MetricsService,
     EmailValidationService,
+    EmailService,
     PaginatorService,
-    TimelineService,
     TimelineService,
     StorageService,
     {
@@ -60,8 +63,8 @@ import { StorageService } from './services/storage.service';
     NotificationService,
     MetricsService,
     EmailValidationService,
+    EmailService,
     PaginatorService,
-    TimelineService,
     TimelineService,
     StorageService,
   ],

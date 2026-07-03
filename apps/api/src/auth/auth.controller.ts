@@ -9,9 +9,18 @@ import {
   HttpStatus,
   Res,
   Query,
+  Inject,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
-import { ApiTags, ApiOperation, ApiQuery, ApiBearerAuth, ApiOkResponse, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiQuery,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
@@ -40,22 +49,31 @@ import { Public } from './decorators/public.decorator';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService,
+  ) {}
 
-  private readonly COOKIE_OPTIONS = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
-    path: '/auth',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  } as const;
+  private get COOKIE_OPTIONS() {
+    return {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      sameSite: this.configService.get('NODE_ENV') === 'production' ? 'none' as const : 'lax' as const,
+      path: '/auth',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    } as const;
+  }
 
   @Public()
   @Post('send-otp')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send OTP for registration' })
   @ApiOkResponse({ type: MessageResponseDto })
-  @ApiResponse({ status: 400, description: 'Invalid email / Email already registered / Failed to send OTP email' })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Invalid email / Email already registered / Failed to send OTP email',
+  })
   async sendOtp(@Body() dto: SendOtpDto) {
     return this.authService.sendOtp(dto);
   }
@@ -70,7 +88,11 @@ export class AuthController {
     return this.authService.verifyOtp(dto);
   }
 
-  private buildCookieResponse(res: Response, refreshToken: string, mobile: boolean) {
+  private buildCookieResponse(
+    res: Response,
+    refreshToken: string,
+    mobile: boolean,
+  ) {
     if (!mobile) {
       res.cookie('refreshToken', refreshToken, this.COOKIE_OPTIONS);
     }
@@ -81,8 +103,15 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Complete registration after OTP verification' })
   @ApiOkResponse({ type: AuthResponseDto })
-  @ApiResponse({ status: 400, description: 'Invalid/expired token / Email already registered' })
-  @ApiQuery({ name: 'mobile', required: false, description: 'Set to "true" to return refreshToken in body' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid/expired token / Email already registered',
+  })
+  @ApiQuery({
+    name: 'mobile',
+    required: false,
+    description: 'Set to "true" to return refreshToken in body',
+  })
   async completeRegistration(
     @Body() dto: CompleteRegistrationDto,
     @Res({ passthrough: true }) res: Response,
@@ -91,7 +120,12 @@ export class AuthController {
     const isMobile = mobile === 'true';
     const result = await this.authService.completeRegistration(dto);
     this.buildCookieResponse(res, result.refreshToken, isMobile);
-    return { message: result.message, user: result.user, accessToken: result.accessToken, ...(isMobile ? { refreshToken: result.refreshToken } : {}) };
+    return {
+      message: result.message,
+      user: result.user,
+      accessToken: result.accessToken,
+      ...(isMobile ? { refreshToken: result.refreshToken } : {}),
+    };
   }
 
   @Public()
@@ -99,8 +133,15 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with email and password' })
   @ApiOkResponse({ type: AuthResponseDto })
-  @ApiResponse({ status: 401, description: 'Invalid credentials / Account deactivated' })
-  @ApiQuery({ name: 'mobile', required: false, description: 'Set to "true" to return refreshToken in body' })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid credentials / Account deactivated',
+  })
+  @ApiQuery({
+    name: 'mobile',
+    required: false,
+    description: 'Set to "true" to return refreshToken in body',
+  })
   async login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -109,7 +150,12 @@ export class AuthController {
     const isMobile = mobile === 'true';
     const result = await this.authService.login(dto);
     this.buildCookieResponse(res, result.refreshToken, isMobile);
-    return { message: result.message, user: result.user, accessToken: result.accessToken, ...(isMobile ? { refreshToken: result.refreshToken } : {}) };
+    return {
+      message: result.message,
+      user: result.user,
+      accessToken: result.accessToken,
+      ...(isMobile ? { refreshToken: result.refreshToken } : {}),
+    };
   }
 
   @Public()
@@ -118,7 +164,11 @@ export class AuthController {
   @ApiOperation({ summary: 'Login/auto-register with Google' })
   @ApiOkResponse({ type: AuthResponseDto })
   @ApiResponse({ status: 401, description: 'Invalid Google token' })
-  @ApiQuery({ name: 'mobile', required: false, description: 'Set to "true" to return refreshToken in body' })
+  @ApiQuery({
+    name: 'mobile',
+    required: false,
+    description: 'Set to "true" to return refreshToken in body',
+  })
   async googleLogin(
     @Body() dto: GoogleAuthDto,
     @Res({ passthrough: true }) res: Response,
@@ -127,7 +177,12 @@ export class AuthController {
     const isMobile = mobile === 'true';
     const result = await this.authService.googleLogin(dto);
     this.buildCookieResponse(res, result.refreshToken, isMobile);
-    return { message: result.message, user: result.user, accessToken: result.accessToken, ...(isMobile ? { refreshToken: result.refreshToken } : {}) };
+    return {
+      message: result.message,
+      user: result.user,
+      accessToken: result.accessToken,
+      ...(isMobile ? { refreshToken: result.refreshToken } : {}),
+    };
   }
 
   @Public()
@@ -135,8 +190,15 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Register with Google (explicit, no auto-login)' })
   @ApiOkResponse({ type: AuthResponseDto })
-  @ApiResponse({ status: 400, description: 'User already registered with this email' })
-  @ApiQuery({ name: 'mobile', required: false, description: 'Set to "true" to return refreshToken in body' })
+  @ApiResponse({
+    status: 400,
+    description: 'User already registered with this email',
+  })
+  @ApiQuery({
+    name: 'mobile',
+    required: false,
+    description: 'Set to "true" to return refreshToken in body',
+  })
   async googleRegister(
     @Body() dto: GoogleRegisterDto,
     @Res({ passthrough: true }) res: Response,
@@ -145,7 +207,12 @@ export class AuthController {
     const isMobile = mobile === 'true';
     const result = await this.authService.googleRegister(dto);
     this.buildCookieResponse(res, result.refreshToken, isMobile);
-    return { message: result.message, user: result.user, accessToken: result.accessToken, ...(isMobile ? { refreshToken: result.refreshToken } : {}) };
+    return {
+      message: result.message,
+      user: result.user,
+      accessToken: result.accessToken,
+      ...(isMobile ? { refreshToken: result.refreshToken } : {}),
+    };
   }
 
   @Public()
@@ -153,8 +220,16 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiOkResponse({ type: RefreshResponseDto })
-  @ApiResponse({ status: 401, description: 'No refresh token / Invalid or expired refresh token / Account deactivated' })
-  @ApiQuery({ name: 'mobile', required: false, description: 'Set to "true" to send refreshToken in body instead of cookie' })
+  @ApiResponse({
+    status: 401,
+    description:
+      'No refresh token / Invalid or expired refresh token / Account deactivated',
+  })
+  @ApiQuery({
+    name: 'mobile',
+    required: false,
+    description: 'Set to "true" to send refreshToken in body instead of cookie',
+  })
   async refresh(
     @Req() req: Request,
     @Body() dto: RefreshDto,
@@ -162,13 +237,19 @@ export class AuthController {
     @Query('mobile') mobile?: string,
   ) {
     const isMobile = mobile === 'true';
-    const oldRefreshToken = isMobile ? dto.refreshToken : req.cookies?.refreshToken;
+    const oldRefreshToken = isMobile
+      ? dto.refreshToken
+      : req.cookies?.refreshToken;
     if (!oldRefreshToken) {
       return { statusCode: 401, message: 'No refresh token' };
     }
     const result = await this.authService.refreshTokens(oldRefreshToken);
     this.buildCookieResponse(res, result.refreshToken, isMobile);
-    return { message: result.message, accessToken: result.accessToken, ...(isMobile ? { refreshToken: result.refreshToken } : {}) };
+    return {
+      message: result.message,
+      accessToken: result.accessToken,
+      ...(isMobile ? { refreshToken: result.refreshToken } : {}),
+    };
   }
 
   @Public()
@@ -176,7 +257,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Logout and invalidate refresh token' })
   @ApiOkResponse({ type: LogoutResponseDto })
-  @ApiQuery({ name: 'mobile', required: false, description: 'Set to "true" to send refreshToken in body instead of cookie' })
+  @ApiQuery({
+    name: 'mobile',
+    required: false,
+    description: 'Set to "true" to send refreshToken in body instead of cookie',
+  })
   async logout(
     @Req() req: Request,
     @Body() dto: LogoutDto,
@@ -184,7 +269,9 @@ export class AuthController {
     @Query('mobile') mobile?: string,
   ) {
     const isMobile = mobile === 'true';
-    const refreshToken = isMobile ? dto.refreshToken : req.cookies?.refreshToken;
+    const refreshToken = isMobile
+      ? dto.refreshToken
+      : req.cookies?.refreshToken;
     if (refreshToken) {
       await this.authService.logout(refreshToken);
     }
@@ -212,7 +299,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send password reset OTP' })
   @ApiOkResponse({ type: MessageResponseDto })
-  @ApiResponse({ status: 400, description: 'No account found with this email / Failed to send OTP email' })
+  @ApiResponse({
+    status: 400,
+    description: 'No account found with this email / Failed to send OTP email',
+  })
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto);
   }
@@ -234,7 +324,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Create admin user (SUPER_ADMIN only)' })
   @ApiOkResponse({ type: CreateAdminResponseDto })
   @ApiResponse({ status: 400, description: 'User already exists' })
-  @ApiResponse({ status: 403, description: 'Forbidden — SUPER_ADMIN role required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden — SUPER_ADMIN role required',
+  })
   async createAdmin(@Body() dto: CreateAdminDto) {
     return this.authService.createAdmin(dto);
   }

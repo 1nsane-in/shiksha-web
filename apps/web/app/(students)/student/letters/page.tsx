@@ -1,13 +1,14 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
+import { Card, CardContent } from "@repo/ui";
 import { Button } from "@repo/ui";
 import { Badge } from "@repo/ui";
 import { Skeleton } from "@repo/ui";
 import { useMyAdmissionLetter, useMyInvitationLetter } from "@/domains/letters";
+import { useRouter } from "next/navigation";
 import {
   FileText, Download, Lock, CheckCircle2, Eye,
-  RefreshCw, AlertCircle, Inbox
+  RefreshCw, AlertCircle, Inbox, IndianRupee, ArrowRight
 } from "lucide-react";
 
 function LetterCard({
@@ -16,11 +17,13 @@ function LetterCard({
   isInvitation,
   isLoading,
 }: {
-  letter: { fileUrl?: string; fileName?: string; viewCount?: number; downloadCount?: number; isDownloadable?: boolean; uploadedAt?: string } | undefined;
+  letter: { fileUrl?: string | null; fileName?: string; viewCount?: number; downloadCount?: number; isDownloadable?: boolean; isLocked?: boolean; uploadedAt?: string } | undefined;
   label: string;
   isInvitation?: boolean;
   isLoading: boolean;
 }) {
+  const router = useRouter();
+
   if (isLoading) {
     return (
       <Card size="sm">
@@ -38,6 +41,51 @@ function LetterCard({
     );
   }
 
+  // Letter exists but locked behind payment
+  if (letter?.isLocked) {
+    return (
+      <Card size="sm" className="border-amber-200 bg-amber-50/30">
+        <CardContent className="py-6">
+          <div className="flex items-start gap-4">
+            <div className="size-12 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+              <Lock className="size-6 text-amber-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm text-[#2D2154]">{label}</h3>
+              <Badge className="mt-1 text-xs bg-amber-100 text-amber-700 hover:bg-amber-100 gap-1 border-0">
+                <Lock className="size-3" />
+                Locked
+              </Badge>
+              <p className="text-xs text-gray-500 mt-2">
+                Your admission letter is ready. Pay ₹5,000 admission fee to unlock and download.
+              </p>
+              <Button
+                size="sm"
+                className="mt-3 gap-1.5 text-xs h-8 bg-[#4B2D8E] hover:bg-[#3D2475]"
+                onClick={() => router.push("/student/payments")}
+              >
+                <IndianRupee className="size-3.5" />
+                Pay ₹5,000 to Unlock
+                <ArrowRight className="size-3.5" />
+              </Button>
+            </div>
+          </div>
+          {letter.uploadedAt && (
+            <p className="text-xs text-gray-400 mt-3 pt-3 border-t border-amber-200">
+              Letter issued{" "}
+              {new Date(letter.uploadedAt).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Letter not available
   if (!letter?.fileUrl) {
     return (
       <Card size="sm" className="opacity-70">
@@ -67,6 +115,7 @@ function LetterCard({
     );
   }
 
+  // Letter available and unlocked
   return (
     <Card size="sm">
       <CardContent className="py-6">
@@ -98,7 +147,7 @@ function LetterCard({
               <Button
                 size="sm"
                 className="gap-1.5 text-xs h-8"
-                onClick={() => window.open(letter.fileUrl, "_blank")}
+                onClick={() => window.open(letter.fileUrl!, "_blank")}
               >
                 <Eye className="size-3.5" />
                 View Letter
@@ -107,7 +156,7 @@ function LetterCard({
                 variant="ghost"
                 size="sm"
                 className="gap-1.5 text-xs h-8"
-                onClick={() => window.open(letter.fileUrl, "_blank")}
+                onClick={() => window.open(letter.fileUrl!, "_blank")}
               >
                 <Download className="size-3.5" />
                 Download

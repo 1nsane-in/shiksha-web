@@ -22,6 +22,11 @@ import { DeviceTokenModule } from './notifications/device-token.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { VisaSupportModule } from './visa-support/visa-support.module';
 import { RateLimitingModule } from './common/rate-limiting/rate-limiting.module';
+import { GalleryModule } from './gallery/gallery.module';
+import { ConsultationModule } from './consultation/consultation.module';
+import { ParentsModule } from './parents/parents.module';
+import { UniversityRequestModule } from './university-requests/university-request.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -32,6 +37,7 @@ import { RateLimitingModule } from './common/rate-limiting/rate-limiting.module'
     RateLimitingModule,
     SharedJwtModule,
     PrismaModule,
+    RedisModule,
     AuthModule,
     UsersModule,
     UniversitiesModule,
@@ -47,6 +53,10 @@ import { RateLimitingModule } from './common/rate-limiting/rate-limiting.module'
     DeviceTokenModule,
     TimelineModule,
     VisaSupportModule,
+    GalleryModule,
+    ConsultationModule,
+    UniversityRequestModule,
+    ParentsModule,
   ],
   controllers: [AppController],
   providers: [

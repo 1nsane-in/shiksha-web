@@ -2,20 +2,18 @@
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
-import { join } from 'path';
-import * as Sentry from '@sentry/nestjs';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import compression from 'compression';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { initSentry } from './common/sentry.config';
 import { AppModule } from './app.module';
-import { AnalyticsService } from './common/services/analytics.service';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { versionMiddleware } from './common/middleware/version-middleware';
+import { Request, Response, NextFunction } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
-  const analyticsService = app.get(AnalyticsService);
   const logger = new Logger('Bootstrap');
 
   const swaggerConfig = new DocumentBuilder()
@@ -28,13 +26,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document);
 
-  initSentry(configService);
-
   app.useGlobalFilters(new AllExceptionsFilter());
 
   app.use(versionMiddleware);
 
-  app.use((req, res, next) => {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     res.on('finish', () => {
       const duration = Date.now() - start;
@@ -50,14 +46,60 @@ async function bootstrap() {
 
   app.set('etag', false);
 
+  const allowedOrigins = configService
+    .get<string>('FRONTEND_URL')
+    ?.split(',')
+    .map((url) => url.trim())
+    .filter(Boolean) || ['http://localhost:3000'];
+
+  // Add 127.0.0.1 and localhost by default in development mode
+  if (configService.get<string>('NODE_ENV') === 'development') {
+    if (!allowedOrigins.includes('http://127.0.0.1:3000')) {
+      allowedOrigins.push('http://127.0.0.1:3000');
+    }
+    if (!allowedOrigins.includes('http://localhost:3000')) {
+      allowedOrigins.push('http://localhost:3000');
+    }
+  }
+
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL')?.split(',') || [
-      'http://localhost:3000',
-    ],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, postman or curl)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const isAllowed = allowedOrigins.some((allowedOrigin) => {
+        // Handle exact match
+        if (allowedOrigin === origin) return true;
+        // Handle trailing slash mismatch (e.g. http://localhost:3000/ vs http://localhost:3000)
+        if (allowedOrigin.replace(/\/$/, '') === origin.replace(/\/$/, ''))
+          return true;
+        return false;
+      });
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        logger.warn(`CORS blocked for origin: ${origin}`);
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
     credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: [
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'X-Requested-With',
+      'X-Api-Version',
+      'X-CSRF-Token',
+    ],
+    exposedHeaders: ['Set-Cookie'],
   });
 
-  app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
+  // Static file serving removed for security. Use StorageService (signed URLs via R2/S3).
+  // app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -68,6 +110,49 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
+
+  // Response compression - reduces bandwidth by 60-80%
+  app.use(
+    compression({
+      level: 6, // Compression level (0-9, 6 is default)
+      filter: (req, res) => {
+        // Don't compress responses with this header
+        if (req.headers['x-no-compression']) {
+          return false;
+        }
+        // Use compression for all other responses
+        return compression.filter(req, res);
+      },
+      // Compress responses larger than 1KB
+      threshold: 1024,
+    }),
+  );
+
+  // Security headers with Helmet
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          connectSrc: ["'self'"],
+          fontSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          mediaSrc: ["'self'"],
+          frameSrc: ["'none'"],
+        },
+      },
+      crossOriginEmbedderPolicy: false,
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    }),
+  );
 
   app.enableShutdownHooks();
 

@@ -1,91 +1,89 @@
 import { client } from "@/shared/api/client";
-import type { UniversityListItem, UniversityDetail, UniversityFilters, PaginatedResponse, UniversityCourse, UniversityDocument } from "./universities.types";
+import type {
+  UniversityListItem,
+  UniversityDetail,
+  UniversityFilters,
+  PaginatedResponse,
+  CreateUniversityPayload,
+  UpdateUniversityPayload,
+  AddCoursePayload,
+  UpdateCoursePayload,
+  UploadDocumentPayload,
+} from "./universities.types";
+
+const route = {
+  list: "/universities",
+  adminList: "/admin/universities",
+  detail: (id: string) => `/universities/${id}`,
+  adminDetail: (id: string) => `/admin/universities/${id}`,
+  countries: "/universities/countries",
+  adminCreate: "/admin/universities",
+  adminUpdate: (id: string) => `/admin/universities/${id}`,
+  adminDelete: (id: string) => `/admin/universities/${id}`,
+  adminStatus: (id: string) => `/admin/universities/${id}/status`,
+  courses: (uniId: string) => `/admin/universities/${uniId}/courses`,
+  courseById: (courseId: string) => `/admin/universities/courses/${courseId}`,
+  documents: (uniId: string) => `/admin/universities/${uniId}/documents`,
+  documentById: (docId: string) => `/admin/universities/documents/${docId}`,
+} as const;
 
 export function getUniversities(filters: UniversityFilters = {}) {
-  return client.get<PaginatedResponse<UniversityListItem>>("/universities", {
+  return client.get<PaginatedResponse<UniversityListItem>>(route.list, {
     params: filters,
   });
 }
 
 export function getAdminUniversities(filters: UniversityFilters = {}) {
-  return client.get<PaginatedResponse<UniversityListItem>>("/admin/universities", {
+  return client.get<PaginatedResponse<UniversityListItem>>(route.adminList, {
     params: filters,
   });
 }
 
 export function getUniversity(identifier: string) {
-  return client.get<UniversityDetail>(`/universities/${identifier}`);
+  return client.get<UniversityDetail>(route.detail(identifier));
 }
 
 export function getAdminUniversity(identifier: string) {
-  return client.get<UniversityDetail>(`/admin/universities/${identifier}`);
+  return client.get<UniversityDetail>(route.adminDetail(identifier));
 }
 
 export function getUniversityCountries() {
-  return client.get<{ countries: string[] }>("/universities/countries");
+  return client.get<string[]>(route.countries);
 }
 
-export function deleteUniversity(id: string) {
-  return client.delete(`/admin/universities/${id}`);
+export function createUniversity(data: CreateUniversityPayload) {
+  return client.post(route.adminCreate, data);
 }
 
-export function createUniversity(data: Record<string, unknown>) {
-  return client.post("/admin/universities", data);
+export function updateUniversity(id: string, data: UpdateUniversityPayload) {
+  return client.put(route.adminUpdate(id), data);
 }
 
 export function updateUniversityStatus(id: string, status: string) {
-  return client.patch(`/admin/universities/${id}/status`, { status });
+  return client.patch(route.adminStatus(id), { status });
 }
 
-export function updateUniversity(id: string, data: Record<string, unknown>) {
-  return client.patch(`/admin/universities/${id}`, data);
+export function deleteUniversity(id: string) {
+  return client.delete(route.adminDelete(id));
 }
 
-// Course CRUD
-export function getUniversityCourses(universityId: string) {
-  return client.get<UniversityCourse[]>(`/admin/universities/${universityId}/courses`);
+export function addUniversityCourse(uniId: string, data: AddCoursePayload) {
+  return client.post(route.courses(uniId), data);
 }
 
-export function createUniversityCourse(universityId: string, data: Record<string, unknown>) {
-  return client.post(`/admin/universities/${universityId}/courses`, data);
+export function updateUniversityCourse(courseId: string, data: UpdateCoursePayload) {
+  return client.put(route.courseById(courseId), data);
 }
 
-export function updateUniversityCourse(universityId: string, courseId: string, data: Record<string, unknown>) {
-  return client.patch(`/admin/universities/${universityId}/courses/${courseId}`, data);
+export function deleteUniversityCourse(courseId: string) {
+  return client.delete(route.courseById(courseId));
 }
 
-export function deleteUniversityCourse(universityId: string, courseId: string) {
-  return client.delete(`/admin/universities/${universityId}/courses/${courseId}`);
+export function uploadUniversityDocument(uniId: string, data: UploadDocumentPayload) {
+  return client.post(route.documents(uniId), data);
 }
 
-// Document CRUD
-export function getUniversityDocuments(universityId: string) {
-  return client.get<UniversityDocument[]>(`/admin/universities/${universityId}/documents`);
-}
-
-export function uploadUniversityDocument(universityId: string, data: FormData) {
-  return client.post(`/admin/universities/${universityId}/documents`, data, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-}
-
-export function deleteUniversityDocument(universityId: string, documentId: string) {
-  return client.delete(`/admin/universities/${universityId}/documents/${documentId}`);
-}
-
-// Image upload
-export function uploadUniversityImage(universityId: string, file: File, type: "logo" | "banner" | "gallery") {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("type", type);
-  return client.post(`/admin/universities/${universityId}/images`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-}
-
-export function deleteUniversityImage(universityId: string, imageUrl: string, type: "logo" | "banner" | "gallery") {
-  return client.delete(`/admin/universities/${universityId}/images`, {
-    data: { url: imageUrl, type },
-  });
+export function deleteUniversityDocument(docId: string) {
+  return client.delete(route.documentById(docId));
 }
 

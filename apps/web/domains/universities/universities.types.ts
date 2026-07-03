@@ -17,21 +17,9 @@ export interface UniversityContact {
   admissionOfficeHours?: string;
 }
 
-export interface UniversityProgram {
-  name: string;
-  duration: string;
-  annualTuition: number;
-  registration?: number;
-  totalSeats: number;
-  governmentSeats: number;
-  managementSeats: number;
-  nriSeats: number;
-  feeBreakdown?: { id?: string; name: string; amount: number }[];
-}
-
 export interface UniversityAcademic {
   id?: string;
-  programs: UniversityProgram[];
+  programs: string[];
   duration: string;
   medium: string;
   specializations: string[];
@@ -249,6 +237,80 @@ export interface UniversityFilters {
   type?: string;
   status?: string;
   search?: string;
+}
+
+// ── University Mutations ──
+export interface CreateUniversityPayload {
+  name?: string;
+  shortName?: string;
+  establishedYear?: number;
+  type?: string;
+  website?: string;
+  logo?: string;
+  bannerImage?: string;
+  brochureUrl?: string;
+  location?: Partial<UniversityLocation>;
+  contact?: Partial<UniversityContact>;
+  academic?: Partial<UniversityAcademic>;
+  recognition?: Partial<UniversityRecognition>;
+  fees?: Partial<UniversityFees>;
+  infrastructure?: Partial<UniversityInfrastructure>;
+  admission?: Partial<UniversityAdmission>;
+  support?: Partial<UniversitySupport>;
+  content?: Partial<UniversityContent>;
+  admin?: Partial<UniversityAdmin>;
+  studentDemographics?: Partial<StudentDemographics>;
+  socialLinks?: Partial<SocialLinks>;
+}
+
+export interface UpdateUniversityPayload {
+  name?: string;
+  shortName?: string;
+  establishedYear?: number;
+  type?: string;
+  website?: string;
+  logo?: string;
+  bannerImage?: string;
+  brochureUrl?: string;
+  status?: string;
+  location?: Partial<UniversityLocation>;
+  contact?: Partial<UniversityContact>;
+  academic?: Partial<UniversityAcademic>;
+  recognition?: Partial<UniversityRecognition>;
+  fees?: Partial<UniversityFees>;
+  infrastructure?: Partial<UniversityInfrastructure>;
+  admission?: Partial<UniversityAdmission>;
+  support?: Partial<UniversitySupport>;
+  content?: Partial<UniversityContent>;
+  admin?: Partial<UniversityAdmin>;
+  studentDemographics?: Partial<StudentDemographics>;
+  socialLinks?: Partial<SocialLinks>;
+}
+
+export interface AddCoursePayload {
+  name: string;
+  duration: number;
+  fees: number;
+  seats?: number;
+  currency?: string;
+  eligibility?: string;
+}
+
+export interface UpdateCoursePayload {
+  name?: string;
+  duration?: number;
+  fees?: number;
+  seats?: number;
+  currency?: string;
+  eligibility?: string;
+  isActive?: boolean;
+}
+
+export interface UploadDocumentPayload {
+  type: string;
+  fileUrl: string;
+  fileName: string;
+  fileSize: number;
 }
 
 export type { PaginatedResponse, PaginationMeta };

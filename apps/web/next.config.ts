@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+    // Auto-convert to modern formats
+    formats: ['image/avif', 'image/webp'],
+    // Responsive breakpoints
+    deviceSizes: [480, 768, 1024, 1280, 1536],
+    imageSizes: [64, 128, 256, 384],
     remotePatterns: [
       {
         protocol: 'https',
@@ -33,6 +38,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '*.r2.dev',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.shiksha.study',
       },
     ],
   },

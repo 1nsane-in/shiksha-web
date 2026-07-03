@@ -14,9 +14,7 @@ export function initSentry(configService: ConfigService) {
   Sentry.init({
     dsn,
     environment,
-    integrations: [
-      nodeProfilingIntegration(),
-    ],
+    integrations: [nodeProfilingIntegration()],
     tracesSampleRate: environment === 'production' ? 0.1 : 1.0,
     profilesSampleRate: environment === 'production' ? 0.1 : 1.0,
   });

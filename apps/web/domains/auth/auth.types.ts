@@ -1,8 +1,11 @@
+export type SocialRole = "STUDENT" | "PARENT";
+export type UserRole = "STUDENT" | "PARENT" | "ADMIN" | "SUPER_ADMIN";
+
 export interface User {
   id: string;
   email: string;
   name: string;
-  role: "STUDENT" | "PARENT" | "ADMIN" | "SUPER_ADMIN";
+  role: UserRole;
   isActive: boolean;
 }
 
@@ -18,6 +21,11 @@ export interface LoginDto {
 
 export interface GoogleAuthDto {
   accessToken: string;
+  /**
+   * Requested role for new auto-registered accounts. Ignored if the
+   * email already exists. Defaults to STUDENT on the server.
+   */
+  role?: SocialRole;
 }
 
 export interface GoogleRegisterDto extends GoogleAuthDto {
@@ -25,7 +33,7 @@ export interface GoogleRegisterDto extends GoogleAuthDto {
   email?: string;
   phone?: string;
   googleId?: string;
-  role?: string;
+  role: SocialRole;
 }
 
 export interface RefreshTokenResponse {

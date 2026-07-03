@@ -1,0 +1,96 @@
+// ============================================
+// Platform Course Schema (LMS)
+// ============================================
+
+model PlatformCourse {
+  id               String           @id @default(uuid())
+  title            String
+  description      String           @db.Text
+  fileKey          String
+  price            Int
+  duration         Int
+  level            CourseLevel
+  category         String
+  smallDescription String
+  slug             String           @unique
+  status           CourseItemStatus @default(DRAFT)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  authorId         String
+  author           User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  universities     PlatformCourseUniversity[]
+  modules          PlatformCourseModule[]
+  enrollments      PlatformCourseEnrollment[]
+
+  @@index([authorId])
+  @@index([status])
+  @@index([level])
+  @@index([category])
+  @@map("platform_courses")
+}
+
+model PlatformCourseUniversity {
+  id            String   @id @default(uuid())
+  courseId      String   @map("course_id")
+  universityId  String   @map("university_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  course      PlatformCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  university  University     @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([universityId])
+  @@map("platform_course_universities")
+}
+
+model PlatformCourseModule {
+  id          String   @id @default(uuid())
+  courseId    String   @map("course_id")
+  title       String
+  sortOrder   Int      @map("sort_order")
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  course PlatformCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@map("platform_course_modules")
+}
+
+model PlatformCourseEnrollment {
+  id            String                    @id @default(uuid())
+  courseId      String                    @map("course_id")
+  userId        String                    @map("user_id")
+  status        PlatformEnrollmentStatus  @default(PENDING)
+  enrolledAt    DateTime                  @default(now()) @map("enrolled_at")
+  completedAt   DateTime?                 @map("completed_at")
+
+  course PlatformCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([userId])
+  @@map("platform_course_enrollments")
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum CourseItemStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PlatformEnrollmentStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}

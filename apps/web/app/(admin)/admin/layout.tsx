@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { AdminSidebar } from "@/components/admin-sidebar";
-import { AdminHeader } from "@/components/admin-header";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminMobileToggle } from "@/components/admin/admin-mobile-toggle";
 
 export const metadata: Metadata = {
   title: {
@@ -14,9 +14,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex h-screen overflow-hidden bg-[#F7F5F2]">
       <AdminSidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <AdminHeader />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
+      <div className="flex flex-1 flex-col overflow-hidden relative">
+        <AdminMobileToggle />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 pt-14 md:pt-6">{children}</main>
       </div>
     </div>
   );

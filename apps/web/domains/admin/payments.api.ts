@@ -1,6 +1,11 @@
 import { client } from "@/shared/api/client";
 import type { PaymentResponse, ManualApprovePayload } from "./payments.types";
 
+const route = {
+  pending: "/payments/admin/pending" as const,
+  manualApprove: "/payments/manual-approve" as const,
+} as const;
+
 export function getPendingPayments(page = 1, limit = 20) {
   return client
     .get<{
@@ -9,7 +14,7 @@ export function getPendingPayments(page = 1, limit = 20) {
       page: number;
       limit: number;
       totalPages: number;
-    }>("/payments/admin/pending", {
+    }>(route.pending, {
       params: { page, limit },
     })
     .then((res) => ({
@@ -22,5 +27,5 @@ export function getPendingPayments(page = 1, limit = 20) {
 }
 
 export function manualApprovePayment(data: ManualApprovePayload) {
-  return client.post<PaymentResponse>("/payments/manual-approve", data);
+  return client.post<PaymentResponse>(route.manualApprove, data);
 }

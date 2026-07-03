@@ -2,25 +2,28 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import React, { useState } from "react";
 import {
   useAdminUniversity,
   useUpdateUniversityStatus,
   useDeleteUniversity,
   useUpdateUniversity,
-  useCreateCourse,
-  useUpdateCourse,
-  useDeleteCourse,
-  useUploadDocument,
-  useDeleteDocument,
-  useUploadImage,
+  useUploadUniversityDocument,
+  useDeleteUniversityDocument,
+  useAddUniversityCourse,
+  useUpdateUniversityCourse,
+  useDeleteUniversityCourse,
 } from "@/domains/universities";
+import { uploadFile } from "@/domains/documents/documents.api";
 import { Button } from "@repo/ui";
-import { Card, CardContent } from "@repo/ui";
+import { Card, CardContent, Skeleton } from "@repo/ui";
 import { Badge } from "@repo/ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Edit,
+  ImageIcon,
   MapPin,
   Phone,
   Mail,
@@ -47,25 +50,14 @@ import {
   ScrollText,
   Banknote,
   Trash2,
-  Award,
-  ExternalLink,
-  Building2,
-  Upload,
-  Plus,
-  Save,
-  X,
-  AlertCircle,
-  Settings,
-  FileUp,
-  DollarSign,
-  Heart,
-  Languages,
   TrendingUp,
+  Heart,
   MessageSquare,
-  ImageIcon,
-  ChevronRight,
-  Loader2,
+  Languages,
   Dumbbell,
+  Building2,
+  Plus,
+  ExternalLink,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -112,17 +104,31 @@ const statusConfig: Record<string, { label: string; className: string }> = {
   },
 };
 
-/* ─── Shared sub-components ─── */
-
-function StatPill({ icon: Icon, label, value }: { icon: IconComponent; label: string; value: string | number }) {
+function StatChip({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: IconComponent;
+  label: string;
+  value: string | number;
+}) {
   return (
-    <div className="flex items-center gap-2.5 rounded-lg border border-[#ECEAE6] bg-white px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3 transition-shadow hover:shadow-sm">
-      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F5F4F2] sm:h-9 sm:w-9">
-        <Icon className="h-3.5 w-3.5 text-[#6B6B6B] sm:h-4 sm:w-4" />
+    <div
+      className="flex items-center gap-3 rounded-xl border bg-white px-4 py-3"
+      style={{ borderColor: theme.hairline }}
+    >
+      <div
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+        style={{ background: theme.goldLight, color: theme.gold }}
+      >
+        <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] text-[#9CA3AF] sm:text-xs">{label}</p>
-        <p className="truncate text-xs font-medium text-[#111] sm:text-sm">{value}</p>
+        <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">{label}</p>
+        <p className="truncate text-sm font-bold text-[#111] mt-0.5">
+          {value}
+        </p>
       </div>
     </div>
   );
@@ -130,63 +136,78 @@ function StatPill({ icon: Icon, label, value }: { icon: IconComponent; label: st
 
 function InfoRow({ icon: Icon, label, value }: { icon?: IconComponent; label: string; value: string | React.ReactNode }) {
   return (
-    <div className="flex items-start gap-2.5">
+    <div className="flex items-start gap-3">
       {Icon && <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#9CA3AF]" />}
       <div className="min-w-0 flex-1">
-        <p className="text-xs text-[#9CA3AF]">{label}</p>
-        <div className="text-sm text-[#111]">{value}</div>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">{label}</p>
+        <div className="text-sm font-semibold text-[#111] mt-0.5">{value}</div>
       </div>
     </div>
   );
 }
 
-function SectionLabel({ icon: Icon, title, action }: { icon: IconComponent; title: string; action?: React.ReactNode }) {
+function SectionHeading({
+  icon: Icon,
+  title,
+  onEdit,
+}: {
+  icon: IconComponent;
+  title: string;
+  onEdit?: () => void;
+}) {
   return (
-    <div className="mb-4 flex items-center justify-between">
+    <div className="mb-5 flex items-center justify-between">
       <div className="flex items-center gap-2.5">
-        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-          <Icon className="h-3.5 w-3.5 text-[#3730A3]" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-700">
+          <Icon className="h-4 w-4" />
         </div>
-        <h3 className="text-sm font-semibold text-[#111]">{title}</h3>
+        <h3 className="text-sm font-bold uppercase tracking-wider text-[#111]">{title}</h3>
       </div>
-      {action}
+      {onEdit && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onEdit}
+          className="h-8 px-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+        >
+          <Edit className="h-3.5 w-3.5 mr-1" />
+          Edit
+        </Button>
+      )}
     </div>
   );
 }
 
-function BadgeChips({ items }: { items: (string | { name: string })[] }) {
+function BadgeList({ items }: { items: string[] }) {
   if (!items?.length) return <span className="text-sm text-[#9CA3AF]">—</span>;
   return (
     <div className="flex flex-wrap gap-1.5">
-      {items.map((item, i) => {
-        const name = typeof item === "string" ? item : item.name;
-        return (
-          <span
-            key={name || i}
-            className="inline-flex items-center rounded-md border border-[#ECEAE6] bg-white px-2 py-0.5 text-xs text-[#6B6B6B]"
-          >
-            {name}
-          </span>
-        );
-      })}
+      {items.map((item, index) => (
+        <span
+          key={`${item}-${index}`}
+          className="inline-flex items-center rounded-md border border-[#ECEAE6] bg-white px-2 py-0.5 text-xs text-[#6B6B6B]"
+        >
+          {item}
+        </span>
+      ))}
     </div>
   );
 }
 
 function GalleryGrid({ images }: { images: string[] }) {
-  if (!images?.length) return null;
+  if (!images?.length) return <p className="text-xs text-gray-400 italic">No images in gallery yet.</p>;
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {images.map((src, i) => (
         <div
           key={i}
-          className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-[#ECEAE6] bg-[#F5F4F2]"
+          className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-[#ECEAE6] bg-white"
         >
           <Image
             src={src}
             alt={`Gallery ${i + 1}`}
             fill
-            className="object-cover transition duration-300 group-hover:scale-105"
+            className="object-cover transition duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         </div>
@@ -273,28 +294,21 @@ function XIcon({ className }: { className?: string }) {
 /* ─── Loading Skeleton ─── */
 function LoadingSkeleton() {
   return (
-    <div className="-m-4 sm:-m-6 flex flex-1 flex-col">
-      <div className="relative h-32 w-full shrink-0 bg-gradient-to-r from-[#F5F4F2] to-[#ECEAE6] sm:h-44 md:h-52 animate-pulse" />
-      <div className="w-full space-y-4 px-4 pb-6 sm:space-y-6 sm:px-6 sm:pb-8">
-        <div className="flex flex-col gap-3 pt-3 sm:flex-row sm:items-start sm:justify-between sm:pt-4">
-          <div className="flex items-start gap-3 sm:gap-4">
-            <div className="-mt-10 h-16 w-16 rounded-xl border border-[#ECEAE6] bg-white sm:-mt-14 sm:h-20 sm:w-20 animate-pulse" />
-            <div className="space-y-2 pt-0.5 sm:pt-1">
-              <div className="h-5 w-48 rounded bg-[#ECEAE6] sm:h-6 sm:w-64 animate-pulse" />
-              <div className="h-3.5 w-24 rounded bg-[#F5F4F2] sm:h-4 animate-pulse" />
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-14 rounded-lg border border-[#ECEAE6] bg-white animate-pulse sm:h-16" />
-          ))}
-        </div>
-        <div className="h-9 w-72 max-w-full rounded-lg bg-[#F5F4F2] sm:w-96 animate-pulse" />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="h-40 rounded-lg border border-[#ECEAE6] bg-white animate-pulse sm:h-48" />
-          <div className="h-40 rounded-lg border border-[#ECEAE6] bg-white animate-pulse sm:h-48" />
-        </div>
+    <div className="flex flex-1 flex-col animate-pulse max-w-6xl mx-auto p-4 md:p-6 space-y-6">
+      <Skeleton className="h-44 w-full rounded-2xl" />
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-1/3" />
+        <Skeleton className="h-4 w-1/4" />
+      </div>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-16 w-full rounded-xl" />
+        ))}
+      </div>
+      <Skeleton className="h-10 w-full" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Skeleton className="h-48 w-full rounded-xl" />
+        <Skeleton className="h-48 w-full rounded-xl" />
       </div>
     </div>
   );
@@ -516,22 +530,27 @@ function ImageUploadModal({
 export default function UniversityDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { data: university, isLoading } = useAdminUniversity(params.id as string);
+  const uniId = params.id as string;
+
+  const { data: university, isLoading, refetch } = useAdminUniversity(uniId);
   const updateStatus = useUpdateUniversityStatus();
   const deleteUniversity = useDeleteUniversity();
-  const updateUni = useUpdateUniversity();
-  const createCourse = useCreateCourse();
-  const updateCourse = useUpdateCourse();
-  const deleteCourse = useDeleteCourse();
-  const uploadDoc = useUploadDocument();
-  const deleteDoc = useDeleteDocument();
-  const uploadImage = useUploadImage();
 
-  const [editSection, setEditSection] = useState<string | null>(null);
-  const [showCourseModal, setShowCourseModal] = useState(false);
-  const [editingCourse, setEditingCourse] = useState<any>(null);
-  const [showDocUpload, setShowDocUpload] = useState(false);
-  const [showImageUpload, setShowImageUpload] = useState<"logo" | "banner" | "gallery" | null>(null);
+  const updateUniversityMut = useUpdateUniversity();
+  const uploadDocMut = useUploadUniversityDocument();
+  const deleteDocMut = useDeleteUniversityDocument();
+  const addCourseMut = useAddUniversityCourse();
+  const updateCourseMut = useUpdateUniversityCourse();
+  const deleteCourseMut = useDeleteUniversityCourse();
+
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+  const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [docForm, setDocForm] = useState({
+    type: "BROCHURE",
+    file: null as File | null,
+  });
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
 
   if (isLoading) return <LoadingSkeleton />;
   if (!university) {
@@ -556,38 +575,153 @@ export default function UniversityDetailPage() {
   const adm = university.admission;
   const supp = university.support;
 
+  // Gallery Handlers
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setIsUploadingGallery(true);
+    try {
+      const file = e.target.files[0];
+      const res = await uploadFile(file, "gallery");
+      
+      const currentGallery = university.content?.gallery || [];
+      const updatedGallery = [...currentGallery, res.url];
+      
+      await updateUniversityMut.mutateAsync({
+        id: uniId,
+        data: {
+          content: {
+            ...university.content,
+            gallery: updatedGallery,
+          },
+        },
+      });
+      toast.success("Image added to campus gallery");
+    } catch (err) {
+      toast.error("Failed to upload gallery image");
+    } finally {
+      setIsUploadingGallery(false);
+    }
+  };
+
+  const handleGalleryDelete = async (indexToDelete: number) => {
+    if (!confirm("Remove this image from gallery?")) return;
+    try {
+      const currentGallery = university.content?.gallery || [];
+      const updatedGallery = currentGallery.filter((_, idx) => idx !== indexToDelete);
+      
+      await updateUniversityMut.mutateAsync({
+        id: uniId,
+        data: {
+          content: {
+            ...university.content,
+            gallery: updatedGallery,
+          },
+        },
+      });
+      toast.success("Image removed from gallery");
+    } catch (err) {
+      toast.error("Failed to update gallery");
+    }
+  };
+
+  // Banner / Logo Handlers
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setIsUploadingBanner(true);
+    try {
+      const file = e.target.files[0];
+      const res = await uploadFile(file, "banners");
+      await updateUniversityMut.mutateAsync({ id: uniId, data: { bannerImage: res.url } });
+      toast.success("Banner image updated");
+    } catch { toast.error("Failed to upload banner"); }
+    finally { setIsUploadingBanner(false); }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setIsUploadingLogo(true);
+    try {
+      const file = e.target.files[0];
+      const res = await uploadFile(file, "logos");
+      await updateUniversityMut.mutateAsync({ id: uniId, data: { logo: res.url } });
+      toast.success("Logo updated");
+    } catch { toast.error("Failed to upload logo"); }
+    finally { setIsUploadingLogo(false); }
+  };
+
+  // Document Handlers
+  const handleDocUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!docForm.file) {
+      toast.error("Please select a document file to upload");
+      return;
+    }
+    setIsUploadingDoc(true);
+    try {
+      const res = await uploadFile(docForm.file, "documents");
+      await uploadDocMut.mutateAsync({
+        uniId,
+        data: {
+          type: docForm.type,
+          fileUrl: res.url,
+          fileName: docForm.file.name,
+          fileSize: docForm.file.size,
+        },
+      });
+      toast.success("Document uploaded successfully!");
+      setDocForm({ type: "BROCHURE", file: null });
+      refetch();
+    } catch (err) {
+      toast.error("Failed to upload document");
+    } finally {
+      setIsUploadingDoc(false);
+    }
+  };
+
+  const handleDeleteDoc = async (docId: string) => {
+    if (!confirm("Delete this document?")) return;
+    try {
+      await deleteDocMut.mutateAsync(docId);
+      toast.success("Document deleted!");
+      refetch();
+    } catch (err) {
+      toast.error("Failed to delete document");
+    }
+  };
+
   return (
-    <div className="-m-4 sm:-m-6 flex flex-1 flex-col bg-[#FAF9F6]">
-      {/* ═══ Banner ═══ */}
-      <div className="relative h-32 w-full shrink-0 overflow-hidden sm:h-44 md:h-52">
+    <div className="flex flex-1 flex-col gap-6 max-w-7xl mx-auto p-4 md:p-6" style={{ background: theme.canvas }}>
+      
+      {/* Editorial Hero Banner */}
+      <div className="relative h-44 w-full shrink-0 overflow-hidden rounded-2xl border bg-white shadow-sm sm:h-56 md:h-64" style={{ borderColor: theme.hairline }}>
         {university.bannerImage ? (
           <>
-            <Image src={university.bannerImage} alt="" fill className="object-cover" priority sizes="100vw" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#3730A3]/60 via-[#3730A3]/20 to-transparent" />
+            <Image
+              src={university.bannerImage}
+              alt=""
+              fill
+              className="object-cover transition-transform duration-700 hover:scale-[1.02]"
+              priority
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent" />
+            <div className="absolute bottom-3 right-3 z-10">
+              <label className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg bg-white/90 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-white border border-white/20">
+                <Edit className="h-3 w-3" /> Change Banner
+                <input type="file" accept="image/*,image/svg+xml" className="hidden" onChange={handleBannerUpload} disabled={isUploadingBanner} />
+              </label>
+            </div>
           </>
         ) : (
-          <div className="h-full w-full bg-gradient-to-br from-[#3730A3] via-[#4F46E5] to-[#6366F1]" />
-        )}
-        <button
-          onClick={() => setShowImageUpload("banner")}
-          className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/70 shadow-sm backdrop-blur-sm hover:bg-white transition-colors"
-          title="Upload banner image"
-        >
-          <Upload className="h-4 w-4 text-[#6B6B6B]" />
-        </button>
-      </div>
-
-      <div className="w-full space-y-5 px-4 pb-6 sm:space-y-6 sm:px-6 sm:pb-8">
-        {/* ═══ Header ═══ */}
-        <div className="flex flex-col gap-3 pt-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:pt-4">
-          <div className="flex items-start gap-4">
-            <div className="group relative -mt-10 h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 border-white bg-white shadow-sm sm:-mt-14 sm:h-20 sm:w-20">
-              {university.logo ? (
-                <Image src={university.logo} alt={university.name} fill className="object-contain p-1" sizes="(max-width: 640px) 64px, 80px" />
+          <label className="flex h-full w-full cursor-pointer items-center justify-center bg-gradient-to-br from-[#FAFAF8] to-[#ECEAE6] transition hover:from-gray-100 hover:to-gray-200">
+            <div className="flex flex-col items-center gap-1.5 text-gray-400">
+              {isUploadingBanner ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
               ) : (
-                <div className="flex h-full items-center justify-center text-[#9CA3AF]">
-                  <School className="h-6 w-6 sm:h-8 sm:w-8" />
-                </div>
+                <>
+                  <ImageIcon className="h-6 w-6" />
+                  <span className="text-xs font-medium">Add Banner Image</span>
+                </>
               )}
               <button
                 onClick={() => setShowImageUpload("logo")}
@@ -597,957 +731,476 @@ export default function UniversityDetailPage() {
                 <Upload className="h-5 w-5 text-white" />
               </button>
             </div>
-            <div className="min-w-0 pt-0.5 sm:pt-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-base font-semibold tracking-tight text-[#111] sm:text-xl md:text-2xl">
-                  {university.name}
-                </h1>
-                <Badge className={`border text-[10px] sm:text-xs ${status.className}`}>
-                  {status.label}
-                </Badge>
-              </div>
-              <p className="text-xs text-[#6B6B6B] sm:text-sm">
-                {university.shortName}
-                {loc?.country && ` · ${loc.city}, ${loc.country}`}
-              </p>
-            </div>
-          </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => router.back()}>
-              <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => router.push(`/admin/universities/${params.id}/edit`)}>
+            <input type="file" accept="image/*,image/svg+xml" className="hidden" onChange={handleBannerUpload} disabled={isUploadingBanner} />
+          </label>
+        )}
+
+        {/* Back and Action buttons inside Hero Overlay */}
+        <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.back()}
+            className="cursor-pointer bg-white/90 backdrop-blur-sm border-white/20 hover:bg-white text-gray-800 font-semibold"
+          >
+            <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back
+          </Button>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push(`/admin/universities/${params.id}/edit`)}
+              className="cursor-pointer bg-white/90 backdrop-blur-sm border-white/20 hover:bg-white text-gray-800 font-semibold"
+            >
               <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
             </Button>
+            
             {university.status !== "ACTIVE" ? (
-              <Button size="sm" onClick={() => updateStatus.mutate({ id: params.id as string, status: "ACTIVE" })}
+              <Button
+                size="sm"
+                onClick={() => updateStatus.mutate({ id: uniId, status: "ACTIVE" })}
                 disabled={updateStatus.isPending}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                className="bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer font-semibold"
+              >
                 <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
-                {updateStatus.isPending ? "Activating..." : "Activate"}
+                Activate
               </Button>
             ) : (
-              <Button variant="outline" size="sm"
-                onClick={() => updateStatus.mutate({ id: params.id as string, status: "INACTIVE" })}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => updateStatus.mutate({ id: uniId, status: "INACTIVE" })}
                 disabled={updateStatus.isPending}
-                className="text-amber-700 border-amber-300 hover:bg-amber-50">
-                {updateStatus.isPending ? "Deactivating..." : "Deactivate"}
+                className="text-amber-700 border-amber-300 hover:bg-amber-50 bg-white/90 backdrop-blur-sm font-semibold"
+              >
+                Deactivate
               </Button>
             )}
-            <Button variant="outline" size="sm"
-              className="text-red-600 border-red-200 hover:bg-red-50"
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-red-600 border-red-200 hover:bg-red-50 cursor-pointer bg-white/90 backdrop-blur-sm font-semibold"
               disabled={deleteUniversity.isPending}
               onClick={async () => {
                 if (!confirm("Are you sure you want to delete this university?")) return;
-                await deleteUniversity.mutateAsync(params.id as string);
+                await deleteUniversity.mutateAsync(uniId);
                 router.push("/admin/universities");
-              }}>
-              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-              {deleteUniversity.isPending ? "Deleting..." : "Delete"}
+              }}
+            >
+              <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
             </Button>
           </div>
         </div>
 
-        {/* ═══ Quick Stats ═══ */}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
-          <StatPill icon={Building2} label="Type" value={university.type?.replace("_", " ")} />
-          <StatPill icon={Calendar} label="Est." value={university.establishedYear ?? "—"} />
-          <StatPill icon={Globe} label="Country" value={loc?.country ?? "—"} />
-          <StatPill icon={GraduationCap} label="Programs" value={a?.programs?.length ?? 0} />
-          <StatPill icon={Users} label="Seats" value={(a?.programs || []).reduce((sum: number, p: any) => sum + (typeof p === "string" ? 0 : (p.totalSeats ?? 0)), 0) || "—"} />
+      </div>
+
+      {/* Header with Logo, Title, and Status */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-4">
+          {university.logo ? (
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#ECEAE6] bg-white">
+              <Image src={university.logo} alt="Logo" fill className="object-contain p-1" sizes="64px" />
+              <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/0 opacity-0 transition hover:bg-black/40 hover:opacity-100">
+                <Edit className="h-4 w-4 text-white" />
+                <input type="file" accept="image/*,image/svg+xml" className="hidden" onChange={handleLogoUpload} disabled={isUploadingLogo} />
+              </label>
+            </div>
+          ) : (
+            <label className="flex h-16 w-16 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-dashed border-[#D4D2CE] bg-[#FAF9F6] transition hover:bg-gray-100">
+              {isUploadingLogo ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+              ) : (
+                <div className="flex flex-col items-center gap-0.5 text-gray-400">
+                  <ImageIcon className="h-5 w-5" />
+                  <span className="text-[10px] font-medium">Logo</span>
+                </div>
+              )}
+              <input type="file" accept="image/*,image/svg+xml" className="hidden" onChange={handleLogoUpload} disabled={isUploadingLogo} />
+            </label>
+          )}
+          <div>
+            <h1 className="text-2xl font-bold text-[#111] sm:text-3xl">{university.name}</h1>
+            <p className="mt-1 text-sm text-[#6B6B6B]">{university.shortName}</p>
+          </div>
+        </div>
+        <Badge className={status.className}>{status.label}</Badge>
+      </div>
+
+      {/* Quick stats */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
+          <StatCard
+            icon={Building2}
+            label="Type"
+            value={university.type?.replace("_", " ")}
+          />
+          <StatCard
+            icon={Calendar}
+            label="Est."
+            value={university.establishedYear ?? "—"}
+          />
+          <StatCard
+            icon={Globe}
+            label="Country"
+            value={loc?.country ?? "—"}
+          />
+          <StatCard
+            icon={GraduationCap}
+            label="Programs"
+            value={a?.programs?.length ?? 0}
+          />
+          <StatCard
+            icon={Users}
+            label="Seats"
+            value={a?.totalSeats ?? "—"}
+          />
         </div>
 
-        {/* ═══ Tabs ═══ */}
-        <Tabs defaultValue="overview" className="w-full min-w-0">
+      {/* Tabs */}
+      <Tabs
+          defaultValue="overview"
+          className="w-full min-w-0"
+        >
           <TabsList variant="line" className="h-9 w-full justify-start gap-0 overflow-x-auto border-b border-[#ECEAE6]">
-            <TabsTrigger value="overview" className="px-3 text-xs font-medium data-[state=active]:text-[#3730A3]">Overview</TabsTrigger>
-            <TabsTrigger value="academic" className="px-3 text-xs font-medium data-[state=active]:text-[#3730A3]">Academic</TabsTrigger>
-            <TabsTrigger value="infrastructure" className="px-3 text-xs font-medium data-[state=active]:text-[#3730A3]">Infrastructure</TabsTrigger>
-            <TabsTrigger value="admission" className="px-3 text-xs font-medium data-[state=active]:text-[#3730A3]">Admission</TabsTrigger>
-            <TabsTrigger value="support" className="px-3 text-xs font-medium data-[state=active]:text-[#3730A3]">Support</TabsTrigger>
-            <TabsTrigger value="fees" className="px-3 text-xs font-medium data-[state=active]:text-[#3730A3]">Fees</TabsTrigger>
-            <TabsTrigger value="recognition" className="px-3 text-xs font-medium data-[state=active]:text-[#3730A3]">Recognition</TabsTrigger>
-            <TabsTrigger value="content" className="px-3 text-xs font-medium data-[state=active]:text-[#3730A3]">Content</TabsTrigger>
-            <TabsTrigger value="courses" className="px-3 text-xs font-medium data-[state=active]:text-[#3730A3]">Courses</TabsTrigger>
-            <TabsTrigger value="documents" className="px-3 text-xs font-medium data-[state=active]:text-[#3730A3]">Documents</TabsTrigger>
-            <TabsTrigger value="admin" className="px-3 text-xs font-medium data-[state=active]:text-[#3730A3]">Admin</TabsTrigger>
+            <TabsTrigger value="overview" className="px-4 text-xs font-medium">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="academic" className="px-4 text-xs font-medium">
+              Academic
+            </TabsTrigger>
+            <TabsTrigger value="infrastructure" className="px-4 text-xs font-medium">
+              Infrastructure
+            </TabsTrigger>
+            <TabsTrigger value="admission" className="px-4 text-xs font-medium">
+              Admission
+            </TabsTrigger>
+            <TabsTrigger value="support" className="px-4 text-xs font-medium">
+              Support
+            </TabsTrigger>
+            <TabsTrigger value="courses" className="px-4 text-xs font-medium">
+              Courses
+            </TabsTrigger>
           </TabsList>
 
-          {/* ════════════════════════════════════════════════════════
-             OVERVIEW TAB
-             ════════════════════════════════════════════════════════ */}
-          <TabsContent value="overview" className="mt-5 space-y-6">
-            {/* Hero */}
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#3730A3] via-[#4F46E5] to-[#6366F1] p-5 sm:p-6">
-              <div className="absolute inset-0 opacity-[0.07]"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3C/g%3E%3C/svg%3E")` }} />
-              <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-white">{university.name}</h2>
-                  <p className="text-indigo-200 text-sm">{university.shortName} · Est. {university.establishedYear}</p>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {university.recognition?.worldRank && (
-                    <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-sm px-3 py-1.5 text-xs text-white font-medium border border-white/10">
-                      <Medal className="h-3.5 w-3.5 text-yellow-300" /> World Rank #{university.recognition.worldRank}
-                    </div>
+          {/* ===== Overview Tab ===== */}
+          <TabsContent value="overview" className="mt-4 space-y-4 sm:mt-6 sm:space-y-5">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              {/* Basic Info */}
+              <Card size="sm" className="border-[#ECEAE6]">
+                <CardContent className="space-y-3 p-4 sm:p-5">
+                  <SectionHeading
+                    icon={Building2}
+                    title="Basic Information"
+                    onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=basic`)}
+                  />
+                  <InfoRow icon={School} label="Full Name" value={university.name} />
+                  <InfoRow icon={BookOpen} label="Short Name" value={university.shortName} />
+                  <InfoRow icon={Building2} label="Type" value={university.type?.replace("_", " ")} />
+                  <InfoRow icon={Calendar} label="Established" value={university.establishedYear} />
+                  {university.website && (
+                    <InfoRow
+                      icon={Globe}
+                      label="Website"
+                      value={
+                        <a
+                          href={university.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[#3730A3] hover:underline"
+                        >
+                          {university.website.replace(/^https?:\/\//, '')}
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      }
+                    />
                   )}
-                  <Badge className="bg-white/15 text-white border-white/10 backdrop-blur-sm text-xs">{university.type?.replace("_", " ")}</Badge>
-                </div>
-              </div>
-            </div>
+                  {university.brochureUrl && (
+                    <InfoRow
+                      icon={Download}
+                      label="Brochure"
+                      value={
+                        <a
+                          href={university.brochureUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[#3730A3] hover:underline"
+                        >
+                          Download Brochure
+                          <Download className="h-3 w-3" />
+                        </a>
+                      }
+                    />
+                  )}
+                </CardContent>
+              </Card>
 
-            {/* Stat cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {[
-                { icon: Calendar, value: university.establishedYear, label: "Established" },
-                { icon: Globe, value: loc?.country, label: "Country" },
-                { icon: GraduationCap, value: a?.programs?.length || 0, label: "Programs" },
-                { icon: Users, value: university.studentDemographics?.totalStudents?.toLocaleString() || "—", label: "Students" },
-                { icon: Medal, value: university.recognition?.worldRank ? `#${university.recognition.worldRank}` : "—", label: "World Rank" },
-                { icon: Banknote, value: university.fees?.currency || "₹", label: "Currency" },
-              ].map((stat, i) => (
-                <div key={i} className="rounded-xl border border-[#ECEAE6] bg-white p-3.5 sm:p-4 transition-shadow hover:shadow-sm">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#3730A3]/10 text-[#3730A3] mb-2.5">
-                    <stat.icon className="h-4 w-4" />
-                  </div>
-                  <p className="text-base font-semibold text-[#111] truncate">{stat.value}</p>
-                  <p className="text-xs text-[#9CA3AF]">{stat.label}</p>
-                </div>
-              ))}
-            </div>
+              {/* Location */}
+              {loc && (
+                <Card size="sm" className="border-[#ECEAE6]">
+                  <CardContent className="space-y-3 p-4 sm:p-5">
+                    <SectionHeading
+                      icon={MapPin}
+                      title="Location"
+                      onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=location`)}
+                    />
+                    <InfoRow icon={Globe} label="Country" value={loc.country} />
+                    <InfoRow icon={MapPin} label="State" value={loc.state} />
+                    <InfoRow
+                      icon={MapPin}
+                      label="City"
+                      value={loc.city}
+                    />
+                    <InfoRow
+                      icon={MapPin}
+                      label="Address"
+                      value={loc.address}
+                    />
+                  </CardContent>
+                </Card>
+              )}
 
-            {/* Main + Sidebar */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-              {/* ─── Main Column ─── */}
-              <div className="lg:col-span-8 space-y-5">
-                {/* About */}
-                {university.content?.longDescription && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] bg-[#FAF9F6] px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                          <FileText className="h-3.5 w-3.5 text-[#3730A3]" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#111]">About {university.shortName}</h3>
-                      </div>
-                    </div>
-                    <DataCardPad>
-                      <p className="text-sm text-[#6B6B6B] leading-relaxed">{university.content.longDescription}</p>
-                      {university.content.shortDescription && (
-                        <div className="mt-3 rounded-lg border-l-2 border-[#3730A3] bg-[#FAF9F6] px-4 py-3">
-                          <p className="text-sm text-[#6B6B6B] italic">{university.content.shortDescription}</p>
-                        </div>
-                      )}
-                    </DataCardPad>
-                  </DataCard>
-                )}
+              {/* Contact */}
+              {contact && (
+                <Card size="sm" className="border-[#ECEAE6]">
+                  <CardContent className="space-y-3 p-4 sm:p-5">
+                    <SectionHeading
+                      icon={Phone}
+                      title="Contact"
+                      onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=contact`)}
+                    />
+                    <InfoRow
+                      icon={Mail}
+                      label="Email"
+                      value={
+                        <a
+                          href={`mailto:${contact.email}`}
+                          className="text-[#3730A3] hover:underline"
+                        >
+                          {contact.email}
+                        </a>
+                      }
+                    />
+                    <InfoRow
+                      icon={Phone}
+                      label="Phone"
+                      value={
+                        <a
+                          href={`tel:${contact.phone}`}
+                          className="text-[#3730A3] hover:underline"
+                        >
+                          {contact.phone}
+                        </a>
+                      }
+                    />
+                    {contact.admissionOfficeHours && (
+                      <InfoRow
+                        icon={Clock}
+                        label="Office Hours"
+                        value={contact.admissionOfficeHours}
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
-                {/* Programs */}
-                {a?.programs && a.programs.length > 0 && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                            <BookOpen className="h-3.5 w-3.5 text-[#3730A3]" />
-                          </div>
-                          <h3 className="text-sm font-semibold text-[#111]">Programs Offered</h3>
-                        </div>
-                        <span className="text-xs text-[#9CA3AF]">{a.programs.length} programs</span>
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {a.programs.map((prog: any, i: number) => {
-                          const program = typeof prog === 'string' ? { name: prog } : prog;
-                          return (
-                            <div key={i} className="group rounded-lg border border-[#ECEAE6] bg-white p-3.5 hover:border-[#3730A3]/30 hover:shadow-sm transition-all">
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex items-center gap-2.5">
-                                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3730A3]/10 text-[#3730A3] font-bold text-xs">
-                                    {i + 1}
-                                  </div>
-                                  <div>
-                                    <p className="text-sm font-medium text-[#111] group-hover:text-[#3730A3] transition-colors">{program.name}</p>
-                                    <p className="text-xs text-[#9CA3AF]">{program.duration || a.duration}</p>
-                                  </div>
+              {/* Academic Snapshot */}
+              {a && (
+                <Card size="sm" className="border-[#ECEAE6]">
+                  <CardContent className="space-y-3 p-4 sm:p-5">
+                    <SectionHeading
+                      icon={GraduationCap}
+                      title="Academic Snapshot"
+                      onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=academic`)}
+                    />
+                    <InfoRow
+                      icon={BookOpen}
+                      label="Programs"
+                      value={<BadgeList items={a.programs} />}
+                    />
+                    <InfoRow icon={Clock} label="Duration" value={a.duration} />
+                    <InfoRow icon={Globe} label="Medium" value={a.medium} />
+                    <InfoRow
+                      icon={Calendar}
+                      label="Intake"
+                      value={<BadgeList items={a.intakeMonths} />}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Social Links */}
+              {university.socialLinks && (
+                <Card size="sm" className="border-[#ECEAE6]">
+                  <CardContent className="space-y-3 p-4 sm:p-5">
+                    <SectionHeading
+                      icon={ExternalLink}
+                      title="Social Media"
+                      onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=social`)}
+                    />
+                    {(() => {
+                      const links: Record<string, string> = university.socialLinks as Record<string, string>;
+                      const platformIcons: Record<string, { icon: IconComponent; label: string }> = {
+                        facebook: { icon: Globe, label: "Facebook" },
+                        instagram: { icon: Globe, label: "Instagram" },
+                        youtube: { icon: Globe, label: "YouTube" },
+                        linkedin: { icon: Globe, label: "LinkedIn" },
+                        twitter: { icon: Globe, label: "Twitter / X" },
+                        tiktok: { icon: Globe, label: "TikTok" },
+                      };
+                      const hasLinks = Object.entries(platformIcons).some(([key]) => links[key]);
+                      if (!hasLinks) return <p className="text-xs text-gray-400 italic">No social links added.</p>;
+                      return (
+                        <div className="space-y-2">
+                          {Object.entries(platformIcons).map(([key, config]) => {
+                            const url = links[key];
+                            if (!url) return null;
+                            return (
+                              <div key={key} className="flex items-center gap-3">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100">
+                                  <config.icon className="h-3.5 w-3.5 text-gray-500" />
                                 </div>
-                                {program.totalSeats > 0 && (
-                                  <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
-                                    {program.totalSeats} seats
-                                  </span>
-                                )}
+                                <a
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-[#3730A3] hover:underline truncate"
+                                >
+                                  {config.label}
+                                </a>
+                                <ExternalLink className="ml-auto h-3 w-3 shrink-0 text-gray-300" />
                               </div>
-                              {program.annualTuition > 0 && (
-                                <div className="flex items-center gap-1.5 text-xs text-[#6B6B6B] ml-10">
-                                  <Banknote className="h-3 w-3" />
-                                  <span>{university.fees?.currency} {program.annualTuition?.toLocaleString()}/year</span>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </DataCard>
-                )}
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </CardContent>
+                </Card>
+              )}
 
-                {/* Recognition */}
-                {university.recognition && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] bg-amber-50/30 px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-amber-100">
-                          <Medal className="h-3.5 w-3.5 text-amber-700" />
+                {/* Student Demographics */}
+              {university.studentDemographics && (() => {
+                const demo = university.studentDemographics as any;
+                const total = demo.totalStudents || 0;
+                const local = demo.localStudents || 0;
+                const foreign = demo.foreignStudents || 0;
+                if (!total && !local && !foreign) return null;
+                return (
+                  <Card size="sm" className="border-[#ECEAE6]">
+                    <CardContent className="space-y-3 p-4 sm:p-5">
+                      <SectionHeading
+                        icon={Users}
+                        title="Student Demographics"
+                        onEdit={() => router.push(`/admin/universities/${uniId}/edit?section=demographics`)}
+                      />
+                      <div className="grid grid-cols-3 gap-3 text-center">
+                        <div className="rounded-lg bg-gray-50 p-3 border border-gray-100">
+                          <p className="text-lg font-extrabold text-[#111]">{total.toLocaleString()}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total</p>
                         </div>
-                        <h3 className="text-sm font-semibold text-[#111]">Recognition & Accreditations</h3>
-                      </div>
-                    </div>
-                    <DataCardPad>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {university.recognition.bodies?.map((body: string) => (
-                          <span key={body} className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
-                            <CheckCircle2 className="h-3 w-3" /> {body}
-                          </span>
-                        ))}
-                        <span className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium border ${university.recognition.ecfmgStatus === 'APPROVED' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-                          ECFMG {university.recognition.ecfmgStatus}
-                        </span>
-                        {university.recognition.nbaAccredited && (
-                          <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
-                            <CheckCircle2 className="h-3 w-3" /> NBA Accredited
-                          </span>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-lg bg-gradient-to-br from-[#3730A3] to-[#4F46E5] p-4 text-white">
-                          <Award className="h-6 w-6 mb-1.5 opacity-80" />
-                          <p className="text-xl font-bold">#{university.recognition.worldRank || "—"}</p>
-                          <p className="text-xs opacity-80">World Ranking</p>
-                          {university.recognition.worldRankingSource && (
-                            <p className="text-[10px] opacity-60 mt-0.5">{university.recognition.worldRankingSource}</p>
-                          )}
+                        <div className="rounded-lg bg-gray-50 p-3 border border-gray-100">
+                          <p className="text-lg font-extrabold text-[#111]">{local.toLocaleString()}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Local</p>
                         </div>
-                        <div className="rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 p-4 text-white">
-                          <Award className="h-6 w-6 mb-1.5 opacity-80" />
-                          <p className="text-xl font-bold">#{university.recognition.nationalRank || "—"}</p>
-                          <p className="text-xs opacity-80">National Ranking</p>
-                          {university.recognition.nationalRankingSource && (
-                            <p className="text-[10px] opacity-60 mt-0.5">{university.recognition.nationalRankingSource}</p>
-                          )}
+                        <div className="rounded-lg bg-gray-50 p-3 border border-gray-100">
+                          <p className="text-lg font-extrabold text-[#111]">{foreign.toLocaleString()}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Foreign</p>
                         </div>
                       </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {/* Fee Overview */}
-                {university.fees && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] bg-emerald-50/30 px-5 py-3.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-100">
-                            <Banknote className="h-3.5 w-3.5 text-emerald-700" />
-                          </div>
-                          <h3 className="text-sm font-semibold text-[#111]">Fee Structure</h3>
-                        </div>
-                        {university.fees.scholarshipAvailable && (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-medium text-emerald-700">
-                            <CheckCircle2 className="h-3 w-3" /> Scholarships
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <DataCardPad>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {[
-                          { label: "Tuition/Year", value: university.fees.tuitionAnnual, icon: BookOpen },
-                          { label: "Hostel/Year", value: university.fees.hostelAnnual, icon: Bed },
-                          { label: "Total Program", value: university.fees.totalProgram, icon: GraduationCap, highlight: true },
-                          { label: "Registration", value: university.fees.registration, icon: FileText },
-                        ].map((fee, i) => (
-                          <div key={i} className={`text-center rounded-lg p-3.5 ${fee.highlight ? 'bg-[#3730A3] text-white' : 'border border-[#ECEAE6] bg-[#FAF9F6]'}`}>
-                            <fee.icon className={`h-4 w-4 mx-auto mb-1.5 ${fee.highlight ? 'opacity-80' : 'text-[#9CA3AF]'}`} />
-                            <p className={`text-sm font-bold ${fee.highlight ? 'text-white' : 'text-[#111]'}`}>
-                              {university.fees?.currency} {fee.value?.toLocaleString() || "—"}
-                            </p>
-                            <p className={`text-[10px] ${fee.highlight ? 'text-white/70' : 'text-[#9CA3AF]'}`}>{fee.label}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {/* Infrastructure */}
-                {infra && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                          <Building2 className="h-3.5 w-3.5 text-[#3730A3]" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#111]">Infrastructure</h3>
-                      </div>
-                    </div>
-                    <DataCardPad>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-4">
-                        {[
-                          { icon: Stethoscope, value: infra.hospitalBeds || "—", label: "Hospital Beds" },
-                          { icon: Bed, value: infra.hostelBoys?.toLocaleString() || "—", label: "Hostel (Boys)" },
-                          { icon: Bed, value: infra.hostelGirls?.toLocaleString() || "—", label: "Hostel (Girls)" },
-                          { icon: MapPin, value: infra.campusArea ? `${infra.campusArea} ac` : "—", label: "Campus Area" },
-                          { icon: School, value: infra.departments?.length || "—", label: "Departments" },
-                          { icon: FlaskConical, value: infra.laboratories?.length || "—", label: "Laboratories" },
-                        ].map((s, i) => (
-                          <div key={i} className="text-center rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-3">
-                            <p className="text-base font-semibold text-[#111]">{s.value}</p>
-                            <p className="text-[10px] text-[#9CA3AF]">{s.label}</p>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {infra.cafeteria && <FacilityBadge icon={Coffee} label="Cafeteria" />}
-                        {infra.wifiCampus && <FacilityBadge icon={Wifi} label="WiFi Campus" />}
-                        {infra.transportation && <FacilityBadge icon={Bus} label="Transport" />}
-                        {infra.facilities?.map((f: string, i: number) => (
-                          <span key={i} className="inline-flex items-center gap-1 rounded-md border border-[#ECEAE6] bg-white px-2.5 py-1 text-xs text-[#6B6B6B]">
-                            <CheckCircle2 className="h-3 w-3 text-emerald-500" /> {f}
-                          </span>
-                        ))}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {/* Admission Requirements */}
-                {adm && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                            <ClipboardList className="h-3.5 w-3.5 text-[#3730A3]" />
-                          </div>
-                          <h3 className="text-sm font-semibold text-[#111]">Admission Requirements</h3>
-                        </div>
-                        {adm.ageCriteria && (
-                          <span className="text-xs text-[#9CA3AF]">Age: {adm.ageCriteria}</span>
-                        )}
-                      </div>
-                    </div>
-                    <DataCardPad>
-                      <DetailGrid cols={3}>
-                        <DetailCell label="Entrance Exams" value={adm.entranceExams?.join(", ") || "—"} />
-                        <DetailCell label="Application Fee" value={`${university.fees?.currency || "₹"} ${adm.applicationFee?.toLocaleString() || "—"}`} />
-                        <DetailCell label="Selection Process" value={adm.selectionProcess || "—"} />
-                      </DetailGrid>
-                      {adm.eligibility && (
-                        <div className="mt-3 rounded-lg bg-amber-50/50 border border-amber-100 px-3.5 py-2.5">
-                          <p className="text-xs text-amber-700 font-medium mb-0.5">General Eligibility</p>
-                          <p className="text-sm text-amber-900">{adm.eligibility}</p>
-                        </div>
-                      )}
-                      {adm.requiredDocuments && adm.requiredDocuments.length > 0 && (
-                        <div className="mt-3">
-                          <p className="text-xs text-[#9CA3AF] mb-2">Required Documents</p>
+                      {demo.foreignByCountry?.length > 0 && (
+                        <div className="pt-1">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">Foreign Students By Country</p>
                           <div className="flex flex-wrap gap-1.5">
-                            {adm.requiredDocuments.map((doc: string, i: number) => (
-                              <span key={i} className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
-                                <CheckCircle2 className="h-3 w-3" /> {doc}
+                            {demo.foreignByCountry.map((item: any, i: number) => (
+                              <span key={i} className="inline-flex items-center gap-1 rounded-md border border-[#ECEAE6] bg-white px-2 py-1 text-xs text-[#6B6B6B]">
+                                <Globe className="h-3 w-3" />
+                                {item.country}: {item.count}
                               </span>
                             ))}
                           </div>
                         </div>
                       )}
-                      {adm.applicationDeadline && (
-                        <div className="mt-3 flex items-center justify-between rounded-lg bg-amber-50/50 border border-amber-100 px-3.5 py-2.5">
-                          <div className="flex items-center gap-2.5">
-                            <Calendar className="h-4 w-4 text-amber-600" />
-                            <div>
-                              <p className="text-xs text-amber-600">Deadline</p>
-                              <p className="text-sm font-semibold text-amber-900">{new Date(adm.applicationDeadline).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                            </div>
-                          </div>
-                          <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${new Date(adm.applicationDeadline) > new Date() ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
-                            {new Date(adm.applicationDeadline) > new Date() ? 'Open' : 'Closed'}
-                          </span>
-                        </div>
-                      )}
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {/* Program Eligibility */}
-                {adm?.programEligibility && adm.programEligibility.length > 0 && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                          <Medal className="h-3.5 w-3.5 text-[#3730A3]" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#111]">Eligibility by Program</h3>
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {adm.programEligibility.map((prog: any, i: number) => {
-                          const programName = a?.programs?.[i]?.name || `Program ${i + 1}`;
-                          return (
-                            <div key={i} className="rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-4">
-                              <div className="flex items-center gap-2.5 mb-3">
-                                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10 text-[#3730A3] font-bold text-xs">{i + 1}</div>
-                                <h5 className="text-sm font-semibold text-[#111]">{programName}</h5>
-                              </div>
-                              <div className="space-y-2">
-                                <DetailCell label="Minimum Marks" value={prog.minimumMarks || "—"} />
-                                <DetailCell label="Eligibility" value={prog.eligibility || "—"} />
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </DataCard>
-                )}
-
-                {/* Support Services */}
-                {supp && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                          <Heart className="h-3.5 w-3.5 text-[#3730A3]" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#111]">Student Support</h3>
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                        <div className="space-y-3">
-                          <h4 className="text-xs font-semibold text-[#111] flex items-center gap-1.5">
-                            <Briefcase className="h-3.5 w-3.5 text-[#3730A3]" /> Placement & Career
-                          </h4>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="text-center rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-3">
-                              <p className="text-lg font-bold text-[#111]">{supp.placementRate ? `${supp.placementRate}%` : "—"}</p>
-                              <p className="text-[10px] text-[#9CA3AF]">Placement Rate</p>
-                            </div>
-                            <div className="text-center rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-3">
-                              <p className="text-lg font-bold text-[#111]">{supp.averagePackage ? `₹${(supp.averagePackage / 100000).toFixed(1)}L` : "—"}</p>
-                              <p className="text-[10px] text-[#9CA3AF]">Avg Package</p>
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {supp.careerGuidance && <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 text-emerald-700 px-2 py-1 text-xs font-medium"><CheckCircle2 className="h-3 w-3" /> Career Guidance</span>}
-                            {supp.counselingServices && <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 text-emerald-700 px-2 py-1 text-xs font-medium"><CheckCircle2 className="h-3 w-3" /> Counseling</span>}
-                          </div>
-                        </div>
-                        <div className="space-y-3">
-                          <h4 className="text-xs font-semibold text-[#111] flex items-center gap-1.5">
-                            <Globe className="h-3.5 w-3.5 text-[#3730A3]" /> International Support
-                          </h4>
-                          <div className="space-y-2 text-sm">
-                            {supp.visaAssistance && <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /><span className="text-[#111]">Visa Assistance</span></div>}
-                            {supp.internationalStudentSupport && <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /><span className="text-[#111]">International Student Support</span></div>}
-                            {supp.alumniNetwork && <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /><span className="text-[#111]">Alumni Network</span>{supp.alumniCount && <span className="text-xs text-[#9CA3AF]">({supp.alumniCount.toLocaleString()})</span>}</div>}
-                          </div>
-                          {supp.languageSupport?.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {supp.languageSupport.map((lang: string) => (
-                                <span key={lang} className="rounded-md bg-[#F5F4F2] px-2 py-1 text-xs text-[#6B6B6B]">{lang}</span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        {supp.topRecruiters?.length > 0 && (
-                          <div className="space-y-3">
-                            <h4 className="text-xs font-semibold text-[#111] flex items-center gap-1.5">
-                              <Building2 className="h-3.5 w-3.5 text-[#3730A3]" /> Top Recruiters
-                            </h4>
-                            <div className="flex flex-wrap gap-1.5">
-                              {supp.topRecruiters.map((r: string, i: number) => (
-                                <span key={i} className="rounded-lg border border-[#ECEAE6] bg-white px-2.5 py-1 text-xs font-medium text-[#6B6B6B]">{r}</span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </DataCard>
-                )}
-
-                {/* Content Section */}
-                {university.content && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                          <FileText className="h-3.5 w-3.5 text-[#3730A3]" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#111]">Content & Media</h3>
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          {university.content.shortDescription && (
-                            <div>
-                              <p className="text-xs text-[#9CA3AF] mb-1">Short Description</p>
-                              <p className="text-sm text-[#6B6B6B]">{university.content.shortDescription}</p>
-                            </div>
-                          )}
-                          {university.content.whyChooseUs && (
-                            <div>
-                              <p className="text-xs text-[#9CA3AF] mb-1">Why Choose Us</p>
-                              <p className="text-sm text-[#6B6B6B]">{university.content.whyChooseUs}</p>
-                            </div>
-                          )}
-                          {university.content.highlights?.length > 0 && (
-                            <div>
-                              <p className="text-xs text-[#9CA3AF] mb-1.5">Highlights</p>
-                              <div className="flex flex-wrap gap-1.5">
-                                {university.content.highlights.map((h: string, i: number) => (
-                                  <span key={i} className="inline-flex items-center gap-1 rounded-md bg-[#3730A3]/10 text-[#3730A3] px-2.5 py-1 text-xs font-medium">
-                                    <CheckCircle2 className="h-3 w-3" /> {h}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        <div className="space-y-4">
-                          {(university.content.videoTour || university.content.virtualTour) && (
-                            <div>
-                              <p className="text-xs text-[#9CA3AF] mb-1.5">Virtual Tours</p>
-                              <div className="space-y-2">
-                                {university.content.videoTour && (
-                                  <a href={university.content.videoTour} target="_blank" rel="noopener noreferrer"
-                                    className="flex items-center gap-3 rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] px-4 py-3 hover:bg-[#F5F4F2] transition-colors group">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#3730A3]/10 text-[#3730A3]">
-                                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                    </div>
-                                    <span className="flex-1 text-sm font-medium text-[#111] group-hover:text-[#3730A3]">Video Tour</span>
-                                    <ExternalLink className="h-4 w-4 text-[#9CA3AF]" />
-                                  </a>
-                                )}
-                                {university.content.virtualTour && (
-                                  <a href={university.content.virtualTour} target="_blank" rel="noopener noreferrer"
-                                    className="flex items-center gap-3 rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] px-4 py-3 hover:bg-[#F5F4F2] transition-colors group">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                    </div>
-                                    <span className="flex-1 text-sm font-medium text-[#111] group-hover:text-emerald-600">Virtual Tour</span>
-                                    <ExternalLink className="h-4 w-4 text-[#9CA3AF]" />
-                                  </a>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </DataCard>
-                )}
-
-                {/* Admin & Bank Details */}
-                {university.admin && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                          <Settings className="h-3.5 w-3.5 text-[#3730A3]" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#111]">Administration & Banking</h3>
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="space-y-3">
-                          <h4 className="text-xs font-semibold text-[#111]">Point of Contact</h4>
-                          <DetailGrid cols={2}>
-                            <DetailCell label="Name" value={university.admin.pocName} />
-                            <DetailCell label="Designation" value={university.admin.pocDesignation} />
-                            <DetailCell label="Email" value={university.admin.pocEmail ? <a href={`mailto:${university.admin.pocEmail}`} className="text-[#3730A3] hover:underline">{university.admin.pocEmail}</a> : "—"} />
-                            <DetailCell label="Phone" value={`${university.admin.phoneCountryCode || ""} ${university.admin.phoneNumber || "—"}`} />
-                          </DetailGrid>
-                        </div>
-                        <div className="space-y-3">
-                          <h4 className="text-xs font-semibold text-[#111]">Bank Details</h4>
-                          <DetailGrid cols={2}>
-                            <DetailCell label="Account Name" value={university.admin.accountName} />
-                            <DetailCell label="Bank Name" value={university.admin.bankName} />
-                            <DetailCell label="IFSC Code" value={university.admin.ifscCode} mono />
-                            <DetailCell label="Commission" value={university.admin.commission ? `${university.admin.commission}%` : "—"} />
-                          </DetailGrid>
-                        </div>
-                      </div>
-                      {university.admin.bankCountry && (
-                        <div className="mt-4 pt-4 border-t border-[#ECEAE6]">
-                          <h4 className="text-xs font-semibold text-[#111] mb-3">International Banking</h4>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                            <DetailCell label="Bank Country" value={university.admin.bankCountry} />
-                            {university.admin.recipientName && <DetailCell label="Recipient Name" value={university.admin.recipientName} />}
-                            {university.admin.recipientBank && <DetailCell label="Recipient Bank" value={university.admin.recipientBank} />}
-                            {university.admin.bankIdCode && <DetailCell label="SWIFT/BIC" value={university.admin.bankIdCode} mono />}
-                            {university.admin.recipientInn && <DetailCell label="TIN (INN)" value={university.admin.recipientInn} />}
-                            {university.admin.recipientKpp && <DetailCell label="KPP" value={university.admin.recipientKpp} />}
-                            {university.admin.singleTreasuryAccount && <DetailCell label="Treasury Acct" value={university.admin.singleTreasuryAccount} mono />}
-                            {university.admin.paymentPurpose && <DetailCell label="Payment Purpose" value={university.admin.paymentPurpose} />}
-                          </div>
-                          {university.admin.bankDetails && Object.keys(university.admin.bankDetails).length > 0 && (
-                            <div className="mt-3">
-                              <p className="text-xs text-[#9CA3AF] mb-1.5">Additional Bank Info</p>
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                {Object.entries(university.admin.bankDetails).map(([key, value]) => (
-                                  <DetailCell key={key} label={key.replace(/([A-Z])/g, ' $1').trim()} value={String(value)} />
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </DataCard>
-                )}
-
-                {/* Gallery */}
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                          <ImageIcon className="h-3.5 w-3.5 text-[#3730A3]" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#111]">Gallery</h3>
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => setShowImageUpload("gallery")}>
-                        <Upload className="mr-1.5 h-3.5 w-3.5" /> Add Image
-                      </Button>
-                    </div>
-                  </div>
-                  <DataCardPad>
-                    {university.content?.gallery && university.content.gallery.length > 0 ? (
-                      <GalleryGrid images={university.content.gallery} />
-                    ) : (
-                      <p className="text-sm text-[#9CA3AF] text-center py-8">No gallery images yet</p>
-                    )}
-                  </DataCardPad>
-                </DataCard>
-              </div>
-
-              {/* ─── Sidebar Column ─── */}
-              <div className="lg:col-span-4 space-y-5">
-                {/* Contact */}
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                        <Phone className="h-3.5 w-3.5 text-[#3730A3]" />
-                      </div>
-                      <h3 className="text-sm font-semibold text-[#111]">Contact Info</h3>
-                    </div>
-                  </div>
-                  <div className="p-4 space-y-3">
-                    {contact?.email && (
-                      <a href={`mailto:${contact.email}`} className="flex items-center gap-3 rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-3 hover:bg-[#F5F4F2] transition-colors group">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#3730A3]/10 text-[#3730A3]">
-                          <Mail className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[10px] text-[#9CA3AF]">Email</p>
-                          <p className="text-xs font-medium text-[#111] truncate group-hover:text-[#3730A3] transition-colors">{contact.email}</p>
-                        </div>
-                      </a>
-                    )}
-                    {contact?.phone && (
-                      <a href={`tel:${contact.phone}`} className="flex items-center gap-3 rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-3 hover:bg-[#F5F4F2] transition-colors group">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
-                          <Phone className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[10px] text-[#9CA3AF]">Phone</p>
-                          <p className="text-xs font-medium text-[#111] group-hover:text-emerald-600 transition-colors">{contact.phone}</p>
-                        </div>
-                      </a>
-                    )}
-                    {university.website && (
-                      <a href={university.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-3 hover:bg-[#F5F4F2] transition-colors group">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100 text-sky-600">
-                          <Globe className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[10px] text-[#9CA3AF]">Website</p>
-                          <p className="text-xs font-medium text-[#111] group-hover:text-sky-600 transition-colors">Visit Website</p>
-                        </div>
-                        <ExternalLink className="h-4 w-4 text-[#9CA3AF]" />
-                      </a>
-                    )}
-                    {contact?.admissionOfficeHours && (
-                      <div className="flex items-center gap-3 rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-100 text-orange-600">
-                          <Clock className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-[10px] text-[#9CA3AF]">Office Hours</p>
-                          <p className="text-xs font-medium text-[#111]">{contact.admissionOfficeHours}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </DataCard>
-
-                {/* Location */}
-                {loc && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                          <MapPin className="h-3.5 w-3.5 text-[#3730A3]" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#111]">Location</h3>
-                      </div>
-                    </div>
-                    <DataCardPad>
-                      <div className="h-28 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 flex items-center justify-center mb-3">
-                        <div className="text-center">
-                          <MapPin className="h-6 w-6 text-green-500 mx-auto mb-0.5" />
-                          <span className="text-xs text-green-600 font-medium">{loc.city}, {loc.country}</span>
-                        </div>
-                      </div>
-                      <DetailGrid cols={2}>
-                        <DetailCell label="City" value={loc.city} />
-                        <DetailCell label="State" value={loc.state} />
-                        <DetailCell label="Country" value={loc.country} />
-                        <DetailCell label="Address" value={loc.address} />
-                      </DetailGrid>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {/* Student Demographics */}
-                {university.studentDemographics && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                          <Users className="h-3.5 w-3.5 text-[#3730A3]" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#111]">Student Body</h3>
-                      </div>
-                    </div>
-                    <DataCardPad>
-                      <div className="space-y-2">
-                        {[
-                          { label: "Total", value: university.studentDemographics.totalStudents },
-                          { label: "Local", value: university.studentDemographics.localStudents },
-                          { label: "International", value: university.studentDemographics.foreignStudents },
-                        ].map((s, i) => (
-                          <div key={i} className="flex justify-between items-center py-1.5 border-b border-[#ECEAE6] last:border-0">
-                            <span className="text-sm text-[#6B6B6B]">{s.label}</span>
-                            <span className="text-sm font-semibold text-[#111]">{s.value?.toLocaleString() || "—"}</span>
-                          </div>
-                        ))}
-                      </div>
-                      {university.studentDemographics.foreignByCountry?.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-[#ECEAE6]">
-                          <p className="text-xs text-[#9CA3AF] mb-1.5">Top Countries</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {university.studentDemographics.foreignByCountry.slice(0, 3).map((f: any) => (
-                              <span key={f.country} className="rounded-md bg-[#F5F4F2] px-2 py-0.5 text-xs text-[#6B6B6B]">{f.country}: {f.count}</span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {/* Social Links */}
-                {university.socialLinks && Object.keys(university.socialLinks).length > 0 && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                          <Globe className="h-3.5 w-3.5 text-[#3730A3]" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#111]">Social Links</h3>
-                      </div>
-                    </div>
-                    <DataCardPad>
-                      <div className="flex flex-wrap gap-2">
-                        {Object.entries(university.socialLinks).filter(([, v]) => v).map(([platform, url]) => (
-                          <a key={platform} href={url as string} target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] px-3 py-2 text-xs font-medium text-[#6B6B6B] hover:bg-[#F5F4F2] hover:text-[#3730A3] transition-colors capitalize">
-                            <ExternalLink className="h-3 w-3" /> {platform}
-                          </a>
-                        ))}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {/* Admission Quick */}
-                {adm && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#3730A3]/10">
-                          <ClipboardList className="h-3.5 w-3.5 text-[#3730A3]" />
-                        </div>
-                        <h3 className="text-sm font-semibold text-[#111]">Admission</h3>
-                      </div>
-                    </div>
-                    <DataCardPad>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between py-1.5 border-b border-[#ECEAE6]">
-                          <span className="text-[#6B6B6B]">Exams</span>
-                          <span className="text-[#111] font-medium">{adm.entranceExams?.join(", ") || "—"}</span>
-                        </div>
-                        <div className="flex justify-between py-1.5 border-b border-[#ECEAE6]">
-                          <span className="text-[#6B6B6B]">Age</span>
-                          <span className="text-[#111] font-medium">{adm.ageCriteria || "—"}</span>
-                        </div>
-                        <div className="flex justify-between py-1.5 border-b border-[#ECEAE6]">
-                          <span className="text-[#6B6B6B]">Fee</span>
-                          <span className="text-[#111] font-medium">{university.fees?.currency || "₹"} {adm.applicationFee?.toLocaleString() || "—"}</span>
-                        </div>
-                        {adm.applicationDeadline && (
-                          <div className="flex justify-between py-1.5">
-                            <span className="text-[#6B6B6B]">Deadline</span>
-                            <span className="text-[#111] font-medium">{new Date(adm.applicationDeadline).toLocaleDateString()}</span>
-                          </div>
-                        )}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-              </div>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
             </div>
 
-            {/* Subject Rankings */}
-            {university.recognition?.subjectRankings && Object.keys(university.recognition.subjectRankings).length > 0 && (
-              <DataCard>
-                <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-md bg-amber-100">
-                      <BookOpen className="h-3.5 w-3.5 text-amber-700" />
-                    </div>
-                    <h3 className="text-sm font-semibold text-[#111]">Subject Rankings</h3>
-                  </div>
-                </div>
-                <DataCardPad>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(university.recognition.subjectRankings).map(([subject, rank]) => (
-                      <span key={subject} className="inline-flex items-center gap-1.5 rounded-lg bg-[#3730A3]/10 text-[#3730A3] px-3 py-1.5 text-xs font-medium">
-                        <Award className="h-3 w-3" /> #{rank} {subject}
-                      </span>
-                    ))}
-                  </div>
-                </DataCardPad>
-              </DataCard>
+            {/* Gallery */}
+            {university.content?.gallery?.length > 0 && (
+              <Card size="sm" className="border-[#ECEAE6]">
+                <CardContent className="p-4 sm:p-5">
+                  <SectionHeading icon={ImageIcon} title="Gallery" />
+                  <GalleryGrid images={university.content.gallery} />
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
 
-          {/* ════════════════════════════════════════════════════════
-             ACADEMIC TAB
-             ════════════════════════════════════════════════════════ */}
-          <TabsContent value="academic" className="mt-5 space-y-5">
-            {a ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={BookOpen} title="Programs & Duration" />
+        {/* ===== Academic Tab ===== */}
+        <TabsContent value="academic" className="space-y-6">
+          {a ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 items-start">
+              
+              {/* Programs & Durations */}
+              <Card className="border-[#ECEAE6] bg-white rounded-xl shadow-sm">
+                <CardContent className="space-y-4 p-5">
+                  <SectionHeading icon={BookOpen} title="Syllabus & Medium" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <InfoRow icon={GraduationCap} label="Offered Programs" value={<BadgeList items={a.programs} />} />
+                    <InfoRow icon={Clock} label="Course Duration" value={a.duration} />
+                    <InfoRow icon={Globe} label="Teaching Medium" value={a.medium} />
+                    <InfoRow icon={Calendar} label="Academic Intakes" value={<BadgeList items={a.intakeMonths} />} />
                   </div>
-                  <DataCardPad>
-                    <div className="space-y-3">
-                      <InfoRow icon={GraduationCap} label="Programs" value={<BadgeChips items={a.programs} />} />
-                      <InfoRow icon={Clock} label="Duration" value={a.duration} />
-                      <InfoRow icon={Globe} label="Medium" value={a.medium} />
-                      <InfoRow icon={Calendar} label="Intake Months" value={<BadgeChips items={a.intakeMonths} />} />
-                    </div>
-                  </DataCardPad>
-                </DataCard>
+                </CardContent>
+              </Card>
 
-                {a.programs?.length > 0 && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={Users} title="Seat Distribution" />
-                    </div>
-                    <DataCardPad>
-                      <div className="divide-y divide-[#ECEAE6]">
-                        {a.programs.map((p: any, i: number) => {
-                          const name = typeof p === "string" ? p : p.name;
-                          const total = typeof p === "string" ? 0 : (p.totalSeats ?? 0);
-                          const govt = typeof p === "string" ? 0 : (p.governmentSeats ?? 0);
-                          const mgmt = typeof p === "string" ? 0 : (p.managementSeats ?? 0);
-                          const nri = typeof p === "string" ? 0 : (p.nriSeats ?? 0);
-                          return (
-                            <div key={name || i} className="py-2.5 first:pt-0 last:pb-0">
-                              <p className="text-xs font-medium text-[#111] mb-1.5">{name}</p>
-                              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#6B6B6B]">
-                                <span>Total: <strong>{total}</strong></span>
-                                <span>Govt: <strong>{govt}</strong></span>
-                                <span>Mgmt: <strong>{mgmt}</strong></span>
-                                <span>NRI: <strong>{nri}</strong></span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
+                  {/* Seat Distribution */}
+                  <Card size="sm" className="border-[#ECEAE6]">
+                    <CardContent className="space-y-3 p-4 sm:p-5">
+                      <SectionHeading icon={Users} title="Seat Distribution" />
+                      <InfoRow icon={Users} label="Total Seats" value={a.totalSeats} />
+                      <InfoRow
+                        icon={Users}
+                        label="Government"
+                        value={a.governmentSeats}
+                      />
+                      <InfoRow
+                        icon={Users}
+                        label="Management"
+                        value={a.managementSeats}
+                      />
+                      <InfoRow icon={Users} label="NRI" value={a.nriSeats} />
+                    </CardContent>
+                  </Card>
 
-                {university.studentDemographics && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={Users} title="Student Demographics" />
+              {/* Specializations list */}
+              {a.specializations?.length > 0 && (
+                <Card className="border-[#ECEAE6] bg-white rounded-xl shadow-sm md:col-span-2">
+                  <CardContent className="p-5">
+                    <SectionHeading icon={Medal} title="Recognized Departments & Specializations" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {a.specializations.map((spec) => (
+                        <div
+                          key={spec}
+                          className="flex items-center gap-2.5 rounded-lg border border-[#ECEAE6] bg-[#FAFAF8] px-3.5 py-2.5"
+                        >
+                          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                          <span className="text-sm font-semibold text-[#111]">{spec}</span>
+                        </div>
+                      ))}
                     </div>
-                    <DataCardPad>
-                      <div className="space-y-3">
-                        <InfoRow icon={Users} label="Total Students" value={university.studentDemographics.totalStudents?.toLocaleString() ?? "—"} />
-                        <InfoRow icon={Users} label="Local" value={university.studentDemographics.localStudents?.toLocaleString() ?? "—"} />
-                        <InfoRow icon={Globe} label="Foreign" value={university.studentDemographics.foreignStudents?.toLocaleString() ?? "—"} />
-                        {university.studentDemographics?.foreignByCountry?.length > 0 && (
-                          <div className="pt-2 border-t border-[#ECEAE6]">
-                            <p className="text-xs text-[#9CA3AF] mb-1.5">By Country</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {university.studentDemographics.foreignByCountry.map((f: any) => (
-                                <span key={f.country} className="inline-flex items-center rounded-md bg-[#F5F4F2] px-2.5 py-1 text-xs font-medium text-[#6B6B6B]">{f.country}: {f.count.toLocaleString()}</span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {a.specializations?.length > 0 && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={Medal} title="Specializations" />
-                    </div>
-                    <DataCardPad>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {a.specializations.map((spec: string) => (
-                          <div key={spec} className="flex items-center gap-2 rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] px-3 py-2.5">
-                            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
-                            <span className="text-sm text-[#111]">{spec}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-              </div>
-            ) : (
-              <EmptyState icon={BookOpen} message="No academic details available" />
-            )}
-          </TabsContent>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-sm text-gray-500 bg-white border border-[#ECEAE6] rounded-xl">
+              No academic profile available.
+            </div>
+          )}
+        </TabsContent>
 
           {/* ════════════════════════════════════════════════════════
              INFRASTRUCTURE TAB
@@ -1555,66 +1208,38 @@ export default function UniversityDetailPage() {
           <TabsContent value="infrastructure" className="mt-5 space-y-5">
             {infra ? (
               <>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                  <StatPill icon={Bed} label="Hostel (Boys)" value={infra.hostelBoys || 0} />
-                  <StatPill icon={Bed} label="Hostel (Girls)" value={infra.hostelGirls || 0} />
-                  <StatPill icon={MapPin} label="Campus (acres)" value={infra.campusArea ?? 0} />
-                  <StatPill icon={Stethoscope} label="Hospital Beds" value={infra.hospitalBeds || 0} />
-                  <StatPill icon={School} label="Departments" value={infra.departments?.length || 0} />
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">
+                  <InfraStat icon={Stethoscope} label="Hospital Beds" value={infra.hospitalBeds} />
+                  <InfraStat icon={School} label="Departments" value={infra.departments} />
+                  <InfraStat icon={FlaskConical} label="Laboratories" value={infra.laboratories} />
+                  <InfraStat icon={Bed} label="Hostel (Boys)" value={infra.hostelBoys} />
+                  <InfraStat icon={Bed} label="Hostel (Girls)" value={infra.hostelGirls} />
+                  <InfraStat icon={MapPin} label="Campus (acres)" value={infra.campusArea} />
                 </div>
 
-                {infra.departments?.length > 0 && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={School} title="Departments" />
-                    </div>
-                    <DataCardPad>
-                      <div className="flex flex-wrap gap-1.5">
-                        {infra.departments.map((d: string, i: number) => (
-                          <Badge key={i} variant="secondary" className="text-xs font-normal bg-[#F5F4F2] text-[#6B6B6B] border-0">{d}</Badge>
-                        ))}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {infra.laboratories?.length > 0 && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={FlaskConical} title="Laboratories" />
-                    </div>
-                    <DataCardPad>
-                      <div className="flex flex-wrap gap-1.5">
-                        {infra.laboratories.map((l: string, i: number) => (
-                          <Badge key={i} variant="secondary" className="text-xs font-normal bg-[#F5F4F2] text-[#6B6B6B] border-0">{l}</Badge>
-                        ))}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={Building2} title="Facilities" />
+              {/* Amenities Grid */}
+              <Card className="border-[#ECEAE6] bg-white rounded-xl shadow-sm">
+                <CardContent className="p-5">
+                  <SectionHeading icon={Building2} title="In-Campus Amenities & Amenities checklist" />
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                    <AmenityCheck icon={Library} label="Central Medical Library" checked={infra.facilities?.includes("Library")} />
+                    <AmenityCheck icon={FlaskConical} label="Hi-Tech Computer Lab" checked={infra.facilities?.includes("Computer Lab")} />
+                    <AmenityCheck icon={Dumbbell} label="Multi-Sports Complex" checked={infra.facilities?.includes("Sports Complex")} />
+                    <AmenityCheck icon={Coffee} label="Canteen & Cafeteria" checked={infra.facilities?.includes("Cafeteria") || infra.cafeteria} />
+                    <AmenityCheck icon={Bed} label="Hostel Accommodation" checked={infra.facilities?.includes("Hostel")} />
+                    <AmenityCheck icon={Stethoscope} label="Affiliated Hospital" checked={infra.facilities?.includes("Hospital")} />
+                    <AmenityCheck icon={Wifi} label="High-Speed WiFi" checked={infra.wifiCampus} />
+                    <AmenityCheck icon={Bus} label="Transport System" checked={infra.transportation} />
                   </div>
-                  <DataCardPad>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                      <AmenityTag icon={Library} label="Library" checked={infra.facilities?.includes("Library")} />
-                      <AmenityTag icon={FlaskConical} label="Computer Lab" checked={infra.facilities?.includes("Computer Lab")} />
-                      <AmenityTag icon={Dumbbell} label="Sports Complex" checked={infra.facilities?.includes("Sports Complex")} />
-                      <AmenityTag icon={Coffee} label="Cafeteria" checked={infra.facilities?.includes("Cafeteria") ?? infra.cafeteria} />
-                      <AmenityTag icon={Bed} label="Hostel" checked={infra.facilities?.includes("Hostel")} />
-                      <AmenityTag icon={Stethoscope} label="Hospital" checked={infra.facilities?.includes("Hospital")} />
-                      <AmenityTag icon={Wifi} label="WiFi Campus" checked={infra.wifiCampus} />
-                      <AmenityTag icon={Bus} label="Transport" checked={infra.transportation} />
-                    </div>
-                  </DataCardPad>
-                </DataCard>
-              </>
-            ) : (
-              <EmptyState icon={Building2} message="No infrastructure details available" />
-            )}
-          </TabsContent>
+                </CardContent>
+              </Card>
+            </>
+          ) : (
+            <div className="text-center py-12 text-sm text-gray-500 bg-white border border-[#ECEAE6] rounded-xl">
+              No infrastructure metrics documented.
+            </div>
+          )}
+        </TabsContent>
 
           {/* ════════════════════════════════════════════════════════
              ADMISSION TAB
@@ -1622,32 +1247,48 @@ export default function UniversityDetailPage() {
           <TabsContent value="admission" className="mt-5 space-y-5">
             {adm ? (
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={ClipboardList} title="Requirements" />
-                  </div>
-                  <DataCardPad>
-                    <div className="space-y-3">
-                      <InfoRow icon={FileText} label="Entrance Exams" value={<BadgeChips items={adm.entranceExams} />} />
-                      <InfoRow icon={Medal} label="Minimum Marks (Legacy)" value={adm.minimumMarks?.trim() ? adm.minimumMarks : "Not specified"} />
-                      <InfoRow icon={Calendar} label="Age Criteria" value={adm.ageCriteria} />
-                      <InfoRow icon={FileText} label="Eligibility (Legacy)" value={adm.eligibility?.trim() ? adm.eligibility : "Not specified"} />
-                    </div>
-                  </DataCardPad>
-                </DataCard>
+                {/* Requirements */}
+                <Card size="sm" className="border-[#ECEAE6]">
+                  <CardContent className="space-y-3 p-4 sm:p-5">
+                    <SectionHeading icon={ClipboardList} title="Requirements" />
+                    <InfoRow
+                      icon={FileText}
+                      label="Entrance Exams"
+                      value={<BadgeList items={adm.entranceExams} />}
+                    />
+                    <InfoRow
+                      icon={Medal}
+                      label="Minimum Marks"
+                      value={adm.minimumMarks}
+                    />
+                    <InfoRow icon={Calendar} label="Age Criteria" value={adm.ageCriteria} />
+                    <InfoRow icon={FileText} label="Eligibility" value={adm.eligibility} />
+                  </CardContent>
+                </Card>
 
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={ScrollText} title="Documents & Fees" />
+              {/* Deadline & Fees */}
+              <Card className="border-[#ECEAE6] bg-white rounded-xl shadow-sm">
+                <CardContent className="space-y-4 p-5">
+                  <SectionHeading icon={ScrollText} title="Application Process & Deadlines" />
+                  <div className="grid grid-cols-1 gap-3">
+                    <InfoRow icon={Banknote} label="Application Form Fee" value={`₹${adm.applicationFee?.toLocaleString() ?? "—"}`} />
+                    <InfoRow
+                      icon={Calendar}
+                      label="Submission Deadline"
+                      value={
+                        adm.applicationDeadline
+                          ? new Date(adm.applicationDeadline).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })
+                          : "—"
+                      }
+                    />
+                    <InfoRow icon={ClipboardList} label="Admissions Selection Process" value={adm.selectionProcess} />
                   </div>
-                  <DataCardPad>
-                    <div className="space-y-3">
-                      <InfoRow icon={Banknote} label="Application Fee" value={`₹${adm.applicationFee?.toLocaleString() ?? "—"}`} />
-                      <InfoRow icon={Calendar} label="Deadline" value={adm.applicationDeadline ? new Date(adm.applicationDeadline).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : "—"} />
-                      <InfoRow icon={ClipboardList} label="Selection" value={adm.selectionProcess} />
-                    </div>
-                  </DataCardPad>
-                </DataCard>
+                </CardContent>
+              </Card>
 
                 {adm.requiredDocuments?.length > 0 && (
                   <DataCard className="md:col-span-2">
@@ -1666,71 +1307,47 @@ export default function UniversityDetailPage() {
                     </DataCardPad>
                   </DataCard>
                 )}
-
-                {adm.programEligibility?.length > 0 && (
-                  <DataCard className="md:col-span-2">
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={Medal} title="Eligibility by Program" />
-                    </div>
-                    <div className="p-5">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {adm.programEligibility.map((prog: any, i: number) => (
-                          <div key={i} className="rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-4">
-                            <p className="text-xs text-[#9CA3AF] mb-1">Program {i + 1}</p>
-                            <p className="text-sm font-semibold text-[#111] mb-3">{a?.programs?.[i]?.name || `Program ${i + 1}`}</p>
-                            <div className="space-y-2">
-                              <DetailCell label="Minimum Marks" value={prog.minimumMarks || "—"} />
-                              <DetailCell label="Eligibility" value={prog.eligibility || "—"} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </DataCard>
-                )}
               </div>
             ) : (
               <EmptyState icon={ClipboardList} message="No admission details available" />
             )}
           </TabsContent>
 
-          {/* ════════════════════════════════════════════════════════
-             SUPPORT TAB
-             ════════════════════════════════════════════════════════ */}
-          <TabsContent value="support" className="mt-5 space-y-5">
-            {supp ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={TrendingUp} title="Placement" />
-                  </div>
-                  <DataCardPad>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-4 text-center">
-                        <p className="text-xl font-semibold text-[#111] sm:text-2xl">{supp.placementRate}%</p>
-                        <p className="mt-1 text-xs text-[#9CA3AF]">Placement Rate</p>
-                      </div>
-                      <div className="rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-4 text-center">
-                        <p className="text-xl font-semibold text-[#111] sm:text-2xl">₹{supp.averagePackage?.toLocaleString() ?? "—"}</p>
-                        <p className="mt-1 text-xs text-[#9CA3AF]">Avg. Package</p>
-                      </div>
+        {/* ===== Support Tab ===== */}
+        <TabsContent value="support" className="space-y-6">
+          {supp ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 items-start">
+              
+              {/* Placements Card */}
+              <Card className="border-[#ECEAE6] bg-white rounded-xl shadow-sm">
+                <CardContent className="space-y-4 p-5">
+                  <SectionHeading icon={TrendingUp} title="Placement History & Statistics" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-[#ECEAE6] bg-[#FAFAF8] p-4 text-center">
+                      <p className="text-2xl font-extrabold text-[#3730A3]">{supp.placementRate}%</p>
+                      <p className="mt-1 text-xs font-bold text-[#9CA3AF] uppercase tracking-wider">Placement Rate</p>
                     </div>
-                  </DataCardPad>
-                </DataCard>
-
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={Heart} title="Student Services" />
-                  </div>
-                  <DataCardPad>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <AmenityTag icon={Globe} label="Visa Assistance" checked={supp.visaAssistance} />
-                      <AmenityTag icon={MessageSquare} label="Counseling" checked={supp.counselingServices} />
-                      <AmenityTag icon={Briefcase} label="Career Guidance" checked={supp.careerGuidance} />
+                    <div className="rounded-xl border border-[#ECEAE6] bg-[#FAFAF8] p-4 text-center">
+                      <p className="text-2xl font-extrabold text-[#3730A3]">₹{supp.averagePackage?.toLocaleString() ?? "—"}</p>
+                      <p className="mt-1 text-xs font-bold text-[#9CA3AF] uppercase tracking-wider">Avg Annual Package</p>
                     </div>
-                  </DataCardPad>
-                </DataCard>
+                  </div>
+                </CardContent>
+              </Card>
 
+              {/* Student Support Services */}
+              <Card className="border-[#ECEAE6] bg-white rounded-xl shadow-sm">
+                <CardContent className="space-y-4 p-5">
+                  <SectionHeading icon={Heart} title="International Student Services" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <AmenityCheck icon={Globe} label="Visa Processing Assistance" checked={supp.visaAssistance} />
+                    <AmenityCheck icon={MessageSquare} label="Counseling Services" checked={supp.counselingServices} />
+                    <AmenityCheck icon={Briefcase} label="Post-Graduation Guidance" checked={supp.careerGuidance} />
+                  </div>
+                </CardContent>
+              </Card>
+
+                {/* Language Support */}
                 {supp.languageSupport?.length > 0 && (
                   <DataCard className="md:col-span-2">
                     <div className="border-b border-[#ECEAE6] px-5 py-3.5">
@@ -1754,512 +1371,201 @@ export default function UniversityDetailPage() {
             )}
           </TabsContent>
 
-          {/* ════════════════════════════════════════════════════════
-             FEES TAB
-             ════════════════════════════════════════════════════════ */}
-          <TabsContent value="fees" className="mt-5 space-y-5">
-            {university.fees ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={Banknote} title="Fee Overview" />
-                  </div>
-                  <DataCardPad>
-                    <div className="space-y-3">
-                      <InfoRow icon={Banknote} label="Currency" value={university.fees.currency} />
-                      <InfoRow icon={ScrollText} label="Tuition (Annual)" value={`${university.fees.currency} ${university.fees.tuitionAnnual?.toLocaleString() ?? "—"}`} />
-                      <InfoRow icon={ScrollText} label="Total Program Fee" value={`${university.fees.currency} ${university.fees.totalProgram?.toLocaleString() ?? "—"}`} />
-                      <InfoRow icon={Bed} label="Hostel (Annual)" value={`${university.fees.currency} ${university.fees.hostelAnnual?.toLocaleString() ?? "—"}`} />
-                      <InfoRow icon={ScrollText} label="Registration" value={`${university.fees.currency} ${university.fees.registration?.toLocaleString() ?? "—"}`} />
-                      <InfoRow icon={ScrollText} label="Examination" value={`${university.fees.currency} ${university.fees.examination?.toLocaleString() ?? "—"}`} />
-                      <InfoRow icon={Library} label="Library" value={`${university.fees.currency} ${university.fees.library?.toLocaleString() ?? "—"}`} />
-                    </div>
-                  </DataCardPad>
-                </DataCard>
+        {/* ===== Courses Tab ===== */}
+        <TabsContent value="courses" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-[#111]">Offered Courses</h3>
+            <Button
+              size="sm"
+              className="bg-[#3730A3] hover:bg-[#2e288a] text-white font-medium cursor-pointer h-9 px-4"
+              onClick={() => {
+                const name = prompt("Course name:");
+                if (!name) return;
+                addCourseMut.mutate(
+                  { uniId: university.id, data: { name, duration: 5, fees: 0, seats: 0 } },
+                  { onError: () => toast.error("Failed to add course") }
+                );
+              }}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Add Course
+            </Button>
+          </div>
 
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={ClipboardList} title="Payment & Policies" />
-                  </div>
-                  <DataCardPad>
-                    <div className="space-y-3">
-                      <InfoRow icon={Calendar} label="Payment Schedule" value={university.fees.paymentSchedule} />
-                      <InfoRow icon={ScrollText} label="Refund Policy" value={university.fees.refundPolicy} />
-                      {university.fees.feeHikePolicy && (
-                        <InfoRow icon={TrendingUp} label="Fee Hike Policy" value={university.fees.feeHikePolicy} />
-                      )}
-                    </div>
-                  </DataCardPad>
-                </DataCard>
-
-                <DataCard className="md:col-span-2">
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={Medal} title="Scholarships" />
-                  </div>
-                  <DataCardPad>
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${university.fees.scholarshipAvailable ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-600"}`}>
-                        {university.fees.scholarshipAvailable ? "Available" : "Not Available"}
-                      </span>
-                    </div>
-                    {university.fees?.scholarshipDetails && (
-                      <p className="text-sm text-[#6B6B6B] mt-2">{university.fees.scholarshipDetails}</p>
-                    )}
-                  </DataCardPad>
-                </DataCard>
-
-                {university.fees.otherFees && Object.keys(university.fees.otherFees).length > 0 && (
-                  <DataCard className="md:col-span-2">
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={ScrollText} title="Other Fees" />
-                    </div>
-                    <DataCardPad>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                        {Object.entries(university.fees.otherFees).map(([key, value]) => (
-                          <div key={key} className="flex justify-between rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] px-3 py-2.5">
-                            <span className="text-sm text-[#6B6B6B]">{key}</span>
-                            <span className="text-sm font-medium text-[#111]">{university.fees.currency} {Number(value).toLocaleString()}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {/* Program Breakdown */}
-                {university.fees.programBreakdown && Array.isArray(university.fees.programBreakdown) && university.fees.programBreakdown.length > 0 && (
-                  <DataCard className="md:col-span-2">
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={Banknote} title="Fee Breakdown by Program" />
-                    </div>
-                    <div className="p-5">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {university.fees.programBreakdown.map((program: any, i: number) => (
-                          <div key={i} className="rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] p-4">
-                            <div className="flex items-start justify-between mb-2">
-                              <span className="font-semibold text-[#111]">{program.programName}</span>
-                              <span className="text-sm font-medium text-[#111]">{university.fees?.currency} {program.annualTuition?.toLocaleString()}/yr</span>
-                            </div>
-                            <div className="flex flex-wrap gap-2 text-xs text-[#6B6B6B] mb-2">
-                              <span className="inline-flex items-center rounded-md bg-white px-2 py-0.5 border border-[#ECEAE6]">Seats: {program.totalSeats}</span>
-                              {program.governmentSeats > 0 && <span className="inline-flex items-center rounded-md bg-white px-2 py-0.5 border border-[#ECEAE6]">Govt: {program.governmentSeats}</span>}
-                              {program.managementSeats > 0 && <span className="inline-flex items-center rounded-md bg-white px-2 py-0.5 border border-[#ECEAE6]">Mgmt: {program.managementSeats}</span>}
-                              {program.nriSeats > 0 && <span className="inline-flex items-center rounded-md bg-white px-2 py-0.5 border border-[#ECEAE6]">NRI: {program.nriSeats}</span>}
-                            </div>
-                            {program.feeBreakdown && Array.isArray(program.feeBreakdown) && program.feeBreakdown.length > 0 && (
-                              <div className="border-t border-[#ECEAE6] pt-2 mt-2">
-                                <p className="text-xs text-[#9CA3AF] mb-1">Fee Breakdown:</p>
-                                {program.feeBreakdown.map((item: any, j: number) => (
-                                  <div key={j} className="flex justify-between text-sm py-0.5">
-                                    <span className="text-[#6B6B6B]">{item.name}</span>
-                                    <span className="font-medium text-[#111]">{university.fees?.currency} {item.amount?.toLocaleString()}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </DataCard>
-                )}
-              </div>
-            ) : (
-              <EmptyState icon={Banknote} message="No fee details available" />
-            )}
-          </TabsContent>
-
-          {/* ════════════════════════════════════════════════════════
-             RECOGNITION TAB
-             ════════════════════════════════════════════════════════ */}
-          <TabsContent value="recognition" className="mt-5 space-y-5">
-            {university.recognition ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={Medal} title="Accreditations & Bodies" />
-                  </div>
-                  <DataCardPad>
-                    <div className="space-y-3">
-                      <InfoRow icon={CheckCircle2} label="Recognized Bodies" value={<BadgeChips items={university.recognition.bodies} />} />
-                      <InfoRow icon={Medal} label="ECFMG Status" value={university.recognition.ecfmgStatus} />
-                      {university.recognition.naacGrade && <InfoRow icon={Medal} label="NAAC Grade" value={university.recognition.naacGrade} />}
-                      <InfoRow icon={CheckCircle2} label="NBA Accredited" value={university.recognition.nbaAccredited ? "Yes" : "No"} />
-                      <InfoRow icon={CheckCircle2} label="Accreditations" value={<BadgeChips items={university.recognition.accreditations} />} />
-                    </div>
-                  </DataCardPad>
-                </DataCard>
-
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={TrendingUp} title="Rankings" />
-                  </div>
-                  <DataCardPad>
-                    <div className="space-y-3">
-                      <InfoRow icon={Globe} label="World Rank" value={university.recognition.worldRank ?? "—"} />
-                      <InfoRow icon={MapPin} label="National Rank" value={university.recognition.nationalRank ?? "—"} />
-                      {university.recognition.rankingSource && <InfoRow icon={Globe} label="Ranking Source" value={university.recognition.rankingSource} />}
-                      {university.recognition.worldRankingSource && <InfoRow icon={Globe} label="World Ranking Source" value={university.recognition.worldRankingSource} />}
-                      {university.recognition.nationalRankingSource && <InfoRow icon={MapPin} label="National Ranking Source" value={university.recognition.nationalRankingSource} />}
-                    </div>
-                  </DataCardPad>
-                </DataCard>
-
-                {university.recognition.subjectRankings && Object.keys(university.recognition.subjectRankings).length > 0 && (
-                  <DataCard className="md:col-span-2">
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={BookOpen} title="Subject Rankings" />
-                    </div>
-                    <DataCardPad>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                        {Object.entries(university.recognition.subjectRankings).map(([subject, ranking]) => (
-                          <div key={subject} className="flex items-center justify-between rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] px-3 py-2.5">
-                            <span className="text-sm text-[#6B6B6B]">{subject}</span>
-                            <span className="text-sm font-medium text-[#111]">#{ranking}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-              </div>
-            ) : (
-              <EmptyState icon={Medal} message="No recognition details available" />
-            )}
-          </TabsContent>
-
-          {/* ════════════════════════════════════════════════════════
-             CONTENT TAB
-             ════════════════════════════════════════════════════════ */}
-          <TabsContent value="content" className="mt-5 space-y-5">
-            {university.content ? (
-              <div className="grid grid-cols-1 gap-5">
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={FileText} title="Descriptions" />
-                  </div>
-                  <DataCardPad>
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-xs text-[#9CA3AF] mb-1">Short Description</p>
-                        <p className="text-sm text-[#111]">{university.content.shortDescription}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-[#9CA3AF] mb-1">Long Description</p>
-                        <p className="text-sm text-[#111] whitespace-pre-wrap">{university.content.longDescription}</p>
-                      </div>
-                      {university.content.whyChooseUs && (
-                        <div>
-                          <p className="text-xs text-[#9CA3AF] mb-1">Why Choose Us</p>
-                          <p className="text-sm text-[#111]">{university.content.whyChooseUs}</p>
-                        </div>
-                      )}
-                    </div>
-                  </DataCardPad>
-                </DataCard>
-
-                {university.content.highlights?.length > 0 && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={Medal} title="Highlights" />
-                    </div>
-                    <DataCardPad>
-                      <div className="flex flex-wrap gap-2">
-                        {university.content.highlights.map((highlight: string, i: number) => (
-                          <span key={i} className="inline-flex items-center gap-1 rounded-md bg-[#3730A3]/10 text-[#3730A3] px-2.5 py-1 text-xs font-medium">
-                            <CheckCircle2 className="h-3 w-3" /> {highlight}
-                          </span>
-                        ))}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {university.content.gallery?.length > 0 && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={ImageIcon} title="Gallery" />
-                    </div>
-                    <DataCardPad>
-                      <GalleryGrid images={university.content.gallery} />
-                    </DataCardPad>
-                  </DataCard>
-                )}
-
-                {(university.content.videoTour || university.content.virtualTour) && (
-                  <DataCard>
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={Globe} title="Virtual Tours" />
-                    </div>
-                    <DataCardPad>
-                      <div className="space-y-3">
-                        {university.content.videoTour && (
-                          <InfoRow icon={Globe} label="Video Tour" value={
-                            <a href={university.content.videoTour} target="_blank" rel="noopener noreferrer" className="text-[#3730A3] hover:underline">Watch Video Tour</a>
-                          } />
-                        )}
-                        {university.content.virtualTour && (
-                          <InfoRow icon={Globe} label="Virtual Tour" value={
-                            <a href={university.content.virtualTour} target="_blank" rel="noopener noreferrer" className="text-[#3730A3] hover:underline">Explore Virtual Tour</a>
-                          } />
-                        )}
-                      </div>
-                    </DataCardPad>
-                  </DataCard>
-                )}
-              </div>
-            ) : (
-              <EmptyState icon={FileText} message="No content details available" />
-            )}
-          </TabsContent>
-
-          {/* ════════════════════════════════════════════════════════
-             ADMIN TAB
-             ════════════════════════════════════════════════════════ */}
-          <TabsContent value="admin" className="mt-5 space-y-5">
-            {university.admin ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={Phone} title="Point of Contact" />
-                  </div>
-                  <DataCardPad>
-                    <div className="space-y-3">
-                      <InfoRow icon={School} label="Name" value={university.admin.pocName} />
-                      <InfoRow icon={Briefcase} label="Designation" value={university.admin.pocDesignation} />
-                      <InfoRow icon={Mail} label="Email" value={
-                        <a href={`mailto:${university.admin.pocEmail}`} className="text-[#3730A3] hover:underline">{university.admin.pocEmail}</a>
-                      } />
-                      <InfoRow icon={Phone} label="Phone" value={`${university.admin.phoneCountryCode || "+91"} ${university.admin.phoneNumber || university.admin.pocPhone || "—"}`} />
-                    </div>
-                  </DataCardPad>
-                </DataCard>
-
-                <DataCard>
-                  <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                    <SectionLabel icon={Banknote} title="Bank Details" />
-                  </div>
-                  <DataCardPad>
-                    <div className="space-y-3">
-                      <InfoRow icon={School} label="Account Name" value={university.admin.accountName || "—"} />
-                      <InfoRow icon={ScrollText} label="Account Number" value={university.admin.accountNumber || "—"} />
-                      <InfoRow icon={Building2} label="Bank Name" value={university.admin.bankName || "—"} />
-                      <InfoRow icon={MapPin} label="Branch" value={university.admin.bankBranch || "—"} />
-                      <InfoRow icon={ScrollText} label="IFSC Code" value={university.admin.ifscCode || "—"} />
-                      <InfoRow icon={Banknote} label="Commission" value={`${university.admin.commission}%`} />
-                      {university.admin.gstNumber && <InfoRow icon={ScrollText} label="GST Number" value={university.admin.gstNumber} />}
-                      {university.admin.panNumber && <InfoRow icon={ScrollText} label="PAN Number" value={university.admin.panNumber} />}
-                    </div>
-                  </DataCardPad>
-                </DataCard>
-
-                {university.admin.bankCountry && (
-                  <DataCard className="md:col-span-2">
-                    <div className="border-b border-[#ECEAE6] px-5 py-3.5">
-                      <SectionLabel icon={Globe} title="International Bank Details" />
-                    </div>
-                    <DataCardPad>
-                      <InfoRow icon={Globe} label="Bank Country" value={university.admin.bankCountry} />
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-3">
-                        {university.admin.recipientName && <DetailCell label="Recipient Name" value={university.admin.recipientName} />}
-                        {university.admin.recipientBank && <DetailCell label="Recipient Bank" value={university.admin.recipientBank} />}
-                        {university.admin.bankIdCode && <DetailCell label="Bank ID Code (SWIFT/BIC)" value={university.admin.bankIdCode} mono />}
-                        {university.admin.recipientInn && <DetailCell label="Recipient INN (TIN)" value={university.admin.recipientInn} />}
-                        {university.admin.recipientKpp && <DetailCell label="Recipient KPP" value={university.admin.recipientKpp} />}
-                        {university.admin.singleTreasuryAccount && <DetailCell label="Single Treasury Account" value={university.admin.singleTreasuryAccount} mono />}
-                        {university.admin.paymentPurpose && <DetailCell label="Payment Purpose" value={university.admin.paymentPurpose} />}
-                      </div>
-                      {university.admin.bankDetails && Object.keys(university.admin.bankDetails).length > 0 && (
-                        <div className="border-t border-[#ECEAE6] pt-3 mt-3">
-                          <p className="text-xs text-[#9CA3AF] mb-2">Additional Bank Info</p>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                            {Object.entries(university.admin.bankDetails).map(([key, value]) => (
-                              <DetailCell key={key} label={key.replace(/([A-Z])/g, ' $1').trim()} value={String(value)} />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </DataCardPad>
-                  </DataCard>
-                )}
-              </div>
-            ) : (
-              <EmptyState icon={Settings} message="No admin details available" />
-            )}
-          </TabsContent>
-
-          {/* ════════════════════════════════════════════════════════
-             COURSES TAB
-             ════════════════════════════════════════════════════════ */}
-          <TabsContent value="courses" className="mt-5 space-y-5">
-            <div className="flex items-center justify-between">
-              <SectionLabel icon={BookOpen} title={`Courses (${university.courses?.length || 0})`}
-                action={
-                  <Button size="sm" onClick={() => { setEditingCourse(null); setShowCourseModal(true); }}
-                    className="bg-[#3730A3] hover:bg-[#312E81] text-white">
-                    <Plus className="mr-1.5 h-3.5 w-3.5" /> Add Course
-                  </Button>
-                } />
-            </div>
-
-            {university.courses && university.courses.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {university.courses.map((course: any) => (
-                  <DataCard key={course.id} className={course.isActive === false ? 'opacity-60' : ''}>
-                    <div className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#3730A3]/10 text-[#3730A3]">
-                            <BookOpen className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-semibold text-[#111]">{course.name}</h4>
-                            <p className="text-xs text-[#9CA3AF]">{course.duration} years</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-0.5">
-                          <button onClick={() => { setEditingCourse(course); setShowCourseModal(true); }}
-                            className="rounded-md p-1.5 text-[#9CA3AF] hover:bg-[#F5F4F2] hover:text-[#6B6B6B] transition-colors">
-                            <Edit className="h-3.5 w-3.5" />
-                          </button>
-                          <button onClick={async () => { if (confirm(`Delete ${course.name}?`)) { await deleteCourse.mutateAsync({ universityId: params.id as string, courseId: course.id }); } }}
-                            className="rounded-md p-1.5 text-[#9CA3AF] hover:bg-red-50 hover:text-red-500 transition-colors">
+          {university.courses && university.courses.length > 0 ? (
+            <div className="overflow-x-auto rounded-xl border border-[#ECEAE6] bg-white">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[#ECEAE6] bg-[#FAFAF8]">
+                    <th className="px-4 py-3 text-left font-semibold text-[#111]">Name</th>
+                    <th className="px-4 py-3 text-left font-semibold text-[#111]">Duration</th>
+                    <th className="px-4 py-3 text-left font-semibold text-[#111]">Fees</th>
+                    <th className="px-4 py-3 text-left font-semibold text-[#111]">Seats</th>
+                    <th className="px-4 py-3 text-left font-semibold text-[#111]">Status</th>
+                    <th className="px-4 py-3 text-right font-semibold text-[#111]">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {university.courses.map((course) => (
+                    <tr key={course.id} className="border-b border-[#ECEAE6] last:border-0 hover:bg-[#FAFAF8]">
+                      <td className="px-4 py-3 font-medium text-[#111]">{course.name}</td>
+                      <td className="px-4 py-3 text-[#6B6B6B]">{course.duration} yrs</td>
+                      <td className="px-4 py-3 text-[#6B6B6B]">₹{course.fees?.toLocaleString() ?? "—"}</td>
+                      <td className="px-4 py-3 text-[#6B6B6B]">{course.seats}</td>
+                      <td className="px-4 py-3">
+                        <Badge className={course.isActive ? "bg-green-50 text-green-700 border-green-200" : "bg-gray-50 text-gray-700 border-gray-200"}>
+                          {course.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 text-xs cursor-pointer"
+                            onClick={() => {
+                              const newName = prompt("Course name:", course.name);
+                              if (!newName) return;
+                              updateCourseMut.mutate(
+                                { courseId: course.id, data: { name: newName } },
+                                { onError: () => toast.error("Failed to update course") }
+                              );
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 text-xs text-red-600 border-red-200 hover:bg-red-50 cursor-pointer"
+                            onClick={() => {
+                              if (!confirm(`Delete course "${course.name}"?`)) return;
+                              deleteCourseMut.mutate(course.id, {
+                                onError: () => toast.error("Failed to delete course"),
+                              });
+                            }}
+                          >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          </Button>
                         </div>
-                      </div>
-                      <div className="space-y-1.5 text-sm">
-                        <div className="flex justify-between items-center py-1 border-b border-[#ECEAE6] last:border-0">
-                          <span className="text-[#6B6B6B] text-xs">Fee</span>
-                          <span className="font-medium text-[#111] text-xs">{university.fees?.currency || "$"} {course.fees?.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between items-center py-1 border-b border-[#ECEAE6] last:border-0">
-                          <span className="text-[#6B6B6B] text-xs">Seats</span>
-                          <span className="font-medium text-[#111] text-xs">{course.seats || course.availableSeats || "—"}</span>
-                        </div>
-                        {course.eligibility && (
-                          <div className="flex justify-between items-center py-1">
-                            <span className="text-[#6B6B6B] text-xs">Eligibility</span>
-                            <span className="text-right text-xs text-[#111]">{course.eligibility}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </DataCard>
-                ))}
-              </div>
-            ) : (
-              <EmptyState icon={BookOpen} message="No courses added yet"
-                action={
-                  <Button variant="outline" size="sm" onClick={() => { setEditingCourse(null); setShowCourseModal(true); }}>
-                    <Plus className="mr-1.5 h-3.5 w-3.5" /> Add First Course
-                  </Button>
-                } />
-            )}
-          </TabsContent>
-
-          {/* ════════════════════════════════════════════════════════
-             DOCUMENTS TAB
-             ════════════════════════════════════════════════════════ */}
-          <TabsContent value="documents" className="mt-5 space-y-5">
-            <div className="flex items-center justify-between">
-              <SectionLabel icon={FileText} title={`Documents (${university.documents?.length || 0})`}
-                action={
-                  <Button size="sm" onClick={() => setShowDocUpload(true)}
-                    className="bg-[#3730A3] hover:bg-[#312E81] text-white">
-                    <Upload className="mr-1.5 h-3.5 w-3.5" /> Upload Document
-                  </Button>
-                } />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-
-            {university.documents && university.documents.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {university.documents.map((doc: any) => (
-                  <DataCard key={doc.id}>
-                    <div className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#F5F4F2] shrink-0">
-                            <FileText className="h-4 w-4 text-[#6B6B6B]" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-[#111] truncate">{doc.type?.replace(/_/g, ' ')}</p>
-                            <p className="text-xs text-[#9CA3AF] truncate">{doc.fileName || 'No filename'}</p>
-                            <p className="text-xs text-[#9CA3AF]">{new Date(doc.uploadedAt).toLocaleDateString()}</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-0.5 shrink-0">
-                          <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer"
-                            className="rounded-md p-1.5 text-[#9CA3AF] hover:bg-[#F5F4F2] hover:text-[#3730A3] transition-colors">
-                            <Download className="h-3.5 w-3.5" />
-                          </a>
-                          <button onClick={async () => { if (confirm(`Delete this ${doc.type} document?`)) { await deleteDoc.mutateAsync({ universityId: params.id as string, documentId: doc.id }); } }}
-                            className="rounded-md p-1.5 text-[#9CA3AF] hover:bg-red-50 hover:text-red-500 transition-colors">
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </DataCard>
-                ))}
-              </div>
-            ) : (
-              <EmptyState icon={FileText} message="No documents uploaded yet"
-                action={
-                  <Button variant="outline" size="sm" onClick={() => setShowDocUpload(true)}>
-                    <Upload className="mr-1.5 h-3.5 w-3.5" /> Upload First Document
-                  </Button>
-                } />
-            )}
-          </TabsContent>
-        </Tabs>
-
-        {/* ═══ Modals ═══ */}
-        {showCourseModal && (
-          <CourseModal
-            course={editingCourse}
-            currency={university.fees?.currency || "USD"}
-            onClose={() => setShowCourseModal(false)}
-            onSave={async (data) => {
-              if (editingCourse) {
-                await updateCourse.mutateAsync({ universityId: params.id as string, courseId: editingCourse.id, data });
-              } else {
-                await createCourse.mutateAsync({ universityId: params.id as string, data });
-              }
-              setShowCourseModal(false);
-            }}
-          />
-        )}
-
-        {showDocUpload && (
-          <DocUploadModal
-            universityId={params.id as string}
-            onClose={() => setShowDocUpload(false)}
-            onUpload={async (formData) => {
-              await uploadDoc.mutateAsync({ universityId: params.id as string, data: formData });
-              setShowDocUpload(false);
-            }}
-          />
-        )}
-
-        {showImageUpload && (
-          <ImageUploadModal
-            universityId={params.id as string}
-            type={showImageUpload}
-            onClose={() => setShowImageUpload(null)}
-            onUpload={async (file) => {
-              await uploadImage.mutateAsync({ universityId: params.id as string, file, type: showImageUpload! });
-              setShowImageUpload(null);
-            }}
-          />
-        )}
-      </div>
+          ) : (
+            <div className="text-center py-12 text-sm text-gray-500 bg-white border border-[#ECEAE6] rounded-xl">
+              No courses added yet.
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
 
-/* Helper for facility badges */
-function FacilityBadge({ icon: Icon, label }: { icon: IconComponent; label: string }) {
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: IconComponent;
+  label: string;
+  value: unknown;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-1.5 rounded-xl border bg-white py-4 text-center shadow-xs" style={{ borderColor: "#ECEAE6" }}>
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-700">
+        <Icon className="h-4.5 w-4.5" />
+      </div>
+      <p className="text-base font-extrabold text-[#111]">{String(value ?? "—")}</p>
+      <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">{label}</p>
+    </div>
+  );
+}
+
+function InfraStat({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: IconComponent;
+  label: string;
+  value: unknown;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-1.5 rounded-xl border bg-white py-4 text-center shadow-xs" style={{ borderColor: "#ECEAE6" }}>
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-700">
+        <Icon className="h-4.5 w-4.5" />
+      </div>
+      <p className="text-base font-extrabold text-[#111]">{Array.isArray(value) ? value.length : String(value ?? "—")}</p>
+      <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">{label}</p>
+    </div>
+  );
+}
+
+function AmenityCheck({
+  icon: Icon,
+  label,
+  checked,
+}: {
+  icon: IconComponent;
+  label: string;
+  checked: boolean;
+}) {
+  return (
+    <div
+      className={`flex items-center gap-3 rounded-lg border px-3.5 py-3 ${
+        checked
+          ? "border-emerald-200 bg-emerald-50/40"
+          : "border-[#ECEAE6] bg-[#FAFAF8]"
+      }`}
+    >
+      <div
+        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+          checked
+            ? "bg-emerald-100 text-emerald-600"
+            : "bg-gray-100 text-gray-400"
+        }`}
+      >
+        {checked ? (
+          <CheckCircle2 className="h-4 w-4" />
+        ) : (
+          <XIcon className="h-4 w-4" />
+        )}
+      </div>
+      <span
+        className={`text-sm ${
+          checked ? "font-semibold text-emerald-800" : "text-[#6B6B6B]"
+        }`}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+/* Local SVG icon components for icons not in lucide-react */
+function VisaIcon({ className }: { className?: string }) {
   return (
     <span className="inline-flex items-center gap-1 rounded-md border border-[#ECEAE6] bg-white px-2.5 py-1 text-xs text-[#6B6B6B]">
       <Icon className="h-3 w-3" /> {label}

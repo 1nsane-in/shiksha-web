@@ -1,22 +1,28 @@
-import { IsString, IsOptional, IsDateString, IsNumber, IsEnum, IsUUID, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsDateString,
+  IsNumber,
+  IsUUID,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ScheduleExamDto {
   @ApiProperty()
   @IsUUID()
-  applicationId: string;
+  applicationId!: string;
 
   @ApiProperty()
   @IsDateString()
-  examDate: string;
+  examDate!: string;
 
   @ApiProperty()
   @IsString()
-  examSubject: string;
+  examSubject!: string;
 
   @ApiProperty()
   @IsString()
-  examCenter: string;
+  examCenter!: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -27,11 +33,11 @@ export class ScheduleExamDto {
 export class DeclareExamResultDto {
   @ApiProperty()
   @IsUUID()
-  examId: string;
+  examId!: string;
 
   @ApiProperty({ enum: ['PASSED', 'FAILED'] })
   @IsString()
-  result: string;
+  result!: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -40,13 +46,13 @@ export class DeclareExamResultDto {
 }
 
 export class ExamResponseDto {
-  id: string;
-  applicationId: string;
+  id!: string;
+  applicationId!: string;
   examDate?: Date;
   examSubject?: string;
   examCenter?: string;
   result?: string;
   resultDeclaredAt?: Date;
   resultRemarks?: string;
-  attemptNumber: number;
+  attemptNumber!: number;
 }

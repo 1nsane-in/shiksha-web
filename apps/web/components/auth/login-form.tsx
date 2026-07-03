@@ -1,25 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { cn } from "@repo/ui"
-import { Button } from "@repo/ui"
+import { cn } from "@repo/ui";
+import { Button } from "@repo/ui";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@repo/ui"
-import { Input } from "@repo/ui"
+} from "@repo/ui";
+import { Input } from "@repo/ui";
 import { useLogin } from "@/domains/auth";
 import { GoogleLoginButton } from "./GoogleLoginButton";
+import Link from "next/link";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const router = useRouter();
   const loginMutation = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,26 +27,29 @@ export function LoginForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
+
     try {
-      const result = await loginMutation.mutateAsync({ email, password });
-      if (result.user.role === "ADMIN" || result.user.role === "SUPER_ADMIN") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/");
-      }
+      await loginMutation.mutateAsync({ email, password });
+      // The mutation's onSuccess handler handles role-based routing.
     } catch (err: unknown) {
       const apiError =
         err && typeof err === "object" && "response" in err
           ? (err as { response: { data: { message?: string } } }).response?.data
               ?.message
           : undefined;
-      setError(apiError ?? (err instanceof Error ? err.message : "Invalid email or password"));
+      setError(
+        apiError ??
+          (err instanceof Error ? err.message : "Invalid email or password"),
+      );
     }
   };
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit} {...props}>
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      onSubmit={handleSubmit}
+      {...props}
+    >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Login to your account</h1>
@@ -60,31 +62,34 @@ export function LoginForm({
         )}
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input 
-            id="email" 
-            type="email" 
-            placeholder="m@example.com" 
+          <Input
+            id="email"
+            type="email"
+            placeholder="m@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required 
+            required
           />
         </Field>
         <Field>
-          <div className="flex items-center">
+          <div className="flex items-center justify-between">
             <FieldLabel htmlFor="password">Password</FieldLabel>
-            <a
-              href="/forgot-password"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
+            <span
+              className="text-sm underline-offset-4 hover:underline cursor-pointer text-primary"
+              onClick={() => {
+                console.log("Span clicked");
+                window.location.href = "/forgot-password";
+              }}
             >
               Forgot your password?
-            </a>
+            </span>
           </div>
-          <Input 
-            id="password" 
-            type="password" 
+          <Input
+            id="password"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required 
+            required
           />
         </Field>
         <Field>
@@ -94,17 +99,15 @@ export function LoginForm({
         </Field>
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>
-          <GoogleLoginButton />
+          <GoogleLoginButton mode="login" />
           <FieldDescription className="text-center">
             Don&apos;t have an account?{" "}
-            <a href="/register" className="underline underline-offset-4">
+            <Link href="/register" className="underline underline-offset-4">
               Sign up
-            </a>
+            </Link>
           </FieldDescription>
         </Field>
       </FieldGroup>
     </form>
-  )
+  );
 }
-
-

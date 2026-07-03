@@ -5,6 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import {
   UpdateStudentProfileDto,
   UpdateAcademicDto,
@@ -20,38 +21,45 @@ export class StudentsService {
   constructor(
     private prisma: PrismaService,
     private paginator: PaginatorService,
+    private redis: RedisService,
   ) {}
 
   async getProfile(userId: string) {
-    const student = await this.prisma.student.findUnique({
-      where: { userId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            phone: true,
-            avatarUrl: true,
-          },
-        },
-        documents: {
-          include: { documentType: true },
-        },
-        payments: true,
-        applications: {
+    return this.redis.getOrSet(
+      `student:profile:${userId}`,
+      async () => {
+        const student = await this.prisma.student.findUnique({
+          where: { userId },
           include: {
-            university: true,
+            user: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                phone: true,
+                avatarUrl: true,
+              },
+            },
+            documents: {
+              include: { documentType: true },
+            },
+            payments: true,
+            applications: {
+              include: {
+                university: true,
+              },
+            },
           },
-        },
+        });
+
+        if (!student) {
+          throw new NotFoundException('Student not found');
+        }
+
+        return student;
       },
-    });
-
-    if (!student) {
-      throw new NotFoundException('Student not found');
-    }
-
-    return student;
+      300, // Cache for 5 minutes
+    );
   }
 
   async updateProfile(
@@ -66,10 +74,15 @@ export class StudentsService {
       throw new NotFoundException('Student not found');
     }
 
-    return this.prisma.student.update({
+    const result = await this.prisma.student.update({
       where: { userId },
       data: dto,
     });
+    
+    // Invalidate profile cache
+    await this.redis.del(`student:profile:${userId}`);
+    
+    return result;
   }
 
   async getStageInfo(userId: string) {
@@ -102,62 +115,165 @@ export class StudentsService {
     };
   }
 
-  async findAll(page = 1, limit = 10, status?: string, stage?: number) {
+  async findAll(page = 1, limit = 10, status?: string, stage?: number, fields?: string) {
     const where = createQueryBuilder()
       .where('applicationStatus', status)
       .where('currentStage', stage)
       .build();
 
-    const [students, total] = await Promise.all([
-      this.prisma.student.findMany({
-        where,
-        skip: this.paginator.getSkip({ page, limit }),
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              name: true,
-              phone: true,
-            },
-          },
-          applications: {
-            include: {
-              university: true,
-            },
-          },
-        },
-      }),
-      this.prisma.student.count({ where }),
-    ]);
+    const cacheKey = `students:list:${page}:${limit}:${status || 'all'}:${stage || 'all'}:${fields || 'default'}`;
 
-    return this.paginator.wrapResult(students, total, { page, limit });
+    return this.redis.getOrSet(
+      cacheKey,
+      async () => {
+        const select = this.buildStudentSelect(fields);
+
+        const [students, total] = await Promise.all([
+          this.prisma.student.findMany({
+            where,
+            skip: this.paginator.getSkip({ page, limit }),
+            take: limit,
+            orderBy: { createdAt: 'desc' },
+            select,
+          }),
+          this.prisma.student.count({ where }),
+        ]);
+
+        return this.paginator.wrapResult(students, total, { page, limit });
+      },
+      300,
+    );
   }
 
-  async findOne(id: string) {
-    const student = await this.prisma.student.findUnique({
-      where: { id },
-      include: {
-        user: true,
-        documents: {
-          include: { documentType: true },
-        },
-        payments: true,
-        applications: {
-          include: {
-            university: true,
-          },
+  private buildStudentSelect(fields?: string) {
+    const defaultSelect: any = {
+      id: true,
+      userId: true,
+      currentStage: true,
+      applicationStatus: true,
+      neetScore: true,
+      neetRank: true,
+      twelfthPercentage: true,
+      tenthPercentage: true,
+      createdAt: true,
+      updatedAt: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
         },
       },
-    });
+    };
 
-    if (!student) {
-      throw new NotFoundException('Student not found');
+    if (!fields) return defaultSelect;
+
+    const fieldList = fields.split(',').map(f => f.trim()).filter(Boolean);
+    if (fieldList.length === 0) return defaultSelect;
+
+    const select: any = { id: true }; // Always include id
+
+    const allowed = {
+      scalars: ['userId', 'currentStage', 'applicationStatus', 'neetScore', 'neetRank', 'twelfthPercentage', 'tenthPercentage', 'createdAt', 'updatedAt'],
+      user: ['id', 'name', 'email', 'phone', 'avatarUrl'],
+    };
+
+    for (const field of allowed.scalars) {
+      if (fieldList.includes(field)) {
+        select[field] = true;
+      }
     }
 
-    return student;
+    // Handle user relation fields
+    const userFields = fieldList.filter(f => f.startsWith('user.'));
+    if (userFields.length > 0) {
+      select.user = { select: {} as Record<string, boolean> };
+      for (const uf of userFields) {
+        const key = uf.replace('user.', '');
+        if (allowed.user.includes(key)) {
+          select.user.select[key] = true;
+        }
+      }
+      // Always include user id if user fields requested
+      if (!select.user.select.id) {
+        select.user.select.id = true;
+      }
+    }
+
+    return select;
+  }
+
+  async findOne(id: string, fields?: string) {
+    const cacheKey = fields
+      ? `student:${id}:fields:${fields}`
+      : `student:${id}`;
+
+    return this.redis.getOrSet(
+      cacheKey,
+      async () => {
+        const select = this.buildStudentDetailSelect(fields);
+
+        const student = await this.prisma.student.findUnique({
+          where: { id },
+          ...(select ? { select } : { include: { user: true, documents: { include: { documentType: true } }, payments: true, applications: { include: { university: true } } } }) as any,
+        });
+
+        if (!student) {
+          throw new NotFoundException('Student not found');
+        }
+
+        return student;
+      },
+      300,
+    );
+  }
+
+  private buildStudentDetailSelect(fields?: string) {
+    if (!fields) return undefined;
+
+    const fieldList = fields.split(',').map(f => f.trim()).filter(Boolean);
+    if (fieldList.length === 0) return undefined;
+
+    const select: any = { id: true };
+
+    const allowedScalars = ['userId', 'currentStage', 'applicationStatus', 'neetScore', 'neetRank', 'twelfthPercentage', 'tenthPercentage', 'createdAt', 'updatedAt'];
+    const allowedUsers = ['id', 'name', 'email', 'phone', 'avatarUrl', 'role', 'isActive'];
+
+    for (const field of allowedScalars) {
+      if (fieldList.includes(field)) {
+        select[field] = true;
+      }
+    }
+
+    // Handle user relation fields
+    const userFields = fieldList.filter(f => f.startsWith('user.'));
+    if (userFields.length > 0) {
+      select.user = { select: {} as Record<string, boolean> };
+      for (const uf of userFields) {
+        const key = uf.replace('user.', '');
+        if (allowedUsers.includes(key)) {
+          select.user.select[key] = true;
+        }
+      }
+      if (!select.user.select.id) {
+        select.user.select.id = true;
+      }
+    }
+
+    if (fieldList.includes('documents')) {
+      select.documents = { include: { documentType: true } };
+    }
+
+    if (fieldList.includes('payments')) {
+      select.payments = true;
+    }
+
+    if (fieldList.includes('applications') || fieldList.some(f => f.startsWith('applications.'))) {
+      select.applications = { include: { university: true } };
+    }
+
+    return select;
   }
 
   async adminUpdate(id: string, dto: AdminUpdateStudentDto) {
@@ -210,7 +326,9 @@ export class StudentsService {
     });
 
     if (!student) {
-      throw new NotFoundException('Student profile not found. Please complete your profile first.');
+      throw new NotFoundException(
+        'Student profile not found. Please complete your profile first.',
+      );
     }
 
     const dob = new Date(dto.dateOfBirth);
@@ -233,19 +351,24 @@ export class StudentsService {
     }
 
     if (university.status !== 'ACTIVE') {
-      throw new ConflictException('This university is not currently accepting applications');
+      throw new ConflictException(
+        'This university is not currently accepting applications',
+      );
     }
 
-    const existingApplication = await this.prisma.universityApplication.findFirst({
-      where: {
-        studentId: student.id,
-        universityId: dto.universityId,
-        status: { not: 'rejected' },
-      },
-    });
+    const existingApplication =
+      await this.prisma.universityApplication.findFirst({
+        where: {
+          studentId: student.id,
+          universityId: dto.universityId,
+          status: { not: 'rejected' },
+        },
+      });
 
     if (existingApplication) {
-      throw new ConflictException('You have already applied to this university');
+      throw new ConflictException(
+        'You have already applied to this university',
+      );
     }
 
     const formData = {
@@ -320,7 +443,9 @@ export class StudentsService {
           },
         },
       }),
-      this.prisma.universityApplication.count({ where: { studentId: student.id } }),
+      this.prisma.universityApplication.count({
+        where: { studentId: student.id },
+      }),
     ]);
 
     return this.paginator.wrapResult(applications, total, { page, limit });

@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
-import type { UniversityFilters } from "./universities.types";
+import type {
+  UniversityFilters,
+  CreateUniversityPayload,
+  UpdateUniversityPayload,
+  AddCoursePayload,
+  UpdateCoursePayload,
+  UploadDocumentPayload,
+} from "./universities.types";
 
 export function useUniversities(filters: UniversityFilters = {}) {
   return useQuery({
@@ -62,9 +69,23 @@ export function useDeleteUniversity() {
 export function useCreateUniversity() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: Record<string, unknown>) => {
+    mutationFn: async (data: CreateUniversityPayload) => {
       const { createUniversity } = await import("./universities.api");
       return createUniversity(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+  });
+}
+
+export function useUpdateUniversity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateUniversityPayload }) => {
+      const { updateUniversity } = await import("./universities.api");
+      return updateUniversity(id, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
@@ -87,12 +108,12 @@ export function useUpdateUniversityStatus() {
   });
 }
 
-export function useUpdateUniversity() {
+export function useAddUniversityCourse() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) => {
-      const { updateUniversity } = await import("./universities.api");
-      return updateUniversity(id, data);
+    mutationFn: async ({ uniId, data }: { uniId: string; data: AddCoursePayload }) => {
+      const { addUniversityCourse } = await import("./universities.api");
+      return addUniversityCourse(uniId, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
@@ -101,80 +122,58 @@ export function useUpdateUniversity() {
   });
 }
 
-export function useCreateCourse() {
+export function useUpdateUniversityCourse() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ universityId, data }: { universityId: string; data: Record<string, unknown> }) => {
-      const { createUniversityCourse } = await import("./universities.api");
-      return createUniversityCourse(universityId, data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
-    },
-  });
-}
-
-export function useUpdateCourse() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ universityId, courseId, data }: { universityId: string; courseId: string; data: Record<string, unknown> }) => {
+    mutationFn: async ({ courseId, data }: { courseId: string; data: UpdateCoursePayload }) => {
       const { updateUniversityCourse } = await import("./universities.api");
-      return updateUniversityCourse(universityId, courseId, data);
+      return updateUniversityCourse(courseId, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
   });
 }
 
-export function useDeleteCourse() {
+export function useDeleteUniversityCourse() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ universityId, courseId }: { universityId: string; courseId: string }) => {
+    mutationFn: async (courseId: string) => {
       const { deleteUniversityCourse } = await import("./universities.api");
-      return deleteUniversityCourse(universityId, courseId);
+      return deleteUniversityCourse(courseId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
   });
 }
 
-export function useUploadDocument() {
+export function useUploadUniversityDocument() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ universityId, data }: { universityId: string; data: FormData }) => {
+    mutationFn: async ({ uniId, data }: { uniId: string; data: UploadDocumentPayload }) => {
       const { uploadUniversityDocument } = await import("./universities.api");
-      return uploadUniversityDocument(universityId, data);
+      return uploadUniversityDocument(uniId, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
   });
 }
 
-export function useDeleteDocument() {
+export function useDeleteUniversityDocument() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ universityId, documentId }: { universityId: string; documentId: string }) => {
+    mutationFn: async (docId: string) => {
       const { deleteUniversityDocument } = await import("./universities.api");
-      return deleteUniversityDocument(universityId, documentId);
+      return deleteUniversityDocument(docId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
-    },
-  });
-}
-
-export function useUploadImage() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ universityId, file, type }: { universityId: string; file: File; type: "logo" | "banner" | "gallery" }) => {
-      const { uploadUniversityImage } = await import("./universities.api");
-      return uploadUniversityImage(universityId, file, type);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.universities.all });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
   });
 }

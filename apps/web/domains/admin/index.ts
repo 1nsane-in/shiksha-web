@@ -10,3 +10,6 @@ export * from "./tickets.queries";
 export * from "./payments.types";
 export * from "./payments.api";
 export * from "./payments.queries";
+export * from "./students.types";
+export * from "./students.api";
+export * from "./students.queries";

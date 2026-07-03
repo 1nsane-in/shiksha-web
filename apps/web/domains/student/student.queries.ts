@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
+import type { SubmitApplicationFormData, UpdateStudentProfileData } from "./student.types";
 
 export function useStudentProfile() {
   return useQuery({
@@ -46,9 +47,7 @@ export function useMyApplicationById(id: string) {
 export function useSubmitApplication() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (
-      data: import("./student.types").SubmitApplicationFormData,
-    ) => {
+    mutationFn: async (data: SubmitApplicationFormData) => {
       const { submitApplication } = await import("./student.api");
       return submitApplication(data);
     },
@@ -75,7 +74,7 @@ export function useCheckApplication(universityId: string) {
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: Record<string, unknown>) => {
+    mutationFn: async (data: UpdateStudentProfileData) => {
       const { updateStudentProfile } = await import("./student.api");
       return updateStudentProfile(data);
     },

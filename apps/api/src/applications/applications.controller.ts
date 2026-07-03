@@ -34,28 +34,32 @@ export class AdminApplicationsController {
   @ApiQuery({ name: 'limit', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, type: String })
   @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,firstName,lastName,university.name,student.user.name' })
   @ApiResponse({ status: 200, description: 'List of applications' })
   async findAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('status') status?: string,
     @Query('search') search?: string,
+    @Query('fields') fields?: string,
   ) {
     return this.applicationsService.findAll(
       page ? parseInt(page) : 1,
       limit ? parseInt(limit) : 10,
       status,
       search,
+      fields,
     );
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get application by ID (Admin)' })
   @ApiParam({ name: 'id', description: 'Application ID' })
+  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,status,university.name,student.user.name' })
   @ApiResponse({ status: 200, description: 'Application details' })
   @ApiResponse({ status: 404, description: 'Application not found' })
-  async findOne(@Param('id') id: string) {
-    return this.applicationsService.findOne(id);
+  async findOne(@Param('id') id: string, @Query('fields') fields?: string) {
+    return this.applicationsService.findOne(id, fields);
   }
 
   @Patch(':id/status')
@@ -63,10 +67,7 @@ export class AdminApplicationsController {
   @ApiParam({ name: 'id', description: 'Application ID' })
   @ApiResponse({ status: 200, description: 'Application status updated' })
   @ApiResponse({ status: 404, description: 'Application not found' })
-  async updateStatus(
-    @Param('id') id: string,
-    @Body('status') status: string,
-  ) {
+  async updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.applicationsService.updateStatus(id, status);
   }
 }

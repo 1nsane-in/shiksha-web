@@ -15,46 +15,46 @@ import { Type } from 'class-transformer';
 export class PlaceOfBirthDto {
   @IsString()
   @IsNotEmpty()
-  city: string;
+  city!: string;
 
   @IsString()
   @IsNotEmpty()
-  state: string;
+  state!: string;
 
   @IsString()
   @IsNotEmpty()
-  country: string;
+  country!: string;
 }
 
 export class LanguageAbilityDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEnum(['high', 'moderate', 'low'])
-  speaking: 'high' | 'moderate' | 'low';
+  speaking!: 'high' | 'moderate' | 'low';
 
   @IsEnum(['high', 'moderate', 'low'])
-  reading: 'high' | 'moderate' | 'low';
+  reading!: 'high' | 'moderate' | 'low';
 
   @IsEnum(['high', 'moderate', 'low'])
-  writing: 'high' | 'moderate' | 'low';
+  writing!: 'high' | 'moderate' | 'low';
 }
 
 export class SubmitApplicationFormDto {
   @IsString()
   @IsNotEmpty()
-  universityId: string;
+  universityId!: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
-  firstName: string;
+  firstName!: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
-  lastName: string;
+  lastName!: string;
 
   @IsOptional()
   @IsString()
@@ -62,61 +62,61 @@ export class SubmitApplicationFormDto {
   middleName?: string;
 
   @IsDateString()
-  dateOfBirth: string;
+  dateOfBirth!: string;
 
   @IsObject()
   @ValidateNested()
   @Type(() => PlaceOfBirthDto)
-  placeOfBirth: PlaceOfBirthDto;
+  placeOfBirth!: PlaceOfBirthDto;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
-  citizenship: string;
+  citizenship!: string;
 
   @IsEnum(['single', 'married'])
-  maritalStatus: 'single' | 'married';
+  maritalStatus!: 'single' | 'married';
 
   @IsEnum(['male', 'female', 'other'])
-  gender: 'male' | 'female' | 'other';
+  gender!: 'male' | 'female' | 'other';
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(500)
-  permanentAddress: string;
+  permanentAddress!: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
-  permanentCity: string;
+  permanentCity!: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
-  permanentState: string;
+  permanentState!: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)
-  permanentZip: string;
+  permanentZip!: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
-  permanentCountry: string;
+  permanentCountry!: string;
 
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
-  embassyLocation: string;
+  embassyLocation!: string;
 
   @IsObject()
   @ValidateNested()
   @Type(() => LanguageAbilityDto)
-  language1: LanguageAbilityDto;
+  language1!: LanguageAbilityDto;
 
   @IsOptional()
   @IsObject()
@@ -130,7 +130,11 @@ export class SubmitApplicationFormDto {
   otherLanguages?: string[];
 
   @IsEnum(['pre-medical', 'general-medicine', 'dentistry', 'post-graduate'])
-  selectedProgram: 'pre-medical' | 'general-medicine' | 'dentistry' | 'post-graduate';
+  selectedProgram!:
+    | 'pre-medical'
+    | 'general-medicine'
+    | 'dentistry'
+    | 'post-graduate';
 
   @IsOptional()
   @IsString()
@@ -140,16 +144,16 @@ export class SubmitApplicationFormDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
-  signature: string;
+  signature!: string;
 
   @IsDateString()
-  signatureDate: string;
+  signatureDate!: string;
 }
 
 export class UpdateApplicationStatusDto {
   @IsString()
   @IsNotEmpty()
-  status: string;
+  status!: string;
 }
 
 export class UpdateApplicationDto {

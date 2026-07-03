@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TimelineService } from '../common/services/timeline.service';
 import { NotificationService } from '../common/services/notification.service';
@@ -62,7 +66,12 @@ export class ExamsService {
       userId: application.student.user.id,
       type: 'EXAM_SCHEDULED',
       title: 'Entrance Exam Scheduled',
-      message: 'Your exam is scheduled on ' + dto.examDate + ' at ' + dto.examCenter + '.',
+      message:
+        'Your exam is scheduled on ' +
+        dto.examDate +
+        ' at ' +
+        dto.examCenter +
+        '.',
       data: { applicationId: dto.applicationId, examId: exam.id },
     });
 
@@ -72,7 +81,9 @@ export class ExamsService {
   async declareResult(adminId: string, dto: DeclareExamResultDto) {
     const exam = await this.prisma.examRecord.findUnique({
       where: { id: dto.examId },
-      include: { application: { include: { student: { include: { user: true } } } } },
+      include: {
+        application: { include: { student: { include: { user: true } } } },
+      },
     });
     if (!exam) throw new NotFoundException('Exam record not found');
 
@@ -103,7 +114,12 @@ export class ExamsService {
           where: { id: student.id },
           data: { currentStage: 4, applicationStatus: 'STAGE_4_PENDING' },
         });
-        await this.timeline.onStageAdvanced(exam.applicationId, student.id, oldStage, 4);
+        await this.timeline.onStageAdvanced(
+          exam.applicationId,
+          student.id,
+          oldStage,
+          4,
+        );
       }
     }
 
@@ -115,21 +131,34 @@ export class ExamsService {
         title: passed ? 'Entrance Exam Passed' : 'Entrance Exam Failed',
         message: passed
           ? 'Congratulations! You passed the entrance exam. Proceeding to invitation letter stage.'
-          : (dto.remarks || 'You did not pass the exam. Contact support for next steps.'),
-        data: { applicationId: exam.applicationId, examId: exam.id, result: dto.result },
+          : dto.remarks ||
+            'You did not pass the exam. Contact support for next steps.',
+        data: {
+          applicationId: exam.applicationId,
+          examId: exam.id,
+          result: dto.result,
+        },
       });
     }
 
     return updated;
   }
 
-  async getExamByApplication(applicationId: string, userId: string, userRole: string) {
+  async getExamByApplication(
+    applicationId: string,
+    userId: string,
+    userRole: string,
+  ) {
     const exam = await this.prisma.examRecord.findUnique({
       where: { applicationId },
       include: { application: { include: { student: true } } },
     });
     if (!exam) throw new NotFoundException('Exam record not found');
-    if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN' && exam.application?.student?.userId !== userId) {
+    if (
+      userRole !== 'ADMIN' &&
+      userRole !== 'SUPER_ADMIN' &&
+      exam.application?.student?.userId !== userId
+    ) {
       throw new NotFoundException('Exam record not found');
     }
     return exam;

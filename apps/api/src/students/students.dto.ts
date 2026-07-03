@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsDateString, IsNumber, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsDateString,
+  IsNumber,
+  IsEnum,
+} from 'class-validator';
 
 export class UpdateStudentProfileDto {
   @IsOptional()
@@ -94,5 +100,5 @@ export class AdminUpdateStudentDto extends UpdateStudentProfileDto {
 
 export class AssignUniversityDto {
   @IsString()
-  courseId: string;
+  courseId!: string;
 }

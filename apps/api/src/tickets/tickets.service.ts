@@ -1,8 +1,17 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TimelineService } from '../common/services/timeline.service';
 import { NotificationService } from '../common/services/notification.service';
-import { CreateTicketDto, AddTicketMessageDto, UpdateTicketStatusDto, AssignTicketDto } from './dto/ticket.dto';
+import {
+  CreateTicketDto,
+  AddTicketMessageDto,
+  UpdateTicketStatusDto,
+  AssignTicketDto,
+} from './dto/ticket.dto';
 
 @Injectable()
 export class TicketsService {
@@ -12,7 +21,12 @@ export class TicketsService {
     private notification: NotificationService,
   ) {}
 
-  async createTicket(userId: string, userRole: string, studentId: string | null, dto: CreateTicketDto) {
+  async createTicket(
+    userId: string,
+    userRole: string,
+    studentId: string | null,
+    dto: CreateTicketDto,
+  ) {
     const ticket = await this.prisma.supportTicket.create({
       data: {
         userId,
@@ -36,14 +50,27 @@ export class TicketsService {
 
     // Only create timeline event if linked to an application
     if (dto.applicationId && studentId) {
-      await this.timeline.onTicketCreated(dto.applicationId, studentId, ticket.id, dto.subject);
+      await this.timeline.onTicketCreated(
+        dto.applicationId,
+        studentId,
+        ticket.id,
+        dto.subject,
+      );
     }
 
     return ticket;
   }
 
-  async addMessage(ticketId: string, userId: string, userRole: string, studentId: string | null, dto: AddTicketMessageDto) {
-    const ticket = await this.prisma.supportTicket.findUnique({ where: { id: ticketId } });
+  async addMessage(
+    ticketId: string,
+    userId: string,
+    userRole: string,
+    studentId: string | null,
+    dto: AddTicketMessageDto,
+  ) {
+    const ticket = await this.prisma.supportTicket.findUnique({
+      where: { id: ticketId },
+    });
     if (!ticket) throw new NotFoundException('Ticket not found');
 
     // Check access
@@ -72,25 +99,40 @@ export class TicketsService {
     return message;
   }
 
-  async updateStatus(ticketId: string, dto: UpdateTicketStatusDto, userRole: string) {
-    const ticket = await this.prisma.supportTicket.findUnique({ where: { id: ticketId } });
+  async updateStatus(
+    ticketId: string,
+    dto: UpdateTicketStatusDto,
+    userRole: string,
+  ) {
+    const ticket = await this.prisma.supportTicket.findUnique({
+      where: { id: ticketId },
+    });
     if (!ticket) throw new NotFoundException('Ticket not found');
 
     const updated = await this.prisma.supportTicket.update({
       where: { id: ticketId },
       data: {
         status: dto.status as any,
-        ...(dto.status === 'RESOLVED' || dto.status === 'CLOSED' ? { resolvedAt: new Date() } : {}),
+        ...(dto.status === 'RESOLVED' || dto.status === 'CLOSED'
+          ? { resolvedAt: new Date() }
+          : {}),
       },
     });
 
-    if ((dto.status === 'RESOLVED' || dto.status === 'CLOSED') && ticket.applicationId) {
+    if (
+      (dto.status === 'RESOLVED' || dto.status === 'CLOSED') &&
+      ticket.applicationId
+    ) {
       const app = await this.prisma.supportTicket.findUnique({
         where: { id: ticketId },
         include: { application: { select: { studentId: true } } },
       });
       if (app?.application?.studentId) {
-        await this.timeline.onTicketResolved(ticket.applicationId, app.application.studentId, ticketId);
+        await this.timeline.onTicketResolved(
+          ticket.applicationId,
+          app.application.studentId,
+          ticketId,
+        );
       }
     }
 
@@ -98,7 +140,9 @@ export class TicketsService {
   }
 
   async assignTicket(ticketId: string, dto: AssignTicketDto) {
-    const ticket = await this.prisma.supportTicket.findUnique({ where: { id: ticketId } });
+    const ticket = await this.prisma.supportTicket.findUnique({
+      where: { id: ticketId },
+    });
     if (!ticket) throw new NotFoundException('Ticket not found');
 
     return this.prisma.supportTicket.update({
@@ -115,7 +159,11 @@ export class TicketsService {
     });
   }
 
-  async getApplicationTickets(applicationId: string, userId: string, userRole: string) {
+  async getApplicationTickets(
+    applicationId: string,
+    userId: string,
+    userRole: string,
+  ) {
     const where: any = { applicationId };
     if (userRole === 'STUDENT') {
       where.userId = userId;

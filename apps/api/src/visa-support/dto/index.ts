@@ -1,5 +1,11 @@
-import { IsString, IsOptional, IsBoolean, IsArray, IsDateString, IsEnum } from "class-validator";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsArray,
+  IsDateString,
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateVisaCenterDto {
   @ApiProperty() @IsString() name!: string;
@@ -33,7 +39,11 @@ export class UpdateVisaChecklistDto {
   @ApiPropertyOptional() @IsOptional() @IsString() country?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() title?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() description?: string;
-  @ApiPropertyOptional() @IsOptional() @IsArray() @IsString({ each: true }) documents?: string[];
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  documents?: string[];
   @ApiPropertyOptional() @IsOptional() @IsBoolean() isActive?: boolean;
 }
 
@@ -54,12 +64,18 @@ export class UpdateVisaApplicationDto {
   @ApiPropertyOptional() @IsOptional() @IsString() passportNumber?: string;
   @ApiPropertyOptional() @IsOptional() @IsDateString() passportExpiry?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() visaType?: string;
-  @ApiPropertyOptional() @IsOptional() @IsArray() @IsString({ each: true }) documentUrls?: string[];
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  documentUrls?: string[];
   @ApiPropertyOptional() @IsOptional() @IsString() remarks?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() notes?: string;
 }
 
 export class DecideVisaApplicationDto {
-  @ApiProperty({ enum: ["APPROVED", "REJECTED"] }) decision!: "APPROVED" | "REJECTED";
+  @ApiProperty({ enum: ['APPROVED', 'REJECTED'] }) decision!:
+    | 'APPROVED'
+    | 'REJECTED';
   @ApiPropertyOptional() @IsOptional() @IsString() remarks?: string;
 }

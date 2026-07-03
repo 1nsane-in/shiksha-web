@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { ProfileInfo } from "@/components/profile-info";
+import { ProfileInfo } from "@/components/admin/profile-info";
 import { Skeleton } from "@repo/ui";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@repo/ui";

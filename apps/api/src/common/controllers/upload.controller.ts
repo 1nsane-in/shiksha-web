@@ -29,6 +29,7 @@ export class UploadController {
           'image/jpeg',
           'image/png',
           'image/jpg',
+          'image/svg+xml',
           'application/pdf',
           'application/msword',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -40,7 +41,7 @@ export class UploadController {
             new BadRequestException(
               'Unsupported file type: ' +
                 file.mimetype +
-                '. Allowed: JPEG, PNG, PDF, DOC, DOCX',
+                '. Allowed: JPEG, PNG, SVG, PDF, DOC, DOCX',
             ),
             false,
           );
@@ -48,11 +49,24 @@ export class UploadController {
       },
     }),
   )
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Query('folder') folder?: string) {
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('folder') folder?: string,
+  ) {
     if (!file) {
       throw new BadRequestException('No file provided');
     }
-    const allowed = ['logos', 'banners', 'brochures', 'documents', 'gallery', 'avatars', 'uploads'];
+    const allowed = [
+      'logos',
+      'banners',
+      'brochures',
+      'documents',
+      'gallery',
+      'avatars',
+      'uploads',
+      'admission-letters',
+      'invitation-letters',
+    ];
     const target = allowed.includes(folder || '') ? folder! : 'uploads';
     return this.storage.upload(file, target);
   }

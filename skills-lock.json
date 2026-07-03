@@ -157,6 +157,12 @@
       "skillPath": "skills/marketing-psychology/SKILL.md",
       "computedHash": "d057044710ce7b7f9b90b84b3ab64e9359aaf47982b922ec10daca3822185ede"
     },
+    "nestjs-best-practices": {
+      "source": "xirothedev/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nestjs-best-practices/SKILL.md",
+      "computedHash": "d3b304104f3b402889040e13cd46e017ffff7ea95c90d19910d31bdbbebf7bec"
+    },
     "next-best-practices": {
       "source": "vercel-labs/next-skills",
       "sourceType": "github",
