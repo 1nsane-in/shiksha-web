@@ -39,7 +39,6 @@ export interface UniversityContent {
   highlights: string[];
   whyChooseUs?: string | null;
   gallery: string[];
-  videoTour?: string | null;
   virtualTour?: string | null;
 }
 
@@ -174,7 +173,10 @@ export interface UniversityCourse {
   name: string;
   duration: number;
   fees: number;
-  seats: number;
+  seats?: number | null;
+  availableSeats?: number | null;
+  eligibility?: string | null;
+  currency?: string;
   isActive: boolean;
 }
 
@@ -183,6 +185,8 @@ export interface UniversityDocument {
   universityId: string;
   type: string;
   fileUrl: string;
+  fileName?: string | null;
+  fileSize?: number | null;
   uploadedAt: string;
 }
 

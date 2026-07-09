@@ -22,23 +22,17 @@ export function DirectorSection() {
               style={{ borderColor: brand.gold }}
             >
               <Image
-                src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80"
+                src="https://cdn.shiksha.study/landing/director.jpeg"
                 alt="Kamal Singh Pilania - Director"
                 fill
                 className="object-cover"
               />
             </div>
             <div className="mt-6">
-              <h3
-                className="text-xl font-bold"
-                style={{ color: brand.ink }}
-              >
+              <h3 className="text-xl font-bold" style={{ color: brand.ink }}>
                 Kamal Singh Pilania
               </h3>
-              <p
-                className="text-sm mt-1"
-                style={{ color: brand.inkMuted }}
-              >
+              <p className="text-sm mt-1" style={{ color: brand.inkMuted }}>
                 Director, Shiksha International
               </p>
             </div>
@@ -73,12 +67,13 @@ export function DirectorSection() {
                 className="text-base sm:text-lg leading-relaxed italic"
                 style={{ color: brand.inkMuted }}
               >
-                &quot;At Shiksha International, we aim to guide students with honesty
-                and transparency, help them secure quality medical education
-                abroad, and work with globally recognized universities. Our
-                structured admission processes and strong international support
-                ensure that every aspiring doctor gets the opportunity to build
-                their future and become a global medical leader.&quot;
+                &quot;At Shiksha International, we aim to guide students with
+                honesty and transparency, help them secure quality medical
+                education abroad, and work with globally recognized
+                universities. Our structured admission processes and strong
+                international support ensure that every aspiring doctor gets the
+                opportunity to build their future and become a global medical
+                leader.&quot;
               </p>
             </div>
 

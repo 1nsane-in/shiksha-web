@@ -7,8 +7,7 @@ import {
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { randomUUID } from 'crypto';
-import { extname } from 'path';
+
 
 @Injectable()
 export class StorageService {
@@ -40,8 +39,8 @@ export class StorageService {
     fileSize: number;
     mimeType: string;
   }> {
-    const ext = extname(file.originalname);
-    const key = `${folder}/${randomUUID()}${ext}`;
+    const sanitized = file.originalname.replace(/[/\\]/g, '-');
+    const key = `${folder}/${sanitized}`;
 
     await this.s3.send(
       new PutObjectCommand({

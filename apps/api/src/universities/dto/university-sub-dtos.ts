@@ -168,7 +168,6 @@ export class UniversityContentDto {
   @IsOptional() @IsArray() @IsString({ each: true }) highlights?: string[];
   @IsOptional() @IsString() whyChooseUs?: string;
   @IsOptional() @IsArray() @IsUrl({}, { each: true }) gallery?: string[];
-  @IsOptional() @IsUrl() videoTour?: string;
   @IsOptional() @IsUrl() virtualTour?: string;
 }
 

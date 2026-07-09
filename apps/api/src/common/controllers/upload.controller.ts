@@ -23,13 +23,19 @@ export class UploadController {
   @Roles('STUDENT', 'ADMIN', 'SUPER_ADMIN')
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 10 * 1024 * 1024 },
+      limits: { fileSize: 200 * 1024 * 1024 },
       fileFilter: (_req, file, callback) => {
         const allowedMimes = [
           'image/jpeg',
           'image/png',
           'image/jpg',
           'image/svg+xml',
+          'image/webp',
+          'video/mp4',
+          'video/webm',
+          'video/quicktime',
+          'video/x-msvideo',
+          'video/x-matroska',
           'application/pdf',
           'application/msword',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -41,7 +47,7 @@ export class UploadController {
             new BadRequestException(
               'Unsupported file type: ' +
                 file.mimetype +
-                '. Allowed: JPEG, PNG, SVG, PDF, DOC, DOCX',
+                '. Allowed: JPEG, PNG, SVG, WebP, MP4, WebM, MOV, PDF, DOC, DOCX',
             ),
             false,
           );
@@ -62,12 +68,19 @@ export class UploadController {
       'brochures',
       'documents',
       'gallery',
+      'gallery-images',
+      'video-tours',
       'avatars',
       'uploads',
       'admission-letters',
       'invitation-letters',
     ];
-    const target = allowed.includes(folder || '') ? folder! : 'uploads';
+    // Allow subfolder patterns: "gallery/abc-123" matches "gallery" prefix
+    const target = allowed.includes(folder || '')
+      ? folder!
+      : allowed.some((a) => folder?.startsWith(a + '/'))
+        ? folder!
+        : 'uploads';
     return this.storage.upload(file, target);
   }
 

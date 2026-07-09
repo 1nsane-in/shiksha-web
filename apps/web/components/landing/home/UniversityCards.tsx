@@ -19,6 +19,7 @@ import {
 import { motion } from "motion/react";
 
 import { brand } from "@/lib/brand";
+import RotatingText from "@/components/ui/rotating-text";
 
 /* ─── component-local layout tokens (not shared) ─── */
 const radius = { card: 16, btn: 10 };
@@ -248,8 +249,15 @@ function ErrorState({
 /* ─── main component ─── */
 export function UniversityCards() {
   const router = useRouter();
-  const { data: response, isLoading, error, refetch } = useUniversities({ limit: 10 });
-  const universities = response?.data?.length ? response.data : seedUniversities;
+  const {
+    data: response,
+    isLoading,
+    error,
+    refetch,
+  } = useUniversities({ limit: 10 });
+  const universities = response?.data?.length
+    ? response.data
+    : seedUniversities;
 
   if (isLoading) return <Skeleton />;
   if (error && !universities.length)
@@ -272,10 +280,13 @@ export function UniversityCards() {
             NMC & WHO Recognized
           </div>
           <h2
-            className="text-balance text-3xl font-bold leading-tight tracking-tight md:text-4xl"
+            className="text-balance text-3xl font-bold leading-tight tracking-tight md:text-4xl flex items-center justify-center gap-2"
             style={{ color: brand.ink }}
           >
-            Top Medical Universities in Kyrgyzstan
+            <span>Top Medical Universities in </span>
+            <RotatingText
+              text={["Kyrgyzstan", "Uzbekistan", "Kazakhstan", "Russia"]}
+            />
           </h2>
           <p
             className="mt-3 text-balance leading-relaxed"
@@ -291,8 +302,7 @@ export function UniversityCards() {
         <div className="grid gap-6 md:grid-cols-2">
           {universities.map((uni, index) => {
             const typeBadge = universityTypeBadge(uni.type);
-            const imageSrc =
-              uni.bannerImage || uni.logo || "";
+            const imageSrc = uni.bannerImage || uni.logo || "";
             const hasImage = !!imageSrc;
             return (
               <motion.div

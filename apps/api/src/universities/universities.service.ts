@@ -470,7 +470,6 @@ export class UniversitiesService {
       highlights: con.highlights ?? [],
       whyChooseUs: con.whyChooseUs,
       gallery: con.gallery ?? [],
-      videoTour: con.videoTour,
       virtualTour: con.virtualTour,
     };
   }

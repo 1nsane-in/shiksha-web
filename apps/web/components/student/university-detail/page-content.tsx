@@ -250,27 +250,6 @@ export function UniversityContent({ uni }: { uni: UniversityDetail }) {
                   value={String(academic.programs.length)}
                 />
               )}
-              {recognition?.worldRank && (
-                <StatBox
-                  icon={<Award className="size-4" />}
-                  label="World Rank"
-                  value={`#${recognition.worldRank}`}
-                />
-              )}
-              {support?.placementRate && (
-                <StatBox
-                  icon={<Star className="size-4" />}
-                  label="Placement"
-                  value={`${support.placementRate}%`}
-                />
-              )}
-              {infra?.hospitalBeds && (
-                <StatBox
-                  icon={<Star className="size-4" />}
-                  label="Hospital Beds"
-                  value={String(infra.hospitalBeds)}
-                />
-              )}
             </div>
           )}
 

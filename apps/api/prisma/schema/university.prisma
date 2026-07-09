@@ -173,7 +173,6 @@ model UniversityContent {
   highlights       String[]
   whyChooseUs      String?
   gallery          String[]
-  videoTour        String?
   virtualTour      String?
   university       University @relation(fields: [universityId], references: [id], onDelete: Cascade)
 }

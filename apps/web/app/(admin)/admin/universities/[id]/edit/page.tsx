@@ -47,7 +47,7 @@ export default function EditUniversityPage() {
         infrastructure: university.infrastructure || { hospitalBeds: 0, departments: [], hostelBoys: 0, hostelGirls: 0, laboratories: [], facilities: [], cafeteria: false, wifiCampus: false, transportation: false, librarySize: "", campusArea: 0 },
         admission: university.admission || { entranceExams: ["NEET"], minimumMarks: "", ageCriteria: "", eligibility: "", requiredDocuments: [], applicationDeadline: "", applicationFee: 0, selectionProcess: "", reservationPolicy: "", programEligibility: [] },
         support: university.support || { topRecruiters: [], alumniNetwork: false, alumniCount: 0, internationalStudentSupport: false, visaAssistance: false, languageSupport: [], counselingServices: false, careerGuidance: false, placementRate: null, averagePackage: null },
-        content: university.content || { shortDescription: "", longDescription: "", highlights: [], gallery: [], whyChooseUs: "", videoTour: "", virtualTour: "" },
+        content: university.content || { shortDescription: "", longDescription: "", highlights: [], gallery: [], whyChooseUs: "", virtualTour: "" },
         admin: university.admin || { pocName: "", pocDesignation: "", pocEmail: "", pocPhone: "", phoneCountryCode: "", phoneNumber: "", accountName: "", accountNumber: "", bankName: "", bankBranch: "", ifscCode: "", commission: 10, gstNumber: "", panNumber: "", bankCountry: "", bankDetails: {} },
         socialLinks: university.socialLinks || { facebook: "", instagram: "", youtube: "", linkedin: "", twitter: "", tiktok: "" },
         studentDemographics: university.studentDemographics || { totalStudents: 0, localStudents: 0, foreignStudents: 0, foreignByCountry: [] },
@@ -840,10 +840,6 @@ export default function EditUniversityPage() {
             <div>
               <Label>Why Choose Us</Label>
               <Textarea value={formData.content.whyChooseUs || ""} onChange={(e) => updateField("content", "whyChooseUs", e.target.value)} rows={3} />
-            </div>
-            <div>
-              <Label>Video Tour URL</Label>
-              <Input type="url" value={formData.content.videoTour || ""} onChange={(e) => updateField("content", "videoTour", e.target.value)} placeholder="https://youtube.com/..." />
             </div>
             <div>
               <Label>Virtual Tour URL</Label>

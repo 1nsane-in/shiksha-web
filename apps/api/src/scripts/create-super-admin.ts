@@ -1,49 +1,38 @@
-import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+import { config } from 'dotenv';
+import * as path from 'path';
 
-const prisma = new PrismaClient();
+config({ path: path.resolve(__dirname, '../../.env') });
 
-async function createSuperAdmin() {
-  const email = process.env.SUPER_ADMIN_EMAIL || 'admin@shiksha.com';
-  const password = process.env.SUPER_ADMIN_PASSWORD || 'Admin@123456';
-  const name = process.env.SUPER_ADMIN_NAME || 'Super Admin';
+async function main() {
+  const { Pool } = await import('@neondatabase/serverless');
+  const bcrypt = await import('bcryptjs');
+
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
   try {
-    // Check if super admin already exists
-    const existingAdmin = await prisma.user.findUnique({
-      where: { email },
-    });
+    const email = 'admin@shiksha.com';
+    const password = 'Admin@123456';
+    const name = 'Super Admin';
+    const hash = bcrypt.hashSync(password, 10);
 
-    if (existingAdmin) {
-      console.log('✅ Super admin already exists:', email);
+    const existing = await pool.query('SELECT id FROM "User" WHERE email = $1', [email]);
+    if (existing.rows.length > 0) {
+      console.log('Super admin already exists:', email);
       return;
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    await pool.query(
+      `INSERT INTO "User" (id, email, "passwordHash", name, role, "emailVerified", "isActive", "createdAt", "updatedAt")
+       VALUES (gen_random_uuid(), $1, $2, $3, 'SUPER_ADMIN', true, true, NOW(), NOW())`,
+      [email, hash, name]
+    );
 
-    // Create super admin
-    const superAdmin = await prisma.user.create({
-      data: {
-        email,
-        name,
-        passwordHash: hashedPassword,
-        role: 'SUPER_ADMIN',
-        emailVerified: true,
-        isActive: true,
-      },
-    });
-
-    console.log('✅ Super admin created successfully!');
-    console.log('📧 Email:', email);
-    console.log('🔑 Password:', password);
-    console.log('⚠️  Please change the password after first login!');
-  } catch (error) {
-    console.error('❌ Error creating super admin:', error);
-    throw error;
+    console.log('Super admin created');
+    console.log('Email:', email);
+    console.log('Password:', password);
   } finally {
-    await prisma.$disconnect();
+    await pool.end();
   }
 }
 
-createSuperAdmin();
+main().catch(console.error);
