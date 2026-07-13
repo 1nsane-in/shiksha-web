@@ -48,10 +48,19 @@ export function getMyApplicationById(id: string) {
   return client.get<ApplicationDetail>(route.applicationById(id));
 }
 
-export function submitApplication(data: SubmitApplicationFormData) {
+// sends JSON fields as stringified `data` + optional file attachments
+export function submitApplication(
+  data: SubmitApplicationFormData,
+  passport?: File,
+  certificate?: File,
+) {
+  const form = new FormData();
+  form.append('data', JSON.stringify(data));
+  if (passport) form.append('passport', passport);
+  if (certificate) form.append('certificate', certificate);
   return client.post<{ message: string; applicationId: string }>(
     route.apply,
-    data,
+    form,
   );
 }
 

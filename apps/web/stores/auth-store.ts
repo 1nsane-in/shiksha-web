@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { storage } from "@/shared/api/storage";
 import { STORAGE_KEYS } from "@/shared/api/constants";
-import { queryClient } from "@/shared/api/queryClient";
+import { clearQueryCache } from "@/shared/api/queryClient";
 
 function setTokenCookie(token: string) {
   if (typeof document === "undefined") return;
@@ -58,7 +58,7 @@ export const useAuthStore = create<AuthState>()(
         clearTokenCookie();
         clearRefreshTokenCookie();
         storage.remove(STORAGE_KEYS.AUTH_STORAGE);
-        queryClient.clear();
+        clearQueryCache();
       },
     }),
     {

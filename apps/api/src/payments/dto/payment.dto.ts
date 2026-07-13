@@ -216,21 +216,15 @@ export function verifyPayUResponse(params: {
   udf5?: string;
   additionalCharges?: string;
 }): string {
-  // PayU reverse hash: salt|status|||||||||udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key
+  // PayU reverse hash: salt|status||||||udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key
+  const EMPTY_FIELDS = ['', '', '', '', ''];
   let hashString: string;
   if (params.additionalCharges) {
     hashString = [
       params.additionalCharges,
       params.salt,
       params.status,
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
+      ...EMPTY_FIELDS,
       params.udf5 || '',
       params.udf4 || '',
       params.udf3 || '',
@@ -247,14 +241,7 @@ export function verifyPayUResponse(params: {
     hashString = [
       params.salt,
       params.status,
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
+      ...EMPTY_FIELDS,
       params.udf5 || '',
       params.udf4 || '',
       params.udf3 || '',

@@ -14,7 +14,13 @@ import {
 } from './students.dto';
 import { SubmitApplicationFormDto } from './dto/application-form.dto';
 import { PaginatorService } from '../common/services/paginator.service';
+import { StorageService } from '../common/services/storage.service';
 import { createQueryBuilder } from '../common/helpers/prisma-query-builder';
+
+interface UploadedFiles {
+  passport?: Express.Multer.File[];
+  certificate?: Express.Multer.File[];
+}
 
 @Injectable()
 export class StudentsService {
@@ -22,6 +28,7 @@ export class StudentsService {
     private prisma: PrismaService,
     private paginator: PaginatorService,
     private redis: RedisService,
+    private storage: StorageService,
   ) {}
 
   async getProfile(userId: string) {
@@ -320,7 +327,7 @@ export class StudentsService {
     });
   }
 
-  async submitApplication(userId: string, dto: SubmitApplicationFormDto) {
+  async submitApplication(userId: string, dto: SubmitApplicationFormDto, files?: UploadedFiles) {
     const student = await this.prisma.student.findUnique({
       where: { userId },
     });
@@ -371,6 +378,12 @@ export class StudentsService {
       );
     }
 
+    // upload attached files
+    let passportUrl: string | undefined;
+    let certificateUrl: string | undefined;
+    if (files?.passport?.[0]) passportUrl = (await this.storage.upload(files.passport[0], 'documents')).url;
+    if (files?.certificate?.[0]) certificateUrl = (await this.storage.upload(files.certificate[0], 'documents')).url;
+
     const formData = {
       middleName: dto.middleName,
       dateOfBirth: dto.dateOfBirth,
@@ -388,6 +401,8 @@ export class StudentsService {
       language2: dto.language2 ? { ...dto.language2 } : undefined,
       otherLanguages: dto.otherLanguages,
       postGraduateDetail: dto.postGraduateDetail,
+      passportUrl,
+      certificateUrl,
     } as any;
 
     const application = await this.prisma.universityApplication.create({
@@ -466,6 +481,15 @@ export class StudentsService {
         studentId: student.id,
       },
       include: {
+        examRecord: { select: { id: true } },
+        admissionLetter: {
+          select: {
+            id: true,
+            fileUrl: true,
+            fileName: true,
+            uploadedAt: true,
+          },
+        },
         university: {
           select: {
             id: true,

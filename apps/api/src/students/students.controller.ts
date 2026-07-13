@@ -8,7 +8,11 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
+  UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { StudentsService } from './students.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -95,11 +99,30 @@ export class StudentController {
     status: 409,
     description: 'Already applied or university unavailable',
   })
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'passport', maxCount: 1 },
+        { name: 'certificate', maxCount: 1 },
+      ],
+      {
+        limits: { fileSize: 10 * 1024 * 1024 },
+        fileFilter: (_req, file, cb) => {
+          const allowed = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+          cb(null, allowed.includes(file.mimetype));
+        },
+      },
+    ),
+  )
   async submitApplication(
     @Req() req: AuthenticatedRequest,
-    @Body() dto: SubmitApplicationFormDto,
+    @Body('data') data: string,
+    @UploadedFiles()
+    files: { passport?: Express.Multer.File[]; certificate?: Express.Multer.File[] },
   ) {
-    return this.studentsService.submitApplication(req.user.id, dto);
+    if (!data) throw new BadRequestException('Missing form data');
+    const dto = JSON.parse(data) as SubmitApplicationFormDto;
+    return this.studentsService.submitApplication(req.user.id, dto, files);
   }
 
   @Get('applications')

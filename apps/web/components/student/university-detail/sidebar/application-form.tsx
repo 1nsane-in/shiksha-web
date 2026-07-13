@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { brand as theme } from "@/lib/brand";
 import Link from "next/link";
@@ -15,8 +15,10 @@ import {
   Check,
   ChevronRight,
   Loader2,
+  Plus,
   X,
 } from "lucide-react";
+import { Country, State, City } from "country-state-city";
 
 /* ─── FormField ─── */
 function FormField({
@@ -27,6 +29,7 @@ function FormField({
   onChange,
   error,
   placeholder,
+  disabled,
 }: {
   label: string;
   name: string;
@@ -35,6 +38,7 @@ function FormField({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
   placeholder?: string;
+  disabled?: boolean;
 }) {
   return (
     <div>
@@ -50,7 +54,8 @@ function FormField({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full rounded-lg px-3 py-2 text-sm outline-none transition-all duration-200"
+        disabled={disabled}
+        className="w-full rounded-lg px-3 py-2 text-sm outline-none transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60"
         style={{
           background: theme.canvas,
           color: theme.ink,
@@ -108,6 +113,57 @@ function SelectField({
   );
 }
 
+/* ─── LocationGroup ─── */
+function LocationGroup({
+  prefix,
+  countryValue,
+  stateValue,
+  cityValue,
+  onCountryChange,
+  onStateChange,
+  onCityChange,
+}: {
+  prefix: string;
+  countryValue: string;
+  stateValue: string;
+  cityValue: string;
+  onCountryChange: (v: string) => void;
+  onStateChange: (v: string) => void;
+  onCityChange: (v: string) => void;
+}) {
+  const countries = useMemo(() => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })), []);
+  const states = useMemo(() => (countryValue ? State.getStatesOfCountry(countryValue).map((s) => ({ value: s.isoCode, label: s.name })) : []), [countryValue]);
+  const cities = useMemo(() => (countryValue && stateValue ? City.getCitiesOfState(countryValue, stateValue).map((c) => ({ value: c.name, label: c.name })) : []), [countryValue, stateValue]);
+
+  return (
+    <div className="grid grid-cols-1 gap-3">
+      <SelectField
+        label="Country *"
+        name={`${prefix}Country`}
+        value={countryValue}
+        onChange={(e) => { onCountryChange(e.target.value); onStateChange(""); onCityChange(""); }}
+        options={[{ value: "", label: "Select country" }, ...countries]}
+      />
+      <div className="grid grid-cols-2 gap-2">
+        <SelectField
+          label="State *"
+          name={`${prefix}State`}
+          value={stateValue}
+          onChange={(e) => { onStateChange(e.target.value); onCityChange(""); }}
+          options={[{ value: "", label: "Select state" }, ...states]}
+        />
+        <SelectField
+          label="City *"
+          name={`${prefix}City`}
+          value={cityValue}
+          onChange={(e) => onCityChange(e.target.value)}
+          options={[{ value: "", label: "Select city" }, ...cities]}
+        />
+      </div>
+    </div>
+  );
+}
+
 /* ─── ApplicationForm ─── */
 export function ApplicationForm({
   uniName,
@@ -119,10 +175,20 @@ export function ApplicationForm({
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [extraLanguages, setExtraLanguages] = useState<{ name: string; speaking: string; reading: string; writing: string }[]>([]);
+  const [passportFile, setPassportFile] = useState<File | null>(null);
+  const [certificateFile, setCertificateFile] = useState<File | null>(null);
   const submit = useSubmitApplication();
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, isStudent } = useAuth();
+  const { isAuthenticated, isStudent, user } = useAuth();
+
+  // pre-fill email from logged-in user
+  useEffect(() => {
+    if (user?.email && !formData.email) {
+      setFormData((prev) => ({ ...prev, email: user.email }));
+    }
+  }, [user?.email]);
 
   const {
     data: checkResult,
@@ -137,15 +203,55 @@ export function ApplicationForm({
     setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
   }
 
+  function addLanguage() {
+    setExtraLanguages((prev) => [...prev, { name: "", speaking: "moderate", reading: "moderate", writing: "moderate" }]);
+  }
+
+  function removeLanguage(index: number) {
+    setExtraLanguages((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function handleLangChange(index: number, field: string, value: string) {
+    setExtraLanguages((prev) => prev.map((l, i) => (i === index ? { ...l, [field]: value } : l)));
+  }
+
+  function handleLocationCountry(prefix: string, value: string) {
+    setFormData((prev) => ({
+      ...prev,
+      [`${prefix}Country`]: value,
+      [`${prefix}State`]: "",
+      [`${prefix}City`]: "",
+    }));
+  }
+
+  function handleLocationState(prefix: string, value: string) {
+    setFormData((prev) => ({
+      ...prev,
+      [`${prefix}State`]: value,
+      [`${prefix}City`]: "",
+    }));
+  }
+
+  function handleLocationCity(prefix: string, value: string) {
+    setFormData((prev) => ({ ...prev, [`${prefix}City`]: value }));
+  }
+
+  const requiredFields = [
+    "firstName", "lastName", "email", "dateOfBirth", "citizenship",
+    "gender", "maritalStatus", "selectedProgram", "embassyLocation",
+    "signature", "birthCity", "birthState", "birthCountry", "lang1Name",
+    "permanentAddress", "permanentCity", "permanentState", "permanentZip",
+    "permanentCountry",
+  ] as const;
+
+  const isFormValid = useMemo(
+    () => requiredFields.every((f) => formData[f]?.trim()) && !!passportFile && !!certificateFile,
+    [formData, passportFile, certificateFile],
+  );
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const required = [
-      "firstName", "lastName", "email", "dateOfBirth", "citizenship",
-      "gender", "maritalStatus", "selectedProgram", "embassyLocation",
-      "signature", "birthCity", "birthState", "birthCountry", "lang1Name",
-      "permanentAddress", "permanentCity", "permanentState", "permanentZip",
-      "permanentCountry",
-    ];
+    const required = requiredFields;
     const newErrors: Record<string, string> = {};
     for (const field of required) {
       if (!formData[field]?.trim()) newErrors[field] = "Required";
@@ -161,6 +267,7 @@ export function ApplicationForm({
     const payload: SubmitApplicationFormData = {
       universityId: uniId,
       firstName: formData.firstName || "",
+      middleName: formData.middleName || undefined,
       lastName: formData.lastName || "",
       email: formData.email || "",
       dateOfBirth: formData.dateOfBirth || "",
@@ -188,13 +295,19 @@ export function ApplicationForm({
         reading: (formData.lang1Reading || "moderate") as "high" | "moderate" | "low",
         writing: (formData.lang1Writing || "moderate") as "high" | "moderate" | "low",
       },
+      otherLanguages: extraLanguages.length > 0 ? extraLanguages.map((l) => ({
+        name: l.name,
+        speaking: l.speaking as "high" | "moderate" | "low",
+        reading: l.reading as "high" | "moderate" | "low",
+        writing: l.writing as "high" | "moderate" | "low",
+      })) : undefined,
       postGraduateDetail:
         formData.selectedProgram === "post-graduate"
           ? formData.postGraduateDetail || ""
           : undefined,
     };
     try {
-      await submit.mutateAsync(payload);
+      await submit.mutateAsync({ data: payload, passport: passportFile ?? undefined, certificate: certificateFile ?? undefined });
       router.push("/student/dashboard");
     } catch (err) {
       setErrors({
@@ -328,10 +441,11 @@ export function ApplicationForm({
 
           <div className="grid grid-cols-1 gap-3">
             <FormField label="First Name *" name="firstName" value={formData.firstName || ""} onChange={handleChange} error={errors.firstName} />
+            <FormField label="Middle Name" name="middleName" value={formData.middleName || ""} onChange={handleChange} placeholder="(optional)" />
             <FormField label="Last Name *" name="lastName" value={formData.lastName || ""} onChange={handleChange} error={errors.lastName} />
           </div>
           <div className="grid grid-cols-1 gap-3">
-            <FormField label="Email *" name="email" type="email" value={formData.email || ""} onChange={handleChange} error={errors.email} />
+            <FormField label="Email *" name="email" type="email" value={formData.email || ""} onChange={handleChange} error={errors.email} disabled />            
             <FormField label="Phone *" name="phone" type="tel" value={formData.phone || ""} onChange={handleChange} error={errors.phone} />
           </div>
           <div className="grid grid-cols-1 gap-3">
@@ -368,46 +482,117 @@ export function ApplicationForm({
 
           <FormField label="Permanent Address *" name="permanentAddress" value={formData.permanentAddress || ""} onChange={handleChange} error={errors.permanentAddress} />
           <div className="grid grid-cols-1 gap-3">
-            <FormField label="City *" name="permanentCity" value={formData.permanentCity || ""} onChange={handleChange} error={errors.permanentCity} />
-            <FormField label="State *" name="permanentState" value={formData.permanentState || ""} onChange={handleChange} error={errors.permanentState} />
-          </div>
-          <div className="grid grid-cols-1 gap-3">
             <FormField label="Zip Code *" name="permanentZip" value={formData.permanentZip || ""} onChange={handleChange} error={errors.permanentZip} />
-            <FormField label="Country *" name="permanentCountry" value={formData.permanentCountry || ""} onChange={handleChange} error={errors.permanentCountry} />
           </div>
+          <LocationGroup
+            prefix="permanent"
+            countryValue={formData.permanentCountry || ""}
+            stateValue={formData.permanentState || ""}
+            cityValue={formData.permanentCity || ""}
+            onCountryChange={(v) => handleLocationCountry("permanent", v)}
+            onStateChange={(v) => handleLocationState("permanent", v)}
+            onCityChange={(v) => handleLocationCity("permanent", v)}
+          />
 
-          <p className="text-xs font-medium uppercase tracking-wider pt-2" style={{ color: theme.inkSubtle }}>Place of Birth *</p>
-          <div className="grid grid-cols-1 gap-3">
-            <FormField label="Birth City *" name="birthCity" value={formData.birthCity || ""} onChange={handleChange} error={errors.birthCity} placeholder="e.g. Mumbai" />
-            <FormField label="Birth State *" name="birthState" value={formData.birthState || ""} onChange={handleChange} error={errors.birthState} placeholder="e.g. Maharashtra" />
-            <FormField label="Birth Country *" name="birthCountry" value={formData.birthCountry || ""} onChange={handleChange} error={errors.birthCountry} placeholder="e.g. India" />
-          </div>
+          <p className="text-xs font-medium uppercase tracking-wider pt-2" style={{ color: theme.inkSubtle }}>City, State, Country of Birth *</p>
+          <LocationGroup
+            prefix="birth"
+            countryValue={formData.birthCountry || ""}
+            stateValue={formData.birthState || ""}
+            cityValue={formData.birthCity || ""}
+            onCountryChange={(v) => handleLocationCountry("birth", v)}
+            onStateChange={(v) => handleLocationState("birth", v)}
+            onCityChange={(v) => handleLocationCity("birth", v)}
+          />
 
           <p className="text-xs font-medium uppercase tracking-wider pt-2" style={{ color: theme.inkSubtle }}>Language Ability *</p>
-          <div className="grid grid-cols-1 gap-3">
-            <FormField label="Language Name *" name="lang1Name" value={formData.lang1Name || ""} onChange={handleChange} error={errors.lang1Name} placeholder="e.g. English" />
-            <SelectField label="Speaking Level" name="lang1Speaking" value={formData.lang1Speaking || "moderate"} onChange={handleChange} options={[
-              { value: "high", label: "High" },
-              { value: "moderate", label: "Moderate" },
-              { value: "low", label: "Low" },
-            ]} />
-            <SelectField label="Reading Level" name="lang1Reading" value={formData.lang1Reading || "moderate"} onChange={handleChange} options={[
-              { value: "high", label: "High" },
-              { value: "moderate", label: "Moderate" },
-              { value: "low", label: "Low" },
-            ]} />
-            <SelectField label="Writing Level" name="lang1Writing" value={formData.lang1Writing || "moderate"} onChange={handleChange} options={[
-              { value: "high", label: "High" },
-              { value: "moderate", label: "Moderate" },
-              { value: "low", label: "Low" },
-            ]} />
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 gap-3 p-3 rounded-lg" style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
+              <FormField label="Language Name *" name="lang1Name" value={formData.lang1Name || ""} onChange={handleChange} error={errors.lang1Name} placeholder="e.g. English" />
+              <div className="grid grid-cols-3 gap-2">
+                <SelectField label="Speaking" name="lang1Speaking" value={formData.lang1Speaking || "moderate"} onChange={handleChange} options={[
+                  { value: "high", label: "High" },
+                  { value: "moderate", label: "Moderate" },
+                  { value: "low", label: "Low" },
+                ]} />
+                <SelectField label="Reading" name="lang1Reading" value={formData.lang1Reading || "moderate"} onChange={handleChange} options={[
+                  { value: "high", label: "High" },
+                  { value: "moderate", label: "Moderate" },
+                  { value: "low", label: "Low" },
+                ]} />
+                <SelectField label="Writing" name="lang1Writing" value={formData.lang1Writing || "moderate"} onChange={handleChange} options={[
+                  { value: "high", label: "High" },
+                  { value: "moderate", label: "Moderate" },
+                  { value: "low", label: "Low" },
+                ]} />
+              </div>
+            </div>
+            {extraLanguages.map((lang, i) => (
+              <div key={i} className="grid grid-cols-1 gap-3 p-3 rounded-lg relative" style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
+                <button type="button" onClick={() => removeLanguage(i)} className="absolute top-2 right-2 p-1 rounded hover:opacity-70" style={{ color: "#EF4444" }}><X size={14} /></button>
+                <FormField label="Language Name" name={`langExtra_${i}_name`} value={lang.name} onChange={(e) => handleLangChange(i, "name", e.target.value)} placeholder="e.g. Hindi" />
+                <div className="grid grid-cols-3 gap-2">
+                  <SelectField label="Speaking" name={`langExtra_${i}_speaking`} value={lang.speaking} onChange={(e) => handleLangChange(i, "speaking", e.target.value)} options={[
+                    { value: "high", label: "High" }, { value: "moderate", label: "Moderate" }, { value: "low", label: "Low" },
+                  ]} />
+                  <SelectField label="Reading" name={`langExtra_${i}_reading`} value={lang.reading} onChange={(e) => handleLangChange(i, "reading", e.target.value)} options={[
+                    { value: "high", label: "High" }, { value: "moderate", label: "Moderate" }, { value: "low", label: "Low" },
+                  ]} />
+                  <SelectField label="Writing" name={`langExtra_${i}_writing`} value={lang.writing} onChange={(e) => handleLangChange(i, "writing", e.target.value)} options={[
+                    { value: "high", label: "High" }, { value: "moderate", label: "Moderate" }, { value: "low", label: "Low" },
+                  ]} />
+                </div>
+              </div>
+            ))}
+            <button type="button" onClick={addLanguage} className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-200 hover:opacity-70" style={{ color: theme.inkMuted, border: "1px dashed " + theme.hairline }}>
+              <Plus size={14} /> Add Language
+            </button>
+          </div>
+
+          <p className="text-xs font-medium uppercase tracking-wider pt-2" style={{ color: theme.inkSubtle }}>Attachments</p>
+          <p className="text-xs" style={{ color: theme.inkMuted }}>To receive original invitation, attach to this application letter:</p>
+
+          <div className="rounded-lg p-3" style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
+            <p className="text-xs font-medium mb-2">1. Scanned copy of passport (first page) *</p>
+            {passportFile ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs">
+                  <Check size={14} style={{ color: "#16a34a" }} />
+                  <span className="truncate max-w-[200px]">{passportFile.name}</span>
+                </div>
+                <button type="button" onClick={() => setPassportFile(null)} className="text-xs hover:underline" style={{ color: "#EF4444" }}>Remove</button>
+              </div>
+            ) : (
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs transition-all hover:opacity-70" style={{ border: "1px dashed " + theme.hairline }}>
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f && f.size <= 10*1024*1024) setPassportFile(f); else if (f) alert("File too large. Max 10 MB."); }} />
+                <Plus size={14} /> Choose passport copy
+              </label>
+            )}
+          </div>
+
+          <div className="rounded-lg p-3" style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
+            <p className="text-xs font-medium mb-2">2. Scanned copy of school certificate *</p>
+            {certificateFile ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs">
+                  <Check size={14} style={{ color: "#16a34a" }} />
+                  <span className="truncate max-w-[200px]">{certificateFile.name}</span>
+                </div>
+                <button type="button" onClick={() => setCertificateFile(null)} className="text-xs hover:underline" style={{ color: "#EF4444" }}>Remove</button>
+              </div>
+            ) : (
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs transition-all hover:opacity-70" style={{ border: "1px dashed " + theme.hairline }}>
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f && f.size <= 10*1024*1024) setCertificateFile(f); else if (f) alert("File too large. Max 10 MB."); }} />
+                <Plus size={14} /> Choose certificate
+              </label>
+            )}
           </div>
 
           <FormField label="Signature (Full Name) *" name="signature" value={formData.signature || ""} onChange={handleChange} error={errors.signature} placeholder="Type your full name as signature" />
 
           <button
             type="submit"
-            disabled={submit.isPending}
+            disabled={submit.isPending || !isFormValid}
             className="inline-flex w-full items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-60"
             style={{
               background: theme.ink,

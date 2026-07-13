@@ -47,9 +47,13 @@ export function useMyApplicationById(id: string) {
 export function useSubmitApplication() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: SubmitApplicationFormData) => {
+    mutationFn: async (args: {
+      data: SubmitApplicationFormData;
+      passport?: File;
+      certificate?: File;
+    }) => {
       const { submitApplication } = await import("./student.api");
-      return submitApplication(data);
+      return submitApplication(args.data, args.passport, args.certificate);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

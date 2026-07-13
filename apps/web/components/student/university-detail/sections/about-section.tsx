@@ -1,8 +1,10 @@
 "use client";
 
+import React, { useState } from "react";
 import { brand as theme } from "@/lib/brand";
 import Image from "next/image";
 import { SectionCard } from "../common/ui";
+import { GalleryLightbox } from "@/components/landing/gallery/gallery-lightbox";
 import type { UniversityContent } from "@/domains/universities/universities.types";
 
 export function AboutSection({
@@ -12,8 +14,24 @@ export function AboutSection({
   content: UniversityContent | null;
   uniName: string;
 }) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const hasGallery = content?.gallery && content.gallery.length > 0;
   if (!content?.shortDescription && !content?.longDescription && !hasGallery) return null;
+
+  const openLightbox = (index: number) => setActiveIndex(index);
+  const closeLightbox = () => setActiveIndex(null);
+  const showNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activeIndex !== null && content?.gallery && content.gallery.length > 0) {
+      setActiveIndex((activeIndex + 1) % content.gallery.length);
+    }
+  };
+  const showPrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activeIndex !== null && content?.gallery && content.gallery.length > 0) {
+      setActiveIndex((activeIndex - 1 + content.gallery.length) % content.gallery.length);
+    }
+  };
 
   return (
     <SectionCard title="About & Gallery">
@@ -36,9 +54,10 @@ export function AboutSection({
       {hasGallery && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {content!.gallery.slice(0, 6).map((img: string, i: number) => (
-            <div
+            <button
               key={i}
-              className="group relative aspect-[4/3] overflow-hidden rounded-xl"
+              onClick={() => openLightbox(i)}
+              className="group relative aspect-[4/3] overflow-hidden rounded-xl cursor-pointer"
               style={{ border: "1px solid " + theme.hairline }}
             >
               <Image
@@ -48,7 +67,7 @@ export function AboutSection({
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 sizes="(max-width: 640px) 50vw, 25vw"
               />
-            </div>
+            </button>
           ))}
           {content!.gallery.length > 6 && (
             <div
@@ -64,6 +83,15 @@ export function AboutSection({
             </div>
           )}
         </div>
+      )}
+      {hasGallery && content?.gallery && (
+        <GalleryLightbox
+          images={content.gallery}
+          activeIndex={activeIndex}
+          onClose={closeLightbox}
+          onNext={showNext}
+          onPrev={showPrev}
+        />
       )}
     </SectionCard>
   );

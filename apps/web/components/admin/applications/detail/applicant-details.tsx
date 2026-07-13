@@ -123,6 +123,18 @@ export function ApplicantDetails({ formData: fd, firstName, lastName, email, sel
               <KeyValueRow label="Writing Level" value={fd.language1.writing} />
             </div>
           </div>
+          {fd.otherLanguages?.map((lang: any, i: number) => (
+            <div key={i} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 pt-4 border-t border-[#ebe7e1]">
+              <div className="divide-y divide-zinc-100">
+                <KeyValueRow label="Language" value={lang.name} />
+                <KeyValueRow label="Reading Level" value={lang.reading} />
+              </div>
+              <div className="divide-y divide-zinc-100">
+                <KeyValueRow label="Speaking Level" value={lang.speaking} />
+                <KeyValueRow label="Writing Level" value={lang.writing} />
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </>

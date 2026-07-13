@@ -180,6 +180,9 @@ export class PaymentsService {
       },
     });
 
+    // Clear Redis payment history cache so next fetch shows updated status
+    await this.redis.deletePattern(`payments:history:${payment.student.userId}:*`);
+
     if (isSuccess) {
       await this.advanceAfterPayment(payment);
     }

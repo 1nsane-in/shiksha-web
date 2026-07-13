@@ -25,7 +25,7 @@ function getDashboardForRole(role: string, router: ReturnType<typeof useRouter>)
   } else if (role === "PARENT") {
     router.push("/parents/dashboard");
   } else {
-    router.push("/student/dashboard");
+    router.push("/");
   }
 }
 

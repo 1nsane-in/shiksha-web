@@ -4,7 +4,6 @@ import { useAuthStore } from "@/stores/auth-store";
 
 export const api = axios.create({
   baseURL: API_URL,
-  headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
 

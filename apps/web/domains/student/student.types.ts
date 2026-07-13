@@ -102,6 +102,13 @@ export interface ApplicationDetail {
   formData: SubmitApplicationFormData | null;
   createdAt: string;
   updatedAt: string;
+  examRecord: { id: string } | null;
+  admissionLetter: {
+    id: string;
+    fileUrl: string;
+    fileName: string | null;
+    uploadedAt: string;
+  } | null;
   university: {
     id: string;
     name: string;
@@ -138,14 +145,15 @@ export interface SubmitApplicationFormData {
   email: string;
   embassyLocation: string;
   language1: LanguageAbility;
-  language2?: LanguageAbility;
-  otherLanguages?: string[];
+  otherLanguages?: LanguageAbility[];
   selectedProgram:
     | "pre-medical"
     | "general-medicine"
     | "dentistry"
     | "post-graduate";
   postGraduateDetail?: string;
+  passportUrl?: string;
+  certificateUrl?: string;
   signature: string;
   signatureDate: string;
 }

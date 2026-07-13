@@ -126,8 +126,9 @@ export class SubmitApplicationFormDto {
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  otherLanguages?: string[];
+  @ValidateNested({ each: true })
+  @Type(() => LanguageAbilityDto)
+  otherLanguages?: LanguageAbilityDto[];
 
   @IsEnum(['pre-medical', 'general-medicine', 'dentistry', 'post-graduate'])
   selectedProgram!:
@@ -140,6 +141,14 @@ export class SubmitApplicationFormDto {
   @IsString()
   @MaxLength(200)
   postGraduateDetail?: string;
+
+  @IsOptional()
+  @IsString()
+  passportUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  certificateUrl?: string;
 
   @IsString()
   @IsNotEmpty()

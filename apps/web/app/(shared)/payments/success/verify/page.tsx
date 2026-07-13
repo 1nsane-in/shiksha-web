@@ -2,15 +2,18 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@repo/ui";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { verifyPayment } from "@/domains/payments/payments.api";
+import { queryKeys } from "@/shared/api/queryKeys";
 
 type VerifyState = "loading" | "success" | "failed" | "error";
 
 function PaymentVerifyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const [state, setState] = useState<VerifyState>("loading");
   const [message, setMessage] = useState("");
 
@@ -60,6 +63,11 @@ function PaymentVerifyContent() {
         if (result.success) {
           setState("success");
           setMessage("Your payment has been verified successfully.");
+          // Invalidate caches so stage/admission/letter pages show updated state
+          queryClient.invalidateQueries({ queryKey: queryKeys.student.stage() });
+          queryClient.invalidateQueries({ queryKey: queryKeys.payments.all });
+          queryClient.invalidateQueries({ queryKey: queryKeys.timeline.all });
+          queryClient.invalidateQueries({ queryKey: queryKeys.letters.all });
         } else {
           setState("failed");
           setMessage("Payment verification failed. Please contact support.");

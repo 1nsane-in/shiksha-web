@@ -10,14 +10,25 @@ function shouldRetry(failureCount: number, error: unknown) {
   return true;
 }
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: QUERY_CONFIG.STALE_TIME,
-      gcTime: QUERY_CONFIG.CACHE_TIME,
-      retry: shouldRetry,
-      refetchOnWindowFocus: false,
-    },
-    mutations: { retry: shouldRetry },
+const defaultOptions = {
+  queries: {
+    staleTime: QUERY_CONFIG.STALE_TIME,
+    gcTime: QUERY_CONFIG.CACHE_TIME,
+    retry: shouldRetry,
+    refetchOnWindowFocus: false,
   },
-});
+  mutations: { retry: shouldRetry },
+};
+
+let queryClient: QueryClient | null = null;
+
+export function getQueryClient(): QueryClient {
+  if (!queryClient) {
+    queryClient = new QueryClient({ defaultOptions });
+  }
+  return queryClient;
+}
+
+export function clearQueryCache(): void {
+  queryClient?.clear();
+}
