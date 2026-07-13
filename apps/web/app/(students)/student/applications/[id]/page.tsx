@@ -21,7 +21,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 
 /* ══════════════════════════════════════════════════════════════
    HELPERS
-   ══════════════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════════════ */
 
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -424,7 +424,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
 
             {/* Admission letter download — independent of currentAction */}
             {currentStage >= 3 && admissionLetter?.fileUrl && (
-              <div className="flex items-center justify-between gap-4 mt-4 pt-4" style={{ borderTop: `1px solid ${brand.goldBorder}` }}>
+              <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
                   <FileText className="size-4 shrink-0 mt-0.5 self-start" style={{ color: brand.ink }} />
                   <div className="min-w-0">
@@ -533,9 +533,51 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
             </Section>
           )}
 
-          {/* Timeline — delivery tracker style */}
+          {/* Application Progress — redesigned with impeccable principles */}
           {timelineEvents.length > 0 && (
-            <Section icon={Clock} title="Application Progress">
+            <section className="rounded-2xl bg-white p-6 sm:p-8" style={{ border: '1px solid #d3cec6' }}>
+              {/* Section Header */}
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-lg" style={{ background: '#f5f1ec' }}>
+                  <Clock className="size-5" style={{ color: '#111111' }} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-medium tracking-tight" style={{ color: '#111111', fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+                    Application Progress
+                  </h2>
+                  <p className="text-sm" style={{ color: '#626260' }}>
+                    {timelineEvents.filter(e => e.isCompleted).length} of {timelineEvents.length} stages completed
+                  </p>
+                </div>
+              </div>
+
+              {/* Progress Overview */}
+              <div className="mb-6 rounded-xl p-4" style={{ background: '#f5f1ec' }}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium" style={{ color: '#111111' }}>
+                    {(() => {
+                      const activeEvent = timelineEvents.find(e => e.isActive);
+                      if (activeEvent) return `Current: ${activeEvent.title}`;
+                      const allDone = timelineEvents.every(e => e.isCompleted);
+                      return allDone ? 'All stages completed!' : 'Application in progress';
+                    })()}
+                  </span>
+                  <span className="text-sm font-medium" style={{ color: '#111111' }}>
+                    {Math.round((timelineEvents.filter(e => e.isCompleted).length / timelineEvents.length) * 100)}%
+                  </span>
+                </div>
+                <div className="h-2 w-full rounded-full overflow-hidden" style={{ background: '#ebe7e1' }}>
+                  <div 
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${(timelineEvents.filter(e => e.isCompleted).length / timelineEvents.length) * 100}%`,
+                      background: '#111111'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Timeline Steps */}
               <div className="relative">
                 {timelineEvents
                   .slice()
@@ -544,77 +586,100 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                     const isLast = idx === timelineEvents.length - 1;
                     const done = event.isCompleted;
                     const active = event.isActive;
-                    const pending = !done && !active;
 
                     return (
-                      <div key={event.id || idx} className="relative flex gap-4 pb-8 last:pb-0">
+                      <div key={event.id || idx} className="relative flex gap-4 pb-6 last:pb-0">
                         {/* Step indicator */}
                         <div className="flex flex-col items-center">
                           {/* Circle */}
-                          <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300"
+                          <div 
+                            className="relative flex size-8 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300"
                             style={{
-                              borderColor: done ? "#16a34a" : active ? brand.gold : brand.hairline,
-                              background: done ? "#16a34a" : active ? brand.goldLight : "white",
+                              borderColor: done ? '#0bdf50' : active ? '#111111' : '#d3cec6',
+                              background: done ? '#0bdf50' : active ? '#111111' : '#ffffff',
                             }}
                           >
                             {done ? (
-                              <Check className="size-4 text-white" strokeWidth={3} />
+                              <Check className="size-4 text-white" strokeWidth={2.5} />
                             ) : active ? (
-                              <div className="size-2.5 rounded-full" style={{ background: brand.gold }} />
+                              <div className="size-2 rounded-full bg-white" />
                             ) : (
-                              <div className="size-2.5 rounded-full" style={{ background: brand.hairline }} />
+                              <div className="size-2 rounded-full" style={{ background: '#d3cec6' }} />
                             )}
                           </div>
                           {/* Connector line */}
                           {!isLast && (
                             <div
-                              className="w-0.5 flex-1 min-h-[32px] transition-colors duration-300"
+                              className="w-0.5 flex-1 min-h-[24px] my-1 transition-colors duration-300"
                               style={{
-                                background: done
-                                  ? "#16a34a"
-                                  : active
-                                    ? `linear-gradient(to bottom, ${brand.gold}, ${brand.hairline})`
-                                    : brand.hairline,
+                                background: done ? '#0bdf50' : '#ebe7e1',
                               }}
                             />
                           )}
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 min-w-0 pt-1">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <p className="text-sm font-semibold leading-snug"
-                                  style={{ color: done ? "#16a34a" : active ? brand.ink : brand.inkSubtle }}
-                                >
-                                  {event.title}
-                                </p>
-                                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider"
-                                  style={{
-                                    background: done ? "#dcfce7" : active ? brand.goldLight : "#f3f4f6",
-                                    color: done ? "#15803d" : active ? "#92400e" : "#9ca3af",
-                                  }}
-                                >
-                                  {done ? "Done" : active ? "Active" : `Stage ${event.stage}`}
-                                </span>
+                        <div className="flex-1 min-w-0 -mt-1">
+                          <div 
+                            className={`rounded-xl p-4 transition-all duration-200 ${active ? 'ring-1' : ''}`}
+                            style={{ 
+                              background: active ? '#ffffff' : 'transparent',
+                              border: active ? '1px solid #111111' : '1px solid transparent',
+                              boxShadow: active ? '0 1px 3px rgba(0,0,0,0.04)' : 'none'
+                            }}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <p 
+                                    className="text-sm font-medium leading-snug"
+                                    style={{ 
+                                      color: done ? '#111111' : active ? '#111111' : '#9c9fa5',
+                                      fontFamily: 'Inter, system-ui, sans-serif'
+                                    }}
+                                  >
+                                    {event.title}
+                                  </p>
+                                  {active && (
+                                    <span 
+                                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
+                                      style={{
+                                        background: '#111111',
+                                        color: '#ffffff',
+                                      }}
+                                    >
+                                      In Progress
+                                    </span>
+                                  )}
+                                  {done && (
+                                    <span 
+                                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
+                                      style={{
+                                        background: '#dcfce7',
+                                        color: '#15803d',
+                                      }}
+                                    >
+                                      Completed
+                                    </span>
+                                  )}
+                                </div>
+                                {event.description && (
+                                  <p className="mt-1.5 text-sm leading-relaxed" style={{ color: done ? '#626260' : active ? '#626260' : '#9c9fa5' }}>
+                                    {event.description}
+                                  </p>
+                                )}
                               </div>
-                              {event.description && (
-                                <p className="mt-1 text-xs leading-relaxed" style={{ color: brand.inkMuted }}>
-                                  {event.description}
-                                </p>
-                              )}
+                              <span className="shrink-0 text-xs whitespace-nowrap" style={{ color: '#7b7b78' }}>
+                                {formatDate(event.occurredAt)}
+                              </span>
                             </div>
-                            <span className="shrink-0 text-[11px] whitespace-nowrap mt-0.5" style={{ color: brand.inkSubtle }}>
-                              {formatDate(event.occurredAt)}
-                            </span>
                           </div>
                         </div>
                       </div>
                     );
                   })}
               </div>
-            </Section>
+            </section>
           )}
         </div>
 

@@ -26,7 +26,7 @@ import {
   LinkByCodeDto,
   InviteLinkResponseDto,
   FamilyCodeResponseDto,
-  MessageResponseDto,
+  ParentsMessageResponseDto,
 } from './dto/parents.dto';
 
   @ApiTags('Parents')
@@ -98,7 +98,7 @@ export class ParentsController {
   @Roles('STUDENT')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Remove a parent link' })
-  @ApiOkResponse({ type: MessageResponseDto })
+  @ApiOkResponse({ type: ParentsMessageResponseDto })
   @ApiResponse({ status: 404, description: 'Parent link not found' })
   async removeLink(
     @AuthUser('id') userId: string,

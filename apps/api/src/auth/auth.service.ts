@@ -17,7 +17,7 @@ import {
   SendOtpDto,
   VerifyOtpDto,
   CompleteRegistrationDto,
-  CreateAdminDto,
+  AuthCreateAdminDto,
   GoogleAuthDto,
   GoogleRegisterDto,
   ForgotPasswordDto,
@@ -382,7 +382,7 @@ export class AuthService {
     return user;
   }
 
-  async createAdmin(dto: CreateAdminDto) {
+  async createAdmin(dto: AuthCreateAdminDto) {
     this.emailValidation.validateEmail(dto.email);
 
     const existingUser = await this.prisma.user.findUnique({

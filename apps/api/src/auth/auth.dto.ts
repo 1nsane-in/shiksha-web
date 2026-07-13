@@ -77,7 +77,7 @@ export class CompleteRegistrationDto {
   role!: string;
 }
 
-export class CreateAdminDto {
+export class AuthCreateAdminDto {
   @ApiProperty({ example: 'admin@example.com' })
   @IsEmail()
   email!: string;
@@ -214,7 +214,7 @@ export class AuthResponseDto {
   refreshToken?: string;
 }
 
-export class MessageResponseDto {
+export class AuthMessageResponseDto {
   @ApiProperty({ example: 'OTP sent to your email' })
   message!: string;
 

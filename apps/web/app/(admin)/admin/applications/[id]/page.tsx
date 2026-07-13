@@ -10,7 +10,6 @@ import { ReviewActionPanel } from "@/components/admin/applications/detail/review
 import { ApplicantDetails } from "@/components/admin/applications/detail/applicant-details";
 import { SubmittedDocuments } from "@/components/admin/applications/detail/submitted-documents";
 import { PaymentLedger } from "@/components/admin/applications/detail/payment-ledger";
-import { ApplicationTimeline } from "@/components/admin/applications/detail/application-timeline";
 import { ApplicationSidebar } from "@/components/admin/applications/detail/application-sidebar";
 import { AdmissionLetterUpload } from "@/components/admin/applications/detail/admission-letter-upload";
 import { ApplicationDetailHeader } from "@/components/admin/applications/detail/application-detail-header";
@@ -92,7 +91,11 @@ export default function AdminApplicationDetailPage({
               selectedProgram={app.selectedProgram}
             />
 
-            <SubmittedDocuments documents={app.student?.documents || []} />
+            <SubmittedDocuments 
+              documents={app.student?.documents || []}
+              passportUrl={app.formData?.passportUrl}
+              certificateUrl={app.formData?.certificateUrl}
+            />
 
             {app.status === "approved" && (
               <AdmissionLetterUpload
@@ -102,8 +105,6 @@ export default function AdminApplicationDetailPage({
             )}
 
             <PaymentLedger payments={app.student?.payments || []} />
-
-            <ApplicationTimeline events={app.timelineEvents || []} />
           </div>
 
           <div className="space-y-6">

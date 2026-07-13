@@ -18,7 +18,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Auditable } from '../common/interceptors/audit-log.interceptor';
 import {
-  CreateAdminDto,
+  AdminCreateAdminDto,
   UpdateAdminDto,
   ChangePasswordDto,
   ResetAdminPasswordDto,
@@ -56,7 +56,7 @@ export class AdminController {
   @Post()
   @Roles('SUPER_ADMIN')
   @UseInterceptors(Auditable({ entityType: 'admin' }))
-  async create(@Body() dto: CreateAdminDto) {
+  async create(@Body() dto: AdminCreateAdminDto) {
     return this.adminService.create(dto);
   }
 

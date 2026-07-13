@@ -8,7 +8,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import {
-  CreateAdminDto,
+  AdminCreateAdminDto,
   UpdateAdminDto,
   ChangePasswordDto,
   ResetAdminPasswordDto,
@@ -111,7 +111,7 @@ export class AdminService {
   }
 
   // Create new admin
-  async create(dto: CreateAdminDto) {
+  async create(dto: AdminCreateAdminDto) {
     // Check if email already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },

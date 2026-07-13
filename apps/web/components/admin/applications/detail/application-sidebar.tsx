@@ -125,18 +125,18 @@ export function ApplicationSidebar({ university: uni, student, timelineEvents, s
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 bg-zinc-50/50 p-4 rounded-lg border border-[#ebe7e1]">
-              <div>
+            <div className="flex flex-col gap-4 mb-8 bg-zinc-50/50 p-4 rounded-lg border border-[#ebe7e1]">
+              <div className="flex items-center justify-between py-2 border-b border-[#ebe7e1] last:border-0">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">Application Submitted</p>
-                <p className="text-xs font-medium text-[#111111] mt-1">{formatLedgerDate(submittedAt)}</p>
+                <p className="text-xs font-medium text-[#111111]">{formatLedgerDate(submittedAt)}</p>
               </div>
-              <div className="sm:border-l sm:border-[#ebe7e1] sm:pl-6">
+              <div className="flex items-center justify-between py-2 border-b border-[#ebe7e1] last:border-0">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">System Creation</p>
-                <p className="text-xs font-medium text-[#111111] mt-1">{formatLedgerDate(createdAt)}</p>
+                <p className="text-xs font-medium text-[#111111]">{formatLedgerDate(createdAt)}</p>
               </div>
-              <div className="sm:border-l sm:border-[#ebe7e1] sm:pl-6">
+              <div className="flex items-center justify-between py-2">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-[#626260]">Last Record Mutation</p>
-                <p className="text-xs font-medium text-[#111111] mt-1">{formatLedgerDate(updatedAt)}</p>
+                <p className="text-xs font-medium text-[#111111]">{formatLedgerDate(updatedAt)}</p>
               </div>
             </div>
 

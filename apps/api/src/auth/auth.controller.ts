@@ -29,7 +29,7 @@ import {
   SendOtpDto,
   VerifyOtpDto,
   CompleteRegistrationDto,
-  CreateAdminDto,
+  AuthCreateAdminDto,
   GoogleAuthDto,
   GoogleRegisterDto,
   ForgotPasswordDto,
@@ -37,7 +37,7 @@ import {
   RefreshDto,
   LogoutDto,
   AuthResponseDto,
-  MessageResponseDto,
+  AuthMessageResponseDto,
   VerifyOtpResponseDto,
   RefreshResponseDto,
   LogoutResponseDto,
@@ -68,7 +68,7 @@ export class AuthController {
   @Post('send-otp')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send OTP for registration' })
-  @ApiOkResponse({ type: MessageResponseDto })
+  @ApiOkResponse({ type: AuthMessageResponseDto })
   @ApiResponse({
     status: 400,
     description:
@@ -298,7 +298,7 @@ export class AuthController {
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send password reset OTP' })
-  @ApiOkResponse({ type: MessageResponseDto })
+  @ApiOkResponse({ type: AuthMessageResponseDto })
   @ApiResponse({
     status: 400,
     description: 'No account found with this email / Failed to send OTP email',
@@ -311,7 +311,7 @@ export class AuthController {
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset password with OTP token' })
-  @ApiOkResponse({ type: MessageResponseDto })
+  @ApiOkResponse({ type: AuthMessageResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid or expired reset token' })
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
@@ -328,7 +328,7 @@ export class AuthController {
     status: 403,
     description: 'Forbidden — SUPER_ADMIN role required',
   })
-  async createAdmin(@Body() dto: CreateAdminDto) {
+  async createAdmin(@Body() dto: AuthCreateAdminDto) {
     return this.authService.createAdmin(dto);
   }
 }

@@ -166,7 +166,7 @@ export class FamilyCodeResponseDto {
   familyCode!: string;
 }
 
-export class MessageResponseDto {
+export class ParentsMessageResponseDto {
   @ApiProperty({ example: 'Operation successful' })
   message!: string;
 }

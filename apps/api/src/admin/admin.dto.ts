@@ -12,7 +12,7 @@ export enum AdminRole {
   SUPER_ADMIN = 'SUPER_ADMIN',
 }
 
-export class CreateAdminDto {
+export class AdminCreateAdminDto {
   @IsEmail()
   email!: string;
 

@@ -25,7 +25,7 @@ import {
   AdminCreateParentLinkDto,
   AdminUpdateParentLinkStatusDto,
   AdminParentLinksQueryDto,
-  MessageResponseDto,
+  ParentsMessageResponseDto,
 } from './dto/parents.dto';
 
 @ApiTags('Admin Parent Links')
@@ -64,7 +64,7 @@ export class ParentsAdminController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Remove a parent-student link' })
-  @ApiOkResponse({ type: MessageResponseDto })
+  @ApiOkResponse({ type: ParentsMessageResponseDto })
   @ApiResponse({ status: 404, description: 'Link not found' })
   async remove(@Param('id') id: string) {
     return this.parentsService.adminDeleteLink(id);

@@ -25,6 +25,7 @@ export function DirectorSection() {
                 src="https://cdn.shiksha.study/landing/director.jpeg"
                 alt="Kamal Singh Pilania - Director"
                 fill
+                sizes="240px"
                 className="object-cover"
               />
             </div>

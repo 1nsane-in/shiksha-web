@@ -13,10 +13,29 @@ interface Document {
 
 interface Props {
   documents: Document[];
+  passportUrl?: string;
+  certificateUrl?: string;
 }
 
-export function SubmittedDocuments({ documents }: Props) {
+export function SubmittedDocuments({ documents, passportUrl, certificateUrl }: Props) {
   const [previewFile, setPreviewFile] = useState<{ url: string; name: string } | null>(null);
+
+  // Combine regular documents with formData documents
+  const allDocuments = [
+    ...documents,
+    ...(passportUrl ? [{ 
+      id: 'passport-form', 
+      fileUrl: passportUrl, 
+      status: 'UPLOADED' as const,
+      documentType: { name: 'Passport (Form Upload)', code: 'PASSPORT_FORM' }
+    }] : []),
+    ...(certificateUrl ? [{ 
+      id: 'certificate-form', 
+      fileUrl: certificateUrl, 
+      status: 'UPLOADED' as const,
+      documentType: { name: 'School Certificate (Form Upload)', code: 'CERTIFICATE_FORM' }
+    }] : []),
+  ];
 
   return (
     <>
@@ -29,9 +48,9 @@ export function SubmittedDocuments({ documents }: Props) {
           </div>
           <h2 className="text-sm font-medium text-[#111111] tracking-tight">Submitted Documents</h2>
         </div>
-        {documents.length > 0 ? (
+        {allDocuments.length > 0 ? (
           <div className="divide-y divide-[#ebe7e1]">
-            {documents.map((doc: Document) => (
+            {allDocuments.map((doc: Document) => (
               <div key={doc.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
                 <div>
                   <p className="font-medium text-sm text-[#111111]">{doc.documentType?.name}</p>
