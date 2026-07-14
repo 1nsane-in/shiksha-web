@@ -26,6 +26,8 @@ model User {
   sessions        UserSession[]
   courses           PlatformCourse[]
   courseEnrollments PlatformCourseEnrollment[]
+  createdExams      Exam[]           @relation("ExamCreator")
+  reviewedProctorLogs ProctorLog[]
 
   @@index([email])
   @@index([role])

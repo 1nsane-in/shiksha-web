@@ -1,15 +1,103 @@
-import { client } from "@/shared/api/client";
-import type { ExamDetail } from "./exams.types";
+import { api } from "@/shared/api/axios";
+import type {
+  Exam,
+  CreateExamInput,
+  CreateQuestionInput,
+  UpdateProctoringConfigInput,
+  ReorderQuestionsInput,
+} from "./exams.types";
 
-const route = {
-  my: "/exams/my" as const,
-  byApplication: (applicationId: string) => `/exams/application/${applicationId}` as const,
-} as const;
+const BASE = "/admin/exams";
 
-export function getMyExam() {
-  return client.get<ExamDetail>(route.my);
+// ──────────────────────────────────────────────────────────────
+// Exam CRUD
+// ──────────────────────────────────────────────────────────────
+
+export async function createExam(input: CreateExamInput): Promise<Exam> {
+  const { data } = await api.post(BASE, input);
+  return data;
 }
 
-export function getExamByApplication(applicationId: string) {
-  return client.get<ExamDetail>(route.byApplication(applicationId));
+export async function updateExam(
+  examId: string,
+  input: Partial<CreateExamInput>
+): Promise<Exam> {
+  const { data } = await api.put(`${BASE}/${examId}`, input);
+  return data;
+}
+
+export async function getExam(examId: string): Promise<Exam> {
+  const { data } = await api.get(`${BASE}/${examId}`);
+  return data;
+}
+
+export async function getAllExams(params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  universityId?: string;
+}): Promise<{ data: Exam[]; meta: { total: number; page: number; limit: number; totalPages: number } }> {
+  const { data } = await api.get(BASE, { params });
+  return data;
+}
+
+export async function publishExam(examId: string): Promise<Exam> {
+  const { data } = await api.post(`${BASE}/${examId}/publish`, { id: examId });
+  return data;
+}
+
+// ──────────────────────────────────────────────────────────────
+// Question CRUD
+// ──────────────────────────────────────────────────────────────
+
+export async function addQuestion(
+  examId: string,
+  input: CreateQuestionInput
+): Promise<Exam["questions"][0]> {
+  const { data } = await api.post(`${BASE}/${examId}/questions`, input);
+  return data;
+}
+
+export async function updateQuestion(
+  examId: string,
+  questionId: string,
+  input: CreateQuestionInput
+): Promise<Exam["questions"][0]> {
+  const { data } = await api.put(`${BASE}/${examId}/questions/${questionId}`, input);
+  return data;
+}
+
+export async function deleteQuestion(
+  examId: string,
+  questionId: string
+): Promise<{ success: boolean }> {
+  const { data } = await api.delete(`${BASE}/${examId}/questions/${questionId}`);
+  return data;
+}
+
+export async function reorderQuestions(
+  examId: string,
+  input: ReorderQuestionsInput
+): Promise<{ success: boolean }> {
+  const { data } = await api.put(`${BASE}/${examId}/questions/reorder`, input);
+  return data;
+}
+
+// ──────────────────────────────────────────────────────────────
+// Proctoring Config
+// ──────────────────────────────────────────────────────────────
+
+export async function updateProctoringConfig(
+  examId: string,
+  input: UpdateProctoringConfigInput
+): Promise<Exam["proctoringConfig"]> {
+  const { data } = await api.put(`${BASE}/${examId}/proctoring`, input);
+  return data;
+}
+
+export async function getProctoringConfig(
+  examId: string
+): Promise<Exam["proctoringConfig"]> {
+  const { data } = await api.get(`${BASE}/${examId}/proctoring`);
+  return data;
 }

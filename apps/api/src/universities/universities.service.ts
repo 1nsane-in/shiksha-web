@@ -18,8 +18,8 @@ import {
   UniversityType,
 } from './universities.dto';
 import { PaginatorService } from '../common/services/paginator.service';
-import { createQueryBuilder } from '../common/helpers/prisma-query-builder';
 import { parseFields, ALLOWED_UNIVERSITY_FIELDS } from '../common/helpers/field-selection';
+import { Prisma } from '@prisma/client';
 
 const UNIVERSITY_INCLUDES = {
   location: true,
@@ -146,17 +146,33 @@ export class UniversitiesService {
       query.limit,
     );
 
-    const cacheKey = `universities:list:${page}:${limit}:${query.status || 'all'}:${query.country || 'all'}:${query.type || 'all'}:${query.search || 'none'}:${query.fields || 'default'}`;
+    // ponytail: cache busted v2 after seeding
+    const cacheKey = `universities:list:v2:${page}:${limit}:${query.status || 'all'}:${query.country || 'all'}:${query.type || 'all'}:${query.search || 'none'}:${query.fields || 'default'}`;
 
     return this.redis.getOrSet(
       cacheKey,
       async () => {
-        const where = createQueryBuilder()
-          .where('status', query.status)
-          .whereNested('location', 'country', query.country)
-          .where('type', query.type)
-          .search(query.search, ['name', 'shortName', 'slug'])
-          .build();
+        const where: Prisma.UniversityWhereInput = {};
+        
+        if (query.status) {
+          where.status = query.status;
+        }
+        
+        if (query.country) {
+          where.location = { country: query.country };
+        }
+        
+        if (query.type) {
+          where.type = query.type;
+        }
+        
+        if (query.search) {
+          where.OR = [
+            { name: { contains: query.search, mode: 'insensitive' } },
+            { shortName: { contains: query.search, mode: 'insensitive' } },
+            { slug: { contains: query.search, mode: 'insensitive' } },
+          ];
+        }
 
         const select = this.buildUniversitySelect(query.fields);
 
@@ -183,12 +199,27 @@ export class UniversitiesService {
       query.limit,
     );
 
-    const where = createQueryBuilder()
-      .where('status', query.status)
-      .whereNested('location', 'country', query.country)
-      .where('type', query.type)
-      .search(query.search, ['name', 'shortName', 'slug'])
-      .build();
+    const where: Prisma.UniversityWhereInput = {};
+    
+    if (query.status) {
+      where.status = query.status;
+    }
+    
+    if (query.country) {
+      where.location = { country: query.country };
+    }
+    
+    if (query.type) {
+      where.type = query.type;
+    }
+    
+    if (query.search) {
+      where.OR = [
+        { name: { contains: query.search, mode: 'insensitive' } },
+        { shortName: { contains: query.search, mode: 'insensitive' } },
+        { slug: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
 
     const [universities, total] = await Promise.all([
       this.prisma.university.findMany({

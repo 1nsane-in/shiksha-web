@@ -31,8 +31,9 @@ model University {
   infrastructure      UniversityInfrastructure?
   location            UniversityLocation?
   recognition         UniversityRecognition?
-  support             UniversitySupport?
+  support               UniversitySupport?
   platformCourses     PlatformCourseUniversity[]
+  exams               Exam[]
 
   @@index([slug])
   @@index([name])
@@ -49,6 +50,8 @@ model UniversityLocation {
   latitude     Float?
   longitude    Float?
   university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  
+  @@index([country])
 }
 
 model UniversityContact {
@@ -99,10 +102,10 @@ model UniversityRecognition {
 model UniversityFees {
   id                   String     @id @default(uuid())
   universityId         String     @unique
-  tuitionAnnual        Float
-  totalProgram         Float
+  tuitionAnnual        Float?
+  totalProgram         Float?
   hostelAnnual         Float?
-  registration         Float
+  registration         Float?
   examination          Float?
   library              Float?
   otherFees            Json?

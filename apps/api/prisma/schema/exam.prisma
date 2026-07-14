@@ -1,0 +1,383 @@
+// ============================================
+// Online Exam System Schema
+// ============================================
+
+// Main exam configuration
+model Exam {
+  id                   String              @id @default(uuid())
+  universityId         String
+  createdBy            String?
+  
+  // Basic Info
+  name                 String
+  description          String?             @db.Text
+  dateWindowStart      DateTime
+  dateWindowEnd        DateTime
+  durationMinutes      Int
+  totalMarks           Decimal             @default(0) @db.Decimal(8, 2)
+  passingPercentage    Decimal             @default(50.00) @db.Decimal(5, 2)
+  maxAttempts          Int                 @default(1)
+  
+  // Result Settings
+  resultTiming         String              @default("IMMEDIATE") // IMMEDIATE, SCHEDULED
+  resultDate           DateTime?
+  
+  // Shuffle Settings
+  shuffleQuestions     Boolean             @default(true)
+  shuffleOptions       Boolean             @default(true)
+  
+  // Status
+  status               String              @default("DRAFT") // DRAFT, SCHEDULED, ACTIVE, COMPLETED, ARCHIVED
+  
+  // Audit
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  publishedAt          DateTime?
+  
+  // Relations
+  university           University          @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  creator              User?               @relation("ExamCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  questions            ExamQuestion[]
+  slots                ExamSlot[]
+  registrations        ExamRegistration[]
+  proctoringConfig     ExamProctoringConfig?
+  
+  @@index([universityId])
+  @@index([status])
+  @@index([createdBy])
+  @@index([dateWindowStart, dateWindowEnd])
+}
+
+// Proctoring configuration for each exam
+model ExamProctoringConfig {
+  id                      String   @id @default(uuid())
+  examId                  String   @unique
+  
+  // AI Proctoring Features
+  aiProctoringEnabled     Boolean  @default(true)
+  webcamRequired          Boolean  @default(true)
+  microphoneRequired      Boolean  @default(true)
+  screenRecordingEnabled  Boolean  @default(true)
+  faceDetectionEnabled    Boolean  @default(true)
+  gazeTrackingEnabled     Boolean  @default(true)
+  
+  // Violation Settings
+  tabSwitchWarnings       Int      @default(3)
+  autoSubmitOnViolation   Boolean  @default(false)
+  connectivityGraceMinutes Int     @default(2)
+  
+  // Security Settings
+  preventCopyPaste        Boolean  @default(true)
+  preventRightClick       Boolean  @default(true)
+  preventDevTools         Boolean  @default(true)
+  
+  createdAt               DateTime @default(now())
+  
+  exam                    Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  
+  @@index([examId])
+}
+
+// Question bank - supports multiple question types
+model ExamQuestion {
+  id                String                @id @default(uuid())
+  examId            String
+  
+  // Question metadata
+  type              QuestionType
+  questionText      String                @db.Text
+  questionImageUrl  String?
+  
+  // Scoring
+  marks             Decimal               @db.Decimal(6, 2)
+  negativeMarks     Decimal               @default(0) @db.Decimal(6, 2)
+  
+  // Classification
+  difficulty        QuestionDifficulty?
+  topic             String?
+  
+  // Display order
+  orderIndex        Int
+  
+  // Type-specific config (for subjective)
+  config            Json?
+  
+  // Audit
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  
+  // Relations
+  exam              Exam                  @relation(fields: [examId], references: [id], onDelete: Cascade)
+  options           ExamQuestionOption[]
+  responses         ExamResponse[]
+  
+  @@unique([examId, orderIndex])
+  @@index([examId])
+  @@index([examId, type])
+  @@index([examId, difficulty])
+  @@index([examId, topic])
+}
+
+// Options for MCQ questions
+model ExamQuestionOption {
+  id          String       @id @default(uuid())
+  questionId  String
+  
+  optionText  String       @db.Text
+  isCorrect   Boolean      @default(false)
+  orderIndex  Int
+  
+  createdAt   DateTime     @default(now())
+  
+  question    ExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  @@unique([questionId, orderIndex])
+  @@index([questionId])
+}
+
+// Time slots for exam scheduling
+model ExamSlot {
+  id              String             @id @default(uuid())
+  examId          String
+  
+  slotDate        DateTime           @db.Date
+  slotTime        DateTime           @db.Time
+  durationMinutes Int
+  maxStudents     Int
+  registeredCount Int                @default(0)
+  
+  status          String             @default("OPEN") // OPEN, FULL, CLOSED
+  
+  exam            Exam               @relation(fields: [examId], references: [id], onDelete: Cascade)
+  registrations   ExamRegistration[]
+  
+  @@index([examId])
+  @@index([examId, status])
+}
+
+// Student exam registration
+model ExamRegistration {
+  id                String             @id @default(uuid())
+  examId            String
+  slotId            String?
+  studentId         String
+  applicationId     String             @unique
+  
+  registrationNumber String            @unique
+  status            RegistrationStatus @default(REGISTERED)
+  
+  // ID Verification
+  idVerified        Boolean            @default(false)
+  idVerificationPhotoUrl String?
+  
+  // Fee payment
+  feePaid           Boolean            @default(false)
+  feeAmount         Decimal?           @db.Decimal(10, 2)
+  
+  // Timestamps
+  registeredAt      DateTime           @default(now())
+  
+  // Relations
+  exam              Exam               @relation(fields: [examId], references: [id], onDelete: Cascade)
+  slot              ExamSlot?          @relation(fields: [slotId], references: [id], onDelete: SetNull)
+  student           Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  application       UniversityApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  sessions          ExamSession[]
+  examScore         ExamScore?
+  
+  @@index([examId])
+  @@index([studentId])
+  @@index([applicationId])
+  @@index([status])
+}
+
+// Active exam session (when student is taking exam)
+model ExamSession {
+  id                      String             @id @default(uuid())
+  registrationId          String
+  
+  // Timing
+  startTime               DateTime?
+  endTime                 DateTime?
+  actualDuration          Int?               // in seconds
+  
+  // Status
+  status                  SessionStatus      @default(READY)
+  
+  // Device/Connection info
+  ipAddress               String?
+  deviceInfo              Json?
+  browserInfo             Json?
+  connectivityIssues      Int                @default(0)
+  
+  // Violation tracking
+  violationCount          Int                @default(0)
+  warningCount            Int                @default(0)
+  autoSubmitted           Boolean            @default(false)
+  
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+  
+  registration            ExamRegistration   @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  responses               ExamResponse[]
+  proctorLogs             ProctorLog[]
+  examScore               ExamScore?
+  
+  @@index([registrationId])
+  @@index([status])
+}
+
+// Student responses to questions
+model ExamResponse {
+  id              String         @id @default(uuid())
+  sessionId       String
+  questionId    String
+  
+  // Answer
+  selectedOption  Int?           // for MCQ
+  textAnswer      String?        @db.Text // for subjective
+  
+  // Scoring (auto-calculated)
+  isCorrect       Boolean?
+  marksObtained   Decimal?       @db.Decimal(6, 2)
+  timeTaken       Int?           // seconds
+  
+  // Flags
+  flaggedForReview Boolean      @default(false)
+  autoSaved       Boolean        @default(false)
+  
+  // Audit
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  session         ExamSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question        ExamQuestion   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  @@unique([sessionId, questionId])
+  @@index([sessionId])
+  @@index([questionId])
+}
+
+// AI Proctoring logs
+model ProctorLog {
+  id              String         @id @default(uuid())
+  sessionId       String
+  
+  eventType       ProctorEventType
+  severity        ProctorSeverity
+  timestamp       DateTime       @default(now())
+  
+  // Evidence
+  screenshotUrl   String?
+  details         Json?
+  
+  // Review
+  reviewedBy      String?
+  reviewNotes     String?
+  isViolation     Boolean        @default(false)
+  
+  session         ExamSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  reviewer        User?          @relation(fields: [reviewedBy], references: [id], onDelete: SetNull)
+  
+  @@index([sessionId])
+  @@index([eventType])
+  @@index([sessionId, eventType])
+}
+
+// Exam results for each registration
+model ExamScore {
+  id                String           @id @default(uuid())
+  registrationId    String           @unique
+  sessionId         String?          @unique
+  
+  // Scores
+  totalMarks        Decimal          @db.Decimal(6, 2)
+  obtainedMarks     Decimal          @db.Decimal(6, 2)
+  percentage        Decimal          @db.Decimal(5, 2)
+  rank              Int?
+  
+  // Statistics
+  correctAnswers    Int              @default(0)
+  wrongAnswers      Int              @default(0)
+  unattempted       Int              @default(0)
+  timeTaken         Int?             // seconds
+  
+  // Status
+  status            ExamScoreStatus
+  
+  // Certificate
+  certificateUrl    String?
+  
+  // Visibility
+  visibleToStudent  Boolean          @default(false)
+  
+  // Audit
+  generatedAt       DateTime         @default(now())
+  
+  registration      ExamRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  session           ExamSession?     @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  
+  @@index([status])
+  @@index([visibleToStudent])
+}
+
+// Enums
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTI_CHOICE
+  TRUE_FALSE
+  SUBJECTIVE
+}
+
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum RegistrationStatus {
+  REGISTERED
+  READY
+  ATTENDED
+  ABSENT
+  COMPLETED
+  INTERRUPTED
+  CANCELLED
+}
+
+enum SessionStatus {
+  READY
+  ACTIVE
+  COMPLETED
+  INTERRUPTED
+  SUBMITTED
+}
+
+enum ProctorEventType {
+  TAB_SWITCH
+  FACE_MISSING
+  MULTIPLE_FACES
+  GAZE_AWAY
+  AUDIO_DETECTED
+  SCREEN_CAPTURE_FAILED
+  CONNECTIVITY_LOST
+  CONNECTIVITY_RESTORED
+  DEVTOOLS_OPENED
+  RIGHT_CLICK
+  COPY_PASTE
+  FULLSCREEN_EXITED
+  CAMERA_DISABLED
+  MIC_DISABLED
+}
+
+enum ProctorSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ExamScoreStatus {
+  PASS
+  FAIL
+}

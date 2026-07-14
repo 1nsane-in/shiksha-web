@@ -334,7 +334,7 @@ export function OverviewTab({
                 <InfoRow
                   icon={GraduationCap}
                   label="Programs"
-                  value={<BadgeList items={a.programs} />}
+                  value={<BadgeList items={a.programs?.map((p: any) => p.name) || []} />}
                 />
                 <InfoRow icon={Clock} label="Duration" value={a.duration} />
                 <InfoRow icon={Globe} label="Medium" value={a.medium} />

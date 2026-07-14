@@ -19,6 +19,7 @@ model UniversityApplication {
   admissionLetter  AdmissionLetter?
   timelineEvents   ApplicationTimeline[]
   examRecord       ExamRecord?
+  examRegistration ExamRegistration?
   invitationLetter InvitationLetter?
   Payment          Payment[]
   tickets          SupportTicket[]

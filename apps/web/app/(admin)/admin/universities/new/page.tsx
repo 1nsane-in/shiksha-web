@@ -431,8 +431,10 @@ export default function NewUniversityPage() {
   };
 
   const handleSubmit = async () => {
+    console.log('[DEBUG] handleSubmit ENTERED');
     // Validate URLs first
     const urlErrors = validateUrls();
+    console.log('[DEBUG] URL validation errors:', urlErrors);
     if (Object.keys(urlErrors).length > 0) {
       setFormErrors(urlErrors);
       setLoading(false);
@@ -443,6 +445,7 @@ export default function NewUniversityPage() {
     setFormErrors({});
     try {
       const phoneCode = Country.getCountryByCode(locationCodes.countryCode)?.phonecode || "";
+      console.log('[DEBUG] building payload');
       const otherFees: Record<string, number> = {};
       // Per-program fee breakdowns (prefixed with program name)
       (formData.academic.programs || []).forEach((prog: any) => {
@@ -487,17 +490,44 @@ export default function NewUniversityPage() {
         }
       }
       // Transform subjectRankings array to Record for backend
-      const subjectRankingsRecord: Record<string, string> = {};
-      (payload.recognition.subjectRankings || []).forEach((item: { subject: string; ranking: string }) => {
-        if (item.subject?.trim()) {
-          subjectRankingsRecord[item.subject.trim()] = item.ranking || "";
-        }
-      });
+      // DON'T mutate shared ref (payload.recognition === formData.recognition — shallow copy bug)
+      const rawRankings = payload.recognition.subjectRankings;
+      let subjectRankingsRecord: Record<string, string>;
+      if (Array.isArray(rawRankings)) {
+        subjectRankingsRecord = {};
+        rawRankings.forEach((item: { subject: string; ranking: string }) => {
+          if (item.subject?.trim()) {
+            subjectRankingsRecord[item.subject.trim()] = item.ranking || "";
+          }
+        });
+      } else {
+        // Already a Record from a previous failed attempt
+        subjectRankingsRecord = (rawRankings || {}) as Record<string, string>;
+      }
       payload.recognition.subjectRankings = subjectRankingsRecord;
+      // Strip empty social links (backend rejects empty strings for @IsUrl())
+      if (payload.socialLinks) {
+        for (const key of Object.keys(payload.socialLinks)) {
+          if (!payload.socialLinks[key as keyof typeof payload.socialLinks]) {
+            delete payload.socialLinks[key as keyof typeof payload.socialLinks];
+          }
+        }
+        if (Object.keys(payload.socialLinks).length === 0) delete payload.socialLinks;
+      }
+      // Encode spaces in URLs
+      if (payload.bannerImage) payload.bannerImage = payload.bannerImage.replace(/ /g, '%20');
+      if (payload.brochureUrl) payload.brochureUrl = payload.brochureUrl.replace(/ /g, '%20');
+      // Strip empty URL fields (backend rejects empty strings for @IsUrl())
+      if (!payload.logo) delete payload.logo;
+      if (!payload.bannerImage) delete payload.bannerImage;
+      if (!payload.brochureUrl) delete payload.brochureUrl;
+      console.log('[DEBUG] about to call createUniversity.mutateAsync', { name: payload.name });
       await createUniversity.mutateAsync(payload);
+      console.log('[DEBUG] mutateAsync succeeded');
       localStorage.removeItem(STORAGE_KEY);
       router.push("/admin/universities");
     } catch (error: any) {
+      console.log('[DEBUG] handleSubmit CATCH block reached', error);
       const errData = error?.response?.data?.error || error?.response?.data;
       if (errData?.fields) {
         setFormErrors(errData.fields);
@@ -507,6 +537,7 @@ export default function NewUniversityPage() {
         setFormErrors({ _general: "Failed to create university. Please check all fields and try again." });
       }
     } finally {
+      console.log('[DEBUG] handleSubmit FINALLY block');
       setLoading(false);
     }
   };

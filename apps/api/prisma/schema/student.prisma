@@ -41,6 +41,7 @@ model Student {
   user                    User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   documents               StudentDocument[]
   applications            UniversityApplication[]
+  examRegistrations       ExamRegistration[]
 
   @@index([userId])
   @@index([applicationStatus])

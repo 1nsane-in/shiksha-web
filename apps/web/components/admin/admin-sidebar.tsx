@@ -49,7 +49,7 @@ export function AdminSidebar() {
   const handleLogout = () => {
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
-        router.push("/auth/login");
+        router.push("/login");
       },
     });
   };
@@ -79,7 +79,13 @@ export function AdminSidebar() {
       >
         {/* Logo */}
         <div className="flex h-14 items-center gap-2.5 border-b border-[#ECEAE6] px-4">
-          <Image src="/img/logo.png" alt="" width={24} height={24} className="h-6 w-auto" />
+          <Image
+            src="/img/logo.png"
+            alt=""
+            width={24}
+            height={24}
+            className="h-6 w-auto"
+          />
           <span className="ml-auto rounded-full bg-[#EEF2FF] px-1.5 py-0.5 text-[10px] font-medium text-[#3730A3]">
             Admin
           </span>
