@@ -51,9 +51,12 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // login 401 is wrong creds, not token expiry
+    const isLoginPath = originalRequest.url?.includes("/auth/login");
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
+      !isLoginPath &&
       typeof window !== "undefined"
     ) {
       if (isRefreshing) {

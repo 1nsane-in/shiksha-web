@@ -53,13 +53,20 @@ function LoginContent() {
     try {
       await loginMutation.mutateAsync(data);
     } catch (err: unknown) {
-      const apiError =
+      const resData =
         err && typeof err === "object" && "response" in err
-          ? (err as { response: { data: { message?: string } } }).response?.data
-              ?.message
+          ? (err as { response: { data: Record<string, unknown> } }).response
+              ?.data
+          : undefined;
+      // API returns { ok: false, error: { message: "..." } }
+      const apiError =
+        resData &&
+        typeof resData.error === "object" &&
+        resData.error !== null
+          ? (resData.error as Record<string, unknown>).message
           : undefined;
       setServerError(
-        apiError ??
+        (typeof apiError === "string" && apiError) ||
           (err instanceof Error ? err.message : "Invalid email or password"),
       );
     }
