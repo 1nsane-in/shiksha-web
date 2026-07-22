@@ -42,13 +42,28 @@ export default function EditUniversityPage() {
         location: university.location || { country: "", state: "", city: "", address: "", latitude: null, longitude: null },
         contact: university.contact || { email: "", phone: "", admissionOfficeHours: "" },
         academic: university.academic || { programs: ["MBBS"], duration: "5.5 years", medium: "English", specializations: [], intakeMonths: [], totalSeats: 0, governmentSeats: 0, managementSeats: 0, nriSeats: 0, curriculumType: "", clinicalTraining: "" },
-        recognition: university.recognition || { bodies: [], ecfmgStatus: "PENDING", nbaAccredited: false, accreditations: [], naacGrade: "", worldRank: null, nationalRank: null, rankingSource: "", worldRankingSource: "", nationalRankingSource: "", otherRankingSource: "", otherNationalRankingSource: "", subjectRankings: {} },
-        fees: university.fees || { tuitionAnnual: 0, totalProgram: 0, hostelAnnual: 0, registration: 0, examination: 0, library: 0, otherFees: {}, currency: "INR", scholarshipAvailable: false, scholarshipDetails: "", paymentSchedule: "", refundPolicy: "", feeHikePolicy: "" },
+        recognition: (() => {
+          const rawRec = university.recognition;
+          const rawSubj = rawRec?.subjectRankings;
+          const subjArr = Array.isArray(rawSubj) ? rawSubj : Object.entries(rawSubj || {}).map(([k, v]) => ({ subject: k, ranking: v as string }));
+          return { bodies: [], ecfmgStatus: "PENDING", nbaAccredited: false, accreditations: [], naacGrade: "", worldRank: null, nationalRank: null, rankingSource: "", worldRankingSource: "", nationalRankingSource: "", otherRankingSource: "", otherNationalRankingSource: "", subjectRankings: subjArr, ...rawRec, subjectRankings: subjArr };
+        })(),
+        fees: (() => {
+          const rawFees = university.fees;
+          const rawOther = rawFees?.otherFees;
+          const otherFeesArr = Array.isArray(rawOther) ? rawOther : Object.entries(rawOther || {}).map(([k, v]) => ({ name: k, amount: v as number }));
+          return { tuitionAnnual: 0, totalProgram: 0, hostelAnnual: 0, registration: 0, examination: 0, library: 0, otherFees: otherFeesArr, currency: "INR", scholarshipAvailable: false, scholarshipDetails: "", paymentSchedule: "", refundPolicy: "", feeHikePolicy: "", ...rawFees, otherFees: otherFeesArr };
+        })(),
         infrastructure: university.infrastructure || { hospitalBeds: 0, departments: [], hostelBoys: 0, hostelGirls: 0, laboratories: [], facilities: [], cafeteria: false, wifiCampus: false, transportation: false, librarySize: "", campusArea: 0 },
         admission: university.admission || { entranceExams: ["NEET"], minimumMarks: "", ageCriteria: "", eligibility: "", requiredDocuments: [], applicationDeadline: "", applicationFee: 0, selectionProcess: "", reservationPolicy: "", programEligibility: [] },
         support: university.support || { topRecruiters: [], alumniNetwork: false, alumniCount: 0, internationalStudentSupport: false, visaAssistance: false, languageSupport: [], counselingServices: false, careerGuidance: false, placementRate: null, averagePackage: null },
         content: university.content || { shortDescription: "", longDescription: "", highlights: [], gallery: [], whyChooseUs: "", virtualTour: "" },
-        admin: university.admin || { pocName: "", pocDesignation: "", pocEmail: "", pocPhone: "", phoneCountryCode: "", phoneNumber: "", accountName: "", accountNumber: "", bankName: "", bankBranch: "", ifscCode: "", commission: 10, gstNumber: "", panNumber: "", bankCountry: "", bankDetails: {} },
+        admin: (() => {
+          const rawAdmin = university.admin;
+          const rawBank = rawAdmin?.bankDetails;
+          const bankArr = Array.isArray(rawBank) ? rawBank : Object.entries(rawBank || {}).map(([k, v]) => ({ key: k, value: v as string }));
+          return { pocName: "", pocDesignation: "", pocEmail: "", pocPhone: "", phoneCountryCode: "", phoneNumber: "", accountName: "", accountNumber: "", bankName: "", bankBranch: "", ifscCode: "", commission: 10, gstNumber: "", panNumber: "", bankCountry: "", bankDetails: bankArr, ...rawAdmin, bankDetails: bankArr };
+        })(),
         socialLinks: university.socialLinks || { facebook: "", instagram: "", youtube: "", linkedin: "", twitter: "", tiktok: "" },
         studentDemographics: university.studentDemographics || { totalStudents: 0, localStudents: 0, foreignStudents: 0, foreignByCountry: [] },
       });
@@ -84,7 +99,30 @@ export default function EditUniversityPage() {
 
   const handleSubmit = async () => {
     try {
-      await updateMutation.mutateAsync({ id: params.id as string, data: formData });
+      const data = { ...formData };
+      // Convert arrays back to Record<> for API
+      if (Array.isArray(data.fees?.otherFees)) {
+        const r: Record<string, number> = {};
+        for (const item of data.fees.otherFees) {
+          if (item.name?.trim()) r[item.name.trim()] = item.amount ?? 0;
+        }
+        data.fees = { ...data.fees, otherFees: r };
+      }
+      if (Array.isArray(data.recognition?.subjectRankings)) {
+        const r: Record<string, string> = {};
+        for (const item of data.recognition.subjectRankings) {
+          if (item.subject?.trim()) r[item.subject.trim()] = item.ranking ?? "";
+        }
+        data.recognition = { ...data.recognition, subjectRankings: r };
+      }
+      if (Array.isArray(data.admin?.bankDetails)) {
+        const r: Record<string, string> = {};
+        for (const item of data.admin.bankDetails) {
+          if (item.key?.trim()) r[item.key.trim()] = item.value ?? "";
+        }
+        data.admin = { ...data.admin, bankDetails: r };
+      }
+      await updateMutation.mutateAsync({ id: params.id as string, data });
       router.push(`/admin/universities/${params.id}`);
     } catch (error) {
       console.error("Failed to update university:", error);

@@ -408,7 +408,7 @@ export class ParentsService {
     }
 
     // Create user with PARENT role
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 8);
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
@@ -548,8 +548,8 @@ export class ParentsService {
   // ──────────────────────────────────────────────
 
   async adminFindAll(query: AdminParentLinksQueryDto) {
-    const page = parseInt(query.page || '1', 10);
-    const limit = parseInt(query.limit || '20', 10);
+    const page = parseInt(query.page || '1', 8);
+    const limit = parseInt(query.limit || '20', 8);
     const skip = (page - 1) * limit;
 
     const where: any = {};

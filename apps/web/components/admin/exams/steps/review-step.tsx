@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@repo/ui";
 import { Badge } from "@repo/ui";
 import { 
@@ -10,28 +8,20 @@ import {
   Building2, 
   Calendar, 
   Clock, 
-  Shield,
-  Video,
-  Mic,
-  Monitor,
-  Eye,
-  MousePointer,
-  AlertTriangle,
   FileText,
-  Users,
   Check
 } from "lucide-react";
-import { useExam, usePublishExam } from "@/domains/exams/exams.queries";
-import { ExamStatus, QuestionType } from "@/domains/exams/exams.types";
+import { QuestionType, type CreateExamInput, type CreateQuestionInput } from "@/domains/exams/exams.types";
 
 interface Props {
-  examId: string;
   formData: {
-    basicInfo?: Record<string, unknown>;
-    proctoring?: Record<string, unknown>;
-    questions?: unknown[];
+    basicInfo?: Partial<CreateExamInput>;
+    questions?: CreateQuestionInput[];
   };
-  onPublished: () => void;
+  onPublish: () => void;
+  isPending: boolean;
+  onBack: () => void;
+  submitLabel?: string;
 }
 
 const QUESTION_TYPE_LABELS: Record<string, string> = {
@@ -41,42 +31,17 @@ const QUESTION_TYPE_LABELS: Record<string, string> = {
   [QuestionType.SUBJECTIVE]: "Subjective",
 };
 
-export function ReviewStep({ examId, formData, onPublished }: Props) {
-  const router = useRouter();
-  const { data: exam, isLoading } = useExam(examId);
-  const publishExam = usePublishExam(examId);
-  const [isConfirming, setIsConfirming] = useState(false);
-
-  if (isLoading || !exam) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-[#ebe7e1] rounded w-48" />
-          <div className="h-32 bg-[#ebe7e1] rounded w-full" />
-        </div>
-      </div>
-    );
-  }
-
-  const questions = exam.questions || [];
-  const proctoring = exam.proctoringConfig;
-  const totalMarks = questions.reduce((sum, q) => sum + Number(q.marks), 0);
+export function ReviewStep({ formData, onPublish, isPending, onBack, submitLabel }: Props) {
+  const basic = formData.basicInfo || {};
+  const questions = formData.questions || [];
+  const totalMarks = questions.reduce((sum, q) => sum + Number(q.marks || 0), 0);
 
   const questionTypeCounts = questions.reduce((acc, q) => {
     acc[q.type] = (acc[q.type] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
-  const handlePublish = async () => {
-    try {
-      await publishExam.mutateAsync();
-      onPublished();
-    } catch {
-      // Error handled by mutation
-    }
-  };
-
-  const isReadyToPublish = questions.length > 0 && exam.status === ExamStatus.DRAFT;
+  const isReadyToPublish = questions.length > 0;
 
   return (
     <div className="space-y-8">
@@ -109,7 +74,7 @@ export function ReviewStep({ examId, formData, onPublished }: Props) {
               isReadyToPublish ? "text-emerald-700" : "text-amber-700"
             }`}>
               {isReadyToPublish 
-                ? "Your exam is configured and ready to be published. Students will be able to register once published."
+                ? "Your exam is configured and ready to be published."
                 : "Please add at least one question before publishing."
               }
             </p>
@@ -117,7 +82,7 @@ export function ReviewStep({ examId, formData, onPublished }: Props) {
         </div>
       </div>
 
-      {/* Exam Summary Cards */}
+      {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-[#f5f1ec] rounded-lg p-4 border border-[#d3cec6]">
           <p className="text-2xl font-medium text-[#111111]">{questions.length}</p>
@@ -128,11 +93,11 @@ export function ReviewStep({ examId, formData, onPublished }: Props) {
           <p className="text-sm text-[#626260]">Total Marks</p>
         </div>
         <div className="bg-[#f5f1ec] rounded-lg p-4 border border-[#d3cec6]">
-          <p className="text-2xl font-medium text-[#111111]">{exam.durationMinutes}</p>
+          <p className="text-2xl font-medium text-[#111111]">{basic.durationMinutes || 0}</p>
           <p className="text-sm text-[#626260]">Minutes</p>
         </div>
         <div className="bg-[#f5f1ec] rounded-lg p-4 border border-[#d3cec6]">
-          <p className="text-2xl font-medium text-[#111111]">{exam.passingPercentage}%</p>
+          <p className="text-2xl font-medium text-[#111111]">{basic.passingPercentage || 0}%</p>
           <p className="text-sm text-[#626260]">Passing</p>
         </div>
       </div>
@@ -147,14 +112,14 @@ export function ReviewStep({ examId, formData, onPublished }: Props) {
             <FileText className="h-5 w-5 text-[#9c9fa5] mt-0.5" />
             <div>
               <p className="text-sm text-[#626260]">Exam Name</p>
-              <p className="font-medium text-[#111111]">{exam.name}</p>
+              <p className="font-medium text-[#111111]">{basic.name || "N/A"}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <Building2 className="h-5 w-5 text-[#9c9fa5] mt-0.5" />
             <div>
               <p className="text-sm text-[#626260]">University</p>
-              <p className="font-medium text-[#111111]">{exam.university?.name || "N/A"}</p>
+              <p className="font-medium text-[#111111]">{basic.universityId ? basic.universityId.slice(0, 8) + "…" : "N/A"}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
@@ -162,7 +127,7 @@ export function ReviewStep({ examId, formData, onPublished }: Props) {
             <div>
               <p className="text-sm text-[#626260]">Date Window</p>
               <p className="font-medium text-[#111111]">
-                {new Date(exam.dateWindowStart).toLocaleDateString("en-IN")} - {new Date(exam.dateWindowEnd).toLocaleDateString("en-IN")}
+                {basic.dateWindowStart ? new Date(basic.dateWindowStart).toLocaleDateString("en-IN") : "N/A"} - {basic.dateWindowEnd ? new Date(basic.dateWindowEnd).toLocaleDateString("en-IN") : "N/A"}
               </p>
             </div>
           </div>
@@ -170,7 +135,7 @@ export function ReviewStep({ examId, formData, onPublished }: Props) {
             <Clock className="h-5 w-5 text-[#9c9fa5] mt-0.5" />
             <div>
               <p className="text-sm text-[#626260]">Duration</p>
-              <p className="font-medium text-[#111111]">{exam.durationMinutes} minutes</p>
+              <p className="font-medium text-[#111111]">{basic.durationMinutes} minutes</p>
             </div>
           </div>
         </div>
@@ -198,51 +163,6 @@ export function ReviewStep({ examId, formData, onPublished }: Props) {
         )}
       </div>
 
-      {/* Proctoring Summary */}
-      {proctoring && (
-        <div className="bg-white rounded-lg border border-[#d3cec6] p-6">
-          <h3 className="text-sm font-medium text-[#111111] uppercase tracking-wide mb-4">
-            Security Settings
-          </h3>
-          <div className="flex flex-wrap gap-3">
-            <FeatureBadge 
-              enabled={proctoring.aiProctoringEnabled} 
-              icon={Shield}
-              label="AI Proctoring"
-            />
-            <FeatureBadge 
-              enabled={proctoring.webcamRequired} 
-              icon={Video}
-              label="Webcam"
-            />
-            <FeatureBadge 
-              enabled={proctoring.microphoneRequired} 
-              icon={Mic}
-              label="Microphone"
-            />
-            <FeatureBadge 
-              enabled={proctoring.screenRecordingEnabled} 
-              icon={Monitor}
-              label="Screen Recording"
-            />
-            <FeatureBadge 
-              enabled={proctoring.faceDetectionEnabled} 
-              icon={Eye}
-              label="Face Detection"
-            />
-            <FeatureBadge 
-              enabled={proctoring.gazeTrackingEnabled} 
-              icon={MousePointer}
-              label="Gaze Tracking"
-            />
-          </div>
-          <div className="mt-4 pt-4 border-t border-[#ebe7e1] text-sm text-[#626260]">
-            <p>Tab Switch Warnings: <span className="font-medium text-[#111111]">{proctoring.tabSwitchWarnings}</span></p>
-            <p>Connectivity Grace: <span className="font-medium text-[#111111]">{proctoring.connectivityGraceMinutes} minutes</span></p>
-          </div>
-        </div>
-      )}
-
       {/* Questions Preview */}
       {questions.length > 0 && (
         <div className="bg-white rounded-lg border border-[#d3cec6] p-6">
@@ -251,7 +171,7 @@ export function ReviewStep({ examId, formData, onPublished }: Props) {
           </h3>
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {questions.slice(0, 5).map((question, index) => (
-              <div key={question.id} className="flex items-start gap-3 p-3 bg-[#f5f1ec] rounded-lg">
+              <div key={index} className="flex items-start gap-3 p-3 bg-[#f5f1ec] rounded-lg">
                 <span className="text-sm font-medium text-[#626260] w-6">{index + 1}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-[#111111] line-clamp-2">{question.questionText}</p>
@@ -270,76 +190,27 @@ export function ReviewStep({ examId, formData, onPublished }: Props) {
         </div>
       )}
 
-      {/* Publish Confirmation */}
+      {/* Action Buttons */}
       <div className="border-t border-[#d3cec6] pt-6">
-        {!isConfirming ? (
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-[#626260]">
-              <p>Once published, students will be able to register for this exam.</p>
-              <p>You can still edit questions and settings after publishing.</p>
-            </div>
-            <Button
-              onClick={() => setIsConfirming(true)}
-              disabled={!isReadyToPublish}
-              className="bg-[#111111] hover:bg-[#313130] text-white"
-            >
-              <Check className="h-4 w-4 mr-2" />
-              Publish Exam
-            </Button>
-          </div>
-        ) : (
-          <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-            <div className="flex items-start gap-3 mb-4">
-              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
-              <div>
-                <h4 className="font-medium text-amber-900">Confirm Publishing</h4>
-                <p className="text-sm text-amber-700">
-                  Are you sure you want to publish this exam? Students will be notified and can register.
-                </p>
-              </div>
-            </div>
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setIsConfirming(false)}
-                className="border-[#d3cec6]"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handlePublish}
-                disabled={publishExam.isPending}
-                className="bg-[#111111] hover:bg-[#313130] text-white"
-              >
-                {publishExam.isPending ? "Publishing..." : "Yes, Publish Exam"}
-              </Button>
-            </div>
-          </div>
-        )}
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            onClick={onBack}
+            className="border-[#ECEAE6] text-[#626260] hover:text-[#111111] font-medium"
+          >
+            Back to Questions
+          </Button>
+          <Button
+            onClick={onPublish}
+            disabled={!isReadyToPublish || isPending}
+            className="bg-[#111111] hover:bg-[#313130] text-white"
+          >
+            {isPending ? "Saving..." : submitLabel || "Create & Publish Exam"}
+            <Check className="h-4 w-4 ml-2" />
+          </Button>
+        </div>
       </div>
     </div>
   );
 }
 
-// Feature Badge Component
-function FeatureBadge({ 
-  enabled, 
-  icon: Icon, 
-  label 
-}: { 
-  enabled: boolean; 
-  icon: React.ElementType; 
-  label: string;
-}) {
-  return (
-    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${
-      enabled 
-        ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
-        : "bg-gray-50 text-gray-500 border border-gray-200"
-    }`}>
-      <Icon className="h-4 w-4" />
-      <span>{label}</span>
-      {enabled && <Check className="h-3 w-3" />}
-    </div>
-  );
-}

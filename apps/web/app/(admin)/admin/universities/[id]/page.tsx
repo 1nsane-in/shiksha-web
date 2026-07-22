@@ -150,7 +150,7 @@ export default function UniversityDetailPage() {
       const res = await uploadFile(file, "banners");
       await updateUniversityMut.mutateAsync({
         id: uniId,
-        data: { bannerImage: res.url },
+        data: { bannerImage: res.url.replace(/ /g, "%20") },
       });
       toast.success("Banner image updated");
     } catch {
@@ -168,7 +168,7 @@ export default function UniversityDetailPage() {
       const res = await uploadFile(file, "logos");
       await updateUniversityMut.mutateAsync({
         id: uniId,
-        data: { logo: res.url },
+        data: { logo: res.url.replace(/ /g, "%20") },
       });
       toast.success("Logo updated");
     } catch {

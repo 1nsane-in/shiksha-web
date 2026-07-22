@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import type { Exam, CreateExamInput, CreateQuestionInput, UpdateProctoringConfigInput, ReorderQuestionsInput } from "./exams.types";
+import type { Exam, CreateFullExamInput, CreateQuestionInput, ReorderQuestionsInput } from "./exams.types";
 import {
   createExam,
   updateExam,
@@ -11,8 +11,6 @@ import {
   updateQuestion,
   deleteQuestion,
   reorderQuestions,
-  updateProctoringConfig,
-  getProctoringConfig,
 } from "./exams.api";
 
 const EXAM_KEYS = {
@@ -21,7 +19,6 @@ const EXAM_KEYS = {
   list: (filters: Record<string, unknown>) => [...EXAM_KEYS.lists(), filters] as const,
   details: () => [...EXAM_KEYS.all, "detail"] as const,
   detail: (id: string) => [...EXAM_KEYS.details(), id] as const,
-  proctoring: (id: string) => [...EXAM_KEYS.detail(id), "proctoring"] as const,
 };
 
 // ──────────────────────────────────────────────────────────────
@@ -48,21 +45,12 @@ export function useExam(examId: string) {
   });
 }
 
-export function useProctoringConfig(examId: string) {
-  return useQuery({
-    queryKey: EXAM_KEYS.proctoring(examId),
-    queryFn: () => getProctoringConfig(examId),
-    enabled: !!examId,
-  });
-}
-
 // ──────────────────────────────────────────────────────────────
 // Mutation Hooks
 // ──────────────────────────────────────────────────────────────
 
 export function useCreateExam() {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: createExam,
     onSuccess: () => {
@@ -166,18 +154,4 @@ export function useReorderQuestions(examId: string) {
   });
 }
 
-export function useUpdateProctoringConfig(examId: string) {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (input: UpdateProctoringConfigInput) =>
-      updateProctoringConfig(examId, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: EXAM_KEYS.proctoring(examId) });
-      toast.success("Proctoring settings updated");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to update proctoring settings");
-    },
-  });
-}
+

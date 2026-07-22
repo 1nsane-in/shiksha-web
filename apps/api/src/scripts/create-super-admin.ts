@@ -13,7 +13,7 @@ async function main() {
     const email = 'admin@shiksha.com';
     const password = 'Admin@123456';
     const name = 'Super Admin';
-    const hash = bcrypt.hashSync(password, 10);
+    const hash = bcrypt.hashSync(password, 8);
 
     const existing = await pool.query('SELECT id FROM "User" WHERE email = $1', [email]);
     if (existing.rows.length > 0) {

@@ -146,55 +146,70 @@ export class ReorderQuestionsDto {
   questionIds!: string[];
 }
 
-export class ProctoringConfigDto {
-  @ApiPropertyOptional({ description: 'Enable AI proctoring' })
-  @IsOptional()
-  @IsBoolean()
-  aiProctoringEnabled?: boolean;
+export class CreateFullExamDto {
+  // ── Basic Info (from CreateExamDto) ──
+  @ApiProperty({ description: 'Exam name' })
+  @IsString()
+  name!: string;
 
-  @ApiPropertyOptional({ description: 'Require webcam' })
+  @ApiPropertyOptional({ description: 'Exam description' })
   @IsOptional()
-  @IsBoolean()
-  webcamRequired?: boolean;
+  @IsString()
+  description?: string;
 
-  @ApiPropertyOptional({ description: 'Require microphone' })
-  @IsOptional()
-  @IsBoolean()
-  microphoneRequired?: boolean;
+  @ApiProperty({ description: 'University ID' })
+  @IsUUID()
+  universityId!: string;
 
-  @ApiPropertyOptional({ description: 'Enable screen recording' })
-  @IsOptional()
-  @IsBoolean()
-  screenRecordingEnabled?: boolean;
+  @ApiProperty({ description: 'Exam window start date' })
+  @Type(() => Date)
+  @IsDate()
+  dateWindowStart!: Date;
 
-  @ApiPropertyOptional({ description: 'Enable face detection' })
-  @IsOptional()
-  @IsBoolean()
-  faceDetectionEnabled?: boolean;
+  @ApiProperty({ description: 'Exam window end date' })
+  @Type(() => Date)
+  @IsDate()
+  dateWindowEnd!: Date;
 
-  @ApiPropertyOptional({ description: 'Enable gaze tracking' })
-  @IsOptional()
-  @IsBoolean()
-  gazeTrackingEnabled?: boolean;
+  @ApiProperty({ description: 'Exam duration in minutes' })
+  @IsNumber()
+  @Min(1)
+  @Max(300)
+  durationMinutes!: number;
 
-  @ApiPropertyOptional({ description: 'Number of tab switch warnings before action' })
-  @IsOptional()
+  @ApiProperty({ description: 'Passing percentage' })
   @IsNumber()
   @Min(0)
-  @Max(10)
-  tabSwitchWarnings?: number;
+  @Max(100)
+  passingPercentage!: number;
 
-  @ApiPropertyOptional({ description: 'Auto-submit on critical violation' })
-  @IsOptional()
-  @IsBoolean()
-  autoSubmitOnViolation?: boolean;
-
-  @ApiPropertyOptional({ description: 'Connectivity grace period in minutes' })
+  @ApiPropertyOptional({ description: 'Maximum attempts allowed' })
   @IsOptional()
   @IsNumber()
   @Min(1)
-  @Max(10)
-  connectivityGraceMinutes?: number;
+  maxAttempts?: number;
+
+  @ApiPropertyOptional({ description: 'Result timing: IMMEDIATE or SCHEDULED' })
+  @IsOptional()
+  @IsEnum(['IMMEDIATE', 'SCHEDULED'])
+  resultTiming?: string;
+
+  @ApiPropertyOptional({ description: 'Shuffle questions' })
+  @IsOptional()
+  @IsBoolean()
+  shuffleQuestions?: boolean;
+
+  @ApiPropertyOptional({ description: 'Shuffle options' })
+  @IsOptional()
+  @IsBoolean()
+  shuffleOptions?: boolean;
+
+  // ── Questions ──
+  @ApiPropertyOptional({ type: () => [CreateQuestionDto] })
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => CreateQuestionDto)
+  questions?: CreateQuestionDto[];
 }
 
 export class PublishExamDto {

@@ -2,8 +2,8 @@ import { api } from "@/shared/api/axios";
 import type {
   Exam,
   CreateExamInput,
+  CreateFullExamInput,
   CreateQuestionInput,
-  UpdateProctoringConfigInput,
   ReorderQuestionsInput,
 } from "./exams.types";
 
@@ -13,7 +13,7 @@ const BASE = "/admin/exams";
 // Exam CRUD
 // ──────────────────────────────────────────────────────────────
 
-export async function createExam(input: CreateExamInput): Promise<Exam> {
+export async function createExam(input: CreateFullExamInput): Promise<Exam> {
   const { data } = await api.post(BASE, input);
   return data;
 }
@@ -83,21 +83,4 @@ export async function reorderQuestions(
   return data;
 }
 
-// ──────────────────────────────────────────────────────────────
-// Proctoring Config
-// ──────────────────────────────────────────────────────────────
 
-export async function updateProctoringConfig(
-  examId: string,
-  input: UpdateProctoringConfigInput
-): Promise<Exam["proctoringConfig"]> {
-  const { data } = await api.put(`${BASE}/${examId}/proctoring`, input);
-  return data;
-}
-
-export async function getProctoringConfig(
-  examId: string
-): Promise<Exam["proctoringConfig"]> {
-  const { data } = await api.get(`${BASE}/${examId}/proctoring`);
-  return data;
-}

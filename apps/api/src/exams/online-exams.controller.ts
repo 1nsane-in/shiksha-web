@@ -13,12 +13,11 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { OnlineExamsService } from './online-exams.service';
 import {
-  CreateExamDto,
+  CreateFullExamDto,
   UpdateExamDto,
   CreateQuestionDto,
   UpdateQuestionDto,
   ReorderQuestionsDto,
-  ProctoringConfigDto,
   PublishExamDto,
 } from './dto/create-exam.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -40,12 +39,12 @@ export class OnlineExamsController {
   // ──────────────────────────────────────────────────────────────
 
   @Post()
-  @ApiOperation({ summary: 'Create new exam (Step 1: Basic Info)' })
+  @ApiOperation({ summary: 'Create exam (basic info + questions in single request)' })
   async createExam(
-    @Body() dto: CreateExamDto,
+    @Body() dto: CreateFullExamDto,
     @AuthUser() user: AuthenticatedUser,
   ) {
-    return this.onlineExamsService.createExam(user.id, dto);
+    return this.onlineExamsService.createFullExam(user.id, dto);
   }
 
   @Put(':id')
@@ -135,24 +134,4 @@ export class OnlineExamsController {
     return this.onlineExamsService.reorderQuestions(examId, dto);
   }
 
-  // ──────────────────────────────────────────────────────────────
-  // PROCTORING CONFIG
-  // ──────────────────────────────────────────────────────────────
-
-  @Put(':id/proctoring')
-  @ApiOperation({ summary: 'Update proctoring config (Step 2: Proctoring Settings)' })
-  async updateProctoringConfig(
-    @Param('id', ParseUUIDPipe) examId: string,
-    @Body() dto: ProctoringConfigDto,
-  ) {
-    return this.onlineExamsService.updateProctoringConfig(examId, dto);
-  }
-
-  @Get(':id/proctoring')
-  @ApiOperation({ summary: 'Get proctoring config' })
-  async getProctoringConfig(
-    @Param('id', ParseUUIDPipe) examId: string,
-  ) {
-    return this.onlineExamsService.getProctoringConfig(examId);
-  }
 }

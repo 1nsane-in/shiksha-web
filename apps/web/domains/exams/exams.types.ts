@@ -44,18 +44,6 @@ export interface ExamQuestion {
   };
 }
 
-export interface ProctoringConfig {
-  aiProctoringEnabled: boolean;
-  webcamRequired: boolean;
-  microphoneRequired: boolean;
-  screenRecordingEnabled: boolean;
-  faceDetectionEnabled: boolean;
-  gazeTrackingEnabled: boolean;
-  tabSwitchWarnings: number;
-  autoSubmitOnViolation: boolean;
-  connectivityGraceMinutes: number;
-}
-
 export interface Exam {
   id: string;
   name: string;
@@ -75,7 +63,6 @@ export interface Exam {
   createdAt: string;
   updatedAt: string;
   questions: ExamQuestion[];
-  proctoringConfig?: ProctoringConfig;
   university?: {
     id: string;
     name: string;
@@ -118,16 +105,22 @@ export interface CreateQuestionInput {
   };
 }
 
-export interface UpdateProctoringConfigInput {
-  aiProctoringEnabled?: boolean;
-  webcamRequired?: boolean;
-  microphoneRequired?: boolean;
-  screenRecordingEnabled?: boolean;
-  faceDetectionEnabled?: boolean;
-  gazeTrackingEnabled?: boolean;
-  tabSwitchWarnings?: number;
-  autoSubmitOnViolation?: boolean;
-  connectivityGraceMinutes?: number;
+export interface CreateFullExamInput {
+  // Basic Info
+  name: string;
+  description?: string;
+  universityId: string;
+  dateWindowStart: string;
+  dateWindowEnd: string;
+  durationMinutes: number;
+  passingPercentage: number;
+  maxAttempts?: number;
+  resultTiming?: 'IMMEDIATE' | 'SCHEDULED';
+  shuffleQuestions?: boolean;
+  shuffleOptions?: boolean;
+
+  // Questions
+  questions?: CreateQuestionInput[];
 }
 
 export interface ReorderQuestionsInput {

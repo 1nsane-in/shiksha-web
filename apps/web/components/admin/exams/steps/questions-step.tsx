@@ -17,12 +17,11 @@ import {
   CheckSquare,
   AlignLeft
 } from "lucide-react";
-import { useExam } from "@/domains/exams/exams.queries";
 import { QuestionType, QuestionDifficulty, type CreateQuestionInput } from "@/domains/exams/exams.types";
 import { toast } from "sonner";
+import { uploadFile } from "@/domains/documents/documents.api";
 
 interface Props {
-  examId: string;
   data?: CreateQuestionInput[];
   onChange: (data: CreateQuestionInput[]) => void;
 }
@@ -34,8 +33,7 @@ const QUESTION_TYPES = [
   { type: QuestionType.SUBJECTIVE, label: "Subjective", icon: AlignLeft, description: "Descriptive answer question" },
 ];
 
-export function QuestionsStep({ examId, data = [], onChange }: Props) {
-  const { data: exam } = useExam(examId);
+export function QuestionsStep({ data = [], onChange }: Props) {
   const [questions, setQuestions] = useState<CreateQuestionInput[]>(data);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [showTypeSelector, setShowTypeSelector] = useState(false);
@@ -290,10 +288,10 @@ function QuestionCard({
           >
             <Trash2 className="h-4 w-4" />
           </Button>
-        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div className="bg-white rounded-xl border border-[#111111] p-6 shadow-sm">
@@ -451,15 +449,59 @@ function QuestionCard({
           </div>
         )}
 
-        {/* Image Upload Placeholder */}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-[#111111]">Question Image (Optional)</Label>
-          <button className="w-full p-4 border-2 border-dashed border-[#d3cec6] rounded-lg hover:border-[#111111] hover:bg-[#f5f1ec] transition-colors flex flex-col items-center gap-2">
-            <ImageIcon className="h-8 w-8 text-[#9c9fa5]" />
-            <span className="text-sm text-[#626260]">Click to upload image</span>
+        {/* Image Upload */}
+        <ImageUpload
+          currentUrl={question.questionImageUrl}
+          onUpload={(url) => onUpdate({ questionImageUrl: url })}
+          onRemove={() => onUpdate({ questionImageUrl: undefined })}
+        />
+      </div>
+    </div>
+  );
+}
+
+// Image Upload Component
+function ImageUpload({ currentUrl, onUpload, onRemove }: { currentUrl?: string; onUpload: (url: string) => void; onRemove: () => void }) {
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const res = await uploadFile(file, 'uploads');
+      onUpload(res.url);
+      toast.success('Image uploaded');
+    } catch {
+      toast.error('Upload failed');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  if (currentUrl) {
+    return (
+      <div className="space-y-2">
+        <Label className="text-sm font-medium text-[#111111]">Question Image</Label>
+        <div className="relative rounded-lg overflow-hidden border border-[#d3cec6]">
+          <img src={currentUrl} alt="Question" className="max-h-40 w-full object-contain bg-[#f5f1ec]" />
+          <button onClick={onRemove} className="absolute top-2 right-2 h-7 w-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80">
+            <X className="h-4 w-4" />
           </button>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label className="text-sm font-medium text-[#111111]">Question Image (Optional)</Label>
+      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-[#d3cec6] p-4 hover:border-[#111111] hover:bg-[#f5f1ec] transition-colors">
+        <input type="file" accept="image/*" className="sr-only" onChange={handleFile} disabled={uploading} />
+        <ImageIcon className={`h-8 w-8 ${uploading ? 'animate-pulse text-[#9c9fa5]' : 'text-[#9c9fa5]'}`} />
+        <span className="text-sm text-[#626260]">{uploading ? 'Uploading...' : 'Click to upload image'}</span>
+      </label>
     </div>
   );
 }

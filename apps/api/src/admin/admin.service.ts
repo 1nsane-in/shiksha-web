@@ -122,7 +122,7 @@ export class AdminService {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 8);
 
     // Create admin user
     const admin = await this.prisma.user.create({
@@ -255,7 +255,7 @@ export class AdminService {
     }
 
     // Hash new password
-    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 8);
 
     await this.prisma.user.update({
       where: { id },
@@ -272,7 +272,7 @@ export class AdminService {
     await this.findOne(id);
 
     // Hash new password
-    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 8);
 
     await this.prisma.user.update({
       where: { id },

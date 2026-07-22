@@ -5,47 +5,50 @@ import { useRouter } from "next/navigation";
 import { Button } from "@repo/ui";
 import { Input } from "@repo/ui";
 import { Badge } from "@repo/ui";
-import { 
-  Plus, 
-  Search, 
-  Calendar, 
-  Clock, 
-  Building2, 
+import {
+  Plus,
+  Search,
+  Calendar,
+  Clock,
+  Building2,
   MoreHorizontal,
   Filter,
   CheckCircle2,
   Circle,
-  Archive
+  Archive,
 } from "lucide-react";
 import { useExams } from "@/domains/exams/exams.queries";
 import { ExamStatus } from "@/domains/exams/exams.types";
 import Link from "next/link";
 
-const STATUS_BADGES: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
-  [ExamStatus.DRAFT]: { 
-    label: "Draft", 
+const STATUS_BADGES: Record<
+  string,
+  { label: string; className: string; icon: React.ReactNode }
+> = {
+  [ExamStatus.DRAFT]: {
+    label: "Draft",
     className: "bg-amber-50 text-amber-700 border-amber-200",
-    icon: <Circle className="h-3 w-3" />
+    icon: <Circle className="h-3 w-3" />,
   },
-  [ExamStatus.SCHEDULED]: { 
-    label: "Scheduled", 
+  [ExamStatus.SCHEDULED]: {
+    label: "Scheduled",
     className: "bg-blue-50 text-blue-700 border-blue-200",
-    icon: <Calendar className="h-3 w-3" />
+    icon: <Calendar className="h-3 w-3" />,
   },
-  [ExamStatus.ACTIVE]: { 
-    label: "Active", 
+  [ExamStatus.ACTIVE]: {
+    label: "Active",
     className: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    icon: <CheckCircle2 className="h-3 w-3" />
+    icon: <CheckCircle2 className="h-3 w-3" />,
   },
-  [ExamStatus.COMPLETED]: { 
-    label: "Completed", 
+  [ExamStatus.COMPLETED]: {
+    label: "Completed",
     className: "bg-gray-50 text-gray-700 border-gray-200",
-    icon: <CheckCircle2 className="h-3 w-3" />
+    icon: <CheckCircle2 className="h-3 w-3" />,
   },
-  [ExamStatus.ARCHIVED]: { 
-    label: "Archived", 
+  [ExamStatus.ARCHIVED]: {
+    label: "Archived",
     className: "bg-slate-50 text-slate-700 border-slate-200",
-    icon: <Archive className="h-3 w-3" />
+    icon: <Archive className="h-3 w-3" />,
   },
 };
 
@@ -53,44 +56,46 @@ export default function AdminExamsPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<ExamStatus | "ALL">("ALL");
-  
-  const { data: examsData, isLoading, error } = useExams({
+
+  const {
+    data: examsData,
+    isLoading,
+    error,
+  } = useExams({
     page: 1,
     limit: 50,
     status: statusFilter === "ALL" ? undefined : statusFilter,
   });
 
   const exams = examsData?.data ?? [];
-  
-  const filteredExams = exams.filter(exam => 
-    exam.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    exam.university?.name.toLowerCase().includes(searchQuery.toLowerCase())
+
+  const filteredExams = exams.filter(
+    (exam) =>
+      exam.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      exam.university?.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
-    <div className="min-h-screen bg-[#f5f1ec]">
+    <div className="min-h-screen ">
       {/* Header */}
-      <div className="bg-white border-b border-[#d3cec6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-medium text-[#111111] tracking-tight">
-                Online Exams
-              </h1>
-              <p className="text-sm text-[#626260] mt-1">
-                Create and manage entrance exams for university admissions
-              </p>
-            </div>
-            <Link href="/admin/exams/create">
-              <Button className="bg-[#111111] hover:bg-[#313130] text-white">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Online Exam
-              </Button>
-            </Link>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-medium text-[#111111] tracking-tight">
+              Online Exams
+            </h1>
+            <p className="text-sm text-[#626260] mt-1">
+              Create and manage entrance exams for university admissions
+            </p>
           </div>
+          <Link href="/admin/exams/create">
+            <Button className="bg-[#111111] hover:bg-[#313130] text-white">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Online Exam
+            </Button>
+          </Link>
         </div>
       </div>
-
       {/* Filters & Search */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col sm:flex-row gap-4">
@@ -107,7 +112,9 @@ export default function AdminExamsPage() {
             <Filter className="h-4 w-4 text-[#626260]" />
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as ExamStatus | "ALL")}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as ExamStatus | "ALL")
+              }
               className="h-10 rounded-md border border-[#d3cec6] bg-white px-3 text-sm focus:border-[#111111] focus:ring-[#111111]"
             >
               <option value="ALL">All Status</option>
@@ -125,7 +132,10 @@ export default function AdminExamsPage() {
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl border border-[#d3cec6] p-6 animate-pulse">
+              <div
+                key={i}
+                className="bg-white rounded-xl border border-[#d3cec6] p-6 animate-pulse"
+              >
                 <div className="h-6 bg-[#ebe7e1] rounded w-1/3 mb-4" />
                 <div className="h-4 bg-[#ebe7e1] rounded w-1/2" />
               </div>
@@ -134,8 +144,8 @@ export default function AdminExamsPage() {
         ) : error ? (
           <div className="bg-white rounded-xl border border-[#d3cec6] p-12 text-center">
             <p className="text-[#626260]">Failed to load exams</p>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="mt-4 border-[#d3cec6]"
               onClick={() => window.location.reload()}
             >
@@ -151,8 +161,8 @@ export default function AdminExamsPage() {
               {searchQuery ? "No exams found" : "No exams created yet"}
             </h3>
             <p className="text-sm text-[#626260] mb-6 max-w-md mx-auto">
-              {searchQuery 
-                ? "Try adjusting your search or filters" 
+              {searchQuery
+                ? "Try adjusting your search or filters"
                 : "Create your first online exam to get started with entrance examinations"}
             </p>
             {!searchQuery && (
@@ -167,8 +177,9 @@ export default function AdminExamsPage() {
         ) : (
           <div className="space-y-4">
             {filteredExams.map((exam) => {
-              const statusBadge = STATUS_BADGES[exam.status] || STATUS_BADGES[ExamStatus.DRAFT];
-              
+              const statusBadge =
+                STATUS_BADGES[exam.status] || STATUS_BADGES[ExamStatus.DRAFT];
+
               return (
                 <div
                   key={exam.id}
@@ -181,15 +192,15 @@ export default function AdminExamsPage() {
                         <h3 className="text-lg font-medium text-[#111111] truncate">
                           {exam.name}
                         </h3>
-                        <Badge 
-                          variant="outline" 
+                        <Badge
+                          variant="outline"
                           className={`${statusBadge.className} flex items-center gap-1`}
                         >
                           {statusBadge.icon}
                           {statusBadge.label}
                         </Badge>
                       </div>
-                      
+
                       <div className="flex items-center gap-4 text-sm text-[#626260] mb-3">
                         <span className="flex items-center gap-1">
                           <Building2 className="h-4 w-4" />
@@ -197,14 +208,22 @@ export default function AdminExamsPage() {
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          {new Date(exam.dateWindowStart).toLocaleDateString("en-IN", {
-                            month: "short",
-                            day: "numeric",
-                          })} - {new Date(exam.dateWindowEnd).toLocaleDateString("en-IN", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
+                          {new Date(exam.dateWindowStart).toLocaleDateString(
+                            "en-IN",
+                            {
+                              month: "short",
+                              day: "numeric",
+                            },
+                          )}{" "}
+                          -{" "}
+                          {new Date(exam.dateWindowEnd).toLocaleDateString(
+                            "en-IN",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            },
+                          )}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
@@ -214,13 +233,22 @@ export default function AdminExamsPage() {
 
                       <div className="flex items-center gap-6 text-sm">
                         <span className="text-[#626260]">
-                          <span className="font-medium text-[#111111]">{exam._count?.questions || 0}</span> questions
+                          <span className="font-medium text-[#111111]">
+                            {exam._count?.questions || 0}
+                          </span>{" "}
+                          questions
                         </span>
                         <span className="text-[#626260]">
-                          <span className="font-medium text-[#111111]">{exam._count?.registrations || 0}</span> registrations
+                          <span className="font-medium text-[#111111]">
+                            {exam._count?.registrations || 0}
+                          </span>{" "}
+                          registrations
                         </span>
                         <span className="text-[#626260]">
-                          Pass: <span className="font-medium text-[#111111]">{exam.passingPercentage}%</span>
+                          Pass:{" "}
+                          <span className="font-medium text-[#111111]">
+                            {exam.passingPercentage}%
+                          </span>
                         </span>
                       </div>
                     </div>
@@ -240,23 +268,6 @@ export default function AdminExamsPage() {
                 </div>
               );
             })}
-          </div>
-        )}
-
-        {/* Quick Stats */}
-        {exams.length > 0 && (
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: "Total Exams", value: exams.length },
-              { label: "Active", value: exams.filter(e => e.status === ExamStatus.ACTIVE).length },
-              { label: "Scheduled", value: exams.filter(e => e.status === ExamStatus.SCHEDULED).length },
-              { label: "Draft", value: exams.filter(e => e.status === ExamStatus.DRAFT).length },
-            ].map((stat) => (
-              <div key={stat.label} className="bg-white rounded-lg border border-[#d3cec6] p-4">
-                <p className="text-2xl font-medium text-[#111111]">{stat.value}</p>
-                <p className="text-sm text-[#626260]">{stat.label}</p>
-              </div>
-            ))}
           </div>
         )}
       </div>

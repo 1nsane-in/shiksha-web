@@ -5,6 +5,7 @@ import { Label } from "@repo/ui";
 import { Input } from "@repo/ui";
 import { Textarea } from "@repo/ui";
 import { Calendar } from "lucide-react";
+import { useAdminUniversities } from "@/domains/universities/universities.queries";
 import type { CreateExamInput } from "@/domains/exams/exams.types";
 
 interface Props {
@@ -14,6 +15,9 @@ interface Props {
 }
 
 export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
+  const { data: uniData, isLoading: uniLoading } = useAdminUniversities();
+  const universities = uniData?.data ?? [];
+
   const [formData, setFormData] = useState<Partial<CreateExamInput>>({
     name: "",
     description: "",
@@ -126,9 +130,10 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
               : "border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111]"
           }`}
         >
-          <option value="">Select University</option>
-          <option value="f24674d9-92f9-4bf9-a74b-f00106572c4a">Sevastopol State University</option>
-          {/* TODO: Fetch universities dynamically */}
+          <option value="">{uniLoading ? "Loading..." : "Select University"}</option>
+          {universities.map((u) => (
+            <option key={u.id} value={u.id}>{u.name}</option>
+          ))}
         </select>
         {errors.universityId && (
           <p className="text-xs text-red-500">{errors.universityId}</p>

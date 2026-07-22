@@ -67,18 +67,6 @@ export interface ExamQuestion {
   };
 }
 
-export interface ProctoringConfig {
-  aiProctoringEnabled: boolean;
-  webcamRequired: boolean;
-  microphoneRequired: boolean;
-  screenRecordingEnabled: boolean;
-  faceDetectionEnabled: boolean;
-  gazeTrackingEnabled: boolean;
-  tabSwitchWarnings: number;
-  autoSubmitOnViolation: boolean;
-  connectivityGraceMinutes: number;
-}
-
 export interface ExamResponse {
   id?: string;
   questionId: string;

@@ -65,7 +65,9 @@ export class AuthService {
     try {
       await this.emailService.sendRegistrationOtp(dto.email, otp, dto.name);
     } catch (error) {
-      this.logger.error(`Failed to send OTP email: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to send OTP email: ${(error as Error).message}`,
+      );
       // Clean up OTP record regardless of env
       await this.prisma.otpVerification.delete({ where: { id: otpRecord.id } });
       if (!isDev) {
@@ -128,7 +130,7 @@ export class AuthService {
       throw new BadRequestException('Email already registered');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 8);
     const role = dto.role === 'PARENT' ? 'PARENT' : 'STUDENT';
 
     const user = await this.prisma.user.create({
@@ -393,7 +395,7 @@ export class AuthService {
       throw new BadRequestException('User already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 8);
 
     const user = await this.prisma.user.create({
       data: {
@@ -461,7 +463,7 @@ export class AuthService {
       throw new BadRequestException('Invalid or expired reset token');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 8);
 
     // Get user info for email
     const user = await this.prisma.user.findUnique({
@@ -480,9 +482,13 @@ export class AuthService {
 
     // Send password changed confirmation (don't block on failure)
     if (user) {
-      this.emailService.sendPasswordChangedEmail(user.email, user.name).catch((err) => {
-        this.logger.error(`Failed to send password changed email: ${err.message}`);
-      });
+      this.emailService
+        .sendPasswordChangedEmail(user.email, user.name)
+        .catch((err) => {
+          this.logger.error(
+            `Failed to send password changed email: ${err.message}`,
+          );
+        });
     }
 
     return { message: 'Password reset successful' };
@@ -537,8 +543,14 @@ export class AuthService {
             body: new URLSearchParams({
               code: token,
               client_id: this.config.get<string>('GOOGLE_CLIENT_ID', ''),
-              client_secret: this.config.get<string>('GOOGLE_CLIENT_SECRET', ''),
-              redirect_uri: this.config.get<string>('GOOGLE_REDIRECT_URI', 'http://localhost:3000/auth/callback'),
+              client_secret: this.config.get<string>(
+                'GOOGLE_CLIENT_SECRET',
+                '',
+              ),
+              redirect_uri: this.config.get<string>(
+                'GOOGLE_REDIRECT_URI',
+                'http://localhost:3000/auth/callback',
+              ),
               grant_type: 'authorization_code',
             }),
           },
@@ -632,7 +644,9 @@ export class AuthService {
         return userInfo;
       }
     } catch (error) {
-      this.logger.error(`Google token verification error: ${(error as Error).message}`);
+      this.logger.error(
+        `Google token verification error: ${(error as Error).message}`,
+      );
       return null;
     }
   }

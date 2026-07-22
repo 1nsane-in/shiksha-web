@@ -2,11 +2,11 @@ import { Injectable, NotFoundException, BadRequestException, ForbiddenException 
 import { PrismaService } from '../prisma/prisma.service';
 import { 
   CreateExamDto, 
+  CreateFullExamDto,
   UpdateExamDto, 
   CreateQuestionDto, 
   UpdateQuestionDto,
   ReorderQuestionsDto,
-  ProctoringConfigDto 
 } from './dto/create-exam.dto';
 import { ExamStatus } from './types/exam.types';
 
@@ -36,6 +36,15 @@ export class OnlineExamsService {
       throw new BadRequestException('Start date must be before end date');
     }
 
+    // Validate university exists
+    const university = await this.prisma.university.findUnique({
+      where: { id: universityId },
+      select: { id: true },
+    });
+    if (!university) {
+      throw new NotFoundException('University not found');
+    }
+
     const exam = await this.prisma.exam.create({
       data: {
         ...examData,
@@ -58,23 +67,75 @@ export class OnlineExamsService {
       },
     });
 
-    // Create default proctoring config
-    await this.prisma.examProctoringConfig.create({
-      data: {
-        examId: exam.id,
-        aiProctoringEnabled: true,
-        webcamRequired: true,
-        microphoneRequired: true,
-        screenRecordingEnabled: true,
-        faceDetectionEnabled: true,
-        gazeTrackingEnabled: true,
-        tabSwitchWarnings: 3,
-        autoSubmitOnViolation: false,
-        connectivityGraceMinutes: 2,
-      },
-    });
-
     return exam;
+  }
+
+  // ── Single API: create exam + questions in one transaction ──
+  async createFullExam(userId: string, dto: CreateFullExamDto) {
+    const { questions, ...basicInfo } = dto;
+
+    // Validate university exists
+    const university = await this.prisma.university.findUnique({
+      where: { id: dto.universityId },
+      select: { id: true },
+    });
+    if (!university) {
+      throw new NotFoundException('University not found');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const exam = await tx.exam.create({
+        data: {
+          name: basicInfo.name,
+          description: basicInfo.description,
+          universityId: basicInfo.universityId,
+          dateWindowStart: new Date(basicInfo.dateWindowStart),
+          dateWindowEnd: new Date(basicInfo.dateWindowEnd),
+          durationMinutes: basicInfo.durationMinutes,
+          passingPercentage: basicInfo.passingPercentage,
+          maxAttempts: basicInfo.maxAttempts ?? 1,
+          resultTiming: basicInfo.resultTiming ?? 'IMMEDIATE',
+          shuffleQuestions: basicInfo.shuffleQuestions ?? true,
+          shuffleOptions: basicInfo.shuffleOptions ?? true,
+          status: ExamStatus.DRAFT,
+          totalMarks: (questions ?? []).reduce((sum, q) => sum + (q.marks ?? 0), 0),
+          createdBy: userId,
+        },
+      });
+
+      // Questions with options
+      if (questions && questions.length > 0) {
+        for (let i = 0; i < questions.length; i++) {
+          const q = questions[i];
+          await tx.examQuestion.create({
+            data: {
+              examId: exam.id,
+              type: q.type,
+              questionText: q.questionText,
+              questionImageUrl: q.questionImageUrl,
+              marks: q.marks,
+              negativeMarks: q.negativeMarks,
+              difficulty: q.difficulty,
+              topic: q.topic,
+              orderIndex: i,
+              config: q.config ?? undefined,
+              ...(q.options && q.options.length > 0
+                ? { options: { createMany: { data: q.options.map((opt, oi) => ({ optionText: opt.optionText, isCorrect: opt.isCorrect, orderIndex: oi })) } } }
+                : {}),
+            },
+          });
+        }
+      }
+
+      return tx.exam.findUnique({
+        where: { id: exam.id },
+        include: {
+          university: { select: { id: true, name: true, shortName: true } },
+          questions: { include: { options: { orderBy: { orderIndex: 'asc' } } }, orderBy: { orderIndex: 'asc' } },
+          _count: { select: { questions: true, registrations: true } },
+        },
+      });
+    });
   }
 
   async updateExam(examId: string, userId: string, dto: UpdateExamDto) {
@@ -120,7 +181,6 @@ export class OnlineExamsService {
           include: { options: true },
           orderBy: { orderIndex: 'asc' },
         },
-        proctoringConfig: true,
         _count: {
           select: { registrations: true },
         },
@@ -411,44 +471,4 @@ export class OnlineExamsService {
     return { success: true };
   }
 
-  // ──────────────────────────────────────────────────────────────
-  // PROCTORING CONFIG
-  // ──────────────────────────────────────────────────────────────
-
-  async updateProctoringConfig(examId: string, dto: ProctoringConfigDto) {
-    const exam = await this.prisma.exam.findUnique({
-      where: { id: examId },
-      include: { proctoringConfig: true },
-    });
-
-    if (!exam) {
-      throw new NotFoundException('Exam not found');
-    }
-
-    if (exam.proctoringConfig) {
-      return this.prisma.examProctoringConfig.update({
-        where: { examId },
-        data: dto,
-      });
-    }
-
-    return this.prisma.examProctoringConfig.create({
-      data: {
-        examId,
-        ...dto,
-      },
-    });
-  }
-
-  async getProctoringConfig(examId: string) {
-    const config = await this.prisma.examProctoringConfig.findUnique({
-      where: { examId },
-    });
-
-    if (!config) {
-      throw new NotFoundException('Proctoring config not found');
-    }
-
-    return config;
-  }
 }
