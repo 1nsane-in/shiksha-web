@@ -13,10 +13,6 @@ interface GalleryLightboxProps {
   onPrev: (e: React.MouseEvent) => void;
 }
 
-/**
- * Full-screen lightbox modal with image display, navigation arrows,
- * close button, and image details.
- */
 export function GalleryLightbox({
   images,
   activeIndex,
@@ -34,7 +30,6 @@ export function GalleryLightbox({
           onClick={onClose}
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 p-4 sm:p-6"
         >
-          {/* Close Button */}
           <button
             onClick={onClose}
             className="absolute top-4 right-4 z-[110] flex h-10 w-10 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
@@ -43,45 +38,56 @@ export function GalleryLightbox({
             <X className="h-5 w-5" />
           </button>
 
-          {/* Left Navigation Arrow */}
           <button
             onClick={onPrev}
             className="absolute left-4 sm:left-6 z-[110] flex h-12 w-12 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-            aria-label="Previous image"
+            aria-label="Previous"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
 
-          {/* Main Image Container */}
           <div className="relative max-h-[80vh] max-w-full overflow-hidden flex items-center justify-center">
-            <motion.img
-              key={activeIndex}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.25 }}
-              src={images[activeIndex].url}
-              alt={images[activeIndex].title || "Gallery image"}
-              className="max-h-[80vh] max-w-full object-contain rounded-lg shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            />
+            {images[activeIndex].type === "VIDEO" ? (
+              <motion.video
+                key={activeIndex}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.25 }}
+                src={images[activeIndex].url}
+                controls
+                autoPlay
+                className="max-h-[80vh] max-w-full rounded-lg shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <motion.img
+                key={activeIndex}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.25 }}
+                src={images[activeIndex].url}
+                alt={images[activeIndex].title || "Gallery image"}
+                className="max-h-[80vh] max-w-full object-contain rounded-lg shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
           </div>
 
-          {/* Image Details at Bottom */}
           <div className="mt-4 text-center text-white max-w-2xl px-4 select-none">
             <h4 className="text-lg font-semibold">
-              {images[activeIndex].title || "Untitled Campus Image"}
+              {images[activeIndex].title || (images[activeIndex].type === "VIDEO" ? "Campus Video" : "Untitled Campus Image")}
             </h4>
             <p className="text-xs text-gray-400 mt-1">
-              Image {activeIndex + 1} of {images.length}
+              {images[activeIndex].type === "VIDEO" ? "Video" : "Image"} {activeIndex + 1} of {images.length}
             </p>
           </div>
 
-          {/* Right Navigation Arrow */}
           <button
             onClick={onNext}
             className="absolute right-4 sm:right-6 z-[110] flex h-12 w-12 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-            aria-label="Next image"
+            aria-label="Next"
           >
             <ChevronRight className="h-6 w-6" />
           </button>

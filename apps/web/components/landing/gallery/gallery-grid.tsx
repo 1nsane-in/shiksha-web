@@ -9,17 +9,18 @@ import { GalleryImageCard } from "@/components/landing/gallery/gallery-image-car
 interface GalleryGridProps {
   images: GalleryImage[];
   isLoading: boolean;
+  error: Error | null;
   onOpenLightbox: (index: number) => void;
 }
 
-/**
- * Gallery grid with three states: loading (skeleton), empty,
- * and populated grid of image cards.
- */
-export function GalleryGrid({ images, isLoading, onOpenLightbox }: GalleryGridProps) {
+export function GalleryGrid({ images, isLoading, error, onOpenLightbox }: GalleryGridProps) {
   return (
     <section className="py-16 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      {isLoading ? (
+      {error ? (
+        <div className="text-center py-20 text-red-500 text-sm">
+          Failed to load gallery. Please try again.
+        </div>
+      ) : isLoading ? (
         /* ── Skeleton loading state ── */
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 9 }).map((_, i) => (
@@ -39,8 +40,7 @@ export function GalleryGrid({ images, isLoading, onOpenLightbox }: GalleryGridPr
             No Gallery Images Yet
           </h3>
           <p className="text-sm mt-1 max-w-md mx-auto" style={{ color: brand.inkMuted }}>
-            The global gallery is currently empty. Administrative staff will upload university campus,
-            academic, and lab facilities photos soon.
+            The gallery is currently empty. Administrative staff will upload photos and videos soon.
           </p>
         </div>
       ) : (

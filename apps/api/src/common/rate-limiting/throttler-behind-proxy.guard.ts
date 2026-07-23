@@ -2,6 +2,7 @@ import { Injectable, ExecutionContext } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+import { env } from '../env.config';
 
 @Injectable()
 export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
@@ -10,11 +11,7 @@ export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Skip throttling in development mode
-    const nodeEnv = process.env.NODE_ENV;
-    if (nodeEnv === 'development' || nodeEnv === 'dev') {
-      return true;
-    }
+    if (env.isDev) return true;
     return super.canActivate(context);
   }
 

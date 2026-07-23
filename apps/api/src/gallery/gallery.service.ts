@@ -12,18 +12,21 @@ export class GalleryService {
     private redis: RedisService,
   ) {}
 
-  async getAll() {
-    return this.redis.getOrSet(
-      'gallery:images:all',
-      () => this.prisma.galleryImage.findMany({
+  async getAll(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prisma.galleryImage.findMany({
         orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
       }),
-      3600, // Cache for 1 hour
-    );
+      this.prisma.galleryImage.count(),
+    ]);
+    return { items, total, page, totalPages: Math.ceil(total / limit) };
   }
 
-  async uploadImage(file: Express.Multer.File, title?: string) {
-    // Store in a separate folder named "gallery-images"
+  async uploadImage(file: Express.Multer.File, title?: string, duration?: number) {
+    const type = file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE';
     const uploadResult = await this.storage.upload(file, 'gallery-images');
     const result = await this.prisma.galleryImage.create({
       data: {
@@ -31,13 +34,11 @@ export class GalleryService {
         title: title || file.originalname,
         url: uploadResult.url,
         key: uploadResult.key,
+        type,
+        duration: type === 'VIDEO' ? (duration ?? null) : null,
         updatedAt: new Date(),
       },
     });
-    
-    // Invalidate gallery cache
-    await this.redis.del('gallery:images:all');
-    
     return result;
   }
 
@@ -48,16 +49,10 @@ export class GalleryService {
     if (!image) {
       throw new NotFoundException('Gallery image not found');
     }
-    // Delete from R2 storage
     await this.storage.delete(image.key);
-    // Delete from database
     const result = await this.prisma.galleryImage.delete({
       where: { id },
     });
-    
-    // Invalidate gallery cache
-    await this.redis.del('gallery:images:all');
-    
     return result;
   }
 }

@@ -10,10 +10,11 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { versionMiddleware } from './common/middleware/version-middleware';
 import { Request, Response, NextFunction } from 'express';
+import { env } from './common/env.config';
 
 async function bootstrap() {
-  if (process.env.ENV === 'dev') {
-    console.log('DB:', process.env.DATABASE_URL?.replace(/\/\/.*@/, '//***:***@'));
+  if (env.isDev) {
+    console.log('DB:', env.dbUrlMasked);
   }
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -54,16 +55,12 @@ async function bootstrap() {
     .get<string>('FRONTEND_URL')
     ?.split(',')
     .map((url) => url.trim())
-    .filter(Boolean) || ['http://localhost:3000'];
+    .filter(Boolean) || [env.LOCALHOST];
 
-  // Add 127.0.0.1 and localhost by default in development mode
-  if (configService.get<string>('NODE_ENV') === 'development') {
-    if (!allowedOrigins.includes('http://127.0.0.1:3000')) {
-      allowedOrigins.push('http://127.0.0.1:3000');
-    }
-    if (!allowedOrigins.includes('http://localhost:3000')) {
-      allowedOrigins.push('http://localhost:3000');
-    }
+  if (env.isDev) {
+    [env.LOCALHOST_ALT, env.LOCALHOST].forEach((origin) => {
+      if (!allowedOrigins.includes(origin)) allowedOrigins.push(origin);
+    });
   }
 
   app.enableCors({

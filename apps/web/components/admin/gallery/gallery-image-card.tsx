@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@repo/ui";
-import { Trash2 } from "lucide-react";
+import { Trash2, Play } from "lucide-react";
 import type { GalleryImage } from "@/domains/gallery";
 
 interface Props {
@@ -11,14 +11,35 @@ interface Props {
 }
 
 export function GalleryImageCard({ image, onDelete, disabled }: Props) {
+  const isVideo = image.type === "VIDEO";
+
   return (
-    <div className="group relative aspect-video overflow-hidden rounded-lg border border-[#ECEAE6] bg-white transition-shadow hover:shadow-md">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={image.url}
-        alt={image.title || "Gallery Image"}
-        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-      />
+    <div className="group relative aspect-video overflow-hidden rounded-lg border border-[#ECEAE6] bg-gray-900 transition-shadow hover:shadow-md">
+      {isVideo ? (
+        <video
+          src={image.url}
+          className="h-full w-full object-cover"
+          preload="metadata"
+          muted
+          playsInline
+        />
+      ) : (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={image.url}
+          alt={image.title || "Gallery Image"}
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+      )}
+
+      {isVideo && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="h-12 w-12 rounded-full bg-black/60 flex items-center justify-center">
+            <Play className="h-6 w-6 text-white fill-white ml-0.5" />
+          </div>
+        </div>
+      )}
+
       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2.5">
         <div className="flex justify-end">
           <Button
@@ -36,7 +57,7 @@ export function GalleryImageCard({ image, onDelete, disabled }: Props) {
           className="text-xs font-medium text-white truncate w-full pr-6"
           title={image.title || ""}
         >
-          {image.title || "Untitled Image"}
+          {image.title || (isVideo ? "Untitled Video" : "Untitled Image")}
         </p>
       </div>
     </div>

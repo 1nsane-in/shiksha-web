@@ -9,8 +9,10 @@ import { useUploadGalleryImage } from "@/domains/gallery";
 export function GalleryUploadForm() {
   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [duration, setDuration] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadMutation = useUploadGalleryImage();
+  const isVideo = file?.type.startsWith("video/");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,17 +26,21 @@ export function GalleryUploadForm() {
     if (title.trim()) {
       formData.append("title", title.trim());
     }
+    if (isVideo && duration.trim()) {
+      formData.append("duration", duration.trim());
+    }
 
     try {
       await uploadMutation.mutateAsync(formData);
-      toast.success("Image uploaded successfully");
+      toast.success(isVideo ? "Video uploaded successfully" : "Image uploaded successfully");
       setTitle("");
       setFile(null);
+      setDuration("");
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Failed to upload image");
+      toast.error(err?.response?.data?.message || "Failed to upload");
     }
   };
 
@@ -43,14 +49,14 @@ export function GalleryUploadForm() {
       <CardHeader>
         <CardTitle className="text-base font-semibold flex items-center gap-2">
           <Plus className="h-4 w-4" />
-          Upload New Image
+          Upload to Gallery
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="title" className="text-xs font-semibold uppercase tracking-wider text-[#666]">
-              Image Title (Optional)
+              Title (Optional)
             </Label>
             <Input
               id="title"
@@ -63,18 +69,35 @@ export function GalleryUploadForm() {
 
           <div className="space-y-1.5">
             <Label htmlFor="file" className="text-xs font-semibold uppercase tracking-wider text-[#666]">
-              Select Image File
+              Select File
             </Label>
             <Input
               id="file"
               type="file"
-              accept="image/*"
+              accept="image/*,video/*"
               ref={fileInputRef}
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               className="bg-white border-[#E5E7EB] cursor-pointer text-sm"
               required
             />
           </div>
+
+          {isVideo && (
+            <div className="space-y-1.5">
+              <Label htmlFor="duration" className="text-xs font-semibold uppercase tracking-wider text-[#666]">
+                Duration (seconds, optional)
+              </Label>
+              <Input
+                id="duration"
+                type="number"
+                min="1"
+                placeholder="e.g., 120"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                className="bg-white border-[#E5E7EB]"
+              />
+            </div>
+          )}
 
           <Button
             type="submit"
@@ -89,7 +112,7 @@ export function GalleryUploadForm() {
             ) : (
               <>
                 <Plus className="mr-2 h-4 w-4" />
-                Upload Image
+                Upload {isVideo ? "Video" : "Image"}
               </>
             )}
           </Button>

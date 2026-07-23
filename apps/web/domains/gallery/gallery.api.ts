@@ -1,13 +1,13 @@
 import { client } from "@/shared/api/client";
-import type { GalleryImage } from "./gallery.types";
+import type { GalleryImage, GalleryPage } from "./gallery.types";
 
 const route = {
   list: "/gallery" as const,
   detail: (id: string) => `/gallery/${id}` as const,
 } as const;
 
-export function getGalleryImages() {
-  return client.get<GalleryImage[]>(route.list);
+export function getGalleryImages(page: number, limit = 12) {
+  return client.get<GalleryPage>(`${route.list}?page=${page}&limit=${limit}`);
 }
 
 export function uploadGalleryImage(formData: FormData) {
