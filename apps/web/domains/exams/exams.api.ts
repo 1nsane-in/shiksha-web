@@ -1,6 +1,7 @@
 import { api } from "@/shared/api/axios";
 import type {
   Exam,
+  ExamDetail,
   CreateExamInput,
   CreateFullExamInput,
   CreateQuestionInput,
@@ -72,6 +73,11 @@ export async function deleteQuestion(
   questionId: string
 ): Promise<{ success: boolean }> {
   const { data } = await api.delete(`${BASE}/${examId}/questions/${questionId}`);
+  return data;
+}
+
+export async function getMyExam(): Promise<ExamDetail> {
+  const { data } = await api.get("/exams/my");
   return data;
 }
 

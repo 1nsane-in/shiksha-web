@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import type { Exam, CreateFullExamInput, CreateQuestionInput, ReorderQuestionsInput } from "./exams.types";
+import type { Exam, ExamDetail, CreateFullExamInput, CreateQuestionInput, ReorderQuestionsInput } from "./exams.types";
 import {
   createExam,
   updateExam,
   getExam,
   getAllExams,
   publishExam,
+  getMyExam,
   addQuestion,
   updateQuestion,
   deleteQuestion,
@@ -42,6 +43,13 @@ export function useExam(examId: string) {
     queryKey: EXAM_KEYS.detail(examId),
     queryFn: () => getExam(examId),
     enabled: !!examId,
+  });
+}
+
+export function useMyExam() {
+  return useQuery({
+    queryKey: [...EXAM_KEYS.all, "my"],
+    queryFn: getMyExam,
   });
 }
 

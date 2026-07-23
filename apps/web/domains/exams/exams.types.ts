@@ -106,3 +106,15 @@ export interface CreateFullExamInput {
 export interface ReorderQuestionsInput {
   questionIds: string[];
 }
+
+export interface ExamDetail {
+  id: string;
+  applicationId: string;
+  examDate?: string;
+  examSubject?: string;
+  examCenter?: string;
+  result?: string;
+  resultRemarks?: string;
+  attemptNumber: number;
+  createdAt: string;
+}
