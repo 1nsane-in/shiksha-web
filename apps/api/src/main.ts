@@ -12,6 +12,10 @@ import { versionMiddleware } from './common/middleware/version-middleware';
 import { Request, Response, NextFunction } from 'express';
 
 async function bootstrap() {
+  if (process.env.ENV === 'dev') {
+    console.log('DB:', process.env.DATABASE_URL?.replace(/\/\/.*@/, '//***:***@'));
+  }
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
   const logger = new Logger('Bootstrap');

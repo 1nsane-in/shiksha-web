@@ -45,9 +45,9 @@ export class CreateExamDto {
   @Min(1)
   maxAttempts?: number;
 
-  @ApiPropertyOptional({ description: 'Result timing: IMMEDIATE or SCHEDULED' })
+  @ApiPropertyOptional({ description: 'Result timing: IMMEDIATE, SCHEDULED, or EMAIL' })
   @IsOptional()
-  @IsEnum(['IMMEDIATE', 'SCHEDULED'])
+  @IsEnum(['IMMEDIATE', 'SCHEDULED', 'EMAIL'])
   resultTiming?: string;
 
   @ApiPropertyOptional({ description: 'Result date (for SCHEDULED results)' })
@@ -189,9 +189,9 @@ export class CreateFullExamDto {
   @Min(1)
   maxAttempts?: number;
 
-  @ApiPropertyOptional({ description: 'Result timing: IMMEDIATE or SCHEDULED' })
+  @ApiPropertyOptional({ description: 'Result timing: IMMEDIATE, SCHEDULED, or EMAIL' })
   @IsOptional()
-  @IsEnum(['IMMEDIATE', 'SCHEDULED'])
+  @IsEnum(['IMMEDIATE', 'SCHEDULED', 'EMAIL'])
   resultTiming?: string;
 
   @ApiPropertyOptional({ description: 'Shuffle questions' })

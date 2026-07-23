@@ -36,9 +36,8 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // Validate form
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.name?.trim()) {
       newErrors.name = "Exam name is required";
     }
@@ -61,8 +60,8 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
     if (!formData.durationMinutes || formData.durationMinutes < 1) {
       newErrors.durationMinutes = "Duration is required";
     }
-    if (!formData.passingPercentage || formData.passingPercentage < 1 || formData.passingPercentage > 100) {
-      newErrors.passingPercentage = "Passing percentage must be between 1 and 100";
+    if (formData.passingPercentage === undefined || formData.passingPercentage < 0) {
+      newErrors.passingPercentage = "Passing marks is required";
     }
 
     setErrors(newErrors);
@@ -206,24 +205,23 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
         )}
       </div>
 
-      {/* Passing Percentage */}
+      {/* Passing Marks */}
       <div className="space-y-2">
         <Label htmlFor="passingPercentage" className="text-sm font-medium text-[#111111]">
-          Passing Percentage <span className="text-red-500">*</span>
+          Passing Marks <span className="text-red-500">*</span>
         </Label>
         <div className="flex items-center gap-4">
           <Input
             id="passingPercentage"
             type="number"
-            min={1}
-            max={100}
+            min={0}
             value={formData.passingPercentage}
             onChange={(e) => handleChange("passingPercentage", parseInt(e.target.value) || 0)}
             className={`w-32 border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111] ${
               errors.passingPercentage ? "border-red-500" : ""
             }`}
           />
-          <span className="text-sm text-[#626260]">%</span>
+          <span className="text-sm text-[#626260]">marks</span>
         </div>
         {errors.passingPercentage && (
           <p className="text-xs text-red-500">{errors.passingPercentage}</p>
@@ -252,7 +250,7 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
       {/* Result Timing */}
       <div className="space-y-2">
         <Label className="text-sm font-medium text-[#111111]">Result Timing</Label>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="radio"
@@ -262,7 +260,7 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
               onChange={(e) => handleChange("resultTiming", e.target.value)}
               className="accent-[#111111]"
             />
-            <span className="text-sm text-[#111111]">Immediate</span>
+            <span className="text-sm text-[#111111]">Show right after exam</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -273,7 +271,18 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
               onChange={(e) => handleChange("resultTiming", e.target.value)}
               className="accent-[#111111]"
             />
-            <span className="text-sm text-[#111111]">Scheduled</span>
+            <span className="text-sm text-[#111111]">Schedule for later</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="resultTiming"
+              value="EMAIL"
+              checked={formData.resultTiming === "EMAIL"}
+              onChange={(e) => handleChange("resultTiming", e.target.value)}
+              className="accent-[#111111]"
+            />
+            <span className="text-sm text-[#111111]">Send via email</span>
           </label>
         </div>
       </div>
@@ -298,7 +307,7 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
               onChange={(e) => handleChange("shuffleOptions", e.target.checked)}
               className="accent-[#111111]"
             />
-            <span className="text-sm text-[#626260]">Shuffle options for MCQ questions</span>
+            <span className="text-sm text-[#626260]">Shuffle options for questions</span>
           </label>
         </div>
       </div>

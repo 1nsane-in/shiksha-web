@@ -6,14 +6,11 @@ import { Button } from "@repo/ui";
 import {
   ChevronLeft,
   Calendar,
-  Check,
   AlertTriangle,
   CheckCircle2,
   Circle,
   Archive,
   Loader2,
-  CheckSquare,
-  AlignLeft,
 } from "lucide-react";
 import { useExam, usePublishExam } from "@/domains/exams/exams.queries";
 import { ExamStatus, QuestionType } from "@/domains/exams/exams.types";
@@ -29,16 +26,10 @@ const STATUS_BADGES: Record<string, { label: string; color: string; bg: string; 
 
 const QUESTION_TYPE_ICONS: Record<string, React.ReactNode> = {
   [QuestionType.SINGLE_CHOICE]: <div className="h-4 w-4 rounded-full border-2 border-current" />,
-  [QuestionType.MULTI_CHOICE]:  <CheckSquare className="h-4 w-4" />,
-  [QuestionType.TRUE_FALSE]:    <Check className="h-4 w-4" />,
-  [QuestionType.SUBJECTIVE]:    <AlignLeft className="h-4 w-4" />,
 };
 
 const QUESTION_TYPE_LABELS: Record<string, string> = {
-  [QuestionType.SINGLE_CHOICE]: "Single Choice",
-  [QuestionType.MULTI_CHOICE]:  "Multiple Choice",
-  [QuestionType.TRUE_FALSE]:    "True / False",
-  [QuestionType.SUBJECTIVE]:    "Subjective",
+  [QuestionType.SINGLE_CHOICE]: "MCQ",
 };
 
 export default function ExamDetailPage({ params }: { params: Promise<{ id: string }> }) {

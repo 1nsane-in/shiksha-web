@@ -12,12 +12,9 @@ import {
   Check, 
   X,
   Image as ImageIcon,
-  Type,
-  List,
-  CheckSquare,
-  AlignLeft
+  HelpCircle,
 } from "lucide-react";
-import { QuestionType, QuestionDifficulty, type CreateQuestionInput } from "@/domains/exams/exams.types";
+import type { CreateQuestionInput } from "@/domains/exams/exams.types";
 import { toast } from "sonner";
 import { uploadFile } from "@/domains/documents/documents.api";
 
@@ -26,45 +23,22 @@ interface Props {
   onChange: (data: CreateQuestionInput[]) => void;
 }
 
-const QUESTION_TYPES = [
-  { type: QuestionType.SINGLE_CHOICE, label: "Single Choice", icon: List, description: "Select one correct answer" },
-  { type: QuestionType.MULTI_CHOICE, label: "Multiple Choice", icon: CheckSquare, description: "Select multiple correct answers" },
-  { type: QuestionType.TRUE_FALSE, label: "True / False", icon: Check, description: "Simple true or false question" },
-  { type: QuestionType.SUBJECTIVE, label: "Subjective", icon: AlignLeft, description: "Descriptive answer question" },
-];
-
 export function QuestionsStep({ data = [], onChange }: Props) {
   const [questions, setQuestions] = useState<CreateQuestionInput[]>(data);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [showTypeSelector, setShowTypeSelector] = useState(false);
 
-  const handleAddQuestion = (type: QuestionType) => {
+  const handleAddQuestion = () => {
     const newQuestion: CreateQuestionInput = {
-      type,
       questionText: "",
-      marks: 1,
-      difficulty: QuestionDifficulty.MEDIUM,
-      options: type === QuestionType.SINGLE_CHOICE || type === QuestionType.MULTI_CHOICE 
-        ? [
-            { optionText: "", isCorrect: false },
-            { optionText: "", isCorrect: false },
-            { optionText: "", isCorrect: false },
-            { optionText: "", isCorrect: false },
-          ]
-        : type === QuestionType.TRUE_FALSE
-        ? [
-            { optionText: "True", isCorrect: true },
-            { optionText: "False", isCorrect: false },
-          ]
-        : undefined,
-      config: type === QuestionType.SUBJECTIVE 
-        ? { wordLimit: 200, keywords: [], manualReview: true }
-        : undefined,
+      options: [
+        { optionText: "", isCorrect: false },
+        { optionText: "", isCorrect: false },
+        { optionText: "", isCorrect: false },
+        { optionText: "", isCorrect: false },
+      ],
     };
-    
     setQuestions([...questions, newQuestion]);
     setEditingIndex(questions.length);
-    setShowTypeSelector(false);
     onChange([...questions, newQuestion]);
   };
 
@@ -107,18 +81,16 @@ export function QuestionsStep({ data = [], onChange }: Props) {
     });
   };
 
-  const handleSetCorrectOption = (qIndex: number, optIndex: number, isMulti: boolean) => {
+  const handleSetCorrectOption = (qIndex: number, optIndex: number) => {
     const question = questions[qIndex];
     const updatedOptions = question.options?.map((opt, i) => ({
       ...opt,
-      isCorrect: isMulti 
-        ? (i === optIndex ? !opt.isCorrect : opt.isCorrect)
-        : (i === optIndex ? true : false)
+      isCorrect: i === optIndex,
     }));
     handleUpdateQuestion(qIndex, { options: updatedOptions });
   };
 
-  const totalMarks = questions.reduce((sum, q) => sum + (q.marks || 0), 0);
+  const totalMarks = questions.length;
 
   return (
     <div className="space-y-6">
@@ -126,46 +98,17 @@ export function QuestionsStep({ data = [], onChange }: Props) {
         <div>
           <h2 className="text-xl font-medium text-[#111111]">Question Bank</h2>
           <p className="text-sm text-[#626260]">
-            {questions.length} questions • {totalMarks} total marks
+            {questions.length} questions • {totalMarks} total marks (1 mark each)
           </p>
         </div>
         <Button
-          onClick={() => setShowTypeSelector(true)}
+          onClick={handleAddQuestion}
           className="bg-[#111111] hover:bg-[#313130] text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Question
+          Add MCQ
         </Button>
       </div>
-
-      {/* Question Type Selector Modal */}
-      {showTypeSelector && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-lg w-full mx-4">
-            <h3 className="text-lg font-medium text-[#111111] mb-4">Select Question Type</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {QUESTION_TYPES.map(({ type, label, icon: Icon, description }) => (
-                <button
-                  key={type}
-                  onClick={() => handleAddQuestion(type)}
-                  className="p-4 rounded-lg border border-[#d3cec6] hover:border-[#111111] hover:bg-[#f5f1ec] transition-all text-left"
-                >
-                  <Icon className="h-6 w-6 text-[#111111] mb-2" />
-                  <h4 className="font-medium text-[#111111]">{label}</h4>
-                  <p className="text-xs text-[#626260]">{description}</p>
-                </button>
-              ))}
-            </div>
-            <Button
-              variant="outline"
-              className="w-full mt-4 border-[#d3cec6]"
-              onClick={() => setShowTypeSelector(false)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Questions List */}
       <div className="space-y-4">
@@ -182,19 +125,19 @@ export function QuestionsStep({ data = [], onChange }: Props) {
             onOptionChange={(optIndex, field, value) => handleOptionChange(index, optIndex, field, value)}
             onAddOption={() => handleAddOption(index)}
             onRemoveOption={(optIndex) => handleRemoveOption(index, optIndex)}
-            onSetCorrect={(optIndex, isMulti) => handleSetCorrectOption(index, optIndex, isMulti)}
+            onSetCorrect={(optIndex) => handleSetCorrectOption(index, optIndex)}
           />
         ))}
 
         {questions.length === 0 && (
           <div className="bg-[#f5f1ec] rounded-xl border border-dashed border-[#d3cec6] p-12 text-center">
-            <Type className="h-12 w-12 text-[#9c9fa5] mx-auto mb-4" />
+            <HelpCircle className="h-12 w-12 text-[#9c9fa5] mx-auto mb-4" />
             <h3 className="text-lg font-medium text-[#111111] mb-2">No questions yet</h3>
             <p className="text-sm text-[#626260] mb-4">
-              Add questions to build your exam. You can create MCQ, True/False, and Subjective questions.
+              Add MCQ questions to build your exam. Each question is worth 1 mark.
             </p>
             <Button
-              onClick={() => setShowTypeSelector(true)}
+              onClick={handleAddQuestion}
               variant="outline"
               className="border-[#d3cec6]"
             >
@@ -220,7 +163,7 @@ interface QuestionCardProps {
   onOptionChange: (optIndex: number, field: string, value: unknown) => void;
   onAddOption: () => void;
   onRemoveOption: (optIndex: number) => void;
-  onSetCorrect: (optIndex: number, isMulti: boolean) => void;
+  onSetCorrect: (optIndex: number) => void;
 }
 
 function QuestionCard({
@@ -236,9 +179,6 @@ function QuestionCard({
   onRemoveOption,
   onSetCorrect,
 }: QuestionCardProps) {
-  const typeLabel = QUESTION_TYPES.find(t => t.type === question.type)?.label || question.type;
-  const isMultiChoice = question.type === QuestionType.MULTI_CHOICE;
-
   if (!isEditing) {
     return (
       <div
@@ -253,20 +193,11 @@ function QuestionCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#f5f1ec] text-[#626260]">
-                {typeLabel}
+                MCQ
               </span>
               <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
-                {question.marks} mark{question.marks !== 1 ? 's' : ''}
+                1 mark
               </span>
-              {question.difficulty && (
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                  question.difficulty === QuestionDifficulty.EASY ? "bg-emerald-50 text-emerald-700" :
-                  question.difficulty === QuestionDifficulty.MEDIUM ? "bg-amber-50 text-amber-700" :
-                  "bg-red-50 text-red-700"
-                }`}>
-                  {question.difficulty}
-                </span>
-              )}
             </div>
             <p className="text-sm text-[#111111] line-clamp-2">
               {question.questionText || "No question text"}
@@ -288,10 +219,10 @@ function QuestionCard({
           >
             <Trash2 className="h-4 w-4" />
           </Button>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl border border-[#111111] p-6 shadow-sm">
@@ -299,7 +230,7 @@ function QuestionCard({
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-[#9c9fa5]">Question {index + 1}</span>
           <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#f5f1ec] text-[#626260]">
-            {typeLabel}
+            MCQ (1 mark)
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -316,138 +247,57 @@ function QuestionCard({
           <Textarea
             value={question.questionText}
             onChange={(e) => onUpdate({ questionText: e.target.value })}
-            placeholder="Enter your question here..."
+            placeholder="Enter your MCQ question here..."
             rows={3}
             className="border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111] resize-none"
           />
         </div>
 
-        {/* Marks & Difficulty */}
-        <div className="grid grid-cols-3 gap-4">
+        {/* Options */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-[#111111]">
+            Options <span className="text-[#626260] font-normal">(select the correct one)</span>
+          </Label>
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-[#111111]">Marks</Label>
-            <Input
-              type="number"
-              min={0.5}
-              step={0.5}
-              value={question.marks}
-              onChange={(e) => onUpdate({ marks: parseFloat(e.target.value) || 1 })}
-              className="border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111]"
-            />
+            {question.options?.map((option, optIndex) => (
+              <div key={optIndex} className="flex items-center gap-2">
+                <button
+                  onClick={() => onSetCorrect(optIndex)}
+                  className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                    option.isCorrect
+                      ? "bg-[#0bdf50] border-[#0bdf50]"
+                      : "border-[#d3cec6] hover:border-[#111111]"
+                  }`}
+                >
+                  {option.isCorrect && <Check className="h-3.5 w-3.5 text-white" />}
+                </button>
+                <Input
+                  value={option.optionText}
+                  onChange={(e) => onOptionChange(optIndex, "optionText", e.target.value)}
+                  placeholder={`Option ${optIndex + 1}`}
+                  className="flex-1 border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111]"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onRemoveOption(optIndex)}
+                  className="text-red-500"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
           </div>
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-[#111111]">Negative Marks</Label>
-            <Input
-              type="number"
-              min={0}
-              step={0.25}
-              value={question.negativeMarks || 0}
-              onChange={(e) => onUpdate({ negativeMarks: parseFloat(e.target.value) || 0 })}
-              className="border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111]"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-[#111111]">Difficulty</Label>
-            <select
-              value={question.difficulty}
-              onChange={(e) => onUpdate({ difficulty: e.target.value as QuestionDifficulty })}
-              className="w-full h-10 rounded-md border border-[#d3cec6] px-3 text-sm focus:border-[#111111] focus:ring-[#111111]"
-            >
-              <option value={QuestionDifficulty.EASY}>Easy</option>
-              <option value={QuestionDifficulty.MEDIUM}>Medium</option>
-              <option value={QuestionDifficulty.HARD}>Hard</option>
-            </select>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onAddOption}
+            className="border-[#d3cec6]"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Add Option
+          </Button>
         </div>
-
-        {/* Options (for MCQ and True/False) */}
-        {(question.type === QuestionType.SINGLE_CHOICE || 
-          question.type === QuestionType.MULTI_CHOICE || 
-          question.type === QuestionType.TRUE_FALSE) && (
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-[#111111]">
-              Options {isMultiChoice ? "(Select all correct)" : "(Select one correct)"}
-            </Label>
-            <div className="space-y-2">
-              {question.options?.map((option, optIndex) => (
-                <div key={optIndex} className="flex items-center gap-2">
-                  <button
-                    onClick={() => onSetCorrect(optIndex, isMultiChoice)}
-                    className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                      option.isCorrect
-                        ? "bg-[#0bdf50] border-[#0bdf50]"
-                        : "border-[#d3cec6] hover:border-[#111111]"
-                    }`}
-                  >
-                    {option.isCorrect && <Check className="h-3.5 w-3.5 text-white" />}
-                  </button>
-                  <Input
-                    value={option.optionText}
-                    onChange={(e) => onOptionChange(optIndex, "optionText", e.target.value)}
-                    placeholder={`Option ${optIndex + 1}`}
-                    className="flex-1 border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111]"
-                  />
-                  {question.type !== QuestionType.TRUE_FALSE && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onRemoveOption(optIndex)}
-                      className="text-red-500"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-            {question.type !== QuestionType.TRUE_FALSE && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onAddOption}
-                className="border-[#d3cec6]"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Add Option
-              </Button>
-            )}
-          </div>
-        )}
-
-        {/* Subjective Config */}
-        {question.type === QuestionType.SUBJECTIVE && (
-          <div className="space-y-4 bg-[#f5f1ec] rounded-lg p-4">
-            <h4 className="text-sm font-medium text-[#111111]">Subjective Settings</h4>
-            <div className="space-y-2">
-              <Label className="text-sm text-[#626260]">Word Limit</Label>
-              <Input
-                type="number"
-                value={question.config?.wordLimit || 200}
-                onChange={(e) => onUpdate({ 
-                  config: { ...question.config, wordLimit: parseInt(e.target.value) || 200 }
-                })}
-                className="border-[#d3cec6] bg-white focus:border-[#111111] focus:ring-[#111111]"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm text-[#626260]">Keywords (comma separated)</Label>
-              <Input
-                value={question.config?.keywords?.join(", ") || ""}
-                onChange={(e) => onUpdate({
-                  config: { 
-                    ...question.config, 
-                    keywords: e.target.value.split(",").map(k => k.trim()).filter(Boolean)
-                  }
-                })}
-                placeholder="e.g., photosynthesis, chlorophyll, sunlight"
-                className="border-[#d3cec6] bg-white focus:border-[#111111] focus:ring-[#111111]"
-              />
-              <p className="text-xs text-[#9c9fa5]">
-                Used for auto-scoring. Separate keywords with commas.
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Image Upload */}
         <ImageUpload

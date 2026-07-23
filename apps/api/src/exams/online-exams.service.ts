@@ -105,8 +105,7 @@ export class OnlineExamsService {
 
       // Questions with options
       if (questions && questions.length > 0) {
-        for (let i = 0; i < questions.length; i++) {
-          const q = questions[i];
+        for (const [i, q] of questions.entries()) {
           await tx.examQuestion.create({
             data: {
               examId: exam.id,

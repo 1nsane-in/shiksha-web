@@ -6,6 +6,7 @@ import { Button } from "@repo/ui";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useCreateExam } from "@/domains/exams/exams.queries";
+import { QuestionType } from "@/domains/exams/exams.types";
 import type { CreateExamInput, CreateQuestionInput } from "@/domains/exams/exams.types";
 
 // Step Components
@@ -15,7 +16,7 @@ import { ReviewStep } from "@/components/admin/exams/steps/review-step";
 
 const STEPS = [
   { id: "basic", label: "Basic Info", description: "Exam details and schedule" },
-  { id: "questions", label: "Questions", description: "Build question bank" },
+  { id: "questions", label: "Questions", description: "Build MCQ bank" },
   { id: "review", label: "Review", description: "Publish exam" },
 ];
 
@@ -24,7 +25,6 @@ export default function CreateExamPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isStepValid, setIsStepValid] = useState(false);
 
-  // All form data collected across steps, submitted once
   const [formData, setFormData] = useState<{
     basicInfo?: Partial<CreateExamInput>;
     questions?: CreateQuestionInput[];
@@ -62,6 +62,13 @@ export default function CreateExamPage() {
     }
 
     try {
+      // Fill backend-required fields for each question
+      const questions = (formData.questions || []).map((q) => ({
+        ...q,
+        type: QuestionType.SINGLE_CHOICE,
+        marks: 1,
+      }));
+
       await createExam.mutateAsync({
         name: formData.basicInfo.name,
         description: formData.basicInfo.description,
@@ -74,7 +81,7 @@ export default function CreateExamPage() {
         resultTiming: formData.basicInfo.resultTiming,
         shuffleQuestions: formData.basicInfo.shuffleQuestions,
         shuffleOptions: formData.basicInfo.shuffleOptions,
-        questions: formData.questions,
+        questions,
       });
       router.push("/admin/exams");
     } catch {
@@ -160,7 +167,6 @@ export default function CreateExamPage() {
                     disabled={!isClickable}
                     className="group flex flex-col items-center gap-2 transition-all"
                   >
-                    {/* Step circle */}
                     <div
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-medium transition-colors ${
                         isActive
@@ -176,8 +182,6 @@ export default function CreateExamPage() {
                         <span className="text-xs font-medium">{index + 1}</span>
                       )}
                     </div>
-
-                    {/* Label */}
                     <div className="hidden sm:block text-center">
                       <p
                         className={`text-xs font-medium leading-tight ${
@@ -189,7 +193,6 @@ export default function CreateExamPage() {
                     </div>
                   </button>
 
-                  {/* Connector line */}
                   {index < STEPS.length - 1 && (
                     <div className="hidden sm:block flex-1 self-center mx-3">
                       <div
@@ -208,12 +211,10 @@ export default function CreateExamPage() {
 
       {/* Content + Navigation */}
       <div className="mx-auto w-full max-w-3xl px-4 py-8 md:px-6">
-        {/* Step content card */}
         <div className="rounded-xl border border-[#ECEAE6] bg-white p-6 shadow-sm md:p-8">
           {renderStep()}
         </div>
 
-        {/* Navigation buttons (hidden on review step — review has its own) */}
         {currentStep < STEPS.length - 1 && (
           <div className="mt-6 flex items-center justify-between">
             <Button

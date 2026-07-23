@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@repo/ui";
-import { Badge } from "@repo/ui";
 import { 
   CheckCircle2, 
   AlertCircle, 
@@ -11,7 +10,7 @@ import {
   FileText,
   Check
 } from "lucide-react";
-import { QuestionType, type CreateExamInput, type CreateQuestionInput } from "@/domains/exams/exams.types";
+import type { CreateExamInput, CreateQuestionInput } from "@/domains/exams/exams.types";
 
 interface Props {
   formData: {
@@ -24,22 +23,10 @@ interface Props {
   submitLabel?: string;
 }
 
-const QUESTION_TYPE_LABELS: Record<string, string> = {
-  [QuestionType.SINGLE_CHOICE]: "Single Choice",
-  [QuestionType.MULTI_CHOICE]: "Multiple Choice",
-  [QuestionType.TRUE_FALSE]: "True / False",
-  [QuestionType.SUBJECTIVE]: "Subjective",
-};
-
 export function ReviewStep({ formData, onPublish, isPending, onBack, submitLabel }: Props) {
   const basic = formData.basicInfo || {};
   const questions = formData.questions || [];
-  const totalMarks = questions.reduce((sum, q) => sum + Number(q.marks || 0), 0);
-
-  const questionTypeCounts = questions.reduce((acc, q) => {
-    acc[q.type] = (acc[q.type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const totalMarks = questions.length;
 
   const isReadyToPublish = questions.length > 0;
 
@@ -97,8 +84,8 @@ export function ReviewStep({ formData, onPublish, isPending, onBack, submitLabel
           <p className="text-sm text-[#626260]">Minutes</p>
         </div>
         <div className="bg-[#f5f1ec] rounded-lg p-4 border border-[#d3cec6]">
-          <p className="text-2xl font-medium text-[#111111]">{basic.passingPercentage || 0}%</p>
-          <p className="text-sm text-[#626260]">Passing</p>
+          <p className="text-2xl font-medium text-[#111111]">{basic.passingPercentage || 0}</p>
+          <p className="text-sm text-[#626260]">Passing Marks</p>
         </div>
       </div>
 
@@ -141,33 +128,11 @@ export function ReviewStep({ formData, onPublish, isPending, onBack, submitLabel
         </div>
       </div>
 
-      {/* Question Types Summary */}
-      <div className="bg-white rounded-lg border border-[#d3cec6] p-6">
-        <h3 className="text-sm font-medium text-[#111111] uppercase tracking-wide mb-4">
-          Question Breakdown
-        </h3>
-        {Object.keys(questionTypeCounts).length > 0 ? (
-          <div className="flex flex-wrap gap-3">
-            {Object.entries(questionTypeCounts).map(([type, count]) => (
-              <Badge 
-                key={type} 
-                variant="outline"
-                className="bg-[#f5f1ec] border-[#d3cec6] text-[#111111] px-3 py-1"
-              >
-                {QUESTION_TYPE_LABELS[type] || type}: {count}
-              </Badge>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-[#626260]">No questions added yet</p>
-        )}
-      </div>
-
       {/* Questions Preview */}
       {questions.length > 0 && (
         <div className="bg-white rounded-lg border border-[#d3cec6] p-6">
           <h3 className="text-sm font-medium text-[#111111] uppercase tracking-wide mb-4">
-            Questions Preview
+            Questions Preview ({questions.length} MCQ • 1 mark each)
           </h3>
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {questions.slice(0, 5).map((question, index) => (
@@ -176,7 +141,7 @@ export function ReviewStep({ formData, onPublish, isPending, onBack, submitLabel
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-[#111111] line-clamp-2">{question.questionText}</p>
                   <p className="text-xs text-[#626260] mt-1">
-                    {QUESTION_TYPE_LABELS[question.type]} • {question.marks} marks
+                    MCQ • {question.options?.length || 0} options
                   </p>
                 </div>
               </div>
@@ -213,4 +178,3 @@ export function ReviewStep({ formData, onPublish, isPending, onBack, submitLabel
     </div>
   );
 }
-

@@ -19,7 +19,7 @@ model Exam {
   maxAttempts          Int                 @default(1)
   
   // Result Settings
-  resultTiming         String              @default("IMMEDIATE") // IMMEDIATE, SCHEDULED
+  resultTiming         String              @default("IMMEDIATE") // IMMEDIATE, SCHEDULED, EMAIL
   resultDate           DateTime?
   
   // Shuffle Settings
