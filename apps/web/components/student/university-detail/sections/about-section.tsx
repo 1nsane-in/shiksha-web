@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { brand as theme } from "@/lib/brand";
 import Image from "next/image";
 import { SectionCard } from "../common/ui";
 import { GalleryLightbox } from "@/components/landing/gallery/gallery-lightbox";
 import type { UniversityContent } from "@/domains/universities/universities.types";
+import type { GalleryImage } from "@/domains/gallery/gallery.types";
 
 export function AboutSection({
   content,
@@ -16,6 +17,21 @@ export function AboutSection({
 }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const hasGallery = content?.gallery && content.gallery.length > 0;
+  // ponytail: gallery stored as string[] (URLs) in DB, convert to GalleryImage for lightbox compat
+  const galleryImages = useMemo<GalleryImage[]>(
+    () =>
+      (content?.gallery ?? []).map((url) => ({
+        id: url,
+        url,
+        title: null,
+        key: url,
+        type: "IMAGE" as const,
+        duration: null,
+        createdAt: "",
+        updatedAt: "",
+      })),
+    [content?.gallery],
+  );
   if (!content?.shortDescription && !content?.longDescription && !hasGallery) return null;
 
   const openLightbox = (index: number) => setActiveIndex(index);
@@ -64,6 +80,7 @@ export function AboutSection({
                 src={img}
                 alt={`${uniName} gallery ${i + 1}`}
                 fill
+                unoptimized
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 sizes="(max-width: 640px) 50vw, 25vw"
               />
@@ -86,7 +103,7 @@ export function AboutSection({
       )}
       {hasGallery && content?.gallery && (
         <GalleryLightbox
-          images={content.gallery}
+          images={galleryImages}
           activeIndex={activeIndex}
           onClose={closeLightbox}
           onNext={showNext}

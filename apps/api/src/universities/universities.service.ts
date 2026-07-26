@@ -621,15 +621,19 @@ export class UniversitiesService {
       },
     });
 
-    // Invalidate caches
+    // Invalidate caches — delete both id and slug keys (student page fetches by slug)
     await this.redis.del(`university:${id}`);
+    await this.redis.del(`university:${existing.slug}`);
+    if (university.slug !== existing.slug) {
+      await this.redis.del(`university:${university.slug}`);
+    }
     await this.redis.deletePattern('universities:list:*');
 
     return university;
   }
 
   async delete(id: string) {
-    await this.findByIdOrThrow(id);
+    const existing = await this.findByIdOrThrow(id);
 
     const university = await this.prisma.university.update({
       where: { id },
@@ -638,13 +642,14 @@ export class UniversitiesService {
 
     // Invalidate caches
     await this.redis.del(`university:${id}`);
+    await this.redis.del(`university:${existing.slug}`);
     await this.redis.deletePattern('universities:list:*');
 
     return { message: 'University deleted successfully', university };
   }
 
   async updateStatus(id: string, status: UniversityStatus) {
-    await this.findByIdOrThrow(id);
+    const existing = await this.findByIdOrThrow(id);
 
     const result = await this.prisma.university.update({
       where: { id },
@@ -658,6 +663,7 @@ export class UniversitiesService {
 
     // Invalidate caches
     await this.redis.del(`university:${id}`);
+    await this.redis.del(`university:${existing.slug}`);
     await this.redis.deletePattern('universities:list:*');
 
     return result;

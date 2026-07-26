@@ -178,6 +178,7 @@ export function UniversityContent({ uni }: { uni: UniversityDetail }) {
             }
             alt={uni.name}
             fill
+            unoptimized
             className="object-cover"
             sizes="(max-width: 1200px) 100vw, 1200px"
           />
@@ -190,6 +191,7 @@ export function UniversityContent({ uni }: { uni: UniversityDetail }) {
                   alt=""
                   width={56}
                   height={56}
+                  unoptimized
                   className="size-12 rounded-xl border-2 border-white/30 object-contain bg-white p-1 md:size-14"
                 />
               )}
