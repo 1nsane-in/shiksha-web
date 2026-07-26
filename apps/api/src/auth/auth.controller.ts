@@ -24,6 +24,7 @@ import {
 import { AuthService } from './auth.service';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
+import { AuthUser } from './decorators/user.decorator';
 import {
   LoginDto,
   SendOtpDto,
@@ -43,6 +44,14 @@ import {
   LogoutResponseDto,
   UserResponseDto,
   CreateAdminResponseDto,
+  PhoneSendOtpDto,
+  PhoneVerifyOtpDto,
+  PhoneResendOtpDto,
+  PhoneRegisterDto,
+  PhoneLoginDto,
+  MigratePhoneDto,
+  AddEmailDto,
+  AddEmailVerifyOtpDto,
 } from './auth.dto';
 import { Public } from './decorators/public.decorator';
 
@@ -86,6 +95,129 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
   async verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.authService.verifyOtp(dto);
+  }
+
+  @Public()
+  @Post('send-phone-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send OTP via SMS for phone registration' })
+  @ApiOkResponse({ type: AuthMessageResponseDto })
+  @ApiResponse({ status: 400, description: 'Phone already registered / Failed to send SMS' })
+  async sendPhoneOtp(@Body() dto: PhoneSendOtpDto) {
+    return this.authService.sendPhoneOtp(dto);
+  }
+
+  @Public()
+  @Post('verify-phone-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify phone OTP and get registration token' })
+  @ApiOkResponse({ type: VerifyOtpResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  async verifyPhoneOtp(@Body() dto: PhoneVerifyOtpDto) {
+    return this.authService.verifyPhoneOtp(dto);
+  }
+
+  @Public()
+  @Post('resend-phone-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Resend phone OTP via SMS' })
+  @ApiOkResponse({ type: AuthMessageResponseDto })
+  @ApiResponse({ status: 400, description: 'No active OTP found' })
+  async resendPhoneOtp(@Body() dto: PhoneResendOtpDto) {
+    return this.authService.resendPhoneOtp(dto);
+  }
+
+  @Public()
+  @Post('phone-register')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Complete registration after phone OTP verification' })
+  @ApiOkResponse({ type: AuthResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid/expired token / Phone already registered' })
+  @ApiQuery({
+    name: 'mobile',
+    required: false,
+    description: 'Set to "true" to return refreshToken in body',
+  })
+  async phoneRegister(
+    @Body() dto: PhoneRegisterDto,
+    @Res({ passthrough: true }) res: Response,
+    @Query('mobile') mobile?: string,
+  ) {
+    const isMobile = mobile === 'true';
+    const result = await this.authService.phoneRegister(dto);
+    this.buildCookieResponse(res, result.refreshToken, isMobile);
+    return {
+      message: result.message,
+      user: result.user,
+      accessToken: result.accessToken,
+      ...(isMobile ? { refreshToken: result.refreshToken } : {}),
+    };
+  }
+
+  @Public()
+  @Post('phone-login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login with phone and password' })
+  @ApiOkResponse({ type: AuthResponseDto })
+  @ApiResponse({ status: 401, description: 'Invalid credentials / Account deactivated' })
+  @ApiQuery({
+    name: 'mobile',
+    required: false,
+    description: 'Set to "true" to return refreshToken in body',
+  })
+  async phoneLogin(
+    @Body() dto: PhoneLoginDto,
+    @Res({ passthrough: true }) res: Response,
+    @Query('mobile') mobile?: string,
+  ) {
+    const isMobile = mobile === 'true';
+    const result = await this.authService.phoneLogin(dto);
+    this.buildCookieResponse(res, result.refreshToken, isMobile);
+    return {
+      message: result.message,
+      user: result.user,
+      accessToken: result.accessToken,
+      ...(isMobile ? { refreshToken: result.refreshToken } : {}),
+    };
+  }
+
+  @Post('migrate-phone')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verify phone for existing email-based user (migration)' })
+  @ApiOkResponse({ type: AuthMessageResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid/expired token / Phone already in use' })
+  async migratePhone(
+    @Body() dto: MigratePhoneDto,
+    @AuthUser() user: any,
+  ) {
+    return this.authService.migratePhone(user.id, dto);
+  }
+
+  @Post('add-email')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Send OTP to add email to phone-only account' })
+  @ApiOkResponse({ type: AuthMessageResponseDto })
+  @ApiResponse({ status: 400, description: 'Email already set / already in use' })
+  async addEmail(
+    @Body() dto: AddEmailDto,
+    @AuthUser() user: any,
+  ) {
+    return this.authService.addEmail(user.id, dto);
+  }
+
+  @Post('add-email-verify')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verify OTP and add email to phone-only account' })
+  @ApiOkResponse({ type: AuthMessageResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  async addEmailVerify(
+    @Body() dto: AddEmailVerifyOtpDto,
+    @AuthUser() user: any,
+  ) {
+    return this.authService.addEmailVerify(user.id, dto);
   }
 
   private buildCookieResponse(

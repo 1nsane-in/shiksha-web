@@ -7,6 +7,8 @@ import type {
   GoogleRegisterDto,
   AuthResponse,
   User,
+  PhoneLoginDto,
+  PhoneRegisterDto,
 } from "./auth.types";
 
 // Make sure useRouter is available for useLogout
@@ -78,6 +80,42 @@ export function useGoogleRegister(redirectUrl?: string) {
     mutationFn: async (dto: GoogleRegisterDto) => {
       const { googleRegister } = await import("./auth.api");
       return googleRegister(dto);
+    },
+    onSuccess: (data) => {
+      const safeUser = sanitizeUser(data.user);
+      loginStore(safeUser, data.accessToken);
+
+      if (redirectUrl && redirectUrl !== "/") {
+        router.push(redirectUrl);
+        return;
+      }
+      getDashboardForRole(safeUser.role, router);
+    },
+  });
+}
+
+export function usePhoneRegister() {
+  const router = useRouter();
+  const loginStore = useAuthStore((s) => s.login);
+  return useMutation<AuthResponse, Error, PhoneRegisterDto>({
+    mutationFn: async (dto: PhoneRegisterDto) => {
+      const { phoneRegister } = await import("./auth.api");
+      return phoneRegister(dto);
+    },
+    onSuccess: (data) => {
+      const safeUser = sanitizeUser(data.user);
+      loginStore(safeUser, data.accessToken);
+    },
+  });
+}
+
+export function usePhoneLogin(redirectUrl?: string) {
+  const router = useRouter();
+  const loginStore = useAuthStore((s) => s.login);
+  return useMutation<AuthResponse, Error, PhoneLoginDto>({
+    mutationFn: async (dto: PhoneLoginDto) => {
+      const { phoneLogin } = await import("./auth.api");
+      return phoneLogin(dto);
     },
     onSuccess: (data) => {
       const safeUser = sanitizeUser(data.user);

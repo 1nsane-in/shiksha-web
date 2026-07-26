@@ -158,6 +158,88 @@ export class GoogleRegisterDto {
   role!: SocialRole;
 }
 
+/* ---------- Phone OTP DTOs ---------- */
+
+export class PhoneSendOtpDto {
+  @ApiProperty({ example: '+919876543210' })
+  @IsString()
+  phone!: string;
+}
+
+export class PhoneVerifyOtpDto {
+  @ApiProperty({ example: '+919876543210' })
+  @IsString()
+  phone!: string;
+
+  @ApiProperty({ example: '123456' })
+  @IsString()
+  otp!: string;
+}
+
+export class PhoneResendOtpDto {
+  @ApiProperty({ example: '+919876543210' })
+  @IsString()
+  phone!: string;
+}
+
+export class PhoneRegisterDto {
+  @ApiProperty({ description: 'Token from verify-phone-otp response' })
+  @IsString()
+  token!: string;
+
+  @ApiProperty({ example: 'John Doe' })
+  @IsString()
+  name!: string;
+
+  @ApiProperty({ example: 'securePass123', minLength: 6 })
+  @IsString()
+  @MinLength(6)
+  password!: string;
+
+  @ApiProperty({ example: 'securePass123' })
+  @IsString()
+  @Match('password', { message: 'Passwords do not match' })
+  confirmPassword!: string;
+
+  @ApiProperty({ example: 'STUDENT', enum: ['STUDENT', 'PARENT'] })
+  @IsString()
+  role!: string;
+}
+
+export class PhoneLoginDto {
+  @ApiProperty({ example: '+919876543210' })
+  @IsString()
+  phone!: string;
+
+  @ApiProperty({ example: 'securePass123' })
+  @IsString()
+  password!: string;
+}
+
+export class MigratePhoneDto {
+  @ApiProperty({ description: 'Token from verify-phone-otp response' })
+  @IsString()
+  token!: string;
+}
+
+export class AddEmailDto {
+  @ApiProperty({ example: 'john@example.com' })
+  @IsEmail()
+  email!: string;
+}
+
+export class AddEmailVerifyOtpDto {
+  @ApiProperty({ example: 'john@example.com' })
+  @IsEmail()
+  email!: string;
+
+  @ApiProperty({ example: '123456' })
+  @IsString()
+  otp!: string;
+}
+
+/* ---------- Forgot Password DTOs ---------- */
+
 export class ForgotPasswordDto {
   @ApiProperty({ example: 'john@example.com' })
   @IsEmail()
@@ -218,8 +300,6 @@ export class AuthMessageResponseDto {
   @ApiProperty({ example: 'OTP sent to your email' })
   message!: string;
 
-  @ApiPropertyOptional({ example: '123456', description: 'Only in dev mode' })
-  devOtp?: string;
 }
 
 export class VerifyOtpResponseDto {

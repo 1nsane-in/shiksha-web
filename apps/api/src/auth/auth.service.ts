@@ -12,6 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { EmailValidationService } from '../common/services/email-validation.service';
 import { EmailService } from '../common/services/email.service';
+import { Msg91Service } from '../common/services/msg91.service';
 import {
   LoginDto,
   SendOtpDto,
@@ -23,6 +24,14 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
   SocialRole,
+  PhoneSendOtpDto,
+  PhoneVerifyOtpDto,
+  PhoneResendOtpDto,
+  PhoneRegisterDto,
+  PhoneLoginDto,
+  MigratePhoneDto,
+  AddEmailDto,
+  AddEmailVerifyOtpDto,
 } from './auth.dto';
 
 @Injectable()
@@ -35,6 +44,7 @@ export class AuthService {
     private redis: RedisService,
     private emailValidation: EmailValidationService,
     private emailService: EmailService,
+    private msg91: Msg91Service,
     private config: ConfigService,
   ) {}
 
@@ -83,6 +93,313 @@ export class AuthService {
     return { message: 'OTP sent to your email' };
   }
 
+  /* ---------- Phone OTP Flow ---------- */
+
+  async sendPhoneOtp(dto: PhoneSendOtpDto) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { phone: dto.phone },
+    });
+    if (existingUser) {
+      throw new BadRequestException('Phone number already registered');
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    const otpRecord = await this.prisma.otpVerification.create({
+      data: {
+        phone: dto.phone,
+        otp,
+        expiresAt,
+      },
+    });
+
+    try {
+      await this.msg91.sendOtp(dto.phone, otp);
+    } catch (error) {
+      this.logger.error(`Failed to send SMS OTP: ${(error as Error).message}`);
+      await this.prisma.otpVerification.delete({ where: { id: otpRecord.id } });
+      throw new BadRequestException('Failed to send SMS OTP');
+    }
+    return { message: 'OTP sent to your phone' };
+  }
+
+  async verifyPhoneOtp(dto: PhoneVerifyOtpDto) {
+    const record = await this.prisma.otpVerification.findFirst({
+      where: {
+        phone: dto.phone,
+        otp: dto.otp,
+        verifiedAt: null,
+        completedAt: null,
+        expiresAt: { gte: new Date() },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!record) {
+      throw new BadRequestException('Invalid or expired OTP');
+    }
+
+    const token = crypto.randomUUID();
+    await this.prisma.otpVerification.update({
+      where: { id: record.id },
+      data: { verifiedAt: new Date(), token },
+    });
+
+    return { message: 'OTP verified successfully', token };
+  }
+
+  async resendPhoneOtp(dto: PhoneResendOtpDto) {
+    const record = await this.prisma.otpVerification.findFirst({
+      where: {
+        phone: dto.phone,
+        verifiedAt: null,
+        completedAt: null,
+        expiresAt: { gte: new Date() },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!record) {
+      throw new BadRequestException(
+        'No active OTP found for this phone. Request a new one.',
+      );
+    }
+
+    try {
+      await this.msg91.resendOtp(dto.phone);
+    } catch (error) {
+      this.logger.error(
+        `Failed to resend SMS OTP: ${(error as Error).message}`,
+      );
+      throw new BadRequestException('Failed to resend SMS OTP');
+    }
+    return { message: 'OTP resent to your phone' };
+  }
+
+  async phoneRegister(dto: PhoneRegisterDto) {
+    const record = await this.prisma.otpVerification.findFirst({
+      where: {
+        token: dto.token,
+        verifiedAt: { not: null },
+        completedAt: null,
+        expiresAt: { gte: new Date() },
+      },
+    });
+
+    if (!record || !record.phone) {
+      throw new BadRequestException('Invalid or expired registration token');
+    }
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { phone: record.phone },
+    });
+    if (existingUser) {
+      throw new BadRequestException('Phone number already registered');
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, 8);
+    const role = dto.role === 'PARENT' ? 'PARENT' : 'STUDENT';
+
+    const user = await this.prisma.user.create({
+      data: {
+        phone: record.phone,
+        name: dto.name,
+        passwordHash: hashedPassword,
+        phoneVerified: true,
+        role,
+      },
+    });
+
+    if (role === 'PARENT') {
+      await this.prisma.parent.create({ data: { userId: user.id } });
+    } else {
+      await this.prisma.student.create({ data: { userId: user.id } });
+    }
+
+    await this.prisma.otpVerification.update({
+      where: { id: record.id },
+      data: { completedAt: new Date() },
+    });
+
+    const { accessToken, refreshToken } = await this.generateTokens(user);
+
+    return {
+      message: 'Registration successful',
+      user,
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async phoneLogin(dto: PhoneLoginDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { phone: dto.phone },
+    });
+
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Account lockout
+    const lockoutKey = `lockout:phone:${dto.phone}`;
+    const maxAttempts = 5;
+    const lockoutDuration = 15 * 60;
+    const attempts = await this.redis.get<number>(lockoutKey);
+    if (attempts && attempts >= maxAttempts) {
+      const ttl = await this.redis.ttl(lockoutKey);
+      throw new UnauthorizedException(
+        `Account temporarily locked. Try again in ${Math.ceil(ttl / 60)} minutes.`,
+      );
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      dto.password,
+      user.passwordHash,
+    );
+    if (!isPasswordValid) {
+      const newCount = await this.redis.incr(lockoutKey);
+      if (newCount === 1) {
+        await this.redis.expire(lockoutKey, lockoutDuration);
+      }
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    await this.redis.del(lockoutKey);
+
+    const { accessToken, refreshToken } = await this.generateTokens(user);
+
+    return {
+      message: 'Login successful',
+      user,
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async migratePhone(userId: string, dto: MigratePhoneDto) {
+    const record = await this.prisma.otpVerification.findFirst({
+      where: {
+        token: dto.token,
+        verifiedAt: { not: null },
+        completedAt: null,
+        expiresAt: { gte: new Date() },
+      },
+    });
+
+    if (!record || !record.phone) {
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { phone: record.phone },
+    });
+    if (existingUser && existingUser.id !== userId) {
+      throw new BadRequestException(
+        'Phone number already in use by another account',
+      );
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        phone: record.phone,
+        phoneVerified: true,
+      },
+    });
+
+    await this.prisma.otpVerification.update({
+      where: { id: record.id },
+      data: { completedAt: new Date() },
+    });
+
+    return { message: 'Phone number verified successfully', user };
+  }
+
+  async addEmail(userId: string, dto: AddEmailDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new BadRequestException('User not found');
+
+    if (user.email) {
+      throw new BadRequestException(
+        'Email already set. Update not supported yet.',
+      );
+    }
+
+    await this.emailValidation.validateEmailAsync(dto.email);
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+    if (existingUser) {
+      throw new BadRequestException('Email already in use');
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await this.prisma.otpVerification.create({
+      data: {
+        email: dto.email,
+        otp,
+        expiresAt,
+      },
+    });
+
+    const isDev = this.config.get('NODE_ENV') === 'development';
+    try {
+      await this.emailService.sendRegistrationOtp(dto.email, otp, user.name);
+    } catch (error) {
+      this.logger.error(
+        `Failed to send email OTP: ${(error as Error).message}`,
+      );
+      if (!isDev) throw error;
+    }
+
+    if (isDev) {
+      return { message: 'OTP sent to your email', devOtp: otp };
+    }
+    return { message: 'OTP sent to your email' };
+  }
+
+  async addEmailVerify(userId: string, dto: AddEmailVerifyOtpDto) {
+    const record = await this.prisma.otpVerification.findFirst({
+      where: {
+        email: dto.email,
+        otp: dto.otp,
+        verifiedAt: null,
+        completedAt: null,
+        expiresAt: { gte: new Date() },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!record) {
+      throw new BadRequestException('Invalid or expired OTP');
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        email: dto.email,
+        emailVerified: true,
+      },
+    });
+
+    await this.prisma.otpVerification.update({
+      where: { id: record.id },
+      data: { verifiedAt: new Date(), completedAt: new Date() },
+    });
+
+    return { message: 'Email added and verified successfully', user };
+  }
+
+  /* ---------- Email OTP Flow ---------- */
+
   async verifyOtp(dto: VerifyOtpDto) {
     const record = await this.prisma.otpVerification.findFirst({
       where: {
@@ -124,7 +441,7 @@ export class AuthService {
     }
 
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: record.email },
+      where: { email: record.email! },
     });
     if (existingUser) {
       throw new BadRequestException('Email already registered');
@@ -135,7 +452,7 @@ export class AuthService {
 
     const user = await this.prisma.user.create({
       data: {
-        email: record.email,
+        email: record.email!,
         name: record.name!,
         passwordHash: hashedPassword,
         emailVerified: true,
@@ -159,9 +476,11 @@ export class AuthService {
     });
 
     // Send welcome email (don't block on failure)
-    this.emailService.sendWelcomeEmail(user.email, user.name).catch((err) => {
-      this.logger.error(`Failed to send welcome email: ${err.message}`);
-    });
+    this.emailService
+      .sendWelcomeEmail(user.email!, user.name)
+      .catch((err: Error) => {
+        this.logger.error(`Failed to send welcome email: ${err.message}`);
+      });
 
     const { accessToken, refreshToken } = await this.generateTokens(user);
 
@@ -216,11 +535,15 @@ export class AuthService {
 
     const { accessToken, refreshToken } = await this.generateTokens(user);
 
+    // ponytail: flag if phone needs verification for migration
+    const phoneMigrationRequired = !user.phone || !user.phoneVerified;
+
     return {
       message: 'Login successful',
       user,
       accessToken,
       refreshToken,
+      ...(phoneMigrationRequired ? { phoneMigrationRequired } : {}),
     };
   }
 
@@ -254,7 +577,7 @@ export class AuthService {
       user = await this.prisma.user.create({
         data: {
           email: userInfo.email,
-          name: userInfo.name || userInfo.email.split('@')[0],
+          name: (userInfo.name || userInfo.email?.split('@')[0]) ?? '',
           emailVerified: true,
           role: requestedRole,
           isActive: true,
@@ -467,11 +790,11 @@ export class AuthService {
 
     // Get user info for email
     const user = await this.prisma.user.findUnique({
-      where: { email: record.email },
+      where: { email: record.email! },
     });
 
     await this.prisma.user.update({
-      where: { email: record.email },
+      where: { email: record.email! },
       data: { passwordHash: hashedPassword },
     });
 
@@ -483,8 +806,8 @@ export class AuthService {
     // Send password changed confirmation (don't block on failure)
     if (user) {
       this.emailService
-        .sendPasswordChangedEmail(user.email, user.name)
-        .catch((err) => {
+        .sendPasswordChangedEmail(user.email!, user.name)
+        .catch((err: Error) => {
           this.logger.error(
             `Failed to send password changed email: ${err.message}`,
           );
@@ -494,13 +817,19 @@ export class AuthService {
     return { message: 'Password reset successful' };
   }
 
-  private async generateTokens(user: any) {
-    const payload = {
+  private async generateTokens(user: {
+    id: string;
+    role: string;
+    email?: string | null;
+    phone?: string | null;
+  }) {
+    const payload: Record<string, any> = {
       sub: user.id,
       id: user.id,
-      email: user.email,
       role: user.role,
     };
+    if (user.email) payload.email = user.email;
+    if (user.phone) payload.phone = user.phone;
 
     const accessToken = this.jwtService.sign(payload);
 
@@ -521,7 +850,13 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  private async verifyGoogleToken(token: string): Promise<any> {
+  private async verifyGoogleToken(token: string): Promise<{
+    sub?: string;
+    email?: string;
+    name?: string;
+    picture?: string;
+    email_verified?: boolean;
+  } | null> {
     try {
       this.logger.debug(`Verifying Google token...`);
 
@@ -557,23 +892,34 @@ export class AuthService {
         );
 
         if (!tokenResponse.ok) {
-          const errorData = await tokenResponse.json();
+          const errorData = (await tokenResponse.json()) as {
+            error_description?: string;
+          };
           this.logger.error(
             `Token exchange failed: ${JSON.stringify(errorData)}`,
           );
           return null;
         }
 
-        const tokenData = await tokenResponse.json();
+        const tokenData = (await tokenResponse.json()) as {
+          access_token?: string;
+          id_token?: string;
+        };
         this.logger.debug(`Token exchange successful`);
-        accessToken = tokenData.access_token;
+        accessToken = tokenData.access_token ?? accessToken;
 
         // If we got an ID token, use it for better user info
         if (tokenData.id_token) {
           this.logger.debug('ID token received, decoding...');
           const idTokenPayload = JSON.parse(
             Buffer.from(tokenData.id_token.split('.')[1], 'base64').toString(),
-          );
+          ) as {
+            sub?: string;
+            email?: string;
+            name?: string;
+            picture?: string;
+            email_verified?: boolean;
+          };
           return {
             sub: idTokenPayload.sub,
             email: idTokenPayload.email,
@@ -599,11 +945,18 @@ export class AuthService {
           return null;
         }
 
-        const tokenInfo = await response.json();
+        const tokenInfo = (await response.json()) as {
+          aud?: string;
+          sub?: string;
+          email?: string;
+          name?: string;
+          picture?: string;
+          email_verified?: boolean;
+        };
         this.logger.debug(`Token info: ${JSON.stringify(tokenInfo)}`);
 
         // Verify the audience matches our client ID
-        const expectedAudience = this.config.get('GOOGLE_CLIENT_ID');
+        const expectedAudience = this.config.get<string>('GOOGLE_CLIENT_ID');
         if (tokenInfo.aud !== expectedAudience) {
           this.logger.warn(
             `Token audience mismatch: ${tokenInfo.aud} !== ${expectedAudience}`,
@@ -639,7 +992,12 @@ export class AuthService {
           return null;
         }
 
-        const userInfo = await response.json();
+        const userInfo = (await response.json()) as {
+          id?: string;
+          email?: string;
+          name?: string;
+          picture?: string;
+        };
         this.logger.debug(`User info: ${JSON.stringify(userInfo)}`);
         return userInfo;
       }
