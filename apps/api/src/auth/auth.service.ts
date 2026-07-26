@@ -912,7 +912,7 @@ export class AuthService {
         if (tokenData.id_token) {
           this.logger.debug('ID token received, decoding...');
           const idTokenPayload = JSON.parse(
-            Buffer.from(tokenData.id_token.split('.')[1], 'base64').toString(),
+            Buffer.from(tokenData.id_token.split('.')[1] ?? '', 'base64').toString(),
           ) as {
             sub?: string;
             email?: string;
