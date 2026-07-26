@@ -122,6 +122,8 @@ export default function EditUniversityPage() {
         }
         data.admin = { ...data.admin, bankDetails: r };
       }
+      // Remove fields that don't exist in API DTO
+      delete data.code;
       // Strip empty strings / nulls so API validation doesn't reject optional fields
       const clean = (obj: any): any => {
         if (obj === null || obj === undefined) return undefined;
