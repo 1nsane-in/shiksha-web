@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { forwardRef, useState, useImperativeHandle } from "react";
 import { Card, CardContent, Button } from "@repo/ui";
 import {
   SectionHeading,
@@ -56,51 +56,60 @@ interface Props {
   updateUniversityMut: any;
 }
 
-export function OverviewTab({
-  university,
-  a,
-  loc,
-  contact,
-  supp,
-  router,
-  uniId,
-  refetch,
-  updateUniversityMut,
-}: Props) {
-  const [galleryPreview, setGalleryPreview] = useState<File | null>(null);
+export interface OverviewTabHandle {
+  setGalleryPreview: (files: File[]) => void;
+}
+
+export const OverviewTab = forwardRef<OverviewTabHandle, Props>(function OverviewTab(
+  { university, a, loc, contact, supp, router, uniId, refetch, updateUniversityMut },
+  ref,
+) {
+  const [galleryPreview, setGalleryPreview] = useState<File[]>([]);
   const [galleryProgress, setGalleryProgress] = useState(0);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
 
+  useImperativeHandle(ref, () => ({ setGalleryPreview }));
+
   const handleGalleryFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    setGalleryPreview(e.target.files[0]);
+    setGalleryPreview(Array.from(e.target.files));
     setGalleryProgress(0);
   };
 
   const handleGalleryUpload = async () => {
-    if (!galleryPreview) return;
+    if (galleryPreview.length === 0) return;
     setIsUploadingGallery(true);
     setGalleryProgress(0);
     try {
-      const formData = new FormData();
-      formData.append("file", galleryPreview);
       const { api } = await import("@/shared/api/axios");
       const cluster = university.slug;
-      const res = await api.post(
-        "/upload?folder=gallery-images/" + cluster,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-          onUploadProgress: (e: any) => {
-            if (e.total)
-              setGalleryProgress(Math.round((e.loaded * 100) / e.total));
+      const uploadedUrls: string[] = [];
+
+      for (let i = 0; i < galleryPreview.length; i++) {
+        const formData = new FormData();
+        formData.append("file", galleryPreview[i]);
+        const res = await api.post(
+          "/upload?folder=gallery-images/" + cluster,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            onUploadProgress: (e: any) => {
+              if (e.total)
+                setGalleryProgress(
+                  Math.round(
+                    ((i * 100 + (e.loaded * 100) / e.total)) /
+                      galleryPreview.length,
+                  ),
+                );
+            },
           },
-        },
-      );
-      const body = res.data as any;
-      const url = body?.url || body?.data?.url;
+        );
+        const body = res.data as any;
+        const url = body?.url || body?.data?.url;
+        if (url) uploadedUrls.push(url);
+      }
+
       const currentGallery = university.content?.gallery || [];
-      const updatedGallery = [...currentGallery, url];
       const {
         id: _cid,
         universityId: _cuid2,
@@ -108,10 +117,15 @@ export function OverviewTab({
       } = university.content || {};
       await updateUniversityMut.mutateAsync({
         id: uniId,
-        data: { content: { ...contentSafe, gallery: updatedGallery } },
+        data: {
+          content: {
+            ...contentSafe,
+            gallery: [...currentGallery, ...uploadedUrls],
+          },
+        },
       });
-      toast.success("Media added to gallery");
-      setGalleryPreview(null);
+      toast.success(`${uploadedUrls.length} media added to gallery`);
+      setGalleryPreview([]);
       setGalleryProgress(0);
     } catch {
       toast.error("Failed to upload");
@@ -665,6 +679,7 @@ export function OverviewTab({
               <input
                 type="file"
                 accept="image/*,video/*"
+                multiple
                 className="hidden"
                 onChange={handleGalleryFileSelect}
                 disabled={isUploadingGallery}
@@ -672,22 +687,29 @@ export function OverviewTab({
             </label>
           </div>
 
-          {galleryPreview && (
+          {galleryPreview.length > 0 && (
             <div className="mb-4 rounded-xl border border-brand-gold-light bg-brand-gold-light/20 p-4">
-              <div className="relative mb-3 aspect-video max-h-60 overflow-hidden rounded-lg border border-brand-hairline bg-brand-canvas">
-                {galleryPreview.type.startsWith("video/") ? (
-                  <video
-                    src={URL.createObjectURL(galleryPreview)}
-                    className="h-full w-full object-contain"
-                    controls
-                  />
-                ) : (
-                  <img
-                    src={URL.createObjectURL(galleryPreview)}
-                    alt="Preview"
-                    className="h-full w-full object-contain"
-                  />
-                )}
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-brand-ink-muted">
+                {galleryPreview.length} file{galleryPreview.length > 1 ? "s" : ""} selected
+              </p>
+              <div className="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                {galleryPreview.map((file, i) => (
+                  <div key={i} className="relative aspect-video overflow-hidden rounded-lg border border-brand-hairline bg-brand-canvas">
+                    {file.type.startsWith("video/") ? (
+                      <video
+                        src={URL.createObjectURL(file)}
+                        className="h-full w-full object-contain"
+                        controls
+                      />
+                    ) : (
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Preview ${i + 1}`}
+                        className="h-full w-full object-contain"
+                      />
+                    )}
+                  </div>
+                ))}
               </div>
               {isUploadingGallery ? (
                 <div className="space-y-2">
@@ -709,13 +731,13 @@ export function OverviewTab({
                     className="bg-brand-gold hover:brightness-90 text-white shadow-sm"
                     onClick={handleGalleryUpload}
                   >
-                    <Upload className="h-3.5 w-3.5 mr-1" /> Upload
+                    <Upload className="h-3.5 w-3.5 mr-1" /> Upload All
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     className="border-brand-hairline text-brand-ink-muted"
-                    onClick={() => setGalleryPreview(null)}
+                    onClick={() => setGalleryPreview([])}
                   >
                     Cancel
                   </Button>
@@ -845,4 +867,4 @@ export function OverviewTab({
       )}
     </>
   );
-}
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
 import {
@@ -90,7 +90,7 @@ import {
   statusConfig,
 } from "@/components/admin/universities/ui";
 // Tab components
-import { OverviewTab } from "@/components/admin/universities/tabs/overview-tab";
+import { OverviewTab, type OverviewTabHandle } from "@/components/admin/universities/tabs/overview-tab";
 import { InfrastructureTab } from "@/components/admin/universities/tabs/infrastructure-tab";
 import { AdmissionTab } from "@/components/admin/universities/tabs/admission-tab";
 import { RecognitionTab } from "@/components/admin/universities/tabs/recognition-tab";
@@ -111,6 +111,46 @@ export default function UniversityDetailPage() {
   const deleteDocMut = useDeleteUniversityDocument();
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+
+  const overviewTabRef = useRef<OverviewTabHandle>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current++;
+    if (e.dataTransfer.types?.includes("Files")) setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current--;
+    if (dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+      dragCounter.current = 0;
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        overviewTabRef.current?.setGalleryPreview(files);
+      }
+    },
+    [],
+  );
 
   if (isLoading) return <LoadingSkeleton />;
   if (!university) {
@@ -222,7 +262,24 @@ export default function UniversityDetailPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-6 max-w-7xl mx-auto p-4 md:p-6 bg-[#FAF9F6]">
+    <div
+      className="flex flex-1 flex-col gap-6 max-w-7xl mx-auto p-4 md:p-6 bg-[#FAF9F6]"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      {/* Drag-drop overlay */}
+      {isDragging && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="rounded-2xl border-2 border-dashed border-white/60 bg-white/10 px-10 py-14 text-center backdrop-blur-md">
+            <Upload className="mx-auto mb-3 h-10 w-10 text-white" />
+            <p className="text-lg font-semibold text-white">Drop files here</p>
+            <p className="mt-1 text-sm text-white/70">to add to gallery</p>
+          </div>
+        </div>
+      )}
+
       {/* Editorial Hero Banner */}
       <div className="relative h-44 w-full shrink-0 overflow-hidden rounded-2xl border bg-white shadow-sm sm:h-56 md:h-64 border-[#ECEAE6]">
         {university.bannerImage ? (
@@ -452,6 +509,7 @@ export default function UniversityDetailPage() {
 
         <TabsContent value="overview" className="mt-5 space-y-5">
           <OverviewTab
+            ref={overviewTabRef}
             university={university}
             a={a}
             loc={loc}
