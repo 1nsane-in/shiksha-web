@@ -77,19 +77,13 @@ export class RedisService implements OnModuleDestroy {
   }
 
   // Cache wrapper with fallback
+  // ponytail: caching disabled — was returning stale data. Enable when cache invalidation is reliable.
   async getOrSet<T>(
     key: string,
     factory: () => Promise<T>,
-    ttlSeconds: number,
+    _ttlSeconds?: number,
   ): Promise<T> {
-    const cached = await this.get<T>(key);
-    if (cached !== null) {
-      return cached;
-    }
-
-    const value = await factory();
-    await this.set(key, value, ttlSeconds);
-    return value;
+    return factory();
   }
 
   // Rate limiting operations
