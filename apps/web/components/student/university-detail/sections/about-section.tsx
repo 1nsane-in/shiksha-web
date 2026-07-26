@@ -70,7 +70,7 @@ export function AboutSection({
       )}
       {hasGallery && (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className={`grid grid-cols-2 gap-3 sm:grid-cols-3 ${showAll ? "max-h-[600px] overflow-y-auto" : ""}`}>
             {galleryImages.slice(0, showAll ? galleryImages.length : 6).map((img, i) => (
               <button
                 key={i}

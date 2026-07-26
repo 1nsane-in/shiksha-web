@@ -14,7 +14,7 @@ export function GalleryGrid({ images, onDelete }: { images: string[]; onDelete?:
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      <div className={`grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 ${showAll ? "max-h-[600px] overflow-y-auto" : ""}`}>
         {displayed.map((src, i) => (
           <div key={i} className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-gray-200 bg-white">
             {isVideo(src) ? (
