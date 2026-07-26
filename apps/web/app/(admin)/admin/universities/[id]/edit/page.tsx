@@ -99,8 +99,8 @@ export default function EditUniversityPage() {
 
   const handleSubmit = async () => {
     try {
-      const data = { ...formData };
-      // Convert arrays back to Record<> for API
+      const data = JSON.parse(JSON.stringify(formData));
+      // Convert arrays back to Record<> for API first
       if (Array.isArray(data.fees?.otherFees)) {
         const r: Record<string, number> = {};
         for (const item of data.fees.otherFees) {
@@ -122,7 +122,24 @@ export default function EditUniversityPage() {
         }
         data.admin = { ...data.admin, bankDetails: r };
       }
-      await updateMutation.mutateAsync({ id: params.id as string, data });
+      // Strip empty strings / nulls so API validation doesn't reject optional fields
+      const clean = (obj: any): any => {
+        if (obj === null || obj === undefined) return undefined;
+        if (Array.isArray(obj)) {
+          const cleaned = obj.map(clean).filter((x: any) => x !== undefined);
+          return cleaned.length ? cleaned : undefined;
+        }
+        if (typeof obj === "object") {
+          const result: any = {};
+          for (const [k, v] of Object.entries(obj)) {
+            const val = clean(v);
+            if (val !== undefined && val !== "" && !(Array.isArray(val) && val.length === 0)) result[k] = val;
+          }
+          return Object.keys(result).length ? result : undefined;
+        }
+        return obj;
+      };
+      await updateMutation.mutateAsync({ id: params.id as string, data: clean(data) });
       router.push(`/admin/universities/${params.id}`);
     } catch (error) {
       console.error("Failed to update university:", error);
