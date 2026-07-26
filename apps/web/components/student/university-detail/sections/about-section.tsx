@@ -16,6 +16,7 @@ export function AboutSection({
   uniName: string;
 }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const hasGallery = content?.gallery && content.gallery.length > 0;
   // ponytail: gallery stored as string[] (URLs) in DB, convert to GalleryImage for lightbox compat
   const galleryImages = useMemo<GalleryImage[]>(
@@ -68,38 +69,36 @@ export function AboutSection({
         </div>
       )}
       {hasGallery && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {content!.gallery.slice(0, 6).map((img: string, i: number) => (
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {galleryImages.slice(0, showAll ? galleryImages.length : 6).map((img, i) => (
+              <button
+                key={i}
+                onClick={() => openLightbox(i)}
+                className="group relative aspect-[4/3] overflow-hidden rounded-xl cursor-pointer"
+                style={{ border: "1px solid " + theme.hairline }}
+              >
+                <Image
+                  src={img.url}
+                  alt={`${uniName} gallery ${i + 1}`}
+                  fill
+                  unoptimized
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  sizes="(max-width: 640px) 50vw, 25vw"
+                />
+              </button>
+            ))}
+          </div>
+          {galleryImages.length > 6 && (
             <button
-              key={i}
-              onClick={() => openLightbox(i)}
-              className="group relative aspect-[4/3] overflow-hidden rounded-xl cursor-pointer"
-              style={{ border: "1px solid " + theme.hairline }}
+              onClick={() => setShowAll(!showAll)}
+              className="mt-3 text-sm font-medium transition-colors hover:opacity-80"
+              style={{ color: theme.gold }}
             >
-              <Image
-                src={img}
-                alt={`${uniName} gallery ${i + 1}`}
-                fill
-                unoptimized
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                sizes="(max-width: 640px) 50vw, 25vw"
-              />
+              {showAll ? "Show less" : `Show all (${galleryImages.length})`}
             </button>
-          ))}
-          {content!.gallery.length > 6 && (
-            <div
-              className="flex aspect-[4/3] items-center justify-center rounded-xl"
-              style={{
-                background: theme.goldLight,
-                border: "1px solid " + theme.goldBorder,
-              }}
-            >
-              <p className="text-sm font-medium" style={{ color: theme.gold }}>
-                +{content!.gallery.length - 6} more
-              </p>
-            </div>
           )}
-        </div>
+        </>
       )}
       {hasGallery && content?.gallery && (
         <GalleryLightbox
