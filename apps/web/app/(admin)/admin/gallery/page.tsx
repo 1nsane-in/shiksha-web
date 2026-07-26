@@ -26,7 +26,9 @@ export default function GalleryPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <GalleryUploadForm />
+        <div className="md:sticky md:top-6 md:self-start">
+          <GalleryUploadForm />
+        </div>
         <GalleryGrid
           images={images}
           isLoading={isLoading}
