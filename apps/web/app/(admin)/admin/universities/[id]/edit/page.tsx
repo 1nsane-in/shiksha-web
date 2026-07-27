@@ -124,7 +124,7 @@ export default function EditUniversityPage() {
       }
       // Remove fields that don't exist in API DTO
       delete data.code;
-      // Strip empty strings / nulls so API validation doesn't reject optional fields
+      // Strip DB-injected id/universityId + empty strings so API validation doesn't reject
       const clean = (obj: any): any => {
         if (obj === null || obj === undefined) return undefined;
         if (Array.isArray(obj)) {
@@ -134,6 +134,7 @@ export default function EditUniversityPage() {
         if (typeof obj === "object") {
           const result: any = {};
           for (const [k, v] of Object.entries(obj)) {
+            if (k === "id" || k === "universityId") continue;
             const val = clean(v);
             if (val !== undefined && val !== "" && !(Array.isArray(val) && val.length === 0)) result[k] = val;
           }
