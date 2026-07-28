@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@repo/ui";
@@ -14,6 +14,14 @@ import { navLinks } from "@/lib/brand-data";
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const isHome = pathname === "/";
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    if (!isHome) return;
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isHome]);
   const { isAuthenticated, user } = useAuth();
   const initials = user?.name?.charAt(0)?.toUpperCase() || "U";
   const loginUrl = `/login${pathname !== "/" ? `?redirect=${encodeURIComponent(pathname)}` : ""}`;
@@ -23,14 +31,11 @@ export function Header() {
     (href === "/universities" && pathname.startsWith("/student/university"));
 
   return (
-    <header
-      className="sticky top-0 z-50"
-      style={{
-        background: brand.canvas,
-        borderBottom: `1px solid ${brand.hairline}`,
-      }}
-    >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="fixed inset-x-0 top-3 z-50">
+      <div
+        className={`mx-auto flex h-16 max-w-5xl w-5xl items-center justify-between rounded-full bg-brand-canvas px-4 sm:px-6 lg:px-8 transition-all duration-300 ${scrolled ? "border shadow-sm" : "border border-transparent"}`}
+        style={{ borderColor: scrolled ? brand.hairline : "transparent" }}
+      >
         {/* ─── Logo ─── */}
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <Image
@@ -116,7 +121,11 @@ export function Header() {
             style={{ color: brand.ink }}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
-            {isMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            {isMenuOpen ? (
+              <X className="size-5" />
+            ) : (
+              <Menu className="size-5" />
+            )}
           </button>
         </div>
       </div>
@@ -142,7 +151,9 @@ export function Header() {
                     className="block rounded-lg px-4 py-2.5 text-sm font-medium transition-colors duration-200"
                     style={{
                       color: active ? "#fff" : "rgba(255,255,255,0.7)",
-                      background: active ? "rgba(255,255,255,0.1)" : "transparent",
+                      background: active
+                        ? "rgba(255,255,255,0.1)"
+                        : "transparent",
                     }}
                     onClick={() => setIsMenuOpen(false)}
                   >
