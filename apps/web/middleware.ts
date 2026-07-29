@@ -27,9 +27,13 @@ function decodeToken(token: string): { role?: string } | null {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Pass pathname for not-found page context
+  const response = NextResponse.next();
+  response.headers.set("x-pathname", pathname);
+
   // Allow public university pages without authentication
   if (pathname.startsWith("/student/university/")) {
-    return NextResponse.next();
+    return response;
   }
 
   const token = request.cookies.get("token")?.value;
@@ -51,7 +55,7 @@ export function middleware(request: NextRequest) {
   const isProtected = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
-  if (!isProtected) return NextResponse.next();
+  if (!isProtected) return response;
 
   if (!token) {
     const loginUrl = new URL("/login", request.url);
@@ -85,7 +89,7 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
