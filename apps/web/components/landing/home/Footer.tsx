@@ -165,10 +165,6 @@ export function Footer() {
               Refund Policy
             </Link>
           </div>
-          <p className="text-center md:text-right font-medium w-full">
-            Registered Partner & Approved Educational Consultancy of Premier Foreign Medical
-            Universities.
-          </p>
         </div>
       </div>
     </footer>
