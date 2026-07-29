@@ -153,8 +153,19 @@ export function Footer() {
             color: brand.inkMuted,
           }}
         >
-          <p>© {new Date().getFullYear()} Shiksha International. All rights reserved.</p>
-          <p className="text-center md:text-right font-medium">
+          <p>© {new Date().getFullYear()} SHIKSHA INTERNATIONAL PRIVATE LIMITED. All rights reserved.</p>
+          <div className="flex flex-wrap justify-center md:justify-end gap-x-4 gap-y-1">
+            <Link href="/privacy-policy" className="hover:underline">
+              Privacy Policy
+            </Link>
+            <Link href="/terms-and-conditions" className="hover:underline">
+              Terms &amp; Conditions
+            </Link>
+            <Link href="/refund-policy" className="hover:underline">
+              Refund Policy
+            </Link>
+          </div>
+          <p className="text-center md:text-right font-medium w-full">
             Registered Partner & Approved Educational Consultancy of Premier Foreign Medical
             Universities.
           </p>
