@@ -1,5 +1,5 @@
 import React from "react";
-import { brand } from "@/lib/brand";
+import { brand, admissionYear } from "@/lib/brand";
 import { admissions2026Benefits, iconMap } from "@/lib/brand-data";
 import { SectionHeader } from "@/components/landing/about-us/section-header";
 import { Calendar, ArrowRight } from "lucide-react";
@@ -21,7 +21,7 @@ export function Admissions2026Section() {
             style={{ background: brand.goldLight, color: brand.gold }}
           >
             <Calendar className="size-4" />
-            Admissions Open 2026
+            Admissions Open {admissionYear()}
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
             Benefits of Early Application

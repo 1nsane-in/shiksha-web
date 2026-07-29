@@ -46,6 +46,15 @@ export const brand = {
 export type BrandToken = keyof typeof brand;
 
 /**
+ * Academic admission-year label, e.g. "2026-27".
+ * Auto-rolls every January so no manual bump.
+ */
+export function admissionYear(): string {
+  const y = new Date().getFullYear();
+  return `${y}-${String(y + 1).slice(-2)}`;
+}
+
+/**
  * Helper to build inline styles that reference brand tokens.
  * Prefer utility classes when possible.
  */

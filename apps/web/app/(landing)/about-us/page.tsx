@@ -12,19 +12,21 @@ import { ServicesSection } from "@/components/landing/about-us/services-section"
 import { OTCSection } from "@/components/landing/about-us/otc-section";
 import { FAQSection } from "@/components/landing/about-us/faq-section";
 import { CtaSection } from "@/components/landing/about-us/cta-section";
+import { admissionYear } from "@/lib/brand";
 
 /* ─── Metadata ─── */
 
-export const metadata: Metadata = {
-  title: "About Us | Shiksha International — MBBS Abroad Admissions",
-  description:
-    "Shiksha International guides ambitious students to prestigious medical universities in Kyrgyzstan, Uzbekistan, Kazakhstan & Russia with transparency, legal compliance, and personalized support.",
-  openGraph: {
-    title: "About Shiksha International | Medical Education Consultants",
+export function generateMetadata(): Metadata {
+  return {
+    title: "About Us | Shiksha International — MBBS Abroad Admissions",
     description:
-      "Official university collaborations. Transparent admissions. Free FMGE/NEXT coaching. Admissions open for 2026.",
-  },
-};
+      "Shiksha International guides ambitious students to prestigious medical universities in Kyrgyzstan, Uzbekistan, Kazakhstan & Russia with transparency, legal compliance, and personalized support.",
+    openGraph: {
+      title: "About Shiksha International | Medical Education Consultants",
+      description: `Official university collaborations. Transparent admissions. Free FMGE/NEXT coaching. Admissions open for ${admissionYear()}.`,
+    },
+  };
+}
 
 /* ─── Main Page (pure composition) ─── */
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { brand } from "@/lib/brand";
+import { brand, admissionYear } from "@/lib/brand";
 
 /**
  * Closing call-to-action banner with phone and email links.
@@ -18,7 +18,7 @@ export function CtaSection() {
           <p className="mt-4 max-w-lg mx-auto text-xs sm:text-sm opacity-80 text-white">
             Contact our consultants today to check your program eligibility and
             begin your international university application. Admissions open for
-            2026 — apply early for priority processing.
+            {admissionYear()} — apply early for priority processing.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <a

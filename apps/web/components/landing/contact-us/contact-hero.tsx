@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { brand } from "@/lib/brand";
+import { brand, admissionYear } from "@/lib/brand";
 
 /**
  * Full-width hero banner for the contact-us page.
@@ -8,7 +8,7 @@ import { brand } from "@/lib/brand";
  */
 export function ContactHero() {
   return (
-    <section className="relative py-16 overflow-hidden bg-[#1A153A]">
+    <section className="relative py-16 overflow-hidden bg-[#1A153A] h-[50vh] flex items-center justify-center">
       <div className="pointer-events-none absolute inset-0 opacity-15">
         <Image
           alt="Medical counseling consultation"
@@ -27,7 +27,7 @@ export function ContactHero() {
           style={{ background: brand.goldLight, color: brand.gold }}
         >
           <span className="size-1.5 rounded-full" style={{ background: brand.gold }} />
-          Admissions open 2026-27
+          Admissions open {admissionYear()}
         </p>
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">
           Get Free <span style={{ color: brand.gold }}>MBBS Abroad Consultation</span>
