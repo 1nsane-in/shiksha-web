@@ -46,9 +46,10 @@ export default async function Home() {
     const payload = decodeToken(token);
     const role = payload?.role?.toLowerCase();
     if (role && role !== "student") {
-      const dest = role === "admin" || role === "super_admin"
-        ? "/admin/dashboard"
-        : "/parents/dashboard";
+      const dest =
+        role === "admin" || role === "super_admin"
+          ? "/admin/dashboard"
+          : "/parents/dashboard";
       redirect(dest);
     }
   }
