@@ -116,7 +116,7 @@ export function Footer() {
             <ul className="space-y-3">
               <ContactRow icon={Phone} label="Russia Helpline" value="+7 918 482-65-01" />
               <ContactRow icon={Phone} label="India Helpline" value="+91 88264 27297" />
-              <ContactRow icon={Mail} label="Email Us" value="info@shiksha.study" />
+              <ContactRow icon={Mail} label="Email Us" value="admin@shiksha.study" />
               <ContactRow icon={MapPin} label="Head Office" value="Noida, India" />
             </ul>
           </div>
