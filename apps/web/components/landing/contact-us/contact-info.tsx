@@ -17,7 +17,7 @@ export function ContactInfo() {
     {
       icon: Mail,
       title: "Email Address",
-      value: "info@shiksha.study",
+      value: "admin@shiksha.study",
     },
     {
       icon: MapPin,

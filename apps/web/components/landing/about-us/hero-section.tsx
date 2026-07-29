@@ -8,7 +8,7 @@ import { brand } from "@/lib/brand";
  */
 export function HeroSection() {
   return (
-    <section className="relative flex min-h-[75vh] items-center overflow-hidden py-24">
+    <section className="relative flex min-h-[100vh] items-center overflow-hidden py-24">
       {/* Background image */}
       <div className="absolute inset-0 z-0">
         <Image

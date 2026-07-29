@@ -34,7 +34,7 @@ export function CtaSection() {
               Call +91 88264 27297
             </a>
             <a
-              href="mailto:info@shiksha.study"
+              href="mailto:admin@shiksha.study"
               className="inline-flex items-center justify-center px-6 py-2.5 text-xs font-semibold text-white border border-white/20 rounded-lg transition-all hover:bg-white/10"
             >
               Email Us
