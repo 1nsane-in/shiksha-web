@@ -8,7 +8,7 @@ import { brand } from "@/lib/brand";
  */
 export function GalleryHero() {
   return (
-    <section className="relative py-20 overflow-hidden bg-[#1A153A]">
+    <section className="relative pb-20 pt-32 overflow-hidden bg-[#1A153A]">
       <div className="pointer-events-none absolute inset-0 opacity-20">
         <Image
           alt="Medical Campus"
@@ -26,15 +26,19 @@ export function GalleryHero() {
           className="mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em]"
           style={{ background: brand.goldLight, color: brand.gold }}
         >
-          <span className="size-1.5 rounded-full" style={{ background: brand.gold }} />
+          <span
+            className="size-1.5 rounded-full"
+            style={{ background: brand.gold }}
+          />
           Shiksha Global Campus Life
         </p>
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">
           Our <span style={{ color: brand.gold }}>University Gallery</span>
         </h1>
         <p className="max-w-2xl mx-auto text-base text-gray-300 leading-relaxed">
-          Explore our world-class campus infrastructures, modern academic libraries, advanced anatomy labs,
-          hostel facilities, and the vibrant life of our medical students abroad.
+          Explore our world-class campus infrastructures, modern academic
+          libraries, advanced anatomy labs, hostel facilities, and the vibrant
+          life of our medical students abroad.
         </p>
       </div>
     </section>
