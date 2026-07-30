@@ -10,7 +10,10 @@ import {
   UniversitySearchToolbar,
   type UniversityTypeFilter,
 } from "@/components/landing/universities/university-search-toolbar";
-import { UniversityLoading, UniversityEmptyState } from "@/components/landing/universities/university-list-section";
+import {
+  UniversityLoading,
+  UniversityEmptyState,
+} from "@/components/landing/universities/university-list-section";
 import { RequestBanner } from "@/components/landing/universities/request-banner";
 
 // ---------------------------------------------------------------------------
@@ -19,9 +22,9 @@ import { RequestBanner } from "@/components/landing/universities/request-banner"
 const UniversityCardGrid = dynamic(
   () =>
     import("@/components/landing/universities/university-list-section").then(
-      (mod) => ({ default: mod.UniversityCardGrid })
+      (mod) => ({ default: mod.UniversityCardGrid }),
     ),
-  { loading: () => <UniversityLoading /> }
+  { loading: () => <UniversityLoading /> },
 );
 
 /**
@@ -33,8 +36,9 @@ export default function PublicUniversitiesPage() {
   const [typeFilter, setTypeFilter] = useState<UniversityTypeFilter>("ALL");
 
   const { data: response, isLoading, error } = useUniversities({ limit: 50 });
-  const universities =
-    response?.data?.length ? response.data : seedUniversities;
+  const universities = response?.data?.length
+    ? response.data
+    : seedUniversities;
 
   // Filter logic (memoized)
   const filteredUniversities = useMemo(() => {
@@ -42,29 +46,28 @@ export default function PublicUniversitiesPage() {
       const matchesSearch =
         uni.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         uni.shortName?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesType =
-        typeFilter === "ALL" || uni.type === typeFilter;
+      const matchesType = typeFilter === "ALL" || uni.type === typeFilter;
       return matchesSearch && matchesType;
     });
   }, [universities, searchTerm, typeFilter]);
 
   const handleApply = useCallback(
     (slug: string) => router.push(`/student/university/${slug}`),
-    [router]
+    [router],
   );
 
   const handleViewDetails = useCallback(
     (slug: string) => router.push(`/student/university/${slug}`),
-    [router]
+    [router],
   );
 
   const handleRequestUniversity = useCallback(
     () => router.push("/contact-us?subject=university-request"),
-    [router]
+    [router],
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-32">
       <UniversityHero />
 
       <UniversitySearchToolbar
