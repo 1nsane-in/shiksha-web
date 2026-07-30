@@ -71,7 +71,7 @@ export function Footer() {
                 className="h-10 w-auto"
               />
               <span className="text-xl font-bold tracking-tight" style={{ color: brand.ink }}>
-                Shiksha International
+                Siksha International
               </span>
             </Link>
 
@@ -153,7 +153,7 @@ export function Footer() {
             color: brand.inkMuted,
           }}
         >
-          <p>© {new Date().getFullYear()} SHIKSHA INTERNATIONAL PRIVATE LIMITED. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} SIKSHA INTERNATIONAL PRIVATE LIMITED. All rights reserved.</p>
           <div className="flex flex-wrap justify-center md:justify-end gap-x-4 gap-y-1">
             <Link href="/privacy-policy" className="hover:underline">
               Privacy Policy
