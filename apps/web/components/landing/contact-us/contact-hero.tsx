@@ -8,7 +8,7 @@ import { brand, admissionYear } from "@/lib/brand";
  */
 export function ContactHero() {
   return (
-    <section className="relative py-16 overflow-hidden bg-[#1A153A] h-[50vh] flex items-center justify-center">
+    <section className="relative pb-20 pt-32 overflow-hidden bg-[#1A153A] h-[50vh] flex items-center justify-center">
       <div className="pointer-events-none absolute inset-0 opacity-15">
         <Image
           alt="Medical counseling consultation"
@@ -26,16 +26,20 @@ export function ContactHero() {
           className="mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em]"
           style={{ background: brand.goldLight, color: brand.gold }}
         >
-          <span className="size-1.5 rounded-full" style={{ background: brand.gold }} />
+          <span
+            className="size-1.5 rounded-full"
+            style={{ background: brand.gold }}
+          />
           Admissions open {admissionYear()}
         </p>
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">
-          Get Free <span style={{ color: brand.gold }}>MBBS Abroad Consultation</span>
+          Get Free{" "}
+          <span style={{ color: brand.gold }}>MBBS Abroad Consultation</span>
         </h1>
         <p className="max-w-2xl mx-auto text-base text-gray-300 leading-relaxed">
           Have questions about medical studies abroad? Submit your details below
-          to receive personalized matching with top international medical universities
-          in Kyrgyzstan, Uzbekistan, Kazakhstan, and Russia.
+          to receive personalized matching with top international medical
+          universities in Kyrgyzstan, Uzbekistan, Kazakhstan, and Russia.
         </p>
       </div>
     </section>
