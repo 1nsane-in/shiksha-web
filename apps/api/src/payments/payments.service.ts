@@ -35,7 +35,8 @@ export class PaymentsService {
     this.payuKey = this.config.get<string>('PAYU_KEY') || '';
     this.payuSalt = this.config.get<string>('PAYU_SALT') || '';
     this.payuBaseUrl =
-      this.config.get<string>('PAYU_BASE_URL') || 'https://secure.payu.in';
+      this.config.get<string>('PAYU_BASE_URL') ||
+      'https://secure.payu.in/_payment';
   }
 
   async initiatePayment(userId: string, dto: InitiatePayUPaymentDto) {
@@ -119,12 +120,8 @@ export class PaymentsService {
       firstname: dto.firstName,
       email: dto.email,
       phone: dto.phone || '',
-      surl:
-        this.config.get<string>('PAYU_SURL') ||
-        this.config.get<string>('FRONTEND_URL') + '/payments/success',
-      furl:
-        this.config.get<string>('PAYU_FURL') ||
-        this.config.get<string>('FRONTEND_URL') + '/payments/failure',
+      surl: this.config.get<string>('FRONTEND_URL') + '/payments/success',
+      furl: this.config.get<string>('FRONTEND_URL') + '/payments/failure',
       service_provider: 'payu_paisa',
       udf1: dto.applicationId,
       udf2: dto.stage.toString(),

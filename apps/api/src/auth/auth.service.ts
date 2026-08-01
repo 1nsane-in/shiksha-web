@@ -114,12 +114,25 @@ export class AuthService {
       },
     });
 
-    try {
-      await this.msg91.sendOtp(dto.phone, otp);
-    } catch (error) {
-      this.logger.error(`Failed to send SMS OTP: ${(error as Error).message}`);
-      await this.prisma.otpVerification.delete({ where: { id: otpRecord.id } });
-      throw new BadRequestException('Failed to send SMS OTP');
+    const isDev = this.config.get('NODE_ENV') === 'development';
+    if (!isDev) {
+      try {
+        await this.msg91.sendOtp(dto.phone, otp);
+      } catch (error) {
+        this.logger.error(
+          `Failed to send SMS OTP: ${(error as Error).message}`,
+        );
+        await this.prisma.otpVerification.delete({
+          where: { id: otpRecord.id },
+        });
+        throw new BadRequestException('Failed to send SMS OTP');
+      }
+    } else {
+      this.logger.warn('Dev mode: skipping SMS send, returning devOtp');
+    }
+
+    if (isDev) {
+      return { message: 'OTP sent to your phone', devOtp: otp };
     }
     return { message: 'OTP sent to your phone' };
   }
