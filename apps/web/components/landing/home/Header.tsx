@@ -33,7 +33,7 @@ export function Header() {
   return (
     <header className="fixed inset-x-0 top-3 z-50">
       <div
-        className={`mx-auto flex h-16 max-w-5xl w-5xl items-center justify-between rounded-full bg-brand-canvas px-4 sm:px-6 lg:px-8 transition-all duration-300 ${scrolled ? "border shadow-sm" : "border border-transparent"}`}
+        className={`mx-auto flex h-16 max-w-6xl w-full items-center justify-between gap-8 rounded-full bg-brand-canvas px-4 sm:px-6 lg:px-8 transition-all duration-300 ${scrolled ? "border shadow-sm" : "border border-transparent"}`}
         style={{ borderColor: scrolled ? brand.hairline : "transparent" }}
       >
         {/* ─── Logo ─── */}
@@ -49,14 +49,14 @@ export function Header() {
 
         {/* ─── Desktop nav ─── */}
         <nav className="hidden lg:block">
-          <ul className="flex items-center gap-10">
+          <ul className="flex items-center gap-6">
             {navLinks.map((link) => {
               const active = isLinkActive(link.href);
               return (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="group relative text-sm font-medium transition-colors duration-200"
+                    className="group relative whitespace-nowrap text-sm font-medium transition-colors duration-200"
                     style={{ color: active ? brand.ink : brand.inkMuted }}
                   >
                     {link.name}

@@ -14,12 +14,11 @@ export interface NavLink {
 export const navLinks: NavLink[] = [
   { name: "Home", href: "/" },
   { name: "About Us", href: "/about-us" },
-  { name: "Our Universities", href: "/universities" },
+  { name: "Universities", href: "/universities" },
   { name: "Gallery", href: "/gallery" },
-  { name: "Anatomy", href: "/anatomy" },
-  // ponytail: hidden until payment/courses features ready
-  // { name: "Online Payment", href: "#" },
-  // { name: "Courses", href: "#courses" },
+  { name: "Medical Academy", href: "/medical-academy" },
+  { name: "Online Payment", href: "/payments" },
+  { name: "Scholarship", href: "/scholarship" },
   { name: "Contact Us", href: "/contact-us" },
 ];
 
@@ -307,6 +306,8 @@ export const footerQuickLinks: NavLink[] = [
   { name: "Home Page", href: "/" },
   { name: "About Us", href: "/about-us" },
   { name: "University Gallery", href: "/gallery" },
+  { name: "Medical Academy", href: "/medical-academy" },
+  { name: "Online Payment", href: "/payments" },
   { name: "Contact & Consultation", href: "/contact-us" },
 ];
 

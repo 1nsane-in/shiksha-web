@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: '.',
   },
+  async redirects() {
+    return [
+      {
+        source: '/anatomy',
+        destination: '/medical-academy',
+        permanent: true,
+      },
+    ];
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
