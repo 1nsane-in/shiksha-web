@@ -6,7 +6,9 @@
     "dev:api": "cd apps/api && pnpm dev",
     "build:web": "cd apps/web && pnpm build",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "atlas:build": "cd apps/atlas && npm run build:web",
+    "atlas:setup": "cd apps/atlas && npm ci && npm run build:web"
   },
   "devDependencies": {
     "husky": "^9.0.0",

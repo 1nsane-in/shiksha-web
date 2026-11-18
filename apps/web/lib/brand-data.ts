@@ -16,6 +16,7 @@ export const navLinks: NavLink[] = [
   { name: "About Us", href: "/about-us" },
   { name: "Our Universities", href: "/universities" },
   { name: "Gallery", href: "/gallery" },
+  { name: "Anatomy", href: "/anatomy" },
   // ponytail: hidden until payment/courses features ready
   // { name: "Online Payment", href: "#" },
   // { name: "Courses", href: "#courses" },
