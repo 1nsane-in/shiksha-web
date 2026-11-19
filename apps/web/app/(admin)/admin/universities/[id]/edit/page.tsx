@@ -3,18 +3,18 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAdminUniversity, useUpdateUniversity } from "@/domains/universities";
-import { Button } from "@repo/ui";
-import { Input } from "@repo/ui";
-import { Label } from "@repo/ui";
-import { Textarea } from "@repo/ui";
+import { Button } from "@/ui";
+import { Input } from "@/ui";
+import { Label } from "@/ui";
+import { Textarea } from "@/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ui";
-import { Checkbox } from "@repo/ui";
+} from "@/ui";
+import { Checkbox } from "@/ui";
 import { ArrowLeft, ImagePlus, Save, Trash2, Upload } from "lucide-react";
 import { Country, State, City } from "country-state-city";
 import { SearchableSelect } from "@/components/ui/searchable-select";

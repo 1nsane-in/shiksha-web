@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Input } from "@repo/ui";
-import { Label } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui";
+import { Button } from "@/ui";
+import { Input } from "@/ui";
+import { Label } from "@/ui";
 import { useDashboardOverview, useUpdateProfile } from "@/domains/student/student.queries";
 import { Plane, Pencil, Check, X } from "lucide-react";
 

@@ -1,8 +1,8 @@
 "use client"
 
-import { Button } from "@repo/ui"
-import { Separator } from "@repo/ui"
-import { SidebarTrigger } from "@repo/ui"
+import { Button } from "@/ui"
+import { Separator } from "@/ui"
+import { SidebarTrigger } from "@/ui"
 import { Bell, Search } from "lucide-react"
 
 export function SiteHeader() {

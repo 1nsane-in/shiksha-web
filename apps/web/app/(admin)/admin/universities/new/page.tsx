@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { ArrowLeft, ArrowRight, Save } from "lucide-react";
 import { useUniversityForm } from "@/components/admin/universities/new-page.hooks";
 import { StepRenderer } from "@/components/admin/universities/new-page-step-renderer";

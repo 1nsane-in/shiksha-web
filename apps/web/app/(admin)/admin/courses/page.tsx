@@ -5,7 +5,7 @@ import {
   Button,
   Input,
   Badge,
-} from "@repo/ui";
+} from "@/ui";
 import {
   Plus,
   Search,

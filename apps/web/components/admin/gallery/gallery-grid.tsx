@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui";
 import { ImageIcon } from "lucide-react";
 import { GalleryImageCard } from "./gallery-image-card";
 import type { GalleryImage } from "@/domains/gallery";

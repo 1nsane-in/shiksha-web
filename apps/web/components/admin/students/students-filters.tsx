@@ -1,6 +1,6 @@
 "use client";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui";
 
 interface Props {
   stage: number | undefined;

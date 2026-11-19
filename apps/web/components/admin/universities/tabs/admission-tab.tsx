@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent } from "@repo/ui";
+import { Card, CardContent } from "@/ui";
 import { SectionHeading, InfoRow, BadgeList, DataCard, DataCardPad, EmptyState } from "@/components/admin/universities/ui";
 import { ClipboardList, FileText, Medal, Calendar, ScrollText, Banknote, Shield, CheckCircle2 } from "lucide-react";
 

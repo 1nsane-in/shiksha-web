@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { TooltipProvider } from "@repo/ui";
+import { TooltipProvider } from "@/ui";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { Providers } from "@/lib/providers";
 import { Toaster } from "sonner";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useLinkedChildren } from "@/domains/parents";
-import { Card, Badge, Skeleton, Button } from "@repo/ui";
+import { Card, Badge, Skeleton, Button } from "@/ui";
 import { LinkByCode } from "@/components/parents/link-by-code";
 import {
   GraduationCap,

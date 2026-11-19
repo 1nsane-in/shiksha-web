@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@repo/ui";
-import { Card, CardContent } from "@repo/ui";
+import { Button } from "@/ui";
+import { Card, CardContent } from "@/ui";
 
 export function Hero() {
   return (

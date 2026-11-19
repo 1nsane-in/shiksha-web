@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Badge } from "@repo/ui";
-import { Skeleton } from "@repo/ui";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@repo/ui";
-import { Input } from "@repo/ui";
-import { Label } from "@repo/ui";
-import { Textarea } from "@repo/ui";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui";
+import { Button } from "@/ui";
+import { Badge } from "@/ui";
+import { Skeleton } from "@/ui";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui";
+import { Input } from "@/ui";
+import { Label } from "@/ui";
+import { Textarea } from "@/ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui";
 import {
   useVisaCenters, useCreateVisaCenter, useUpdateVisaCenter, useDeleteVisaCenter,
   useVisaChecklists, useCreateVisaChecklist, useUpdateVisaChecklist, useDeleteVisaChecklist,

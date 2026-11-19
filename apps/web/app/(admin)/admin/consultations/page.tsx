@@ -21,7 +21,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ui";
+} from "@/ui";
 import { toast } from "sonner";
 import {
   PhoneCall,

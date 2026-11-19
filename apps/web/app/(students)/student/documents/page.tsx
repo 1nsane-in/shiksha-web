@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useMemo, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Badge } from "@repo/ui";
-import { Skeleton } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui";
+import { Button } from "@/ui";
+import { Badge } from "@/ui";
+import { Skeleton } from "@/ui";
 import {
   FileText, Upload, CheckCircle2, XCircle, AlertCircle,
   RefreshCw, Clock, Eye, RotateCcw,

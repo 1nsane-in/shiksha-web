@@ -1,7 +1,7 @@
 "use client";
 
 import React, { forwardRef, useState, useImperativeHandle } from "react";
-import { Card, CardContent, Button } from "@repo/ui";
+import { Card, CardContent, Button } from "@/ui";
 import {
   SectionHeading,
   InfoRow,

@@ -2,11 +2,11 @@
 
 import { use, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Badge } from "@repo/ui";
-import { Textarea } from "@repo/ui";
-import { Skeleton } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui";
+import { Button } from "@/ui";
+import { Badge } from "@/ui";
+import { Textarea } from "@/ui";
+import { Skeleton } from "@/ui";
 import { useTicket, useAddTicketMessage } from "@/domains/tickets";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";

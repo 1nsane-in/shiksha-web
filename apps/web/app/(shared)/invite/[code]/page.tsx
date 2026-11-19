@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { Button, Input, Field, FieldDescription, FieldGroup, FieldLabel } from "@repo/ui";
+import { Button, Input, Field, FieldDescription, FieldGroup, FieldLabel } from "@/ui";
 import { useAuthStore } from "@/stores/auth-store";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { useValidateInviteCode } from "@/domains/parents";

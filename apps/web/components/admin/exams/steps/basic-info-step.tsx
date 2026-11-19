@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Label } from "@repo/ui";
-import { Input } from "@repo/ui";
-import { Textarea } from "@repo/ui";
+import { Label } from "@/ui";
+import { Input } from "@/ui";
+import { Textarea } from "@/ui";
 import { Calendar } from "lucide-react";
 import { useAdminUniversities } from "@/domains/universities/universities.queries";
 import type { CreateExamInput } from "@/domains/exams/exams.types";

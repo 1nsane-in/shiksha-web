@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Badge } from "@repo/ui";
-import { Input } from "@repo/ui";
-import { Skeleton } from "@repo/ui";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui";
+import { Button } from "@/ui";
+import { Badge } from "@/ui";
+import { Input } from "@/ui";
+import { Skeleton } from "@/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui";
 import { Search, RefreshCw, AlertCircle, MessageSquare, UserCheck, ChevronDown, ChevronUp } from "lucide-react";
 import { useAllTickets, useUpdateTicketStatus, useAssignTicket, useAdminTicketDetail } from "@/domains/admin";
 

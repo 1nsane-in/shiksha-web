@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, Label } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle, Button, Input, Label } from "@/ui";
 import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useUploadGalleryImage } from "@/domains/gallery";

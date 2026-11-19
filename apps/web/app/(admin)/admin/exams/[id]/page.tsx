@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import {
   ChevronLeft,
   Calendar,

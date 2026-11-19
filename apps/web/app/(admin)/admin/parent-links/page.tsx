@@ -26,7 +26,7 @@ import {
   SheetHeader,
   SheetTitle,
   Label,
-} from "@repo/ui";
+} from "@/ui";
 import { toast } from "sonner";
 import {
   Search,

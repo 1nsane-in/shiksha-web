@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useCreateExam } from "@/domains/exams/exams.queries";

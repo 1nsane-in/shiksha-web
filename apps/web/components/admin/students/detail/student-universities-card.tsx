@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, Badge } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/ui";
 
 interface Props {
   applications: Array<{ id: string; university?: { name: string; shortName?: string }; status: string }> | undefined;

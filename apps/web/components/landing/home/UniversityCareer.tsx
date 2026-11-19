@@ -1,6 +1,6 @@
 "use client"
 
-import { Card } from "@repo/ui"
+import { Card } from "@/ui"
 import { Stethoscope, Microscope, HeartPulse, Building, GraduationCap } from "lucide-react"
 
 const careers = [

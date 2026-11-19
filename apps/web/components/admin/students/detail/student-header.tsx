@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button, Badge } from "@repo/ui";
+import { Button, Badge } from "@/ui";
 import { ArrowLeft } from "lucide-react";
 import { statusColors } from "../student-constants";
 

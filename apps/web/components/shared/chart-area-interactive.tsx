@@ -10,24 +10,24 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@repo/ui"
+} from "@/ui"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@repo/ui"
+} from "@/ui"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ui"
+} from "@/ui"
 import {
   ToggleGroup,
   ToggleGroupItem,
-} from "@repo/ui"
+} from "@/ui"
 
 const chartData = [
   { date: "2024-04-01", desktop: 222, mobile: 150 },

@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { cn } from "@repo/ui";
-import { Button } from "@repo/ui";
+import { cn } from "@/ui";
+import { Button } from "@/ui";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@repo/ui";
-import { Tabs, TabsList, TabsTrigger } from "@repo/ui";
-import { Input } from "@repo/ui";
+} from "@/ui";
+import { Tabs, TabsList, TabsTrigger } from "@/ui";
+import { Input } from "@/ui";
 import {
   AlertCircle,
   ArrowLeft,

@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent, Input, Button } from "@repo/ui";
+import { Card, CardContent, Input, Button } from "@/ui";
 import { SectionHeading, InfoRow } from "@/components/admin/universities/ui";
 import { Country } from "country-state-city";
-import { getBankConfig } from "@repo/shared-types";
+import { getBankConfig } from "@/shared-types";
 import { toast } from "sonner";
 import { UserCog, Briefcase, Mail, Phone, Building, Globe, Hash, FileText, MapPin, Plus, X } from "lucide-react";
 

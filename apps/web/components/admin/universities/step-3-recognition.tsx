@@ -1,9 +1,9 @@
 "use client";
 
-import { Input } from "@repo/ui";
-import { Label } from "@repo/ui";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui";
-import { Button } from "@repo/ui";
+import { Input } from "@/ui";
+import { Label } from "@/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui";
+import { Button } from "@/ui";
 import type { WizardStepProps } from "./new-page.types";
 
 export function RecognitionStep({ formData, formErrors, onFieldUpdate }: WizardStepProps) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { ArrowLeft, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { STATUS_CONFIG } from "@/components/admin/shared/status-config";
 

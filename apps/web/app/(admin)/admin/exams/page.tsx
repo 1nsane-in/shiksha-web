@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@repo/ui";
-import { Input } from "@repo/ui";
-import { Badge } from "@repo/ui";
+import { Button } from "@/ui";
+import { Input } from "@/ui";
+import { Badge } from "@/ui";
 import {
   Plus,
   Search,

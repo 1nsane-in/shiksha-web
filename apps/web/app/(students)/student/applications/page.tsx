@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { Loader2, FileText } from "lucide-react";
 import { useMyApplications } from "@/domains/student/student.queries";
 import { PageHeader } from "@/components/shared/page-header";

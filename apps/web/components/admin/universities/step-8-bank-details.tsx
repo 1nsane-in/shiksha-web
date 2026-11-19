@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from "@repo/ui";
-import { SUPPORTED_FOREIGN_BANK_COUNTRIES, getBankConfig, type BankFieldConfig } from "@repo/shared-types";
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from "@/ui";
+import { SUPPORTED_FOREIGN_BANK_COUNTRIES, getBankConfig, type BankFieldConfig } from "@/shared-types";
 import type { WizardStep8Props } from "./new-page.types";
 
 function renderBankFields(

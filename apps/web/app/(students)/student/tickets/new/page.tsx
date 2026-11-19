@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Input } from "@repo/ui";
-import { Textarea } from "@repo/ui";
-import { Label } from "@repo/ui";
-import { Select, SelectItem } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/ui";
+import { Button } from "@/ui";
+import { Input } from "@/ui";
+import { Textarea } from "@/ui";
+import { Label } from "@/ui";
+import { Select, SelectItem } from "@/ui";
 import { useCreateTicket, useMyTickets } from "@/domains/tickets";
 import { useMyApplications } from "@/domains/student";
 import { toast } from "sonner";

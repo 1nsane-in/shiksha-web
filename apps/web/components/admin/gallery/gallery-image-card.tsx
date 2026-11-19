@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { Trash2, Play } from "lucide-react";
 import type { GalleryImage } from "@/domains/gallery";
 

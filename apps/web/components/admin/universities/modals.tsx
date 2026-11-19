@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { Loader2, FileUp, Upload } from "lucide-react";
 import { ModalBackdrop, ModalHeader } from "./ui";
 

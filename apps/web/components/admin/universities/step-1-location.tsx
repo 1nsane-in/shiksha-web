@@ -1,16 +1,16 @@
 "use client";
 
-import { Button } from "@repo/ui";
-import { Input } from "@repo/ui";
-import { Label } from "@repo/ui";
-import { Textarea } from "@repo/ui";
+import { Button } from "@/ui";
+import { Input } from "@/ui";
+import { Label } from "@/ui";
+import { Textarea } from "@/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ui";
+} from "@/ui";
 import { Country, State, City } from "country-state-city";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import type { WizardStep1Props } from "./new-page.types";

@@ -13,14 +13,14 @@ import {
   Badge,
   Card,
   CardContent,
-} from "@repo/ui";
+} from "@/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ui";
+} from "@/ui";
 import {
   Plus,
   Search,

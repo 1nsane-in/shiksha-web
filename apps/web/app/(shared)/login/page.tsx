@@ -2,14 +2,14 @@
 
 import { Suspense, useState } from "react";
 import Image from "next/image";
-import { Button } from "@repo/ui";
-import { Input } from "@repo/ui";
+import { Button } from "@/ui";
+import { Input } from "@/ui";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@repo/ui";
+} from "@/ui";
 import { useSearchParams } from "next/navigation";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { usePhoneLogin } from "@/domains/auth";

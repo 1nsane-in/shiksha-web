@@ -1,9 +1,9 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Badge } from "@repo/ui";
-import { Skeleton } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/ui";
+import { Button } from "@/ui";
+import { Badge } from "@/ui";
+import { Skeleton } from "@/ui";
 import { useMyExam } from "@/domains/exams";
 import {
   GraduationCap, Calendar, MapPin, Hash,

@@ -3,7 +3,7 @@
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { useApplication, useUpdateApplicationStatus } from "@/domains/applications/applications.queries";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { ReviewActionPanel } from "@/components/admin/applications/detail/review-action-panel";

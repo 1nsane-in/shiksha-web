@@ -1,10 +1,10 @@
 "use client";
 
-import { Label } from "@repo/ui";
-import { Textarea } from "@repo/ui";
-import { Checkbox } from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Input } from "@repo/ui";
+import { Label } from "@/ui";
+import { Textarea } from "@/ui";
+import { Checkbox } from "@/ui";
+import { Button } from "@/ui";
+import { Input } from "@/ui";
 import type { WizardStepProps } from "./new-page.types";
 
 export function SupportContentStep({ formData, formErrors, onFieldUpdate }: WizardStepProps) {

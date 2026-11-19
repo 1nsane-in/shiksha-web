@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent } from "@repo/ui"
+import { Card, CardContent } from "@/ui"
 
 const keyFeatures = [
   { label: "Intake for MBBS Course", value: "September - October" },

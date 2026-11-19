@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@repo/ui";
+import { Card, CardContent } from "@/ui";
 import { ShieldCheck, BookOpen, GraduationCap, CheckCircle2, UserCheck, Star } from "lucide-react";
 
 export function WhyTrustUs() {

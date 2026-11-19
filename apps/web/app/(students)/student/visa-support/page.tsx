@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Badge } from "@repo/ui";
-import { Skeleton } from "@repo/ui";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@repo/ui";
-import { Input } from "@repo/ui";
-import { Label } from "@repo/ui";
-import { Textarea } from "@repo/ui";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui";
+import { Button } from "@/ui";
+import { Badge } from "@/ui";
+import { Skeleton } from "@/ui";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/ui";
+import { Input } from "@/ui";
+import { Label } from "@/ui";
+import { Textarea } from "@/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui";
 import {
   useMyVisaApplications, useCreateVisaApplication, useSubmitVisaApplication,
   useVisaCenters, useVisaChecklists,

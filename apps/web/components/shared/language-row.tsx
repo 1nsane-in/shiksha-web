@@ -1,4 +1,4 @@
-import { Badge } from "@repo/ui";
+import { Badge } from "@/ui";
 
 interface LanguageAbility {
   name: string;

@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@repo/ui";
-import { Button } from "@repo/ui";
+import { cn } from "@/ui";
+import { Button } from "@/ui";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@repo/ui";
-import { Input } from "@repo/ui";
+} from "@/ui";
+import { Input } from "@/ui";
 import { useLogin } from "@/domains/auth";
 import { GoogleLoginButton } from "./GoogleLoginButton";
 import Link from "next/link";

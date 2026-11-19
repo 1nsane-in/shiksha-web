@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { useRouter } from "next/navigation";
 import { useUniversities } from "@/domains/universities/universities.queries";
 import {

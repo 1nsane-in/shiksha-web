@@ -4,7 +4,10 @@
   "scripts": {
     "dev:web": "cd apps/web && pnpm dev",
     "dev:api": "cd apps/api && pnpm dev",
+    "dev:atlas": "cd apps/atlas && npm run dev",
     "build:web": "cd apps/web && pnpm build",
+    "build:api": "cd apps/api && pnpm build",
+    "build:atlas": "cd apps/atlas && npm run build:web",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "prepare": "husky",
     "atlas:build": "cd apps/atlas && npm run build:web",

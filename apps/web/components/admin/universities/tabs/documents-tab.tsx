@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent, Button } from "@repo/ui";
+import { Card, CardContent, Button } from "@/ui";
 import { EmptyState } from "@/components/admin/universities/ui";
 import { DocUploadModal } from "@/components/admin/universities/modals";
 import { Plus, FileText, Download, Trash2, Upload } from "lucide-react";

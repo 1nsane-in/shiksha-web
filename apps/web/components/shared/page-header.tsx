@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { ArrowLeft } from "lucide-react";
 
 interface PageHeaderProps {

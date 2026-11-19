@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/ui";
 import { ClipboardList, Clock } from "lucide-react";
 import { stageNames } from "../student-constants";
 

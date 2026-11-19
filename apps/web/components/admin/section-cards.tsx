@@ -3,7 +3,7 @@
 import {
   Card,
   CardContent,
-} from "@repo/ui"
+} from "@/ui"
 import { ArrowUpRight, ArrowDownRight } from "lucide-react"
 
 const metrics = [

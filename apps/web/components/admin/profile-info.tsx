@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@repo/ui";
-import { Badge } from "@repo/ui";
-import { Avatar, AvatarFallback } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/ui";
+import { Badge } from "@/ui";
+import { Avatar, AvatarFallback } from "@/ui";
 import { Mail, Shield, User as UserIcon, Calendar, Hash } from "lucide-react";
 import type { User } from "@/stores/auth-store";
 

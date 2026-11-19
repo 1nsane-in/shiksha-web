@@ -93,17 +93,17 @@ Use Next.js for:
 
 ## 3. Repository Structure
 
-Recommended structure:
+This repository is a **single repo with self-contained apps** ("monorepo-lite"), not a pnpm workspace. Each app has its own `package.json` and lockfile and is deployed independently.
 
 ```txt
 /apps
-  /web                 # Next.js frontend
-  /api                 # NestJS main backend
+  /web                 # Next.js frontend      -> deploy root: apps/web
+  /api                 # NestJS main backend   -> deploy root: apps/api
+  /atlas               # Vite 3D atlas app     -> deploy root: apps/atlas
 
-/packages
-  /shared-types        # Shared TypeScript types if needed
-  /ui                  # Optional shared UI components
-  /config              # Shared lint/prettier/tsconfig
+/packages              # OPTIONAL - add only when apps need shared code
+  /shared-types        # Shared TypeScript types (add when needed)
+  /ui                  # Shared UI components (add when needed)
 
 /docs
   PRD_Medical_Admission_Platform.md
@@ -113,7 +113,13 @@ Recommended structure:
   DEPLOYMENT.md
 ```
 
-If the repository is not a monorepo, keep equivalent separation using separate folders or services.
+Rules:
+
+- Do NOT add a `pnpm-workspace.yaml` or root workspace lockfile unless you intentionally introduce `packages/` shared code.
+- Each app builds from its own folder: `cd apps/web && pnpm build`, `cd apps/api && pnpm build`.
+- Docker build contexts are the app folders (`./apps/web`, `./apps/api`), not the repo root.
+- Deploy each app separately by pointing the platform's root directory at its `apps/<name>` folder.
+- `@/ui` and `@/shared-types` are local TypeScript path aliases inside `apps/web`, not shared packages.
 
 ---
 

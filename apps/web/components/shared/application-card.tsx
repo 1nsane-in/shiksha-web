@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Card } from "@repo/ui";
+import { Card } from "@/ui";
 import { Building2, ExternalLink } from "lucide-react";
 import { StatusBadge } from "@/components/shared/status-badge";
 import type { StudentApplication } from "@/domains/student/student.types";

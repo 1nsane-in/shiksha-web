@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, Field, FieldLabel, FieldGroup } from "@repo/ui";
+import { Button, Card, Field, FieldLabel, FieldGroup } from "@/ui";
 import { useLinkByFamilyCode } from "@/domains/parents";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { Link, CheckCircle, AlertCircle, ArrowRight } from "lucide-react";

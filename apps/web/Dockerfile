@@ -1,63 +1,58 @@
+# Build context: ./apps/web (this app is self-contained, no monorepo workspace)
 # Stage 1: Dependencies
 FROM node:22-alpine AS dependencies
 
-# Security: Add security updates
-RUN apk add --no-cache dumb-init curl
-
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy workspace files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/web/package.json apps/web/
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
-# Install pnpm
-RUN npm install -g pnpm@9
+# Copy only this app's manifests
+COPY package.json pnpm-lock.yaml ./
 
-# Install production dependencies only
-RUN pnpm install --frozen-lockfile --prod
+# Install dependencies from this app's own lockfile
+RUN pnpm install --frozen-lockfile
 
 # Stage 2: Builder
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy dependencies from previous stage
+RUN corepack enable && corepack prepare pnpm@9 --activate
+
 COPY --from=dependencies /app/node_modules ./node_modules
-COPY --from=dependencies /root/.local/share/pnpm /root/.local/share/pnpm
+COPY . .
 
-# Copy source code
-COPY apps/web ./apps/web
-COPY package.json pnpm-workspace.yaml ./
-
-WORKDIR /app/apps/web
-
-# Build the Next.js application
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npx next build
+RUN pnpm build
 
 # Stage 3: Production Runner
 FROM node:22-alpine AS runner
+
+RUN apk add --no-cache dumb-init curl
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-WORKDIR /app
-
-# Copy necessary files
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
+# Copy standalone output (requires output: 'standalone' in next.config.ts)
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
 EXPOSE 3000
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-ENV NODE_ENV=production
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:3000/ || exit 1
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3000/api/health || exit 1
-
+ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "server.js"]

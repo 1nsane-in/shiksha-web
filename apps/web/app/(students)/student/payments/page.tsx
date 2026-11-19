@@ -7,10 +7,10 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Badge } from "@repo/ui";
-import { Skeleton } from "@repo/ui";
+} from "@/ui";
+import { Button } from "@/ui";
+import { Badge } from "@/ui";
+import { Skeleton } from "@/ui";
 import {
   Table,
   TableBody,
@@ -18,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@repo/ui";
+} from "@/ui";
 import {
   usePaymentConfig,
   usePaymentHistory,

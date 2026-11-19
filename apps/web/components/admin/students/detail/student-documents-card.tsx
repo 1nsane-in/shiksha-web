@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button, Badge, Skeleton } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button, Badge, Skeleton } from "@/ui";
 import { FileCheck, ExternalLink } from "lucide-react";
 
 interface Props {

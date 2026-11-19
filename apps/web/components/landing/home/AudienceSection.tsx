@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@repo/ui";
+import { Card, CardContent } from "@/ui";
 
 export function AudienceSection() {
   const audiences = [

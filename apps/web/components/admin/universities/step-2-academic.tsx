@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui";
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Country } from "country-state-city";
 import type { WizardStepProps } from "./new-page.types";

@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button } from "@repo/ui";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button } from "@/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui";
 import { ArrowRight, MapPin, User } from "lucide-react";
 
 interface Props {

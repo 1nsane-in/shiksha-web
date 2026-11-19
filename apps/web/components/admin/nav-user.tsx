@@ -5,7 +5,7 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@repo/ui"
+} from "@/ui"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +14,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@repo/ui"
+} from "@/ui"
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@repo/ui"
+} from "@/ui"
 import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
 
 export function NavUser({

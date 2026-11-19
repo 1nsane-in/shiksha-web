@@ -23,7 +23,7 @@
         "gbrain",
         "serve"
       ],
-      "enabled": true
+      "enabled": false
     },
     "agentmemory": {
       "type": "local",
@@ -32,7 +32,7 @@
         "-y",
         "@agentmemory/mcp"
       ],
-      "enabled": true
+      "enabled": false
     },
     "stitch": {
       "type": "remote",
@@ -58,7 +58,7 @@
         "shadcn@latest",
         "mcp"
       ],
-      "enabled": true
+      "enabled": false
     },
     "sequential-thinking": {
       "type": "command",
@@ -79,7 +79,7 @@
     "postman": {
       "type": "remote",
       "url": "https://mcp.postman.com/mcp",
-      "enabled": true
+      "enabled": false
     }
   }
 }

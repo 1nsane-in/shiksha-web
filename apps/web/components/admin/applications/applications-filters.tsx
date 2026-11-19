@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui";
+import { Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui";
 import { Search } from "lucide-react";
 
 interface Props {

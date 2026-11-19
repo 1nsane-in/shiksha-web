@@ -2,6 +2,8 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Required for the standalone Docker build (copies .next/standalone).
+  output: 'standalone',
   turbopack: {
     root: '.',
   },

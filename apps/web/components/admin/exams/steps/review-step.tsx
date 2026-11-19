@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { 
   CheckCircle2, 
   AlertCircle, 

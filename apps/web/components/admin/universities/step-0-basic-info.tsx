@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox } from "@repo/ui";
+import { Button, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox } from "@/ui";
 import type { WizardStep0Props } from "./new-page.types";
 
 export function BasicInfoStep(props: WizardStep0Props) {

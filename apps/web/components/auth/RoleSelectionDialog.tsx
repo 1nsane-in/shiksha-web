@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GraduationCap, Users } from "lucide-react";
-import { cn } from "@repo/ui";
+import { cn } from "@/ui";
 import type { SocialRole } from "@/domains/auth";
 
 interface RoleOption {

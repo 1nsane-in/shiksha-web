@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button, Badge, Skeleton } from "@repo/ui";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button, Badge, Skeleton } from "@/ui";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui";
 import { User, AlertCircle, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { stageNames, statusColors } from "./student-constants";
 

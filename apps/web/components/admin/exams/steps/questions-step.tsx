@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@repo/ui";
-import { Input } from "@repo/ui";
-import { Label } from "@repo/ui";
-import { Textarea } from "@repo/ui";
+import { Button } from "@/ui";
+import { Input } from "@/ui";
+import { Label } from "@/ui";
+import { Textarea } from "@/ui";
 import { 
   Plus, 
   Trash2, 

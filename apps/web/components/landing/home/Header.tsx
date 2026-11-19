@@ -6,7 +6,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { Avatar, AvatarFallback } from "@repo/ui";
+import { Avatar, AvatarFallback } from "@/ui";
 import { motion, AnimatePresence } from "motion/react";
 import { brand } from "@/lib/brand";
 import { navLinks } from "@/lib/brand-data";

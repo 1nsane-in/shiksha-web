@@ -9,7 +9,7 @@ import {
   TabsTrigger,
   TabsContent,
   Skeleton,
-} from "@repo/ui";
+} from "@/ui";
 import {
   Link,
   Copy,

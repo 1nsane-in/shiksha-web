@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Card, Badge, Button, Skeleton } from "@repo/ui";
+import { Card, Badge, Button, Skeleton } from "@/ui";
 import { UserX, Mail, Trash2, Users, AlertTriangle, X } from "lucide-react";
 import { toast } from "sonner";
 import { useMyParentLinks, useRemoveParentLink } from "@/domains/parents";

@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { XCircle, Loader2 } from "lucide-react";
 
 function PaymentFailureContent() {

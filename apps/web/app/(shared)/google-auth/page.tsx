@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";

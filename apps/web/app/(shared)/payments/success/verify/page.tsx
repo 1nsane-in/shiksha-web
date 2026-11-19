@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { verifyPayment } from "@/domains/payments/payments.api";
 import { queryKeys } from "@/shared/api/queryKeys";

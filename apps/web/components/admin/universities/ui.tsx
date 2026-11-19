@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Skeleton, Badge } from "@repo/ui";
+import { Skeleton, Badge } from "@/ui";
 import { CheckCircle2, Edit, Hash, X, Loader2, ImageIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 

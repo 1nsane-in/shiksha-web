@@ -1,9 +1,9 @@
 "use client";
 
-import { Card, CardContent } from "@repo/ui";
-import { Button } from "@repo/ui";
-import { Badge } from "@repo/ui";
-import { Skeleton } from "@repo/ui";
+import { Card, CardContent } from "@/ui";
+import { Button } from "@/ui";
+import { Badge } from "@/ui";
+import { Skeleton } from "@/ui";
 import { useMyAdmissionLetter, useMyInvitationLetter } from "@/domains/letters";
 import { useRouter } from "next/navigation";
 import {

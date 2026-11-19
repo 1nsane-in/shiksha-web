@@ -19,7 +19,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@repo/ui";
+} from "@/ui";
 import { toast } from "sonner";
 import {
   ArrowLeft,

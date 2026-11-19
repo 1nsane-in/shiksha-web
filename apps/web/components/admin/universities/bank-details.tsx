@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { Button, Input } from "@repo/ui";
+import { Button, Input } from "@/ui";
 import { Country } from "country-state-city";
-import { getBankConfig } from "@repo/shared-types";
+import { getBankConfig } from "@/shared-types";
 import { InfoRow, SectionHeading } from "./ui";
 import { Building, Globe, Hash, Plus, MapPin, FileText } from "lucide-react";
 

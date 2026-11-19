@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Card, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button, Skeleton } from "@repo/ui";
+import { Card, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button, Skeleton } from "@/ui";
 import { AlertCircle } from "lucide-react";
 import { STATUS_CONFIG } from "@/components/admin/shared/status-config";
 import type { Application } from "@/domains/applications/applications.types";

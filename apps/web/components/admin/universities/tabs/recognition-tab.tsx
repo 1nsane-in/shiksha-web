@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent } from "@repo/ui";
+import { Card, CardContent } from "@/ui";
 import { SectionHeading, InfoRow, BadgeList } from "@/components/admin/universities/ui";
 import { Medal, Award, CheckCircle2, Shield, Star, BarChart3, Globe, MapPin } from "lucide-react";
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Skeleton, Button } from "@repo/ui";
+import { Skeleton, Button } from "@/ui";
 import { toast } from "sonner";
 import { useAdminStudent, useUpdateStudentStage } from "@/domains/admin";
 import { useStudentDocuments, useVerifyDocument, useMarkForReupload } from "@/domains/documents";

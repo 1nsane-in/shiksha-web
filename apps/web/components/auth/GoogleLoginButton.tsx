@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuthStore } from "@/stores/auth-store";

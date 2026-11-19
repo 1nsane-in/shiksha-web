@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, Button } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle, Button } from "@/ui";
 import { Loader2 } from "lucide-react";
 
 interface Props {

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Button } from "@repo/ui";
-import { Input } from "@repo/ui";
+import { Button } from "@/ui";
+import { Input } from "@/ui";
 import { AlertCircle, ArrowLeft, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { forgotPassword, verifyOtp, resetPassword } from "@/domains/auth";
 import { getApiErrorMessage } from "@/lib/api-error";

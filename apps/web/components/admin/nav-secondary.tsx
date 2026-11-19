@@ -8,7 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@repo/ui"
+} from "@/ui"
 
 export function NavSecondary({
   items,

@@ -22,8 +22,8 @@
       "@/*": ["./*"],
       "@stores/*": ["./stores/*"],
       "@providers/*": ["./lib/providers/*"],
-      "@repo/ui": ["./components/ui/index.ts"],
-      "@repo/shared-types": ["./types/shared.ts"]
+      "@/ui": ["./components/ui/index.ts"],
+      "@/shared-types": ["./types/shared.ts"]
     }
   },
   "include": [

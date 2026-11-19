@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui";
 import { Building2, Globe, Mail, MapPin, Phone } from "lucide-react";
 import type { ApplicationDetail } from "@/domains/student/student.types";
 

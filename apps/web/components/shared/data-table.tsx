@@ -3,7 +3,7 @@
 import * as React from "react"
 import { z } from "zod"
 
-import { Badge } from "@repo/ui"
+import { Badge } from "@/ui"
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@repo/ui"
+} from "@/ui"
 import {
   ChevronLeft,
   ChevronRight,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@repo/ui";
+import { Card, CardContent } from "@/ui";
 import { Users, Clock, GraduationCap, CheckCircle2 } from "lucide-react";
 
 interface Props {

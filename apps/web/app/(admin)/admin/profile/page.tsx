@@ -2,9 +2,9 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { ProfileInfo } from "@/components/admin/profile-info";
-import { Skeleton } from "@repo/ui";
+import { Skeleton } from "@/ui";
 import { AlertCircle } from "lucide-react";
-import { Button } from "@repo/ui";
+import { Button } from "@/ui";
 import Link from "next/link";
 
 export default function AdminProfilePage() {
