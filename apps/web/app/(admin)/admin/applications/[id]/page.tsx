@@ -27,7 +27,7 @@ export default function AdminApplicationDetailPage({
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-[#111111]" />
+        <Loader2 className="h-6 w-6 animate-spin text-navy" />
       </div>
     );
   }
@@ -36,8 +36,8 @@ export default function AdminApplicationDetailPage({
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4">
         <AlertCircle className="size-10 text-red-500" />
-        <p className="text-sm font-medium text-[#111111]">Application not found</p>
-        <Button onClick={() => router.push("/admin/applications")} variant="outline" className="border-[#d3cec6] bg-white text-[#111111]">
+        <p className="text-sm font-medium text-navy">Application not found</p>
+        <Button onClick={() => router.push("/admin/applications")} variant="outline" className="border-border bg-white text-navy">
           Back to Applications
         </Button>
       </div>
@@ -58,7 +58,7 @@ export default function AdminApplicationDetailPage({
   };
 
   return (
-    <div className="min-h-screen text-[#111111] font-sans antialiased pb-12">
+    <div className="min-h-screen text-navy font-sans antialiased pb-12">
       <ApplicationDetailHeader
         id={id}
         firstName={app.firstName}

@@ -85,12 +85,12 @@ export function ReviewActionPanel({ applicationId, firstName, onApprove, onRejec
     <>
       <PreviewDialog isOpen={!!previewFile} onClose={() => setPreviewFile(null)} fileUrl={previewFile?.url || null} fileName={previewFile?.name || null} />
 
-      <div className="rounded-xl border-2 border-[#111111] bg-white p-6 space-y-4">
+      <div className="rounded-xl border-2 border-navy bg-white p-6 space-y-4">
         <div className="flex items-center gap-2">
-          <Upload className="h-4 w-4 text-[#111111]" />
-          <h2 className="text-sm font-medium text-[#111111] tracking-tight">Action Required: Upload Admission Letter</h2>
+          <Upload className="h-4 w-4 text-navy" />
+          <h2 className="text-sm font-medium text-navy tracking-tight">Action Required: Upload Admission Letter</h2>
         </div>
-        <p className="text-xs text-[#626260] leading-relaxed">
+        <p className="text-xs text-slate-600 leading-relaxed">
           To approve {firstName}&apos;s application, upload the official university Admission Letter PDF.
         </p>
 
@@ -99,7 +99,7 @@ export function ReviewActionPanel({ applicationId, firstName, onApprove, onRejec
         <div className="flex flex-col gap-4 pt-1">
           {!selectedFile && !uploadedFile && (
             <button type="button" onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#d3cec6] bg-zinc-50 px-4 py-2 text-xs font-medium text-[#111111] hover:bg-zinc-100 transition-all cursor-pointer">
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-zinc-50 px-4 py-2 text-xs font-medium text-navy hover:bg-zinc-100 transition-all cursor-pointer">
               <Upload className="h-3.5 w-3.5" /> Select Admission Letter (PDF)
             </button>
           )}
@@ -107,12 +107,12 @@ export function ReviewActionPanel({ applicationId, firstName, onApprove, onRejec
           {selectedFile && !uploadedFile && (
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d3cec6] bg-zinc-50 px-3 py-1 text-xs font-medium text-[#111111]">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-zinc-50 px-3 py-1 text-xs font-medium text-navy">
                   Selected: {selectedFile.name}
                 </span>
                 {localPreviewUrl && (
                   <button type="button" onClick={() => setPreviewFile({ url: localPreviewUrl, name: selectedFile.name })}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer">
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-navy hover:bg-zinc-50 transition-all cursor-pointer">
                     <ExternalLink className="h-3 w-3" /> Preview
                   </button>
                 )}
@@ -122,7 +122,7 @@ export function ReviewActionPanel({ applicationId, firstName, onApprove, onRejec
                 </button>
               </div>
               <button type="button" onClick={handleUploadFile} disabled={uploading}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#111111] px-4 py-2 text-xs font-medium text-white hover:bg-black transition-all cursor-pointer disabled:opacity-50">
+                className="inline-flex items-center gap-2 rounded-lg bg-navy px-4 py-2 text-xs font-medium text-white hover:bg-black transition-all cursor-pointer disabled:opacity-50">
                 {uploading ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading...</> : <><Upload className="h-3.5 w-3.5" /> Upload to Server</>}
               </button>
             </div>
@@ -134,7 +134,7 @@ export function ReviewActionPanel({ applicationId, firstName, onApprove, onRejec
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Uploaded: {uploadedFile.fileName}
               </span>
               <button type="button" onClick={() => setPreviewFile({ url: uploadedFile.url, name: uploadedFile.fileName })}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer">
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-navy hover:bg-zinc-50 transition-all cursor-pointer">
                 <ExternalLink className="h-3 w-3" /> Preview
               </button>
               <button type="button" onClick={handleRemove}
@@ -151,13 +151,13 @@ export function ReviewActionPanel({ applicationId, firstName, onApprove, onRejec
           </div>
         )}
 
-        <div className="flex items-center gap-2 pt-4 border-t border-dashed border-[#ebe7e1]">
+        <div className="flex items-center gap-2 pt-4 border-t border-dashed border-slate-200">
           <button onClick={handleApprove} disabled={!uploadedFile || approving}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#111111] px-4 py-2 text-xs font-medium text-white hover:bg-black transition-all disabled:opacity-50 cursor-pointer">
+            className="inline-flex items-center gap-1.5 rounded-lg bg-navy px-4 py-2 text-xs font-medium text-white hover:bg-black transition-all disabled:opacity-50 cursor-pointer">
             {approving ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Processing...</> : <><CheckCircle2 className="h-3.5 w-3.5" /> Approve & Notify</>}
           </button>
           <button onClick={onReject} disabled={approving}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-4 py-2 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer disabled:opacity-50">
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2 text-xs font-medium text-navy hover:bg-zinc-50 transition-all cursor-pointer disabled:opacity-50">
             <XCircle className="h-3 w-3" /> Reject
           </button>
         </div>

@@ -13,8 +13,8 @@ interface LanguageRowProps {
 
 export function LanguageRow({ language }: LanguageRowProps) {
   return (
-    <div className="flex items-center gap-4 text-sm border-b border-[#F0F0F0] pb-2 last:border-0 last:pb-0 flex-wrap">
-      <span className="font-medium text-[#2D2154] min-w-[80px]">
+    <div className="flex items-center gap-4 text-sm border-b border-slate-200 pb-2 last:border-0 last:pb-0 flex-wrap">
+      <span className="font-medium text-navy min-w-[80px]">
         {language.name}
       </span>
       <Badge variant="outline" className="text-xs">

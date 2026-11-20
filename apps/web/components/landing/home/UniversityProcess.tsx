@@ -37,7 +37,7 @@ export function UniversityProcess() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Eligibility */}
         <div className="mb-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#2D2154] mb-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-navy mb-8 text-center">
             Eligibility Criteria
           </h2>
           <p className="text-gray-600 text-center max-w-3xl mx-auto mb-10">
@@ -46,7 +46,7 @@ export function UniversityProcess() {
           <div className="max-w-3xl mx-auto space-y-4">
             {eligibilities.map((item, index) => (
               <div key={index} className="flex items-start gap-3">
-                <CheckCircle className="size-5 text-[#F0A030] mt-0.5 shrink-0" />
+                <CheckCircle className="size-5 text-royal-blue mt-0.5 shrink-0" />
                 <p className="text-gray-600 leading-relaxed">{item}</p>
               </div>
             ))}
@@ -55,7 +55,7 @@ export function UniversityProcess() {
 
         {/* Admission Process */}
         <div className="mb-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#2D2154] mb-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4 text-center">
             Admission Process
           </h2>
           <p className="text-gray-600 text-center max-w-3xl mx-auto mb-10">
@@ -63,11 +63,11 @@ export function UniversityProcess() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {steps.map((item) => (
-              <div key={item.step} className="rounded-xl border border-[#E0D8F0] bg-[#F8F6FC] p-6">
-                <span className="inline-block px-3 py-1 rounded-full bg-[#F0A030]/10 text-[#F0A030] text-xs font-medium mb-3">
+              <div key={item.step} className="rounded-xl border border-border bg-ice-grey p-6">
+                <span className="inline-block px-3 py-1 rounded-full bg-royal-blue/10 text-royal-blue text-xs font-medium mb-3">
                   {item.step}
                 </span>
-                <h3 className="text-lg font-semibold text-[#2D2154] mb-2">{item.title}</h3>
+                <h3 className="text-lg font-semibold text-navy mb-2">{item.title}</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
               </div>
             ))}
@@ -76,7 +76,7 @@ export function UniversityProcess() {
 
         {/* Documents Required */}
         <div>
-          <h2 className="text-3xl md:text-4xl font-bold text-[#2D2154] mb-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-navy mb-8 text-center">
             Documents Required
           </h2>
           <p className="text-gray-600 text-center max-w-3xl mx-auto mb-10">
@@ -84,8 +84,8 @@ export function UniversityProcess() {
           </p>
           <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
             {documents.map((doc, index) => (
-              <div key={index} className="flex items-start gap-3 rounded-lg border border-[#E0D8F0] p-4">
-                <CheckCircle className="size-4 text-[#F0A030] mt-0.5 shrink-0" />
+              <div key={index} className="flex items-start gap-3 rounded-lg border border-border p-4">
+                <CheckCircle className="size-4 text-royal-blue mt-0.5 shrink-0" />
                 <p className="text-gray-600 text-sm">{doc}</p>
               </div>
             ))}

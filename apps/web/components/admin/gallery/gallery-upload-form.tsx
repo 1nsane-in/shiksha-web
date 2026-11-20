@@ -45,7 +45,7 @@ export function GalleryUploadForm() {
   };
 
   return (
-    <Card className="md:col-span-1 border-[#ECEAE6] bg-[#FAFAF8]">
+    <Card className="md:col-span-1 border-slate-200 bg-white">
       <CardHeader>
         <CardTitle className="text-base font-semibold flex items-center gap-2">
           <Plus className="h-4 w-4" />
@@ -55,7 +55,7 @@ export function GalleryUploadForm() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="title" className="text-xs font-semibold uppercase tracking-wider text-[#666]">
+            <Label htmlFor="title" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Title (Optional)
             </Label>
             <Input
@@ -63,12 +63,12 @@ export function GalleryUploadForm() {
               placeholder="e.g., Campus Library"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="bg-white border-[#E5E7EB]"
+              className="bg-white border-slate-200"
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="file" className="text-xs font-semibold uppercase tracking-wider text-[#666]">
+            <Label htmlFor="file" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Select File
             </Label>
             <Input
@@ -77,14 +77,14 @@ export function GalleryUploadForm() {
               accept="image/*,video/*"
               ref={fileInputRef}
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="bg-white border-[#E5E7EB] cursor-pointer text-sm"
+              className="bg-white border-slate-200 cursor-pointer text-sm"
               required
             />
           </div>
 
           {isVideo && (
             <div className="space-y-1.5">
-              <Label htmlFor="duration" className="text-xs font-semibold uppercase tracking-wider text-[#666]">
+              <Label htmlFor="duration" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Duration (seconds, optional)
               </Label>
               <Input
@@ -94,7 +94,7 @@ export function GalleryUploadForm() {
                 placeholder="e.g., 120"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
-                className="bg-white border-[#E5E7EB]"
+                className="bg-white border-slate-200"
               />
             </div>
           )}
@@ -102,7 +102,7 @@ export function GalleryUploadForm() {
           <Button
             type="submit"
             disabled={uploadMutation.isPending}
-            className="w-full bg-[#3730A3] hover:bg-[#2e288a] text-white font-medium"
+            className="w-full bg-royal-blue hover:bg-navy-light text-white font-medium"
           >
             {uploadMutation.isPending ? (
               <>

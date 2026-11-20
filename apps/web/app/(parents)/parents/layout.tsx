@@ -16,7 +16,7 @@ export default function ParentsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F7F5F2]">
+    <div className="flex h-screen overflow-hidden bg-ice-grey">
       <ParentSidebar />
       <div className="flex flex-1 flex-col overflow-hidden relative">
         <AdminMobileToggle />

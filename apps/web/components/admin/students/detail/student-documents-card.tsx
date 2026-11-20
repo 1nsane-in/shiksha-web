@@ -11,7 +11,7 @@ interface Props {
 
 export function StudentDocumentsCard({ documents, isLoading, onVerify }: Props) {
   return (
-    <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
+    <Card className="border-slate-200 bg-white">
       <CardHeader>
         <CardTitle className="text-base font-semibold flex items-center gap-2">
           <FileCheck className="h-4 w-4" />
@@ -26,14 +26,14 @@ export function StudentDocumentsCard({ documents, isLoading, onVerify }: Props) 
             <Skeleton className="h-10 w-full" />
           </div>
         ) : documents.length === 0 ? (
-          <div className="text-center py-8 text-[#888] text-sm">No documents uploaded yet.</div>
+          <div className="text-center py-8 text-slate-400 text-sm">No documents uploaded yet.</div>
         ) : (
           <div className="space-y-4">
             {documents.map((doc: any) => (
-              <div key={doc.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border bg-white" style={{ borderColor: "rgba(26, 21, 58, 0.08)" }}>
+              <div key={doc.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border bg-white" style={{ borderColor: "rgba(16, 44, 80, 0.08)" }}>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h4 className="text-sm font-semibold text-[#111]">{doc.documentType?.name || "Document"}</h4>
+                    <h4 className="text-sm font-semibold text-navy">{doc.documentType?.name || "Document"}</h4>
                     <Badge
                       className={`text-[10px] py-0.5 px-1.5 rounded uppercase font-bold border ${
                         doc.status === "APPROVED"
@@ -59,7 +59,7 @@ export function StudentDocumentsCard({ documents, isLoading, onVerify }: Props) 
                     href={doc.fileUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex h-9 items-center justify-center rounded-lg px-3.5 border border-[#ECEAE6] text-xs font-semibold text-gray-700 hover:bg-[#FAFAF8] gap-1 bg-white select-none transition-all active:scale-[0.98] cursor-pointer"
+                    className="inline-flex h-9 items-center justify-center rounded-lg px-3.5 border border-slate-200 text-xs font-semibold text-gray-700 hover:bg-white gap-1 bg-white select-none transition-all active:scale-[0.98] cursor-pointer"
                   >
                     View File <ExternalLink className="h-3 w-3" />
                   </a>

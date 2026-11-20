@@ -96,14 +96,14 @@ export function QuestionsStep({ data = [], onChange }: Props) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-medium text-[#111111]">Question Bank</h2>
-          <p className="text-sm text-[#626260]">
+          <h2 className="text-xl font-medium text-navy">Question Bank</h2>
+          <p className="text-sm text-slate-600">
             {questions.length} questions • {totalMarks} total marks (1 mark each)
           </p>
         </div>
         <Button
           onClick={handleAddQuestion}
-          className="bg-[#111111] hover:bg-[#313130] text-white"
+          className="bg-navy hover:bg-slate-800 text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add MCQ
@@ -130,16 +130,16 @@ export function QuestionsStep({ data = [], onChange }: Props) {
         ))}
 
         {questions.length === 0 && (
-          <div className="bg-[#f5f1ec] rounded-xl border border-dashed border-[#d3cec6] p-12 text-center">
-            <HelpCircle className="h-12 w-12 text-[#9c9fa5] mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-[#111111] mb-2">No questions yet</h3>
-            <p className="text-sm text-[#626260] mb-4">
+          <div className="bg-ice-grey rounded-xl border border-dashed border-border p-12 text-center">
+            <HelpCircle className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-navy mb-2">No questions yet</h3>
+            <p className="text-sm text-slate-600 mb-4">
               Add MCQ questions to build your exam. Each question is worth 1 mark.
             </p>
             <Button
               onClick={handleAddQuestion}
               variant="outline"
-              className="border-[#d3cec6]"
+              className="border-border"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add First Question
@@ -182,28 +182,28 @@ function QuestionCard({
   if (!isEditing) {
     return (
       <div
-        className="bg-white rounded-xl border border-[#d3cec6] p-4 hover:border-[#111111] cursor-pointer transition-colors"
+        className="bg-white rounded-xl border border-border p-4 hover:border-navy cursor-pointer transition-colors"
         onClick={onEdit}
       >
         <div className="flex items-start gap-3">
-          <div className="flex items-center gap-2 text-[#9c9fa5]">
+          <div className="flex items-center gap-2 text-slate-400">
             <GripVertical className="h-5 w-5" />
             <span className="text-sm font-medium">{index + 1}</span>
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#f5f1ec] text-[#626260]">
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-ice-grey text-slate-600">
                 MCQ
               </span>
               <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
                 1 mark
               </span>
             </div>
-            <p className="text-sm text-[#111111] line-clamp-2">
+            <p className="text-sm text-navy line-clamp-2">
               {question.questionText || "No question text"}
             </p>
             {question.options && question.options.length > 0 && (
-              <p className="text-xs text-[#9c9fa5] mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 {question.options.length} options
               </p>
             )}
@@ -225,11 +225,11 @@ function QuestionCard({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-[#111111] p-6 shadow-sm">
+    <div className="bg-white rounded-xl border border-navy p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-[#9c9fa5]">Question {index + 1}</span>
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#f5f1ec] text-[#626260]">
+          <span className="text-sm font-medium text-slate-400">Question {index + 1}</span>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-ice-grey text-slate-600">
             MCQ (1 mark)
           </span>
         </div>
@@ -243,20 +243,20 @@ function QuestionCard({
       <div className="space-y-4">
         {/* Question Text */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-[#111111]">Question Text</Label>
+          <Label className="text-sm font-medium text-navy">Question Text</Label>
           <Textarea
             value={question.questionText}
             onChange={(e) => onUpdate({ questionText: e.target.value })}
             placeholder="Enter your MCQ question here..."
             rows={3}
-            className="border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111] resize-none"
+            className="border-border focus:border-navy focus:ring-navy resize-none"
           />
         </div>
 
         {/* Options */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-[#111111]">
-            Options <span className="text-[#626260] font-normal">(select the correct one)</span>
+          <Label className="text-sm font-medium text-navy">
+            Options <span className="text-slate-600 font-normal">(select the correct one)</span>
           </Label>
           <div className="space-y-2">
             {question.options?.map((option, optIndex) => (
@@ -265,8 +265,8 @@ function QuestionCard({
                   onClick={() => onSetCorrect(optIndex)}
                   className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                     option.isCorrect
-                      ? "bg-[#0bdf50] border-[#0bdf50]"
-                      : "border-[#d3cec6] hover:border-[#111111]"
+                      ? "bg-success-bright border-success-bright"
+                      : "border-border hover:border-navy"
                   }`}
                 >
                   {option.isCorrect && <Check className="h-3.5 w-3.5 text-white" />}
@@ -275,7 +275,7 @@ function QuestionCard({
                   value={option.optionText}
                   onChange={(e) => onOptionChange(optIndex, "optionText", e.target.value)}
                   placeholder={`Option ${optIndex + 1}`}
-                  className="flex-1 border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111]"
+                  className="flex-1 border-border focus:border-navy focus:ring-navy"
                 />
                 <Button
                   variant="ghost"
@@ -292,7 +292,7 @@ function QuestionCard({
             variant="outline"
             size="sm"
             onClick={onAddOption}
-            className="border-[#d3cec6]"
+            className="border-border"
           >
             <Plus className="h-4 w-4 mr-1" />
             Add Option
@@ -333,9 +333,9 @@ function ImageUpload({ currentUrl, onUpload, onRemove }: { currentUrl?: string; 
   if (currentUrl) {
     return (
       <div className="space-y-2">
-        <Label className="text-sm font-medium text-[#111111]">Question Image</Label>
-        <div className="relative rounded-lg overflow-hidden border border-[#d3cec6]">
-          <img src={currentUrl} alt="Question" className="max-h-40 w-full object-contain bg-[#f5f1ec]" />
+        <Label className="text-sm font-medium text-navy">Question Image</Label>
+        <div className="relative rounded-lg overflow-hidden border border-border">
+          <img src={currentUrl} alt="Question" className="max-h-40 w-full object-contain bg-ice-grey" />
           <button onClick={onRemove} className="absolute top-2 right-2 h-7 w-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80">
             <X className="h-4 w-4" />
           </button>
@@ -346,11 +346,11 @@ function ImageUpload({ currentUrl, onUpload, onRemove }: { currentUrl?: string; 
 
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium text-[#111111]">Question Image (Optional)</Label>
-      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-[#d3cec6] p-4 hover:border-[#111111] hover:bg-[#f5f1ec] transition-colors">
+      <Label className="text-sm font-medium text-navy">Question Image (Optional)</Label>
+      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-border p-4 hover:border-navy hover:bg-ice-grey transition-colors">
         <input type="file" accept="image/*" className="sr-only" onChange={handleFile} disabled={uploading} />
-        <ImageIcon className={`h-8 w-8 ${uploading ? 'animate-pulse text-[#9c9fa5]' : 'text-[#9c9fa5]'}`} />
-        <span className="text-sm text-[#626260]">{uploading ? 'Uploading...' : 'Click to upload image'}</span>
+        <ImageIcon className={`h-8 w-8 ${uploading ? 'animate-pulse text-slate-400' : 'text-slate-400'}`} />
+        <span className="text-sm text-slate-600">{uploading ? 'Uploading...' : 'Click to upload image'}</span>
       </label>
     </div>
   );

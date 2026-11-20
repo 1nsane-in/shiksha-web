@@ -123,7 +123,7 @@ export function AdminTab({ admin: ad, loc, uniId, router, onSaveBank, onAddBankF
     <div className="space-y-6">
       {ad ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <Card size="sm" className="border-[#ECEAE6]">
+          <Card size="sm" className="border-slate-200">
             <CardContent className="space-y-3 p-4 sm:p-5">
               <SectionHeading icon={UserCog} title="Point of Contact" onEdit={() => router.push("/admin/universities/" + uniId + "/edit")} />
               <InfoRow icon={UserCog} label="POC Name" value={ad.pocName} />
@@ -133,7 +133,7 @@ export function AdminTab({ admin: ad, loc, uniId, router, onSaveBank, onAddBankF
               <InfoRow icon={Phone} label="Phone Number" value={ad.phoneCountryCode + " " + ad.phoneNumber} />
             </CardContent>
           </Card>
-          <Card size="sm" className="border-[#ECEAE6]">
+          <Card size="sm" className="border-slate-200">
             <CardContent className="space-y-3 p-4 sm:p-5">
               <SectionHeading icon={Building} title="Bank Account Details" onEdit={startEdit} />
               {(() => {
@@ -147,21 +147,21 @@ export function AdminTab({ admin: ad, loc, uniId, router, onSaveBank, onAddBankF
                     <>
                       {config ? config.fields.map((f: any) => (
                         <div key={f.name}>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] mb-0.5">{f.label}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">{f.label}</p>
                           <Input value={bankForm[f.name] || ""} onChange={(e) => updateField(f.name, e.target.value)} placeholder={f.placeholder} className="h-8 text-xs" />
                         </div>
                       )) : (
                         <>
                           {["accountName","accountNumber","bankName","bankBranch","ifscCode","gstNumber","panNumber"].map((field) => (
                             <div key={field}>
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] mb-0.5">{field.replace(/([A-Z])/g, " ").replace(/^./, (s) => s.toUpperCase())}</p>
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">{field.replace(/([A-Z])/g, " ").replace(/^./, (s) => s.toUpperCase())}</p>
                               <Input value={bankForm[field] || ""} onChange={(e) => updateField(field, e.target.value)} className="h-8 text-xs" />
                             </div>
                           ))}
                         </>
                       )}
-                      <div className="flex items-center gap-2 pt-2 border-t border-[#ECEAE6]">
-                        <Button size="sm" className="bg-[#3730A3] text-white h-8 text-xs" onClick={handleSave} disabled={bankSaving}>{bankSaving ? "Saving..." : "Save"}</Button>
+                      <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
+                        <Button size="sm" className="bg-royal-blue text-white h-8 text-xs" onClick={handleSave} disabled={bankSaving}>{bankSaving ? "Saving..." : "Save"}</Button>
                         <Button size="sm" variant="outline" className="h-8 text-xs" onClick={cancelEdit}>Cancel</Button>
                       </div>
                     </>
@@ -176,8 +176,8 @@ export function AdminTab({ admin: ad, loc, uniId, router, onSaveBank, onAddBankF
                       <InfoRow icon={Globe} label="Country" value={config.countryName} />
                       {config.fields.map((f: any) => <InfoRow key={f.name} icon={Hash} label={f.label} value={details[f.name] || "—"} />)}
                       {extras.length > 0 && (
-                        <div className="border-t border-[#ECEAE6] pt-3 mt-1">
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] mb-2">Additional Details</p>
+                        <div className="border-t border-slate-200 pt-3 mt-1">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Additional Details</p>
                           <div className="space-y-1.5">{extras.map(([k, v]) => <InfoRow key={k} icon={Hash} label={k} value={String(v ?? "") || "—"} />)}</div>
                         </div>
                       )}
@@ -197,8 +197,8 @@ export function AdminTab({ admin: ad, loc, uniId, router, onSaveBank, onAddBankF
                     {ad.panNumber && <InfoRow icon={FileText} label="PAN Number" value={ad.panNumber} />}
                     {ad.bankCountry && <InfoRow icon={Globe} label="Bank Country" value={ad.bankCountry} />}
                     {extraEntries.length > 0 && (
-                      <div className="border-t border-[#ECEAE6] pt-3 mt-1">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] mb-2">Additional Bank Details</p>
+                      <div className="border-t border-slate-200 pt-3 mt-1">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Additional Bank Details</p>
                         <div className="space-y-1.5">{extraEntries.map((item: any, i: number) => <InfoRow key={i} icon={Hash} label={item.key} value={item.value || "—"} />)}</div>
                       </div>
                     )}
@@ -206,19 +206,19 @@ export function AdminTab({ admin: ad, loc, uniId, router, onSaveBank, onAddBankF
                 );
               })()}
               {!bankEditing && !showAddField && (
-                <button onClick={() => setShowAddField(true)} className="flex items-center gap-1.5 text-xs font-medium text-[#3730A3] hover:text-[#312E81] mt-2">
+                <button onClick={() => setShowAddField(true)} className="flex items-center gap-1.5 text-xs font-medium text-royal-blue hover:text-indigo-900 mt-2">
                   <Plus className="h-3 w-3" /> Add Extra Field
                 </button>
               )}
               {!bankEditing && showAddField && (
-                <div className="border-t border-[#ECEAE6] pt-3 mt-1 space-y-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">New Field</p>
+                <div className="border-t border-slate-200 pt-3 mt-1 space-y-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">New Field</p>
                   <div className="flex items-center gap-2">
                     <Input placeholder="Field name" value={newKey} onChange={(e) => setNewKey(e.target.value)} className="flex-1 text-xs h-8" />
                     <Input placeholder="Value" value={newValue} onChange={(e) => setNewValue(e.target.value)} className="flex-1 text-xs h-8" />
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button size="sm" className="bg-[#3730A3] text-white h-7 text-xs" onClick={handleAddField}>Save</Button>
+                    <Button size="sm" className="bg-royal-blue text-white h-7 text-xs" onClick={handleAddField}>Save</Button>
                     <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => { setShowAddField(false); setNewKey(""); setNewValue(""); }}>Cancel</Button>
                   </div>
                 </div>
@@ -228,7 +228,7 @@ export function AdminTab({ admin: ad, loc, uniId, router, onSaveBank, onAddBankF
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <Card size="sm" className="border-[#ECEAE6]">
+          <Card size="sm" className="border-slate-200">
             <CardContent className="space-y-3 p-4 sm:p-5">
               <SectionHeading icon={UserCog} title="Point of Contact" onEdit={() => router.push("/admin/universities/" + uniId + "/edit")} />
               <InfoRow icon={UserCog} label="POC Name" value="—" />
@@ -238,7 +238,7 @@ export function AdminTab({ admin: ad, loc, uniId, router, onSaveBank, onAddBankF
               <InfoRow icon={Phone} label="Phone Number" value="—" />
             </CardContent>
           </Card>
-          <Card size="sm" className="border-[#ECEAE6]">
+          <Card size="sm" className="border-slate-200">
             <CardContent className="space-y-3 p-4 sm:p-5">
               <SectionHeading icon={Building} title="Bank Account Details" onEdit={() => router.push("/admin/universities/" + uniId + "/edit")} />
               {(() => {

@@ -1,64 +1,75 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* App Color Palette */
-  --color-primary-purple: #4b2d8e;
-  --color-dark-purple: #2d2154;
-  --color-gold: #C4953B;
-  --color-gold-light: rgba(196, 149, 59, 0.10);
-  --color-gold-dark: #b0852f;
-  --color-light-bg: #f8f6fc;
-  --color-muted-gray: #6b6b6b;
+  /* ─── Shiksha Signature Palette ─── */
+  --color-navy: #102C50;          /* Deep Navy - structure, headers, footers, hero */
+  --color-navy-light: #1E4A7A;    /* Navy tint - secondary structure */
+  --color-royal-blue: #245B96;    /* Royal Blue - primary buttons, links, active nav */
+  --color-medical-cyan: #19A9CE;  /* Medical Cyan - controls, icons, progress */
+  --color-champagne-gold: #C9A45C;/* Champagne Gold - premium/scholarship accents */
+  --color-pure-white: #FFFFFF;    /* Pure White - page and card backgrounds */
+  --color-ice-grey: #F1F5F9;      /* Ice Grey - alternate sections and panels */
+  --color-hairline: #DCE3EC;      /* Hairline borders */
+  --color-success-bright: #0BDF50;
+
+  /* Legacy token names kept for compatibility, remapped to the new palette */
+  --color-primary-purple: #245B96;   /* was purple -> Royal Blue */
+  --color-dark-purple: #102C50;      /* was dark purple -> Deep Navy */
+  --color-gold: #C9A45C;
+  --color-gold-light: rgba(201, 164, 92, 0.10);
+  --color-gold-dark: #B08F4A;
+  --color-light-bg: #F1F5F9;
+  --color-muted-gray: #64748B;
   --color-error: #c41c1c;
-  --color-success: #0bdf50;
+  --color-success: #16A34A;
 
-  /* Landing Page Brand Tokens (warm editorial marketing surface) */
-  --color-brand-ink: #1A153A;
-  --color-brand-ink-muted: #6B6599;
-  --color-brand-gold: #C4953B;
-  --color-brand-gold-light: rgba(196, 149, 59, 0.10);
-  --color-brand-gold-glove: rgba(196, 149, 59, 0.15);
-  --color-brand-canvas: #FAF9F6;
+  /* Landing Page Brand Tokens */
+  --color-brand-ink: #102C50;
+  --color-brand-ink-muted: #64748B;
+  --color-brand-gold: #C9A45C;
+  --color-brand-gold-light: rgba(201, 164, 92, 0.10);
+  --color-brand-gold-glove: rgba(201, 164, 92, 0.15);
+  --color-brand-canvas: #FFFFFF;
   --color-brand-surface: #FFFFFF;
-  --color-brand-hairline: rgba(26, 21, 58, 0.08);
+  --color-brand-hairline: rgba(16, 44, 80, 0.08);
 
-  --color-foreground: #2d2154;
-  --color-background: #f8f6fc;
-  --color-card: #ffffff;
-  --color-card-foreground: #2d2154;
-  --color-popover: #ffffff;
-  --color-popover-foreground: #2d2154;
-  --color-primary: #f0a030;
-  --color-primary-foreground: #2d2154;
-  --color-secondary: #f8f6fc;
-  --color-secondary-foreground: #2d2154;
-  --color-muted: #f8f6fc;
-  --color-muted-foreground: #6b6b6b;
-  --color-accent: #4b2d8e;
-  --color-accent-foreground: #ffffff;
+  --color-foreground: #102C50;
+  --color-background: #F1F5F9;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #102C50;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #102C50;
+  --color-primary: #245B96;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #F1F5F9;
+  --color-secondary-foreground: #102C50;
+  --color-muted: #F1F5F9;
+  --color-muted-foreground: #64748B;
+  --color-accent: #19A9CE;
+  --color-accent-foreground: #FFFFFF;
   --color-destructive: #c41c1c;
-  --color-destructive-foreground: #ffffff;
-  --color-border: #e0d8f0;
-  --color-input: #f0ecf6;
-  --color-ring: #f0a030;
-  --color-chart-1: #4b2d8e;
-  --color-chart-2: #f0a030;
-  --color-chart-3: #d4a017;
-  --color-chart-4: #2d2154;
-  --color-chart-5: #6b6b6b;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #DCE3EC;
+  --color-input: #F1F5F9;
+  --color-ring: #19A9CE;
+  --color-chart-1: #245B96;
+  --color-chart-2: #19A9CE;
+  --color-chart-3: #C9A45C;
+  --color-chart-4: #102C50;
+  --color-chart-5: #64748B;
 
-  --color-sidebar: #ffffff;
-  --color-sidebar-foreground: #2d2154;
-  --color-sidebar-primary: #f0a030;
-  --color-sidebar-primary-foreground: #2d2154;
-  --color-sidebar-accent: #f8f6fc;
-  --color-sidebar-accent-foreground: #2d2154;
-  --color-sidebar-border: #e0d8f0;
-  --color-sidebar-ring: #f0a030;
+  --color-sidebar: #FFFFFF;
+  --color-sidebar-foreground: #102C50;
+  --color-sidebar-primary: #245B96;
+  --color-sidebar-primary-foreground: #FFFFFF;
+  --color-sidebar-accent: #F1F5F9;
+  --color-sidebar-accent-foreground: #102C50;
+  --color-sidebar-border: #DCE3EC;
+  --color-sidebar-ring: #19A9CE;
 
   --radius-xs: 4px;
   --radius-sm: 6px;
@@ -70,76 +81,91 @@
   --radius-full: 9999px;
 
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.5rem;
-  --background: #f8f6fc;
-  --foreground: #2d2154;
-  --card: #ffffff;
-  --card-foreground: #2d2154;
-  --popover: #ffffff;
-  --popover-foreground: #2d2154;
-  --primary: #4b2d8e;
-  --primary-foreground: #ffffff;
-  --secondary: #f8f6fc;
-  --secondary-foreground: #2d2154;
-  --muted: #f8f6fc;
-  --muted-foreground: #6b6b6b;
-  --accent: #f0a030;
-  --accent-foreground: #2d2154;
+
+  /* Shiksha Signature Palette — plain vars for inline styles */
+  --navy: #102C50;
+  --navy-light: #1E4A7A;
+  --royal-blue: #245B96;
+  --medical-cyan: #19A9CE;
+  --champagne-gold: #C9A45C;
+  --pure-white: #FFFFFF;
+  --ice-grey: #F1F5F9;
+  --hairline: #DCE3EC;
+  --gold-dark: #B08F4A;
+  --success: #16A34A;
+  --success-bright: #0BDF50;
+  --error: #C41C1C;
+
+  --background: #F1F5F9;
+  --foreground: #102C50;
+  --card: #FFFFFF;
+  --card-foreground: #102C50;
+  --popover: #FFFFFF;
+  --popover-foreground: #102C50;
+  --primary: #245B96;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #102C50;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #19A9CE;
+  --accent-foreground: #FFFFFF;
   --destructive: #c41c1c;
-  --border: #e0d8f0;
-  --input: #ffffff;
-  --ring: #4b2d8e;
-  --chart-1: #4b2d8e;
-  --chart-2: #f0a030;
-  --chart-3: #d4a017;
-  --chart-4: #2d2154;
-  --chart-5: #6b6b6b;
-  --sidebar: #2d2154;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #4b2d8e;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #4b2d8e;
-  --sidebar-accent-foreground: #ffffff;
+  --border: #DCE3EC;
+  --input: #FFFFFF;
+  --ring: #19A9CE;
+  --chart-1: #245B96;
+  --chart-2: #19A9CE;
+  --chart-3: #C9A45C;
+  --chart-4: #102C50;
+  --chart-5: #64748B;
+  --sidebar: #102C50;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #245B96;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #245B96;
+  --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #4b2d8e;
+  --sidebar-ring: #19A9CE;
 }
 
 .dark {
-  --background: #1a1a2e;
-  --foreground: #ffffff;
-  --card: #2d2154;
-  --card-foreground: #ffffff;
-  --popover: #2d2154;
-  --popover-foreground: #ffffff;
-  --primary: #4b2d8e;
-  --primary-foreground: #ffffff;
-  --secondary: #2d2154;
-  --secondary-foreground: #ffffff;
-  --muted: #2d2154;
-  --muted-foreground: #9c9fa5;
-  --accent: #f0a030;
-  --accent-foreground: #ffffff;
+  --background: #0B1F38;
+  --foreground: #FFFFFF;
+  --card: #102C50;
+  --card-foreground: #FFFFFF;
+  --popover: #102C50;
+  --popover-foreground: #FFFFFF;
+  --primary: #245B96;
+  --primary-foreground: #FFFFFF;
+  --secondary: #102C50;
+  --secondary-foreground: #FFFFFF;
+  --muted: #102C50;
+  --muted-foreground: #94A3B8;
+  --accent: #19A9CE;
+  --accent-foreground: #FFFFFF;
   --destructive: #c41c1c;
   --border: rgba(255, 255, 255, 0.1);
   --input: rgba(255, 255, 255, 0.15);
-  --ring: #4b2d8e;
-  --chart-1: #4b2d8e;
-  --chart-2: #f0a030;
-  --chart-3: #d4a017;
-  --chart-4: #2d2154;
-  --chart-5: #6b6b6b;
-  --sidebar: #2d2154;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #4b2d8e;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #4b2d8e;
-  --sidebar-accent-foreground: #ffffff;
+  --ring: #19A9CE;
+  --chart-1: #245B96;
+  --chart-2: #19A9CE;
+  --chart-3: #C9A45C;
+  --chart-4: #102C50;
+  --chart-5: #64748B;
+  --sidebar: #102C50;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #245B96;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #245B96;
+  --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #4b2d8e;
+  --sidebar-ring: #19A9CE;
 }
 
 @layer base {
@@ -153,7 +179,7 @@
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #e0d8f0 transparent;
+  scrollbar-color: #DCE3EC transparent;
 }
 
 html {
@@ -166,8 +192,8 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
-  font-weight: 600;
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
@@ -203,9 +229,9 @@ h6 {
     rgba(255, 255, 255, 0.25) 0%,
     rgba(255, 255, 255, 0.08) 25%,
     rgba(255, 255, 255, 0) 45%,
-    rgba(196, 149, 59, 0.06) 55%,
-    rgba(196, 149, 59, 0.12) 80%,
-    rgba(196, 149, 59, 0.2) 100%
+    rgba(201, 164, 92, 0.06) 55%,
+    rgba(201, 164, 92, 0.12) 80%,
+    rgba(201, 164, 92, 0.2) 100%
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;

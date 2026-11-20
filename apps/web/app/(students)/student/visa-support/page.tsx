@@ -99,7 +99,7 @@ export default function StudentVisaSupportPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-base flex items-center gap-2">
-                    <Globe className="size-4 text-[#4B2D8E]" />
+                    <Globe className="size-4 text-royal-blue" />
                     {app.visaCenter ? app.visaCenter.name : "Visa Application"}
                   </CardTitle>
                   <p className="text-sm text-gray-500">{app.visaCenter ? app.visaCenter.city + ", " + app.visaCenter.country : ""}</p>

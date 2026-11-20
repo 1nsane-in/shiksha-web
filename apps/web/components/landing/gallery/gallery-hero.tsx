@@ -8,7 +8,7 @@ import { brand } from "@/lib/brand";
  */
 export function GalleryHero() {
   return (
-    <section className="relative pb-20 pt-32 overflow-hidden bg-[#1A153A]">
+    <section className="relative pb-20 pt-32 overflow-hidden bg-navy">
       <div className="pointer-events-none absolute inset-0 opacity-20">
         <Image
           alt="Medical Campus"
@@ -18,7 +18,7 @@ export function GalleryHero() {
           priority
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-[#1A153A]/90" />
+        <div className="absolute inset-0 bg-navy/90" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">

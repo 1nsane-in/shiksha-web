@@ -22,7 +22,7 @@ export function versionMiddleware(
     res.setHeader('Deprecation', 'true');
     res.setHeader('Sunset', matched.sunset);
     res.setHeader('Link', `<${matched.migration}>; rel="deprecation"`);
-    logger.warn(`Deprecated endpoint called: ${req.method} ${req.originalUrl}`);
+    logger.warn(`Deprecated endpoint called: ${req.method} ${req.path}`);
   }
 
   res.setHeader('X-Api-Version', '1');

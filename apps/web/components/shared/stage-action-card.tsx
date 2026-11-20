@@ -20,15 +20,15 @@ export function LockedStageCard() {
           <Lock className="size-5 text-amber-600" />
         </div>
         <div>
-          <p className="font-semibold text-[#2D2154]">Admission Letter Ready</p>
-          <p className="text-sm text-[#6B6B6B]">
+          <p className="font-semibold text-navy">Admission Letter Ready</p>
+          <p className="text-sm text-slate-500">
             Pay ₹5,000 admission fee to unlock and download
           </p>
         </div>
       </div>
       <button
         onClick={() => router.push("/student/payments")}
-        className="inline-flex items-center gap-2 rounded-lg bg-[#4B2D8E] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#3D2475]"
+        className="inline-flex items-center gap-2 rounded-lg bg-royal-blue px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-navy-light"
       >
         <IndianRupee className="size-4" />
         Pay ₹5,000 to Unlock
@@ -45,13 +45,13 @@ export function StageActionCard({ action, variant = "default" }: StageActionCard
 
   const bgClass = variant === "locked"
     ? "border-amber-200 bg-amber-50/50"
-    : "border-[#4B2D8E]/20 bg-[#4B2D8E]/5";
+    : "border-royal-blue/20 bg-royal-blue/5";
   const iconBgClass = variant === "locked"
     ? "bg-amber-100"
-    : "bg-[#4B2D8E]/10";
+    : "bg-royal-blue/10";
   const iconColorClass = variant === "locked"
     ? "text-amber-600"
-    : "text-[#4B2D8E]";
+    : "text-royal-blue";
 
   return (
     <div className={`flex items-center justify-between rounded-xl border ${bgClass} px-5 py-4`}>
@@ -64,13 +64,13 @@ export function StageActionCard({ action, variant = "default" }: StageActionCard
           )}
         </div>
         <div>
-          <p className="font-semibold text-[#2D2154]">{action.label}</p>
-          <p className="text-sm text-[#6B6B6B]">{action.description}</p>
+          <p className="font-semibold text-navy">{action.label}</p>
+          <p className="text-sm text-slate-500">{action.description}</p>
         </div>
       </div>
       <button
         onClick={() => router.push(action.href)}
-        className="inline-flex items-center gap-2 rounded-lg bg-[#4B2D8E] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#3D2475]"
+        className="inline-flex items-center gap-2 rounded-lg bg-royal-blue px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-navy-light"
       >
         {variant === "locked" ? (
           <>

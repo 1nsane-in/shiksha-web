@@ -126,15 +126,15 @@ export function FinalCTA() {
   };
 
   return (
-    <section className="py-20 sm:py-28 bg-gradient-to-br from-[#1A153A] via-[#2D2154] to-[#1A153A] relative overflow-hidden border-t border-slate-900">
+    <section className="py-20 sm:py-28 bg-gradient-to-br from-navy via-navy to-navy relative overflow-hidden border-t border-slate-900">
       {/* Background radial accent */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-80 h-80 rounded-full bg-[#C4953B]/5 blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-80 h-80 rounded-full bg-champagne-gold/5 blur-3xl pointer-events-none" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl relative z-10">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           {/* Left Column - Benefits & Copy */}
           <div className="lg:col-span-5 text-white space-y-6">
-            <span className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold uppercase tracking-wider bg-[#C4953B]/20 text-[#C4953B] border border-[#C4953B]/30">
+            <span className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold uppercase tracking-wider bg-champagne-gold/20 text-champagne-gold border border-champagne-gold/30">
               <TrendingUp className="size-3" />
               Free Personalized Counseling
             </span>
@@ -149,7 +149,7 @@ export function FinalCTA() {
 
             <div className="space-y-4 pt-4 border-t border-slate-700/50">
               <div className="flex items-start gap-3.5 text-xs sm:text-sm text-slate-200">
-                <ShieldCheck className="size-5 text-[#C4953B] shrink-0 mt-0.5" />
+                <ShieldCheck className="size-5 text-champagne-gold shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-white block font-semibold">
                     100% Secure Admissions
@@ -158,7 +158,7 @@ export function FinalCTA() {
                 </div>
               </div>
               <div className="flex items-start gap-3.5 text-xs sm:text-sm text-slate-200">
-                <Calendar className="size-5 text-[#C4953B] shrink-0 mt-0.5" />
+                <Calendar className="size-5 text-champagne-gold shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-white block font-semibold">
                     Flexible Intake & Modes
@@ -168,7 +168,7 @@ export function FinalCTA() {
                 </div>
               </div>
               <div className="flex items-start gap-3.5 text-xs sm:text-sm text-slate-200">
-                <MessageSquare className="size-5 text-[#C4953B] shrink-0 mt-0.5" />
+                <MessageSquare className="size-5 text-champagne-gold shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-white block font-semibold">
                     NMC & FMGE Integration
@@ -185,7 +185,7 @@ export function FinalCTA() {
               {!submitted ? (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <h3 className="text-xl font-bold text-[#1A153A]">
+                    <h3 className="text-xl font-bold text-navy">
                       Book Free Counseling
                     </h3>
                     <p className="text-xs text-slate-400 mt-1">
@@ -199,7 +199,7 @@ export function FinalCTA() {
                     {/* Name */}
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
-                        <User className="size-3 text-[#C4953B]" /> Name{" "}
+                        <User className="size-3 text-champagne-gold" /> Name{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -209,14 +209,14 @@ export function FinalCTA() {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="Your full name"
-                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#C4953B] bg-slate-50/50"
+                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-champagne-gold bg-slate-50/50"
                       />
                     </div>
 
                     {/* Email */}
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
-                        <Mail className="size-3 text-[#C4953B]" /> Email{" "}
+                        <Mail className="size-3 text-champagne-gold" /> Email{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -226,14 +226,14 @@ export function FinalCTA() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="Your email address"
-                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#C4953B] bg-slate-50/50"
+                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-champagne-gold bg-slate-50/50"
                       />
                     </div>
 
                     {/* Mobile with country code prefix */}
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
-                        <Phone className="size-3 text-[#C4953B]" /> Mobile{" "}
+                        <Phone className="size-3 text-champagne-gold" /> Mobile{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
@@ -253,7 +253,7 @@ export function FinalCTA() {
                               ? "10-digit number"
                               : "Enter mobile number"
                           }
-                          className={`w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#C4953B] bg-slate-50/50 ${
+                          className={`w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-champagne-gold bg-slate-50/50 ${
                             selectedCountryPhoneCode ? "pl-16" : ""
                           }`}
                         />
@@ -263,7 +263,7 @@ export function FinalCTA() {
                     {/* NEET Score */}
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
-                        <BookOpen className="size-3 text-[#C4953B]" /> NEET
+                        <BookOpen className="size-3 text-champagne-gold" /> NEET
                         Score
                       </label>
                       <input
@@ -272,19 +272,19 @@ export function FinalCTA() {
                         value={formData.neetScore}
                         onChange={handleChange}
                         placeholder="NEET score (optional)"
-                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#C4953B] bg-slate-50/50"
+                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-champagne-gold bg-slate-50/50"
                       />
                     </div>
 
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
-                        <Globe className="size-3 text-[#C4953B]" /> Country{" "}
+                        <Globe className="size-3 text-champagne-gold" /> Country{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <select
                         value={selectedCountryIso}
                         onChange={handleCountryChange}
-                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#C4953B] bg-slate-50/50 cursor-pointer"
+                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-champagne-gold bg-slate-50/50 cursor-pointer"
                       >
                         <option value="">Select Country</option>
                         {countries.map((c) => (
@@ -304,7 +304,7 @@ export function FinalCTA() {
                         <select
                           value={formData.stateName}
                           onChange={handleStateChange}
-                          className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#C4953B] bg-slate-50/50 cursor-pointer"
+                          className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-champagne-gold bg-slate-50/50 cursor-pointer"
                         >
                           <option value="">Select State</option>
                           {states.map((s) => (
@@ -335,7 +335,7 @@ export function FinalCTA() {
                         name="prefUniversity"
                         value={formData.prefUniversity}
                         onChange={handleChange}
-                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#C4953B] bg-slate-50/50 cursor-pointer"
+                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-champagne-gold bg-slate-50/50 cursor-pointer"
                       >
                         <option value="Jalal-Abad State University">
                           Jalal-Abad State Univ
@@ -379,7 +379,7 @@ export function FinalCTA() {
                         name="prefIntake"
                         value={formData.prefIntake}
                         onChange={handleChange}
-                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#C4953B] bg-slate-50/50 cursor-pointer"
+                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-champagne-gold bg-slate-50/50 cursor-pointer"
                       >
                         <option value="Summer">Summer Intake (May/Jun)</option>
                         <option value="Winter">Winter Intake (Sep/Oct)</option>
@@ -393,8 +393,8 @@ export function FinalCTA() {
                       disabled={createMutation.isPending}
                       className="w-full py-3 text-sm font-bold uppercase tracking-wider rounded-xl transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-60"
                       style={{
-                        background: "#C4953B",
-                        color: "#1A153A",
+                        background: "var(--champagne-gold)",
+                        color: "var(--navy)",
                       }}
                     >
                       {createMutation.isPending ? (
@@ -416,7 +416,7 @@ export function FinalCTA() {
                   <div className="size-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4 border border-emerald-200/50">
                     <CheckCircle2 className="size-8 text-emerald-500" />
                   </div>
-                  <h4 className="text-2xl font-extrabold text-[#1A153A]">
+                  <h4 className="text-2xl font-extrabold text-navy">
                     Lead Submitted Successfully
                   </h4>
                   <p className="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
@@ -445,7 +445,7 @@ export function FinalCTA() {
                         prefIntake: "Winter",
                       });
                     }}
-                    className="text-xs text-[#C4953B] font-bold border-b border-[#C4953B]/50 pb-0.5 hover:text-[#1A153A]"
+                    className="text-xs text-champagne-gold font-bold border-b border-champagne-gold/50 pb-0.5 hover:text-navy"
                   >
                     Submit Another Inquiry
                   </button>

@@ -94,7 +94,7 @@ export default function TicketDetailPage({ params }: { params: Promise<{ id: str
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#2D2154]">Ticket not found</h2>
+        <h2 className="text-lg font-semibold text-navy">Ticket not found</h2>
         <p className="text-sm text-gray-500 mt-1 mb-6">This ticket may have been removed.</p>
         <Button onClick={() => router.push("/student/tickets")} variant="outline" className="gap-2">
           <ArrowLeft className="size-4" />
@@ -110,7 +110,7 @@ export default function TicketDetailPage({ params }: { params: Promise<{ id: str
       <button
         type="button"
         onClick={() => router.push("/student/tickets")}
-        className="flex items-center gap-1.5 text-sm text-[#4B2D8E] hover:text-[#2D2154] font-medium"
+        className="flex items-center gap-1.5 text-sm text-royal-blue hover:text-navy font-medium"
       >
         <ArrowLeft className="size-4" />
         Back to Tickets
@@ -182,7 +182,7 @@ export default function TicketDetailPage({ params }: { params: Promise<{ id: str
                         <div
                           className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                             isMyMessage
-                              ? "bg-[#4B2D8E] text-white rounded-br-md"
+                              ? "bg-royal-blue text-white rounded-br-md"
                               : "bg-gray-100 text-gray-800 rounded-bl-md"
                           }`}
                         >

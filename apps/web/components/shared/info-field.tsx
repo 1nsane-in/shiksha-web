@@ -9,8 +9,8 @@ interface InfoFieldProps {
 export function InfoField({ label, value, className }: InfoFieldProps) {
   return (
     <div className={cn(className)}>
-      <p className="text-[#6B6B6B]">{label}</p>
-      <p className="font-medium text-[#2D2154]">{value}</p>
+      <p className="text-slate-500">{label}</p>
+      <p className="font-medium text-navy">{value}</p>
     </div>
   );
 }

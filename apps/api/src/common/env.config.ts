@@ -7,6 +7,10 @@ export const env = {
   get isProd() {
     return !this.isDev;
   },
+  // ponytail: explicit opt-in only; raw bodies contain passwords/OTPs even in dev
+  get logBodiesRaw() {
+    return this.isDev && process.env.LOG_BODIES_RAW === 'true';
+  },
   get dbUrlMasked() {
     return process.env.DATABASE_URL?.replace(/\/\/.*@/, '//***:***@');
   },

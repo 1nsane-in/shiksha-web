@@ -9,7 +9,9 @@ export const metadata: Metadata = {
 };
 
 import { Header } from "@/components/landing/home/Header";
+import { TopBar } from "@/components/landing/home/TopBar";
 import { HeroCarousel } from "@/components/landing/home/HeroCarousel";
+import { CountrySection } from "@/components/landing/home/CountrySection";
 import { TrustBar } from "@/components/landing/home/TrustBar";
 import { ProblemSection } from "@/components/landing/home/ProblemSection";
 import { SolutionSection } from "@/components/landing/home/SolutionSection";
@@ -56,13 +58,10 @@ export default async function Home() {
 
   return (
     <>
-      {/* Full-screen hero with overlaid header */}
-      <div className="relative">
-        <div className="absolute top-0 left-0 right-0 z-20">
-          <Header />
-        </div>
-        <HeroCarousel />
-      </div>
+      <TopBar />
+      <Header />
+      <HeroCarousel />
+      <CountrySection />
       {/* Rest of the page */}
       <main className="mx-auto">
         <UniversityCards />

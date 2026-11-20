@@ -168,7 +168,7 @@ export function EligibilityCalculator() {
               className="text-lg font-bold mb-6 flex items-center gap-2"
               style={{ color: brand.ink }}
             >
-              <TrendingUp className="size-5 text-[#C4953B]" />
+              <TrendingUp className="size-5 text-champagne-gold" />
               Calculator Parameters
             </h3>
 
@@ -239,7 +239,7 @@ export function EligibilityCalculator() {
                   max="720"
                   value={neetScore}
                   onChange={(e) => setNeetScore(e.target.value)}
-                  className="w-full mt-3 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#C4953B]"
+                  className="w-full mt-3 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-champagne-gold"
                 />
               </div>
 
@@ -250,7 +250,7 @@ export function EligibilityCalculator() {
                   style={{ color: brand.inkMuted }}
                 >
                   <span>Max Budget / Year</span>
-                  <span className="font-bold text-[#C4953B]" style={{ color: brand.gold }}>
+                  <span className="font-bold text-champagne-gold" style={{ color: brand.gold }}>
                     ${budget.toLocaleString()}
                   </span>
                 </label>
@@ -261,7 +261,7 @@ export function EligibilityCalculator() {
                   step="100"
                   value={budget}
                   onChange={(e) => setBudget(parseInt(e.target.value))}
-                  className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#C4953B]"
+                  className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-champagne-gold"
                 />
                 <div className="flex justify-between text-[11px] text-slate-400 mt-1">
                   <span>$2,500</span>
@@ -497,13 +497,13 @@ export function EligibilityCalculator() {
                             <div className="flex sm:flex-col items-end shrink-0 gap-3 sm:gap-1.5 justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-dashed">
                               <div className="text-right">
                                 <span className="text-[10px] font-semibold text-slate-400 block leading-none">Annual Fee</span>
-                                <span className="text-base font-extrabold text-[#C4953B]" style={{ color: brand.gold }}>
+                                <span className="text-base font-extrabold text-champagne-gold" style={{ color: brand.gold }}>
                                   ${uni.feePerYear.toLocaleString()}
                                 </span>
                               </div>
                               <button
                                 onClick={() => router.push("/student/university/" + uni.slug + "?apply=true")}
-                                className="inline-flex items-center justify-center gap-1 text-[11px] font-bold py-1.5 px-3 rounded-lg bg-[#1A153A] text-white hover:bg-opacity-90 transition-all duration-200 active:scale-[0.97]"
+                                className="inline-flex items-center justify-center gap-1 text-[11px] font-bold py-1.5 px-3 rounded-lg bg-navy text-white hover:bg-opacity-90 transition-all duration-200 active:scale-[0.97]"
                                 style={{ background: brand.ink }}
                               >
                                 Apply Now
@@ -527,7 +527,7 @@ export function EligibilityCalculator() {
                   >
                     <div className="max-w-md text-center sm:text-left">
                       <h5 className="text-sm font-bold flex items-center justify-center sm:justify-start gap-1.5" style={{ color: brand.ink }}>
-                        <GraduationCap className="size-4 text-[#C4953B]" />
+                        <GraduationCap className="size-4 text-champagne-gold" />
                         Want a Professional Free Consultation?
                       </h5>
                       <p className="text-xs text-slate-400 mt-1">

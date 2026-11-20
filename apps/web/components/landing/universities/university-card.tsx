@@ -73,7 +73,7 @@ export function UniversityCard({
           <div className="flex min-w-0 flex-1 flex-col p-5 justify-between">
             <div className="space-y-3">
               <div className="min-w-0">
-                <h3 className="text-base font-bold text-[#1A153A] leading-snug truncate">
+                <h3 className="text-base font-bold text-navy leading-snug truncate">
                   {university.name}
                 </h3>
                 {university.shortName && (
@@ -132,7 +132,7 @@ export function UniversityCard({
               </button>
               <button
                 onClick={() => onViewDetails(university.slug)}
-                className="flex-1 py-2 px-3 text-center text-xs font-bold text-[#1A153A] border rounded-lg transition-all duration-150 bg-transparent border-slate-200 hover:border-[#1A153A]"
+                className="flex-1 py-2 px-3 text-center text-xs font-bold text-navy border rounded-lg transition-all duration-150 bg-transparent border-slate-200 hover:border-navy"
               >
                 View details
               </button>

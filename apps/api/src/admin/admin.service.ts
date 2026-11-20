@@ -7,6 +7,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
+import { PASSWORD_SALT_ROUNDS } from '../common/constants';
 import {
   AdminCreateAdminDto,
   UpdateAdminDto,
@@ -122,7 +123,7 @@ export class AdminService {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(dto.password, 8);
+    const hashedPassword = await bcrypt.hash(dto.password, PASSWORD_SALT_ROUNDS);
 
     // Create admin user
     const admin = await this.prisma.user.create({
@@ -255,7 +256,7 @@ export class AdminService {
     }
 
     // Hash new password
-    const hashedPassword = await bcrypt.hash(dto.newPassword, 8);
+    const hashedPassword = await bcrypt.hash(dto.newPassword, PASSWORD_SALT_ROUNDS);
 
     await this.prisma.user.update({
       where: { id },
@@ -272,7 +273,7 @@ export class AdminService {
     await this.findOne(id);
 
     // Hash new password
-    const hashedPassword = await bcrypt.hash(dto.newPassword, 8);
+    const hashedPassword = await bcrypt.hash(dto.newPassword, PASSWORD_SALT_ROUNDS);
 
     await this.prisma.user.update({
       where: { id },

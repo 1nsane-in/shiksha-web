@@ -35,18 +35,21 @@ model User {
 }
 
 model UserSession {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   userId     String
-  tokenHash  String   @unique
+  tokenHash  String    @unique
+  familyId   String?
+  revokedAt  DateTime?
   deviceInfo String?
   ipAddress  String?
   userAgent  String?
   expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
+  @@index([familyId])
 }
 
 model DeviceToken {

@@ -163,7 +163,7 @@ export default function InviteRegisterPage() {
         <div className="flex flex-col p-6 md:p-10">
           <div className="flex flex-1 items-center justify-center">
             <div className="flex flex-col items-center gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-[#4B2D8E]" />
+              <Loader2 className="h-8 w-8 animate-spin text-royal-blue" />
               <p className="text-sm text-gray-500">Validating invite link…</p>
             </div>
           </div>
@@ -195,7 +195,7 @@ export default function InviteRegisterPage() {
               </p>
               <Link
                 href="/register"
-                className="inline-flex items-center justify-center rounded-lg bg-[#4B2D8E] px-4 py-2 text-sm font-medium text-white hover:bg-[#3D2370] transition-colors"
+                className="inline-flex items-center justify-center rounded-lg bg-royal-blue px-4 py-2 text-sm font-medium text-white hover:bg-navy transition-colors"
               >
                 Create an account
               </Link>
@@ -226,7 +226,7 @@ export default function InviteRegisterPage() {
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${
                         step === s
-                          ? "bg-[#4B2D8E] text-white"
+                          ? "bg-royal-blue text-white"
                           : s === "register" && step !== "register"
                             ? "bg-green-500 text-white"
                             : s === "email-otp" && step === "phone-otp"
@@ -272,7 +272,7 @@ export default function InviteRegisterPage() {
                 <p className="text-sm text-gray-500">
                   Welcome to Shiksha Study. Redirecting to your dashboard…
                 </p>
-                <Loader2 className="mx-auto h-5 w-5 animate-spin text-[#4B2D8E]" />
+                <Loader2 className="mx-auto h-5 w-5 animate-spin text-royal-blue" />
               </div>
             )}
 
@@ -309,7 +309,7 @@ export default function InviteRegisterPage() {
                       id="relation"
                       value={relation}
                       onChange={(e) => setRelation(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-[#4B2D8E] focus:outline-none focus:ring-2 focus:ring-[#4B2D8E]/20"
+                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-royal-blue focus:outline-none focus:ring-2 focus:ring-royal-blue/20"
                     >
                       <option value="">Select relation</option>
                       <option value="FATHER">Father</option>
@@ -360,7 +360,7 @@ export default function InviteRegisterPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9c9fa5] hover:text-[#626260] transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                         tabIndex={-1}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -382,7 +382,7 @@ export default function InviteRegisterPage() {
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9c9fa5] hover:text-[#626260] transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                         tabIndex={-1}
                       >
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -427,7 +427,7 @@ export default function InviteRegisterPage() {
               >
                 <FieldGroup>
                   <div className="flex flex-col items-center gap-1 text-center mb-2">
-                    <Mail className="h-8 w-8 text-[#4B2D8E]" />
+                    <Mail className="h-8 w-8 text-royal-blue" />
                     <h1 className="text-2xl font-bold">Verify your email</h1>
                     <p className="text-sm text-balance text-muted-foreground">
                       We sent a code to <strong>{invite?.email}</strong>
@@ -489,7 +489,7 @@ export default function InviteRegisterPage() {
               >
                 <FieldGroup>
                   <div className="flex flex-col items-center gap-1 text-center mb-2">
-                    <Phone className="h-8 w-8 text-[#4B2D8E]" />
+                    <Phone className="h-8 w-8 text-royal-blue" />
                     <h1 className="text-2xl font-bold">Verify your phone</h1>
                     <p className="text-sm text-balance text-muted-foreground">
                       We sent a code to <strong>{phone}</strong>

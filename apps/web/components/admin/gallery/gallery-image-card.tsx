@@ -14,7 +14,7 @@ export function GalleryImageCard({ image, onDelete, disabled }: Props) {
   const isVideo = image.type === "VIDEO";
 
   return (
-    <div className="group relative aspect-video overflow-hidden rounded-lg border border-[#ECEAE6] bg-gray-900 transition-shadow hover:shadow-md">
+    <div className="group relative aspect-video overflow-hidden rounded-lg border border-slate-200 bg-gray-900 transition-shadow hover:shadow-md">
       {isVideo ? (
         <video
           src={image.url}

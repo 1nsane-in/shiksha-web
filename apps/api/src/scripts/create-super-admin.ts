@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
 import * as path from 'path';
+import { PASSWORD_SALT_ROUNDS } from '../common/constants';
 
 config({ path: path.resolve(__dirname, '../../.env') });
 
@@ -13,7 +14,7 @@ async function main() {
     const email = 'admin@shiksha.com';
     const password = 'Admin@123456';
     const name = 'Super Admin';
-    const hash = bcrypt.hashSync(password, 8);
+    const hash = bcrypt.hashSync(password, PASSWORD_SALT_ROUNDS);
 
     const existing = await pool.query('SELECT id FROM "User" WHERE email = $1', [email]);
     if (existing.rows.length > 0) {

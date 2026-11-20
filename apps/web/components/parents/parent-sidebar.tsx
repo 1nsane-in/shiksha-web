@@ -58,14 +58,14 @@ export function ParentSidebar() {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-56 shrink-0 flex-col border-r border-[#ECEAE6] bg-[#FAFAF8] transition-transform duration-200 md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-56 shrink-0 flex-col border-r border-slate-200 bg-white transition-transform duration-200 md:static md:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Logo */}
-        <div className="flex h-14 items-center gap-2.5 border-b border-[#ECEAE6] px-4">
+        <div className="flex h-14 items-center gap-2.5 border-b border-slate-200 px-4">
           <Image src="/img/logo.png" alt="" width={24} height={24} className="h-6 w-auto" />
-          <span className="ml-auto rounded-full bg-[#F0FDF4] px-1.5 py-0.5 text-[10px] font-medium text-[#166534]">
+          <span className="ml-auto rounded-full bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-800">
             Parent
           </span>
         </div>
@@ -84,12 +84,12 @@ export function ParentSidebar() {
                     onClick={close}
                     className={`group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
                       active
-                        ? "bg-[#166534] text-white"
-                        : "text-[#4B5563] hover:bg-[#F0FDF4] hover:text-[#166534]"
+                        ? "bg-green-800 text-white"
+                        : "text-gray-600 hover:bg-green-50 hover:text-green-800"
                     }`}
                   >
                     <Icon
-                      className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-[#9CA3AF] group-hover:text-[#166534]"}`}
+                      className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-slate-400 group-hover:text-green-800"}`}
                     />
                     <span className="truncate">{label}</span>
                     {active && (
@@ -103,23 +103,23 @@ export function ParentSidebar() {
         </nav>
 
         {/* User */}
-        <div className="border-t border-[#ECEAE6] p-3">
+        <div className="border-t border-slate-200 p-3">
           <div className="flex items-center gap-2.5 rounded-lg px-2 py-2">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F0FDF4] text-xs font-semibold text-[#166534]">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-50 text-xs font-semibold text-green-800">
               {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-medium text-[#111]">
+              <p className="truncate text-xs font-medium text-navy">
                 {user?.name || "Parent"}
               </p>
-              <p className="truncate text-[10px] text-[#9CA3AF]">
+              <p className="truncate text-[10px] text-slate-400">
                 {user?.email}
               </p>
             </div>
             <button
               onClick={handleLogout}
               disabled={logoutMutation.isPending}
-              className="rounded-md p-1 text-[#9CA3AF] transition-colors hover:bg-[#F0FDF4] hover:text-[#166534] disabled:opacity-50"
+              className="rounded-md p-1 text-slate-400 transition-colors hover:bg-green-50 hover:text-green-800 disabled:opacity-50"
               title="Sign out"
             >
               <LogOut className="h-3.5 w-3.5" />

@@ -23,7 +23,7 @@ export default function RootLayout({
         <Providers>
           <AuthProvider>
             <TooltipProvider>
-              <div className="bg-[#FAF9F6]">{children}</div>
+              <div className="bg-background">{children}</div>
             </TooltipProvider>
             <Toaster position="top-right" richColors />
           </AuthProvider>

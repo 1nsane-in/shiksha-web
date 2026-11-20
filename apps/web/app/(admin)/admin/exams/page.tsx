@@ -81,15 +81,15 @@ export default function AdminExamsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-medium text-[#111111] tracking-tight">
+            <h1 className="text-2xl font-medium text-navy tracking-tight">
               Online Exams
             </h1>
-            <p className="text-sm text-[#626260] mt-1">
+            <p className="text-sm text-slate-600 mt-1">
               Create and manage entrance exams for university admissions
             </p>
           </div>
           <Link href="/admin/exams/create">
-            <Button className="bg-[#111111] hover:bg-[#313130] text-white">
+            <Button className="bg-navy hover:bg-slate-800 text-white">
               <Plus className="h-4 w-4 mr-2" />
               Create Online Exam
             </Button>
@@ -100,22 +100,22 @@ export default function AdminExamsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9c9fa5]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               placeholder="Search exams by name or university..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-[#d3cec6] bg-white focus:border-[#111111] focus:ring-[#111111]"
+              className="pl-10 border-border bg-white focus:border-navy focus:ring-navy"
             />
           </div>
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-[#626260]" />
+            <Filter className="h-4 w-4 text-slate-600" />
             <select
               value={statusFilter}
               onChange={(e) =>
                 setStatusFilter(e.target.value as ExamStatus | "ALL")
               }
-              className="h-10 rounded-md border border-[#d3cec6] bg-white px-3 text-sm focus:border-[#111111] focus:ring-[#111111]"
+              className="h-10 rounded-md border border-border bg-white px-3 text-sm focus:border-navy focus:ring-navy"
             >
               <option value="ALL">All Status</option>
               <option value={ExamStatus.DRAFT}>Draft</option>
@@ -134,40 +134,40 @@ export default function AdminExamsPage() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="bg-white rounded-xl border border-[#d3cec6] p-6 animate-pulse"
+                className="bg-white rounded-xl border border-border p-6 animate-pulse"
               >
-                <div className="h-6 bg-[#ebe7e1] rounded w-1/3 mb-4" />
-                <div className="h-4 bg-[#ebe7e1] rounded w-1/2" />
+                <div className="h-6 bg-slate-200 rounded w-1/3 mb-4" />
+                <div className="h-4 bg-slate-200 rounded w-1/2" />
               </div>
             ))}
           </div>
         ) : error ? (
-          <div className="bg-white rounded-xl border border-[#d3cec6] p-12 text-center">
-            <p className="text-[#626260]">Failed to load exams</p>
+          <div className="bg-white rounded-xl border border-border p-12 text-center">
+            <p className="text-slate-600">Failed to load exams</p>
             <Button
               variant="outline"
-              className="mt-4 border-[#d3cec6]"
+              className="mt-4 border-border"
               onClick={() => window.location.reload()}
             >
               Retry
             </Button>
           </div>
         ) : filteredExams.length === 0 ? (
-          <div className="bg-white rounded-xl border border-[#d3cec6] p-12 text-center">
-            <div className="w-16 h-16 bg-[#f5f1ec] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Calendar className="h-8 w-8 text-[#9c9fa5]" />
+          <div className="bg-white rounded-xl border border-border p-12 text-center">
+            <div className="w-16 h-16 bg-ice-grey rounded-full flex items-center justify-center mx-auto mb-4">
+              <Calendar className="h-8 w-8 text-slate-400" />
             </div>
-            <h3 className="text-lg font-medium text-[#111111] mb-2">
+            <h3 className="text-lg font-medium text-navy mb-2">
               {searchQuery ? "No exams found" : "No exams created yet"}
             </h3>
-            <p className="text-sm text-[#626260] mb-6 max-w-md mx-auto">
+            <p className="text-sm text-slate-600 mb-6 max-w-md mx-auto">
               {searchQuery
                 ? "Try adjusting your search or filters"
                 : "Create your first online exam to get started with entrance examinations"}
             </p>
             {!searchQuery && (
               <Link href="/admin/exams/create">
-                <Button className="bg-[#111111] hover:bg-[#313130] text-white">
+                <Button className="bg-navy hover:bg-slate-800 text-white">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Online Exam
                 </Button>
@@ -183,13 +183,13 @@ export default function AdminExamsPage() {
               return (
                 <div
                   key={exam.id}
-                  className="bg-white rounded-xl border border-[#d3cec6] p-6 hover:border-[#111111] transition-colors cursor-pointer"
+                  className="bg-white rounded-xl border border-border p-6 hover:border-navy transition-colors cursor-pointer"
                   onClick={() => router.push(`/admin/exams/${exam.id}`)}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-medium text-[#111111] truncate">
+                        <h3 className="text-lg font-medium text-navy truncate">
                           {exam.name}
                         </h3>
                         <Badge
@@ -201,7 +201,7 @@ export default function AdminExamsPage() {
                         </Badge>
                       </div>
 
-                      <div className="flex items-center gap-4 text-sm text-[#626260] mb-3">
+                      <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
                         <span className="flex items-center gap-1">
                           <Building2 className="h-4 w-4" />
                           {exam.university?.name || "Unknown University"}
@@ -232,21 +232,21 @@ export default function AdminExamsPage() {
                       </div>
 
                       <div className="flex items-center gap-6 text-sm">
-                        <span className="text-[#626260]">
-                          <span className="font-medium text-[#111111]">
+                        <span className="text-slate-600">
+                          <span className="font-medium text-navy">
                             {exam._count?.questions || 0}
                           </span>{" "}
                           questions
                         </span>
-                        <span className="text-[#626260]">
-                          <span className="font-medium text-[#111111]">
+                        <span className="text-slate-600">
+                          <span className="font-medium text-navy">
                             {exam._count?.registrations || 0}
                           </span>{" "}
                           registrations
                         </span>
-                        <span className="text-[#626260]">
+                        <span className="text-slate-600">
                           Pass:{" "}
-                          <span className="font-medium text-[#111111]">
+                          <span className="font-medium text-navy">
                             {exam.passingPercentage}%
                           </span>
                         </span>
@@ -256,7 +256,7 @@ export default function AdminExamsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="shrink-0 text-[#626260]"
+                      className="shrink-0 text-slate-600"
                       onClick={(e) => {
                         e.stopPropagation();
                         // TODO: Open actions menu

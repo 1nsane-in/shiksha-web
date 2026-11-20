@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
   // Required for the standalone Docker build (copies .next/standalone).
   output: 'standalone',
   turbopack: {
-    root: '.',
+    // Must be an absolute path; process.cwd() is the app root (apps/web).
+    root: process.cwd(),
   },
   async redirects() {
     return [

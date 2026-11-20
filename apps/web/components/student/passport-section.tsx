@@ -38,7 +38,7 @@ export function PassportSection() {
   return (
     <Card size="xl">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2 text-[#2D2154]">
+        <CardTitle className="flex items-center gap-2 text-navy">
           <Plane className="size-4" /> Passport & Travel
         </CardTitle>
         {!editing && (
@@ -90,7 +90,7 @@ function Field({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="rounded-lg border p-3">
       <p className="text-xs text-gray-500">{label}</p>
-      <p className="text-sm font-medium text-[#2D2154]">{value || "—"}</p>
+      <p className="text-sm font-medium text-navy">{value || "—"}</p>
     </div>
   );
 }

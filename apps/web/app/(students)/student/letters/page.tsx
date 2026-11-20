@@ -51,7 +51,7 @@ function LetterCard({
               <Lock className="size-6 text-amber-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm text-[#2D2154]">{label}</h3>
+              <h3 className="font-semibold text-sm text-navy">{label}</h3>
               <Badge className="mt-1 text-xs bg-amber-100 text-amber-700 hover:bg-amber-100 gap-1 border-0">
                 <Lock className="size-3" />
                 Locked
@@ -61,7 +61,7 @@ function LetterCard({
               </p>
               <Button
                 size="sm"
-                className="mt-3 gap-1.5 text-xs h-8 bg-[#4B2D8E] hover:bg-[#3D2475]"
+                className="mt-3 gap-1.5 text-xs h-8 bg-royal-blue hover:bg-navy-light"
                 onClick={() => router.push("/student/payments")}
               >
                 <IndianRupee className="size-3.5" />
@@ -99,7 +99,7 @@ function LetterCard({
               )}
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-[#2D2154]">{label}</h3>
+              <h3 className="font-semibold text-sm text-navy">{label}</h3>
               <Badge variant="outline" className="mt-1 text-xs">
                 {isInvitation ? "Locked" : "Not yet available"}
               </Badge>
@@ -120,11 +120,11 @@ function LetterCard({
     <Card size="sm">
       <CardContent className="py-6">
         <div className="flex items-start gap-4">
-          <div className="size-12 rounded-lg bg-[#4B2D8E]/10 flex items-center justify-center shrink-0">
-            <FileText className="size-6 text-[#4B2D8E]" />
+          <div className="size-12 rounded-lg bg-royal-blue/10 flex items-center justify-center shrink-0">
+            <FileText className="size-6 text-royal-blue" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm text-[#2D2154]">{label}</h3>
+            <h3 className="font-semibold text-sm text-navy">{label}</h3>
             <p className="text-xs text-gray-500 truncate mt-0.5">
               {letter.fileName ?? "Document"}
             </p>
@@ -190,7 +190,7 @@ export default function LettersPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#2D2154]">Failed to load letters</h2>
+        <h2 className="text-lg font-semibold text-navy">Failed to load letters</h2>
         <p className="text-sm text-gray-500 mt-1 mb-6">Something went wrong. Please try again.</p>
         <Button onClick={() => { refetchAdmission(); refetchInvitation(); }} variant="outline" className="gap-2">
           <RefreshCw className="size-4" />
@@ -203,8 +203,8 @@ export default function LettersPage() {
   if (!isLoading && !admissionLetter && !invitationLetter) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <Inbox className="size-16 text-[#4B2D8E]/30 mb-4" />
-        <h2 className="text-xl font-bold text-[#2D2154]">No letters yet</h2>
+        <Inbox className="size-16 text-royal-blue/30 mb-4" />
+        <h2 className="text-xl font-bold text-navy">No letters yet</h2>
         <p className="text-sm text-gray-500 mt-2 max-w-sm">
           Your admission and invitation letters will appear here once available.
         </p>
@@ -215,7 +215,7 @@ export default function LettersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#2D2154]">My Letters</h1>
+        <h1 className="text-2xl font-bold text-navy">My Letters</h1>
         <p className="text-sm text-gray-500 mt-1">Access your admission and invitation documents</p>
       </div>
 

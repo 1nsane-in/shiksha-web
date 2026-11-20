@@ -27,9 +27,9 @@ export function PageHeader({ title, subtitle, backHref }: PageHeaderProps) {
         <ArrowLeft className="size-4" />
       </Button>
       <div className="flex-1">
-        <h1 className="text-xl font-bold text-[#2D2154]">{title}</h1>
+        <h1 className="text-xl font-bold text-navy">{title}</h1>
         {subtitle && (
-          <p className="text-sm text-[#6B6B6B]">{subtitle}</p>
+          <p className="text-sm text-slate-500">{subtitle}</p>
         )}
       </div>
     </div>

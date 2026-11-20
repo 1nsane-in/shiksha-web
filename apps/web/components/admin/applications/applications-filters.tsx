@@ -11,7 +11,7 @@ interface Props {
 
 export function ApplicationsFilters({ search, onSearchChange, onStatusChange }: Props) {
   return (
-    <Card className="p-4 bg-white border border-[#ECEAE6]">
+    <Card className="p-4 bg-white border border-slate-200">
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />

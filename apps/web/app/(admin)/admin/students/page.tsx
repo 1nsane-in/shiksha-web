@@ -46,8 +46,8 @@ export default function AdminStudentsPage() {
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 max-w-7xl mx-auto">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-[#111]">Student Management</h1>
-        <p className="text-sm text-[#666]">Track, manage, and progress prospective students through key admission milestones.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-navy">Student Management</h1>
+        <p className="text-sm text-slate-500">Track, manage, and progress prospective students through key admission milestones.</p>
       </div>
 
       <StudentStatsCards stats={stats} />

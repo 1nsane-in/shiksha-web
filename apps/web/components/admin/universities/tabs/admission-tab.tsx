@@ -19,7 +19,7 @@ export function AdmissionTab({
       {adm ? (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {/* Requirements */}
-          <Card size="sm" className="border-[#ECEAE6]">
+          <Card size="sm" className="border-slate-200">
             <CardContent className="space-y-3 p-4 sm:p-5">
               <SectionHeading icon={ClipboardList} title="Requirements" />
               <InfoRow
@@ -54,7 +54,7 @@ export function AdmissionTab({
                       ).map((pe: any, i: number) => (
                         <span
                           key={i}
-                          className="inline-flex items-center rounded-md border border-[#ECEAE6] bg-white px-2 py-0.5 text-xs text-[#6B6B6B]"
+                          className="inline-flex items-center rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-500"
                         >
                           {pe.program || pe.name}:{" "}
                           {pe.eligibility || pe.minimumMarks}
@@ -68,7 +68,7 @@ export function AdmissionTab({
           </Card>
 
           {/* Deadline & Fees */}
-          <Card className="border-[#ECEAE6] bg-white rounded-xl shadow-sm">
+          <Card className="border-slate-200 bg-white rounded-xl shadow-sm">
             <CardContent className="space-y-4 p-5">
               <SectionHeading
                 icon={ScrollText}
@@ -113,7 +113,7 @@ export function AdmissionTab({
 
           {adm.requiredDocuments?.length > 0 && (
             <DataCard className="md:col-span-2">
-              <div className="border-b border-[#ECEAE6] px-5 py-3.5">
+              <div className="border-b border-slate-200 px-5 py-3.5">
                 <SectionHeading
                   icon={FileText}
                   title="Required Documents"
@@ -124,10 +124,10 @@ export function AdmissionTab({
                   {adm.requiredDocuments.map((doc: string) => (
                     <div
                       key={doc}
-                      className="flex items-center gap-2 rounded-lg border border-[#ECEAE6] bg-[#FAF9F6] px-3 py-2.5"
+                      className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5"
                     >
                       <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
-                      <span className="text-sm text-[#111]">{doc}</span>
+                      <span className="text-sm text-navy">{doc}</span>
                     </div>
                   ))}
                 </div>

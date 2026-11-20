@@ -12,19 +12,19 @@ export function UniversityInfoCard({ university }: UniversityInfoCardProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Building2 className="size-4 text-[#F0A030]" />
+          <Building2 className="size-4 text-royal-blue" />
           University
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
         <div>
-          <p className="text-[#6B6B6B]">Name</p>
-          <p className="font-medium text-[#2D2154]">{university?.name}</p>
+          <p className="text-slate-500">Name</p>
+          <p className="font-medium text-navy">{university?.name}</p>
         </div>
         {university?.location && (
           <div className="flex items-start gap-2">
-            <MapPin className="size-3.5 text-[#6B6B6B] mt-0.5" />
-            <p className="font-medium text-[#2D2154]">
+            <MapPin className="size-3.5 text-slate-500 mt-0.5" />
+            <p className="font-medium text-navy">
               {[university.location.city, university.location.country]
                 .filter(Boolean)
                 .join(", ")}
@@ -33,20 +33,20 @@ export function UniversityInfoCard({ university }: UniversityInfoCardProps) {
         )}
         {university?.contact?.email && (
           <div className="flex items-start gap-2">
-            <Mail className="size-3.5 text-[#6B6B6B] mt-0.5" />
-            <p className="text-[#2D2154]">{university.contact.email}</p>
+            <Mail className="size-3.5 text-slate-500 mt-0.5" />
+            <p className="text-navy">{university.contact.email}</p>
           </div>
         )}
         {university?.contact?.phone && (
           <div className="flex items-start gap-2">
-            <Phone className="size-3.5 text-[#6B6B6B] mt-0.5" />
-            <p className="text-[#2D2154]">{university.contact.phone}</p>
+            <Phone className="size-3.5 text-slate-500 mt-0.5" />
+            <p className="text-navy">{university.contact.phone}</p>
           </div>
         )}
         {university?.slug && (
           <Link
             href={`/student/university/${university.slug}`}
-            className="inline-flex items-center gap-1 text-[#4B2D8E] hover:underline text-sm mt-2"
+            className="inline-flex items-center gap-1 text-royal-blue hover:underline text-sm mt-2"
           >
             <Globe className="size-3.5" />
             View University Page

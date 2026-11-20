@@ -86,7 +86,7 @@ function ProgressRing({ approved, total }: { approved: number; total: number }) 
         <circle cx="40" cy="40" r={radius} fill="none" stroke="currentColor" strokeWidth="5" className="text-stone-100" />
         <circle cx="40" cy="40" r={radius} fill="none" stroke="currentColor" strokeWidth="5"
           strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round"
-          className={`transition-[stroke-dashoffset] duration-1000 ease-out ${done ? "text-emerald-400" : "text-[#4B2D8E]"}`}
+          className={`transition-[stroke-dashoffset] duration-1000 ease-out ${done ? "text-emerald-400" : "text-royal-blue"}`}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -224,11 +224,11 @@ function SideDropzone({
           onDragLeave={(e) => { e.preventDefault(); setDragActive(false); }}
           onClick={() => inputRef.current?.click()}
           className={`flex flex-col items-center justify-center gap-1.5 px-4 py-4 rounded-lg border-2 border-dashed cursor-pointer transition-all duration-200 ${
-            dragActive ? "border-[#4B2D8E] bg-[#4B2D8E]/5" : "border-stone-200 hover:border-stone-300 hover:bg-stone-50/60"
+            dragActive ? "border-royal-blue bg-royal-blue/5" : "border-stone-200 hover:border-stone-300 hover:bg-stone-50/60"
           }`}
         >
-          <div className={`size-9 rounded-lg flex items-center justify-center transition-colors ${dragActive ? "bg-[#4B2D8E]/10" : "bg-stone-100"}`}>
-            <FileUp className={`size-4.5 transition-colors ${dragActive ? "text-[#4B2D8E]" : "text-stone-400"}`} />
+          <div className={`size-9 rounded-lg flex items-center justify-center transition-colors ${dragActive ? "bg-royal-blue/10" : "bg-stone-100"}`}>
+            <FileUp className={`size-4.5 transition-colors ${dragActive ? "text-royal-blue" : "text-stone-400"}`} />
           </div>
           <p className="text-sm text-stone-500">{dragActive ? "Drop file" : "Choose file or drag here"}</p>
           <p className="text-xs text-stone-400">PDF, JPG, PNG, DOC, DOCX &middot; up to 10 MB</p>
@@ -251,14 +251,14 @@ function SideDropzone({
                 {previewUrl ? (
                   <img src={previewUrl} alt="" className="size-10 object-cover" />
                 ) : (
-                  <File className="size-5 text-[#4B2D8E]" />
+                  <File className="size-5 text-royal-blue" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-stone-800 truncate">{selectedFile.name}</p>
                 <p className="text-xs text-stone-400 mt-px">{formatFileSize(selectedFile.size)}</p>
               </div>
-              <button type="button" onClick={handleChangeFile} className="text-xs text-[#4B2D8E] hover:underline shrink-0">Change</button>
+              <button type="button" onClick={handleChangeFile} className="text-xs text-royal-blue hover:underline shrink-0">Change</button>
             </div>
             {error && <div className="flex items-center gap-1 text-xs text-red-500 mt-2 pt-2 border-t border-stone-100"><AlertCircle className="size-3.5" /><span>{error}</span></div>}
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-stone-100">
@@ -281,9 +281,9 @@ function SideDropzone({
 function EmptyDocumentsState() {
   return (
     <div className="flex flex-col items-center justify-center py-28 text-center">
-      <div className="mb-6 size-24 rounded-2xl bg-[#4B2D8E]/5 flex items-center justify-center ring-1 ring-[#4B2D8E]/10">
-        <div className="size-12 rounded-xl bg-[#4B2D8E]/10 flex items-center justify-center">
-          <FileText className="size-6 text-[#4B2D8E]/50" />
+      <div className="mb-6 size-24 rounded-2xl bg-royal-blue/5 flex items-center justify-center ring-1 ring-royal-blue/10">
+        <div className="size-12 rounded-xl bg-royal-blue/10 flex items-center justify-center">
+          <FileText className="size-6 text-royal-blue/50" />
         </div>
       </div>
       <h2 className="text-xl font-semibold text-stone-800 tracking-tight">No documents required</h2>
@@ -325,7 +325,7 @@ function DocumentGroup({
 
   const iconBg = allApproved ? "bg-emerald-100 text-emerald-600" :
     anyRejected ? "bg-red-100 text-red-500" :
-    anyUploaded ? "bg-[#4B2D8E]/10 text-[#4B2D8E]" :
+    anyUploaded ? "bg-royal-blue/10 text-royal-blue" :
     "bg-stone-100 text-stone-400";
 
   const statusLabel = allApproved ? "Complete" :

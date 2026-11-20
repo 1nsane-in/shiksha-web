@@ -36,7 +36,7 @@ export function FormTabs({
             onClick={() => onTabChange(tab.id)}
             className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
               isActive
-                ? "bg-white text-[#1A153A] shadow-sm"
+                ? "bg-white text-navy shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >

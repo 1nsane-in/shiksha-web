@@ -77,7 +77,7 @@ export function InfrastructureTab({
       </div>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        <Card size="sm" className="border-[#ECEAE6]">
+        <Card size="sm" className="border-slate-200">
           <CardContent className="space-y-3 p-4 sm:p-5">
             <SectionHeading
               icon={Library}
@@ -93,7 +93,7 @@ export function InfrastructureTab({
             />
           </CardContent>
         </Card>
-        <Card size="sm" className="border-[#ECEAE6]">
+        <Card size="sm" className="border-slate-200">
           <CardContent className="space-y-3 p-4 sm:p-5">
             <SectionHeading
               icon={School}
@@ -109,7 +109,7 @@ export function InfrastructureTab({
             />
           </CardContent>
         </Card>
-        <Card size="sm" className="border-[#ECEAE6]">
+        <Card size="sm" className="border-slate-200">
           <CardContent className="space-y-3 p-4 sm:p-5">
             <SectionHeading
               icon={FlaskConical}
@@ -127,7 +127,7 @@ export function InfrastructureTab({
         </Card>
       </div>
 
-      <Card className="border-[#ECEAE6] bg-white rounded-xl shadow-sm">
+      <Card className="border-slate-200 bg-white rounded-xl shadow-sm">
         <CardContent className="p-5">
           <SectionHeading
             icon={Building2}

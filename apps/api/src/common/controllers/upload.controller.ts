@@ -13,6 +13,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { StorageService } from '../services/storage.service';
+import { SAFE_UPLOAD_MIMES } from '../helpers/file-type';
 
 @Controller('upload')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -23,31 +24,15 @@ export class UploadController {
   @Roles('STUDENT', 'ADMIN', 'SUPER_ADMIN')
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 200 * 1024 * 1024 },
+      limits: { fileSize: 55 * 1024 * 1024 },
       fileFilter: (_req, file, callback) => {
-        const allowedMimes = [
-          'image/jpeg',
-          'image/png',
-          'image/jpg',
-          'image/svg+xml',
-          'image/webp',
-          'video/mp4',
-          'video/webm',
-          'video/quicktime',
-          'video/x-msvideo',
-          'video/x-matroska',
-          'application/pdf',
-          'application/msword',
-          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        ];
+        const allowedMimes: readonly string[] = SAFE_UPLOAD_MIMES;
         if (allowedMimes.includes(file.mimetype)) {
           callback(null, true);
         } else {
           callback(
             new BadRequestException(
-              'Unsupported file type: ' +
-                file.mimetype +
-                '. Allowed: JPEG, PNG, SVG, WebP, MP4, WebM, MOV, PDF, DOC, DOCX',
+              'Unsupported file type. Allowed: JPEG, PNG, GIF, WebP, MP4, WebM, MOV, PDF, DOC, DOCX',
             ),
             false,
           );

@@ -7,6 +7,7 @@ import {
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { assertFileAllowed } from '../helpers/file-type';
 
 
 @Injectable()
@@ -39,6 +40,15 @@ export class StorageService {
     fileSize: number;
     mimeType: string;
   }> {
+    // per-purpose caps; video folders get more room, documents 15MB, rest 8MB
+    const maxBytes =
+      folder.startsWith('gallery') || folder === 'video-tours'
+        ? 50 * 1024 * 1024
+        : ['documents', 'admission-letters', 'invitation-letters'].includes(folder)
+          ? 15 * 1024 * 1024
+          : 8 * 1024 * 1024;
+    assertFileAllowed(file, maxBytes);
+
     const sanitized = file.originalname.replace(/[/\\]/g, '-');
     const key = `${folder}/${sanitized}`;
 

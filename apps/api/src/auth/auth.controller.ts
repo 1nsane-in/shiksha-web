@@ -23,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RolesGuard } from './guards/roles.guard';
+import { CookieOriginGuard } from './guards/cookie-origin.guard';
 import { Roles } from './decorators/roles.decorator';
 import { AuthUser } from './decorators/user.decorator';
 import {
@@ -52,11 +53,14 @@ import {
   MigratePhoneDto,
   AddEmailDto,
   AddEmailVerifyOtpDto,
+  EnableMfaDto,
+  VerifyMfaLoginDto,
 } from './auth.dto';
 import { Public } from './decorators/public.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
+@UseGuards(CookieOriginGuard)
 export class AuthController {
   constructor(
     private authService: AuthService,
@@ -281,6 +285,9 @@ export class AuthController {
   ) {
     const isMobile = mobile === 'true';
     const result = await this.authService.login(dto);
+    if ('challengeToken' in result) {
+      return { mfaRequired: true, challengeToken: result.challengeToken };
+    }
     this.buildCookieResponse(res, result.refreshToken, isMobile);
     return {
       message: result.message,
@@ -338,6 +345,44 @@ export class AuthController {
   ) {
     const isMobile = mobile === 'true';
     const result = await this.authService.googleRegister(dto);
+    this.buildCookieResponse(res, result.refreshToken, isMobile);
+    return {
+      message: result.message,
+      user: result.user,
+      accessToken: result.accessToken,
+      ...(isMobile ? { refreshToken: result.refreshToken } : {}),
+    };
+  }
+
+  @Post('mfa/setup')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @ApiOperation({ summary: 'Start admin MFA enrollment' })
+  async setupMfa(@AuthUser() user: any) {
+    return this.authService.setupMfa(user.id);
+  }
+
+  @Post('mfa/enable')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @ApiOperation({ summary: 'Enable admin MFA with a code from the authenticator' })
+  async enableMfa(@AuthUser() user: any, @Body() dto: EnableMfaDto) {
+    return this.authService.enableMfa(user.id, dto);
+  }
+
+  @Public()
+  @Post('mfa/verify-login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Complete admin login with MFA code or backup code' })
+  async verifyMfaLogin(
+    @Body() dto: VerifyMfaLoginDto,
+    @Res({ passthrough: true }) res: Response,
+    @Query('mobile') mobile?: string,
+  ) {
+    const result = await this.authService.verifyMfaLogin(dto);
+    const isMobile = mobile === 'true';
     this.buildCookieResponse(res, result.refreshToken, isMobile);
     return {
       message: result.message,

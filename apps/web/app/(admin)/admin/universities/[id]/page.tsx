@@ -157,8 +157,8 @@ export default function UniversityDetailPage() {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
         <div className="text-center">
-          <School className="mx-auto mb-3 h-10 w-10 text-[#9CA3AF]" />
-          <p className="text-sm font-medium text-[#6B6B6B]">
+          <School className="mx-auto mb-3 h-10 w-10 text-slate-400" />
+          <p className="text-sm font-medium text-slate-500">
             University not found
           </p>
           <Button
@@ -263,7 +263,7 @@ export default function UniversityDetailPage() {
 
   return (
     <div
-      className="flex flex-1 flex-col gap-6 max-w-7xl mx-auto p-4 md:p-6 bg-[#FAF9F6]"
+      className="flex flex-1 flex-col gap-6 max-w-7xl mx-auto p-4 md:p-6 bg-white"
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
@@ -281,7 +281,7 @@ export default function UniversityDetailPage() {
       )}
 
       {/* Editorial Hero Banner */}
-      <div className="relative h-44 w-full shrink-0 overflow-hidden rounded-2xl border bg-white shadow-sm sm:h-56 md:h-64 border-[#ECEAE6]">
+      <div className="relative h-44 w-full shrink-0 overflow-hidden rounded-2xl border bg-white shadow-sm sm:h-56 md:h-64 border-slate-200">
         {university.bannerImage ? (
           <>
             <Image
@@ -307,7 +307,7 @@ export default function UniversityDetailPage() {
             </div>
           </>
         ) : (
-          <label className="flex h-full w-full cursor-pointer items-center justify-center bg-gradient-to-br from-[#FAFAF8] to-[#ECEAE6] transition hover:from-gray-100 hover:to-gray-200">
+          <label className="flex h-full w-full cursor-pointer items-center justify-center bg-gradient-to-br from-white to-slate-200 transition hover:from-gray-100 hover:to-gray-200">
             <div className="flex flex-col items-center gap-1.5 text-gray-400">
               {isUploadingBanner ? (
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
@@ -401,11 +401,12 @@ export default function UniversityDetailPage() {
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
           {university.logo ? (
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#ECEAE6] bg-white">
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
               <Image
                 src={university.logo}
                 alt="Logo"
                 fill
+                unoptimized
                 className="object-contain p-1"
                 sizes="64px"
               />
@@ -421,7 +422,7 @@ export default function UniversityDetailPage() {
               </label>
             </div>
           ) : (
-            <label className="flex h-16 w-16 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-dashed border-[#D4D2CE] bg-[#FAF9F6] transition hover:bg-gray-100">
+            <label className="flex h-16 w-16 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white transition hover:bg-gray-100">
               {isUploadingLogo ? (
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
               ) : (
@@ -440,10 +441,10 @@ export default function UniversityDetailPage() {
             </label>
           )}
           <div>
-            <h1 className="text-2xl font-bold text-[#111] sm:text-3xl">
+            <h1 className="text-2xl font-bold text-navy sm:text-3xl">
               {university.name}
             </h1>
-            <p className="mt-1 text-sm text-[#6B6B6B]">
+            <p className="mt-1 text-sm text-slate-500">
               {university.shortName}
             </p>
           </div>
@@ -476,7 +477,7 @@ export default function UniversityDetailPage() {
       <Tabs defaultValue="overview" className="w-full min-w-0">
         <TabsList
           variant="line"
-          className="h-9 w-full justify-start gap-0 overflow-x-auto border-b border-[#ECEAE6]"
+          className="h-9 w-full justify-start gap-0 overflow-x-auto border-b border-slate-200"
         >
           <TabsTrigger value="overview" className="px-4 text-xs font-medium">
             Overview
@@ -559,3 +560,4 @@ export default function UniversityDetailPage() {
     </div>
   );
 }
+

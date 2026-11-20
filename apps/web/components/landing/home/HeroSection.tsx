@@ -84,7 +84,7 @@ export function HeroSection() {
   }, [goToNext]);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-[#1A153A]">
+    <section className="relative h-screen w-full overflow-hidden bg-navy">
       {/* ─── Rotating Background Images ─── */}
       <div className="absolute inset-0">
         {prevSlide !== null && (
@@ -129,9 +129,9 @@ export function HeroSection() {
           background: `
             linear-gradient(
               135deg,
-              rgba(26, 21, 58, 0.92) 0%,
-              rgba(26, 21, 58, 0.60) 25%,
-              rgba(26, 21, 58, 0.20) 50%,
+              rgba(16, 44, 80, 0.92) 0%,
+              rgba(16, 44, 80, 0.60) 25%,
+              rgba(16, 44, 80, 0.20) 50%,
               transparent 70%
             )
           `,
@@ -161,7 +161,7 @@ export function HeroSection() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-sm transition-colors duration-200 hover:text-[#C4953B]"
+                    className="text-sm transition-colors duration-200 hover:text-champagne-gold"
                     style={{ color: brand.inkMuted }}
                   >
                     {link.name}
@@ -173,7 +173,7 @@ export function HeroSection() {
             {/* CTA */}
             <Link
               href="/register"
-              className="rounded-lg px-6 py-2 text-sm font-medium transition-colors duration-200 hover:bg-[#FAF9F6]"
+              className="rounded-lg px-6 py-2 text-sm font-medium transition-colors duration-200 hover:bg-white"
               style={{
                 background: brand.surface,
                 color: brand.ink,
@@ -198,9 +198,9 @@ export function HeroSection() {
                 duration={500}
                 letterSpacing="-0.04em"
                 style={{
-                  color: "#FAF9F6",
+                  color: "var(--pure-white)",
                   textShadow:
-                    "0 2px 16px rgba(26,21,58,0.35), 0 1px 4px rgba(26,21,58,0.20)",
+                    "0 2px 16px rgba(16,44,80,0.35), 0 1px 4px rgba(16,44,80,0.20)",
                 }}
               />
 
@@ -220,7 +220,7 @@ export function HeroSection() {
                 <div className="flex flex-wrap gap-4">
                   <Link
                     href="/register"
-                    className="rounded-lg px-8 py-3 font-medium transition-colors duration-200 hover:bg-[#FAF9F6]"
+                    className="rounded-lg px-8 py-3 font-medium transition-colors duration-200 hover:bg-white"
                     style={{
                       background: brand.surface,
                       color: brand.ink,

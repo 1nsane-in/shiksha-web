@@ -108,10 +108,10 @@ export function CountryComparisonSection() {
                                 : "rgba(168, 85, 247, 0.1)",
                           color:
                             c.cost === "Affordable"
-                              ? "#16a34a"
+                              ? "var(--success)"
                               : c.cost === "Moderate"
                                 ? "#b45309"
-                                : "#7c3aed",
+                                : "var(--medical-cyan)",
                         }}
                       >
                         {c.cost}

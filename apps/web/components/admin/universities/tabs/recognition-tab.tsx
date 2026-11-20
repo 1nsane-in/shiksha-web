@@ -21,7 +21,7 @@ export function RecognitionTab({
           const r = recognition;
           return (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <Card size="sm" className="border-[#ECEAE6]">
+                  <Card size="sm" className="border-slate-200">
                     <CardContent className="space-y-3 p-4 sm:p-5">
                       <SectionHeading
                         icon={Medal}
@@ -59,7 +59,7 @@ export function RecognitionTab({
                       )}
                     </CardContent>
                   </Card>
-                  <Card size="sm" className="border-[#ECEAE6]">
+                  <Card size="sm" className="border-slate-200">
                     <CardContent className="space-y-3 p-4 sm:p-5">
                       <SectionHeading
                         icon={BarChart3}
@@ -118,7 +118,7 @@ export function RecognitionTab({
                               ).map(([subject, rank]) => (
                                 <span
                                   key={subject}
-                                  className="inline-flex items-center rounded-md border border-[#ECEAE6] bg-white px-2 py-0.5 text-xs text-[#6B6B6B]"
+                                  className="inline-flex items-center rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-500"
                                 >
                                   {subject}: {rank}
                                 </span>
@@ -134,7 +134,7 @@ export function RecognitionTab({
             })()
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <Card size="sm" className="border-[#ECEAE6]">
+              <Card size="sm" className="border-slate-200">
                 <CardContent className="space-y-3 p-4 sm:p-5">
                   <SectionHeading
                     icon={Medal}
@@ -154,7 +154,7 @@ export function RecognitionTab({
                   />
                 </CardContent>
               </Card>
-              <Card size="sm" className="border-[#ECEAE6]">
+              <Card size="sm" className="border-slate-200">
                 <CardContent className="space-y-3 p-4 sm:p-5">
                   <SectionHeading
                     icon={BarChart3}

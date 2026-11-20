@@ -41,10 +41,10 @@ export default function NewUniversityPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="min-w-0">
-          <h1 className="text-lg font-bold text-[#2D2154] sm:text-2xl">
+          <h1 className="text-lg font-bold text-navy sm:text-2xl">
             Add New University
           </h1>
-          <p className="text-xs text-[#6B6B6B] sm:text-sm">
+          <p className="text-xs text-slate-500 sm:text-sm">
             Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep]}
           </p>
         </div>
@@ -55,7 +55,7 @@ export default function NewUniversityPage() {
           <div
             key={index}
             className={`h-1.5 flex-1 rounded-full sm:h-2 ${
-              index <= currentStep ? "bg-[#4B2D8E]" : "bg-gray-200"
+              index <= currentStep ? "bg-royal-blue" : "bg-gray-200"
             }`}
           />
         ))}

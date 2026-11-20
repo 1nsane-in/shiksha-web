@@ -11,7 +11,7 @@ export function UniversityHero() {
         <Star className="size-3.5 fill-gold" />
         NMC, WHO & ECFMG Approved
       </span>
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1A153A] leading-tight tracking-tight">
+      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy leading-tight tracking-tight">
         Our Partner <span className="text-gold">Medical Universities</span>
       </h1>
       <p className="text-slate-500 mt-4 leading-relaxed text-sm sm:text-base">

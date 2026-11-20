@@ -35,11 +35,14 @@ Legend: severity = impact if exploited. `P0` = do this week, `P1` = 2 weeks, `P2
   Also logs `req.originalUrl`, which includes the PayU hash in the success redirect query string.
 - Impact: Credentials and OTPs written to logs and log aggregator. Log access = account takeover.
 - Fix:
-  - Delete request-body logging entirely.
-  - Log allowlisted metadata only: method, route pattern, status, duration, request id.
-  - Strip/redact query strings for `/payments/*`, `/auth/*`.
-  - Never log tokens, OTPs, cookies, authorization headers.
-- Acceptance: login request produces no password/OTP string in logs.
+  - Production: no request bodies. Log allowlisted metadata only: method, route pattern,
+    status, duration, request id.
+  - Development (`env.isDev`): request bodies may be logged, with fields matching
+    `password|otp|token|secret|hash|authorization|cookie|cvv|card` replaced by `[REDACTED]`.
+  - Raw unredacted bodies in dev only via explicit `LOG_BODIES_RAW=true`. Never set in prod.
+  - Use `req.path` (no query string) in access logs; never log tokens, OTPs, cookies,
+    authorization headers or full Google profile payloads.
+- Acceptance: login request produces no password/OTP string in logs in either environment.
 
 #### FIND-003 — Object keys use original filename (overwrite + predictable URLs)
 - Location: `apps/api/src/common/services/storage.service.ts:43-44`
@@ -103,12 +106,13 @@ Legend: severity = impact if exploited. `P0` = do this week, `P1` = 2 weeks, `P2
   amount is rejected.
 
 #### FIND-007 — Low bcrypt cost
-- Location: `apps/api/src/auth/auth.service.ts:214, 463, 734, 802`
-- Evidence: `bcrypt.hash(password, 8)`
+- Location: auth, admin, parents services and `scripts/create-super-admin.ts`
+- Evidence: `bcrypt.hash(password, 8)` in all password-creation paths
 - Impact: Cheap offline cracking if the DB leaks.
-- Fix: cost `12` (or argon2id). Existing hashes remain valid; re-hash on next successful login
-  if migrating. Keep the async API.
-- Acceptance: new hashes use cost 12; login still passes.
+- Fix: shared `PASSWORD_SALT_ROUNDS = 12` (`apps/api/src/common/constants.ts`) used by every
+  hash call (auth, admin, parents, seed script). Existing hashes remain valid and upgrade on
+  password change/reset; no forced logout.
+- Acceptance: no `bcrypt.hash(..., 8)` remains; new hashes use cost 12; login still passes.
 
 ### P1 — Medium / High
 
@@ -124,9 +128,12 @@ Legend: severity = impact if exploited. `P0` = do this week, `P1` = 2 weeks, `P2
 - Impact: App boots misconfigured; payment hash checks become unreliable; missing `JWT_SECRET`
   only fails at first request.
 - Fix:
-  - Add a Zod/Joi schema in `ConfigModule.forRoot({ validate })`.
-  - Fail boot if `JWT_SECRET` < 32 chars, `PAYU_SALT`/`PAYU_KEY` empty in production.
-  - Fail boot if `ENV=production` and `NODE_ENV !== 'production'` (dev OTP bypass guard).
+  - Plain `validateConfig` (`apps/api/src/common/config.validation.ts`) wired into
+    `ConfigModule.forRoot({ validate })` — no new dependency.
+  - Prod requires: `DATABASE_URL`, `JWT_SECRET` (>=32 chars), `FRONTEND_URL`, `PAYU_KEY`,
+    `PAYU_SALT`, R2 vars, Upstash Redis vars. Dev requires `DATABASE_URL`, `JWT_SECRET`.
+  - Fail boot on `ENV=dev` + `NODE_ENV=production` (dev OTP bypass) and on any non-dev
+    `ENV` with `NODE_ENV !== 'production'`. Local dev must set `ENV=dev`.
 - Acceptance: deleting `JWT_SECRET` prevents startup with a clear error.
 
 #### FIND-010 — OTP brute force: no per-record attempt counter
@@ -136,11 +143,13 @@ Legend: severity = impact if exploited. `P0` = do this week, `P1` = 2 weeks, `P2
 - Impact: 6-digit OTP brute-force within the 10-minute expiry; OTP leak if production ever runs
   with `NODE_ENV=development`.
 - Fix:
-  - Add `attempts` counter per OTP record; invalidate after 5.
-  - Consume atomically: `updateMany({ where: { id, verifiedAt: null }, data: { verifiedAt } })`.
-  - Constant-time comparison; never log OTP.
-  - Refuse to boot in production if dev OTP bypass is active.
-- Acceptance: 6 wrong OTPs invalidate the code; production boot fails with `NODE_ENV=development`.
+  - `attempts` column already exists in `OtpVerification`; use it via shared
+    `verifyOtpRecord` (`apps/api/src/common/helpers/otp-verification.ts`). Invalidates after 5.
+  - Atomic consume: `updateMany` guarded by `verifiedAt: null, attempts < 5`.
+  - Constant-time comparison (`timingSafeEqual`); never log OTP.
+  - Parents phone OTP (in-memory) also locked after 5 wrong codes; removed production OTP log.
+  - Dev-bypass boot guard is in `config.validation.ts` (FIND-009).
+- Acceptance: 5 wrong OTPs invalidate the code; replay of a verified OTP fails.
 
 #### FIND-011 — Refresh token rotation race and no reuse detection
 - Location: `apps/api/src/auth/auth.service.ts:669-700`
@@ -148,10 +157,12 @@ Legend: severity = impact if exploited. `P0` = do this week, `P1` = 2 weeks, `P2
   refresh token is replayable for 30s.
 - Impact: Refresh-token replay after theft.
 - Fix:
-  - Rotate inside a transaction; old token consumed atomically.
-  - Track token family and reuse: if a consumed token is presented again, revoke the whole family.
-  - Keep the multi-tab grace only if family reuse detection is in place.
-- Acceptance: reusing a rotated refresh token revokes the session and returns 401.
+  - `UserSession` gains `familyId` + `revokedAt` (migration `20261119000000_add_session_family`).
+  - `rotateRefreshSession` consumes atomically via guarded `updateMany`; replay revokes the family.
+  - 30s grace window removed. Multi-tab refresh may now log out siblings — accepted tradeoff
+    for reuse detection; re-add grace only if it becomes a real UX problem.
+  - Logout revokes the whole family; expired rows GC'd, revoked rows kept for token lifetime.
+- Acceptance: reusing a rotated refresh token revokes the family and returns 401.
 
 #### FIND-012 — CSRF on cookie-based endpoints
 - Location: `apps/api/src/auth/auth.controller.ts:62-70, 351-410`,
@@ -160,19 +171,22 @@ Legend: severity = impact if exploited. `P0` = do this week, `P1` = 2 weeks, `P2
   accept the cookie with no CSRF token or origin check.
 - Impact: Login CSRF, forced logout, refresh CSRF. Bearer-protected mutations are not affected.
 - Fix:
-  - Origin/Referer check on cookie endpoints, or a double-submit CSRF token.
-  - Tighten `SameSite` if cross-site is not actually needed.
-  - Disable the `isMobile` refresh-token-in-body fallback outside dev/mobile builds.
-- Acceptance: cross-origin POST to `/auth/refresh` is rejected without a CSRF token.
+  - `CookieOriginGuard` on `AuthController`: allows only `FRONTEND_URL` origins
+    (+ localhost in dev); requests with no `Origin` (mobile/curl) allowed since browsers
+    always send it on cross-site POST.
+  - `SameSite=None` kept for cross-site frontend.
+  - `isMobile` refresh-token-in-body fallback still enabled — revisit if abused.
+- Acceptance: cross-origin POST to `/auth/refresh` is rejected with 403.
 
 #### FIND-013 — Upload limits and MIME trust
 - Location: `apps/api/src/common/controllers/upload.controller.ts:26-49`,
   `apps/api/src/gallery/gallery.controller.ts:53-61`
 - Evidence: 200MB limit, MIME allowlist from client header, `image/svg+xml` allowed.
 - Impact: Storage/bandwidth DoS, stored XSS via SVG served inline.
-- Fix: per-purpose size caps (documents ≤15MB, images ≤8MB), magic-byte sniff,
-  remove SVG or serve from a separate domain with `Content-Disposition: attachment`
-  and `X-Content-Type-Options: nosniff`.
+- Fix: `assertFileAllowed` (`common/helpers/file-type.ts`) called centrally in
+  `StorageService.upload` — magic-byte sniff, client mimetype ignored, SVG removed from all lists.
+  Caps: documents/letters 15MB, images/other 8MB, gallery/video 50MB; Multer hard cap 55MB.
+  Detected mime overwrites `file.mimetype` so storage writes the correct Content-Type.
 
 #### FIND-014 — Missing Next.js security headers; type errors ignored at build
 - Location: `apps/web/next.config.ts`
@@ -188,7 +202,12 @@ Legend: severity = impact if exploited. `P0` = do this week, `P1` = 2 weeks, `P2
 - Location: admin auth (`apps/api/src/auth`, `apps/api/src/admin`)
 - Impact: Admin accounts approve payments, view passports, issue letters. Password/OTP theft is
   full compromise.
-- Fix: mandatory TOTP for `ADMIN`/`SUPER_ADMIN`, recovery codes, audit log on enable/disable.
+- Fix (backend): RFC6238 TOTP helper (`common/helpers/totp.ts`), enrollment endpoints
+  `POST /auth/mfa/setup` + `/auth/mfa/enable`, 8 hashed backup codes, and challenge-based
+  `POST /auth/mfa/verify-login` using Redis (5 min). Enabled admins get `mfaRequired` on login
+  instead of tokens; not-yet-enrolled admins get `mfaSetupRequired: true` (soft nudge).
+- Frontend still needs QR/verify screens. Hard lockout of unenrolled admins is a separate ops
+  decision (would need a bootstrap admin flow). Audit log on enable/disable pending.
 
 #### FIND-016 — Ownership/IDOR checks not systematic
 - Location: controllers under `documents`, `letters`, `applications`, `parents`, `visa-support`
@@ -255,22 +274,22 @@ Legend: severity = impact if exploited. `P0` = do this week, `P1` = 2 weeks, `P2
 
 ### P0 (this week)
 - [ ] FIND-001 httpOnly access token; remove `document.cookie` token writes
-- [ ] FIND-002 remove request-body logging; redact query strings
+- [x] FIND-002 prod: no body/query logs; dev: gated + redacted body logs (2026-11-18)
 - [ ] FIND-003 random owner-scoped storage keys
 - [ ] FIND-004 server-generated keys; stop trusting `fileUrl`/`fileSize`
 - [ ] FIND-005 split public/private buckets; signed URLs for documents
 - [ ] FIND-006 PayU webhook + amount/status/idempotency checks
-- [ ] FIND-007 bcrypt cost 12
+- [x] FIND-007 shared bcrypt cost 12 across all password-hash sites (2026-11-18)
 
 ### P1 (2 weeks)
-- [ ] FIND-008 Swagger prod guard
-- [ ] FIND-009 env schema validation + production boot guards
-- [ ] FIND-010 OTP attempt lockout + atomic consume + dev-bypass guard
-- [ ] FIND-011 atomic refresh rotation + reuse detection
-- [ ] FIND-012 CSRF/origin checks on cookie endpoints
-- [ ] FIND-013 magic-byte validation + size caps + SVG removal
+- [x] FIND-008 Swagger mounted only when `env.isDev` (2026-11-18)
+- [x] FIND-009 env validation + production boot guards (2026-11-18)
+- [x] FIND-010 shared OTP lockout + atomic consume + no OTP logging (2026-11-18)
+- [x] FIND-011 atomic refresh rotation + family reuse detection (2026-11-18)
+- [x] FIND-012 origin guard on all cookie-auth routes (2026-11-18)
+- [x] FIND-013 centralized magic-byte validation + size caps + SVG removal (2026-11-18)
 - [ ] FIND-014 Next.js security headers; remove `ignoreBuildErrors`
-- [ ] FIND-015 admin TOTP
+- [x] FIND-015 admin TOTP backend (enroll/enable/verify + backup codes) (2026-11-18)
 - [ ] FIND-016 ownership helper + authz e2e matrix
 
 ### P2

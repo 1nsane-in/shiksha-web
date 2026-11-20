@@ -6,6 +6,11 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
+import { PASSWORD_SALT_ROUNDS } from '../common/constants';
+import {
+  MAX_OTP_ATTEMPTS,
+  verifyOtpRecord,
+} from '../common/helpers/otp-verification';
 import * as crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
@@ -26,10 +31,10 @@ import {
 @Injectable()
 export class ParentsService {
   private readonly logger = new Logger(ParentsService.name);
-  // In-memory store for phone OTPs: phone -> { otp, expiresAt, verified }
+  // In-memory store for phone OTPs: phone -> { otp, expiresAt, verified, attempts }
   private readonly phoneOtps = new Map<
     string,
-    { otp: string; expiresAt: Date; verified: boolean }
+    { otp: string; expiresAt: Date; verified: boolean; attempts: number }
   >();
 
   constructor(
@@ -313,10 +318,12 @@ export class ParentsService {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     // Store phone OTP in-memory (V1 approach — can be moved to DB later)
-    this.phoneOtps.set(dto.phone, { otp, expiresAt, verified: false });
-
-    // In production, integrate with SMS provider (e.g., Twilio)
-    this.logger.log(`Phone OTP for ${dto.phone}: ${otp}`);
+    this.phoneOtps.set(dto.phone, {
+      otp,
+      expiresAt,
+      verified: false,
+      attempts: 0,
+    });
 
     if (this.config.get('NODE_ENV') === 'development') {
       return { message: 'OTP sent to your phone', devOtp: otp };
@@ -325,28 +332,11 @@ export class ParentsService {
   }
 
   async verifyEmailOtp(dto: ParentVerifyEmailOtpDto) {
-    const record = await this.prisma.otpVerification.findFirst({
-      where: {
-        email: dto.email,
-        otp: dto.otp,
-        verifiedAt: null,
-        completedAt: null,
-        expiresAt: { gte: new Date() },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    if (!record) {
-      throw new BadRequestException('Invalid or expired email OTP');
-    }
-
-    const token = crypto.randomUUID();
-
-    await this.prisma.otpVerification.update({
-      where: { id: record.id },
-      data: { verifiedAt: new Date(), token },
-    });
-
+    const { token } = await verifyOtpRecord(
+      this.prisma,
+      { email: dto.email },
+      dto.otp,
+    );
     return { message: 'Email OTP verified successfully', token };
   }
 
@@ -362,6 +352,12 @@ export class ParentsService {
     }
 
     if (stored.otp !== dto.otp) {
+      stored.attempts += 1;
+      if (stored.attempts >= MAX_OTP_ATTEMPTS) {
+        this.phoneOtps.delete(dto.phone);
+      } else {
+        this.phoneOtps.set(dto.phone, stored);
+      }
       throw new BadRequestException('Invalid phone OTP');
     }
 
@@ -408,7 +404,7 @@ export class ParentsService {
     }
 
     // Create user with PARENT role
-    const hashedPassword = await bcrypt.hash(dto.password, 8);
+    const hashedPassword = await bcrypt.hash(dto.password, PASSWORD_SALT_ROUNDS);
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,

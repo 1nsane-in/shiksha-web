@@ -30,7 +30,7 @@ export function ApplicationsTable({ data, isLoading, error, onRetry }: Props) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center max-w-sm mx-auto">
         <AlertCircle className="size-10 text-red-500 mb-3" />
-        <p className="text-sm font-bold text-[#1A153A]">Failed to load applications</p>
+        <p className="text-sm font-bold text-navy">Failed to load applications</p>
         <Button variant="outline" size="sm" onClick={onRetry} className="mt-3 cursor-pointer">
           Retry
         </Button>
@@ -42,18 +42,18 @@ export function ApplicationsTable({ data, isLoading, error, onRetry }: Props) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500 rounded-xl bg-white border border-dashed border-gray-200">
         <AlertCircle className="size-10 text-gray-300 mb-2" />
-        <p className="text-sm font-semibold text-[#1A153A]">No university applications found</p>
+        <p className="text-sm font-semibold text-navy">No university applications found</p>
         <p className="text-xs text-gray-400 mt-0.5">Please check again later or adjust search terms.</p>
       </div>
     );
   }
 
   return (
-    <Card className="border border-[#ECEAE6] p-1">
+    <Card className="border border-slate-200 p-1">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="border-b border-[#ECEAE6]">
+            <TableRow className="border-b border-slate-200">
               <TableHead className="font-bold text-[10px] text-gray-400 uppercase tracking-wider py-3 px-4">
                 Student
               </TableHead>
@@ -78,12 +78,12 @@ export function ApplicationsTable({ data, isLoading, error, onRetry }: Props) {
               return (
                 <TableRow
                   key={app.id}
-                  className="hover:bg-gray-50/50 transition-colors border-b border-[#ECEAE6] cursor-pointer"
+                  className="hover:bg-gray-50/50 transition-colors border-b border-slate-200 cursor-pointer"
                   onClick={() => router.push(`/admin/applications/${app.id}`)}
                 >
                   <TableCell className="py-3 px-4">
                     <div>
-                      <p className="font-bold text-sm text-[#1A153A]">
+                      <p className="font-bold text-sm text-navy">
                         {app.firstName} {app.lastName}
                       </p>
                       <p className="text-xs text-gray-400 font-mono mt-0.5">{app.email}</p>
@@ -92,7 +92,7 @@ export function ApplicationsTable({ data, isLoading, error, onRetry }: Props) {
 
                   <TableCell className="py-3 px-4">
                     <div className="space-y-1">
-                      <p className="font-semibold text-sm text-[#1A153A] leading-tight">
+                      <p className="font-semibold text-sm text-navy leading-tight">
                         {app.university?.name || "Unknown University"}
                       </p>
                       <span className="inline-block font-bold text-gray-500 bg-gray-50 border rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wider">

@@ -129,11 +129,11 @@ const chartConfig = {
   },
   desktop: {
     label: "Approved",
-    color: "#4B2D8E",
+    color: "var(--royal-blue)",
   },
   mobile: {
     label: "Pending",
-    color: "#E0D8F0",
+    color: "var(--hairline)",
   },
 } satisfies ChartConfig
 
@@ -221,36 +221,36 @@ export function ChartAreaInteractive() {
               <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="#4B2D8E"
+                  stopColor="var(--royal-blue)"
                   stopOpacity={0.15}
                 />
                 <stop
                   offset="95%"
-                  stopColor="#4B2D8E"
+                  stopColor="var(--royal-blue)"
                   stopOpacity={0.02}
                 />
               </linearGradient>
               <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="#E0D8F0"
+                  stopColor="var(--hairline)"
                   stopOpacity={0.3}
                 />
                 <stop
                   offset="95%"
-                  stopColor="#E0D8F0"
+                  stopColor="var(--hairline)"
                   stopOpacity={0.02}
                 />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} stroke="#E0D8F0" />
+            <CartesianGrid vertical={false} stroke="var(--hairline)" />
             <XAxis
               dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
-              tick={{ fontSize: 12, fill: "#9c9fa5" }}
+              tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
               tickFormatter={(value) => {
                 const date = new Date(value)
                 return date.toLocaleDateString("en-US", {
@@ -277,7 +277,7 @@ export function ChartAreaInteractive() {
               dataKey="mobile"
               type="natural"
               fill="url(#fillMobile)"
-              stroke="#d3cec6"
+              stroke="var(--hairline)"
               strokeWidth={1.5}
               stackId="a"
             />
@@ -285,7 +285,7 @@ export function ChartAreaInteractive() {
               dataKey="desktop"
               type="natural"
               fill="url(#fillDesktop)"
-              stroke="#111111"
+              stroke="var(--navy)"
               strokeWidth={1.5}
               stackId="a"
             />

@@ -128,7 +128,7 @@ export default function ConsultationsAdminPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center max-w-lg mx-auto">
         <AlertCircle className={`size-12 mb-4 animate-pulse ${isRateLimit ? 'text-amber-400' : 'text-red-400'}`} />
-        <h2 className="text-lg font-bold text-[#1A153A]">
+        <h2 className="text-lg font-bold text-navy">
           {isRateLimit ? "Rate Limit Exceeded" : "Failed to load consultation requests"}
         </h2>
         <p className="text-sm text-gray-500 mt-1 px-4">
@@ -204,7 +204,7 @@ export default function ConsultationsAdminPage() {
           </div>
           <div>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Submissions</p>
-            <p className="text-lg font-bold text-[#1A153A]">{consultations.length}</p>
+            <p className="text-lg font-bold text-navy">{consultations.length}</p>
           </div>
         </div>
 
@@ -247,7 +247,7 @@ export default function ConsultationsAdminPage() {
         <div className="flex items-center justify-between border-b pb-3 mb-5" style={{ borderColor: theme.hairline }}>
           <div className="flex items-center gap-2">
             <Search className="size-4" style={{ color: theme.gold }} />
-            <h3 className="text-xs font-bold text-[#1A153A] uppercase tracking-wider">Advanced Filtering</h3>
+            <h3 className="text-xs font-bold text-navy uppercase tracking-wider">Advanced Filtering</h3>
           </div>
           <button
             onClick={() => {
@@ -257,7 +257,7 @@ export default function ConsultationsAdminPage() {
               setFilterCountry("");
               setFilterDate("");
             }}
-            className="text-[11px] font-bold text-gray-400 hover:text-[#1A153A] uppercase tracking-wider transition-all select-none cursor-pointer"
+            className="text-[11px] font-bold text-gray-400 hover:text-navy uppercase tracking-wider transition-all select-none cursor-pointer"
           >
             Clear Filters
           </button>
@@ -318,7 +318,7 @@ export default function ConsultationsAdminPage() {
         style={{ borderColor: theme.hairline }}
       >
         <div className="mb-4 flex items-center justify-between flex-wrap gap-2 border-b pb-3" style={{ borderColor: theme.hairline }}>
-          <h2 className="text-sm font-bold text-[#1A153A] flex items-center gap-1.5">
+          <h2 className="text-sm font-bold text-navy flex items-center gap-1.5">
             <span>List of Registered Inquiries</span>
             <span className="text-xs font-normal text-gray-400">
               ({filteredConsultations.length} shown of {consultations.length} total)
@@ -371,10 +371,10 @@ export default function ConsultationsAdminPage() {
                     <TableCell className="text-xs text-gray-400 font-medium">
                       {new Date(item.createdAt).toLocaleDateString()}
                     </TableCell>
-                    <TableCell className="font-bold text-sm text-[#1A153A]">{item.name}</TableCell>
+                    <TableCell className="font-bold text-sm text-navy">{item.name}</TableCell>
                     <TableCell className="text-sm text-gray-500">{item.email}</TableCell>
                     <TableCell className="text-sm font-semibold font-mono text-gray-500">{item.phone}</TableCell>
-                    <TableCell className="text-sm text-center font-bold text-[#1A153A]">
+                    <TableCell className="text-sm text-center font-bold text-navy">
                       {item.neetScore !== null ? item.neetScore : ":"}
                     </TableCell>
                     <TableCell className="text-sm text-gray-500">
@@ -391,16 +391,16 @@ export default function ConsultationsAdminPage() {
                           <span className={`size-1.5 rounded-full shrink-0 ${statusDetails[item.status]?.dot || "bg-gray-400"}`} />
                           <span>{statusDetails[item.status]?.label || item.status}</span>
                         </SelectTrigger>
-                        <SelectContent className="border-[#ECEAE6] bg-white rounded-xl shadow-lg min-w-[135px] p-1.5">
-                          <SelectItem value="PENDING" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2 py-2.5 px-4 rounded-lg">
+                        <SelectContent className="border-slate-200 bg-white rounded-xl shadow-lg min-w-[135px] p-1.5">
+                          <SelectItem value="PENDING" className="text-xs font-semibold text-navy hover:bg-gray-50 cursor-pointer flex items-center gap-2 py-2.5 px-4 rounded-lg">
                             <span className="size-1.5 rounded-full bg-amber-500 inline-block mr-1.5" />
                             Pending
                           </SelectItem>
-                          <SelectItem value="CONTACTED" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2 py-2.5 px-4 rounded-lg">
+                          <SelectItem value="CONTACTED" className="text-xs font-semibold text-navy hover:bg-gray-50 cursor-pointer flex items-center gap-2 py-2.5 px-4 rounded-lg">
                             <span className="size-1.5 rounded-full bg-blue-500 inline-block mr-1.5" />
                             Contacted
                           </SelectItem>
-                          <SelectItem value="CLOSED" className="text-xs font-semibold text-[#1A153A] hover:bg-gray-50 cursor-pointer flex items-center gap-2 py-2.5 px-4 rounded-lg">
+                          <SelectItem value="CLOSED" className="text-xs font-semibold text-navy hover:bg-gray-50 cursor-pointer flex items-center gap-2 py-2.5 px-4 rounded-lg">
                             <span className="size-1.5 rounded-full bg-emerald-500 inline-block mr-1.5" />
                             Resolved
                           </SelectItem>

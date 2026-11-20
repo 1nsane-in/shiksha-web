@@ -42,12 +42,12 @@ function TicketCard({ ticket, onClick }: { ticket: Ticket; onClick: () => void }
       onClick={onClick}
       className="w-full text-left"
     >
-      <Card size="sm" className="cursor-pointer hover:border-[#4B2D8E]/30 transition-colors">
+      <Card size="sm" className="cursor-pointer hover:border-royal-blue/30 transition-colors">
         <CardContent className="py-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-semibold text-sm text-[#2D2154] truncate">{ticket.subject}</h3>
+                <h3 className="font-semibold text-sm text-navy truncate">{ticket.subject}</h3>
                 <Badge className={`${statusColors[ticket.status] ?? ""} text-xs`}>
                   {ticket.status.replace(/_/g, " ")}
                 </Badge>
@@ -96,7 +96,7 @@ export default function TicketsPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#2D2154]">Failed to load tickets</h2>
+        <h2 className="text-lg font-semibold text-navy">Failed to load tickets</h2>
         <p className="text-sm text-gray-500 mt-1 mb-6">Something went wrong. Please try again.</p>
         <Button onClick={() => refetch()} variant="outline" className="gap-2">
           <RefreshCw className="size-4" />
@@ -111,7 +111,7 @@ export default function TicketsPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#2D2154]">My Tickets</h1>
+            <h1 className="text-2xl font-bold text-navy">My Tickets</h1>
             <p className="text-sm text-gray-500 mt-1">Support and inquiries</p>
           </div>
           <Button className="gap-1.5" onClick={() => router.push("/student/tickets/new")}>
@@ -120,8 +120,8 @@ export default function TicketsPage() {
           </Button>
         </div>
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Inbox className="size-16 text-[#4B2D8E]/30 mb-4" />
-          <h2 className="text-xl font-bold text-[#2D2154]">No support tickets</h2>
+          <Inbox className="size-16 text-royal-blue/30 mb-4" />
+          <h2 className="text-xl font-bold text-navy">No support tickets</h2>
           <p className="text-sm text-gray-500 mt-2 max-w-sm">
             Need help? Create a ticket and our team will assist you.
           </p>
@@ -138,7 +138,7 @@ export default function TicketsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#2D2154]">My Tickets</h1>
+          <h1 className="text-2xl font-bold text-navy">My Tickets</h1>
           <p className="text-sm text-gray-500 mt-1">
             {tickets.length} ticket{tickets.length !== 1 ? "s" : ""}
           </p>

@@ -64,8 +64,8 @@ function ChildrenList() {
       <div className="space-y-6">
         {/* Empty state banner */}
         <div className="flex flex-col items-center gap-4 py-10 text-center">
-          <div className="w-16 h-16 rounded-full bg-[#4B2D8E]/10 flex items-center justify-center">
-            <Users className="w-8 h-8 text-[#4B2D8E]" />
+          <div className="w-16 h-16 rounded-full bg-royal-blue/10 flex items-center justify-center">
+            <Users className="w-8 h-8 text-royal-blue" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-900">No children linked yet</h2>
@@ -118,8 +118,8 @@ function ChildCard({ child }: { child: import("@/domains/parents").ChildProgress
         <div className="flex-1 min-w-0 space-y-3">
           {/* Header: Name + Relation */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="w-9 h-9 rounded-full bg-[#4B2D8E]/10 flex items-center justify-center shrink-0">
-              <GraduationCap className="w-5 h-5 text-[#4B2D8E]" />
+            <div className="w-9 h-9 rounded-full bg-royal-blue/10 flex items-center justify-center shrink-0">
+              <GraduationCap className="w-5 h-5 text-royal-blue" />
             </div>
             <div>
               <h3 className="font-medium text-gray-900 truncate">{child.studentName}</h3>
@@ -142,7 +142,7 @@ function ChildCard({ child }: { child: import("@/domains/parents").ChildProgress
             </div>
             <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#4B2D8E] rounded-full transition-all duration-500"
+                className="h-full bg-royal-blue rounded-full transition-all duration-500"
                 style={{ width: `${stagePercent}%` }}
               />
             </div>
@@ -169,7 +169,7 @@ function ChildCard({ child }: { child: import("@/domains/parents").ChildProgress
         {/* View link */}
         <Link
           href={`/parents/children/${child.studentId}`}
-          className="shrink-0 flex items-center gap-1 text-sm font-medium text-[#4B2D8E] hover:text-[#3D2370] transition-colors mt-1"
+          className="shrink-0 flex items-center gap-1 text-sm font-medium text-royal-blue hover:text-navy transition-colors mt-1"
         >
           View
           <ChevronRight className="w-4 h-4" />
@@ -184,8 +184,8 @@ export default function ParentDashboardPage() {
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       {/* Page header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-[#4B2D8E]/10 flex items-center justify-center">
-          <Users className="w-5 h-5 text-[#4B2D8E]" />
+        <div className="w-10 h-10 rounded-full bg-royal-blue/10 flex items-center justify-center">
+          <Users className="w-5 h-5 text-royal-blue" />
         </div>
         <div>
           <h1 className="text-xl font-semibold text-gray-900">My Children</h1>

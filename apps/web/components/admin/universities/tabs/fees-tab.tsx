@@ -21,7 +21,7 @@ export function FeesTab({
           const f = fees;
               return (
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <Card size="sm" className="border-[#ECEAE6]">
+                  <Card size="sm" className="border-slate-200">
                     <CardContent className="space-y-3 p-4 sm:p-5">
                       <SectionHeading
                         icon={DollarSign}
@@ -75,7 +75,7 @@ export function FeesTab({
                       )}
                     </CardContent>
                   </Card>
-                  <Card size="sm" className="border-[#ECEAE6]">
+                  <Card size="sm" className="border-slate-200">
                     <CardContent className="space-y-3 p-4 sm:p-5">
                       <SectionHeading
                         icon={CreditCard}
@@ -127,7 +127,7 @@ export function FeesTab({
             })()
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <Card size="sm" className="border-[#ECEAE6]">
+              <Card size="sm" className="border-slate-200">
                 <CardContent className="space-y-3 p-4 sm:p-5">
                   <SectionHeading
                     icon={DollarSign}
@@ -165,7 +165,7 @@ export function FeesTab({
                   <InfoRow icon={DollarSign} label="Other Fees" value="—" />
                 </CardContent>
               </Card>
-              <Card size="sm" className="border-[#ECEAE6]">
+              <Card size="sm" className="border-slate-200">
                 <CardContent className="space-y-3 p-4 sm:p-5">
                   <SectionHeading
                     icon={CreditCard}

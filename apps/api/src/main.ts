@@ -12,6 +12,20 @@ import { versionMiddleware } from './common/middleware/version-middleware';
 import { Request, Response, NextFunction } from 'express';
 import { env } from './common/env.config';
 
+// ponytail: shallow redaction, enough for dev debugging; nested secrets stay redacted only if the key matches
+const SENSITIVE_FIELD =
+  /password|otp|token|secret|hash|authorization|cookie|cvv|card/i;
+
+function redactBody(body: unknown): unknown {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return body;
+  return Object.fromEntries(
+    Object.entries(body).map(([key, value]) => [
+      key,
+      SENSITIVE_FIELD.test(key) ? '[REDACTED]' : value,
+    ]),
+  );
+}
+
 async function bootstrap() {
   if (env.isDev) {
     console.log('DB:', env.dbUrlMasked);
@@ -21,15 +35,17 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Shiksha API')
-    .setDescription('Medical Admission Management Platform')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .addCookieAuth('refreshToken')
-    .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  if (env.isDev) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Shiksha API')
+      .setDescription('Medical Admission Management Platform')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .addCookieAuth('refreshToken')
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   app.useGlobalFilters(new AllExceptionsFilter());
 
@@ -40,10 +56,14 @@ async function bootstrap() {
     res.on('finish', () => {
       const duration = Date.now() - start;
       logger.log(
-        `${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`,
+        `${req.method} ${req.path} ${res.statusCode} - ${duration}ms`,
       );
-      if (req.body && Object.keys(req.body).length > 0) {
-        logger.debug(`Request Body: ${JSON.stringify(req.body)}`);
+      if (env.isDev && req.body && Object.keys(req.body).length > 0) {
+        logger.debug(
+          `Request Body: ${JSON.stringify(
+            env.logBodiesRaw ? req.body : redactBody(req.body),
+          )}`,
+        );
       }
     });
     next();

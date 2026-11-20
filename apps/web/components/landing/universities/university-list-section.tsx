@@ -39,7 +39,7 @@ export function UniversityEmptyState({
       </p>
       <button
         onClick={onRequestUniversity}
-        className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-gold hover:bg-[#b0852f] text-white font-semibold text-xs rounded-lg transition-all duration-200"
+        className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-gold hover:bg-gold-dark text-white font-semibold text-xs rounded-lg transition-all duration-200"
       >
         <Building2 className="w-4 h-4" />
         Request to Add University

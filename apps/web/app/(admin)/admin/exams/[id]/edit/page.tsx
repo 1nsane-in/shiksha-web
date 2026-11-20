@@ -107,7 +107,7 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#9c9fa5]" />
+        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
       </div>
     );
   }
@@ -115,8 +115,8 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
   if (!exam) {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-4">
-        <p className="text-lg font-medium text-[#111111]">Exam not found</p>
-        <Button variant="outline" onClick={() => router.push("/admin/exams")} className="border-[#ECEAE6] text-[#626260]">Back to Exams</Button>
+        <p className="text-lg font-medium text-navy">Exam not found</p>
+        <Button variant="outline" onClick={() => router.push("/admin/exams")} className="border-slate-200 text-slate-600">Back to Exams</Button>
       </div>
     );
   }
@@ -163,14 +163,14 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
               variant="outline"
               size="sm"
               onClick={() => router.push(`/admin/exams/${id}`)}
-              className="border-[#ECEAE6] text-[#626260] hover:text-[#111] font-medium"
+              className="border-slate-200 text-slate-600 hover:text-navy font-medium"
             >
               <ChevronLeft className="mr-1 h-3.5 w-3.5" />
               Back
             </Button>
             <div>
-              <h1 className="text-base font-semibold text-[#111]">Edit Exam</h1>
-              <p className="text-xs text-[#7b7b78]">
+              <h1 className="text-base font-semibold text-navy">Edit Exam</h1>
+              <p className="text-xs text-slate-500">
                 Step {currentStep + 1} of {STEPS.length}
               </p>
             </div>
@@ -196,18 +196,18 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
                   >
                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-medium transition-colors ${
                       isActive || isCompleted
-                        ? "border-[#111] bg-[#111] text-white"
-                        : "border-[#D4D2CE] bg-white text-[#9c9fa5]"
+                        ? "border-navy bg-navy text-white"
+                        : "border-slate-300 bg-white text-slate-400"
                     }`}>
                       {isCompleted ? <Check className="h-3.5 w-3.5 stroke-[2.5]" /> : <span className="text-xs font-medium">{index + 1}</span>}
                     </div>
                     <div className="hidden sm:block text-center">
-                      <p className={`text-xs font-medium leading-tight ${isActive ? "text-[#111]" : "text-[#626260]"}`}>{step.label}</p>
+                      <p className={`text-xs font-medium leading-tight ${isActive ? "text-navy" : "text-slate-600"}`}>{step.label}</p>
                     </div>
                   </button>
                   {index < STEPS.length - 1 && (
                     <div className="hidden sm:block flex-1 self-center mx-3">
-                      <div className={`h-px w-full transition-colors ${isCompleted ? "bg-[#111]" : "bg-[#ECEAE6]"}`} />
+                      <div className={`h-px w-full transition-colors ${isCompleted ? "bg-navy" : "bg-slate-200"}`} />
                     </div>
                   )}
                 </div>
@@ -219,7 +219,7 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
 
       {/* Content + Navigation */}
       <div className="mx-auto w-full max-w-3xl px-4 py-8 md:px-6">
-        <div className="rounded-xl border border-[#ECEAE6] bg-white p-6 shadow-sm md:p-8">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           {renderStep()}
         </div>
 
@@ -229,7 +229,7 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
               variant="outline"
               onClick={handleBack}
               disabled={currentStep === 0}
-              className="border-[#ECEAE6] text-[#626260] hover:text-[#111] font-medium disabled:opacity-40"
+              className="border-slate-200 text-slate-600 hover:text-navy font-medium disabled:opacity-40"
             >
               <ChevronLeft className="mr-1.5 h-3.5 w-3.5" />
               Previous
@@ -237,7 +237,7 @@ export default function EditExamPage({ params }: { params: Promise<{ id: string 
             <Button
               onClick={handleNext}
               disabled={currentStep === 0 ? !isStepValid : false}
-              className="bg-[#111] text-white hover:bg-[#313130] disabled:opacity-40 font-medium"
+              className="bg-navy text-white hover:bg-slate-800 disabled:opacity-40 font-medium"
             >
               Next
               <ChevronRight className="ml-1.5 h-3.5 w-3.5" />

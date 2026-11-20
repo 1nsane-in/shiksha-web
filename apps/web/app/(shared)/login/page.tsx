@@ -85,10 +85,10 @@ function LoginContent() {
                     />
                   </Link>
                   <div className="text-center">
-                    <h1 className="text-2xl font-semibold tracking-tight text-[#111]">
+                    <h1 className="text-2xl font-semibold tracking-tight text-navy">
                       Welcome back
                     </h1>
-                    <p className="text-sm text-[#626260] mt-1">
+                    <p className="text-sm text-slate-600 mt-1">
                       Sign in to continue to your account
                     </p>
                   </div>
@@ -126,7 +126,7 @@ function LoginContent() {
                     <FieldLabel htmlFor="phonePassword">Password</FieldLabel>
                     <Link
                       href="/forgot-password"
-                      className="text-xs text-[#626260] hover:text-[#111] underline-offset-4 hover:underline transition-colors"
+                      className="text-xs text-slate-600 hover:text-navy underline-offset-4 hover:underline transition-colors"
                     >
                       Forgot password?
                     </Link>
@@ -144,7 +144,7 @@ function LoginContent() {
                       onClick={() =>
                         setShowPhonePassword(!showPhonePassword)
                       }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9c9fa5] hover:text-[#626260] transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                       tabIndex={-1}
                     >
                       {showPhonePassword ? (
@@ -176,7 +176,7 @@ function LoginContent() {
                     Don&apos;t have an account?{" "}
                     <Link
                       href="/register"
-                      className="font-medium text-[#111] underline underline-offset-4 hover:no-underline"
+                      className="font-medium text-navy underline underline-offset-4 hover:no-underline"
                     >
                       Create account
                     </Link>
@@ -218,7 +218,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <div className="h-6 w-6 border-2 border-[#111] border-t-transparent rounded-full animate-spin" />
+          <div className="h-6 w-6 border-2 border-navy border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

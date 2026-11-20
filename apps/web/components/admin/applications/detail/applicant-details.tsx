@@ -25,14 +25,14 @@ export function ApplicantDetails({ formData: fd, firstName, lastName, email, sel
   return (
     <>
       {/* Demographics */}
-      <div className="rounded-xl border border-[#d3cec6] bg-white p-6 md:p-8 transition-all">
-        <div className="mb-6 flex items-center gap-3 border-b border-[#ebe7e1] pb-4">
-          <div className="rounded-lg bg-zinc-100 p-2 text-[#111111]">
+      <div className="rounded-xl border border-border bg-white p-6 md:p-8 transition-all">
+        <div className="mb-6 flex items-center gap-3 border-b border-slate-200 pb-4">
+          <div className="rounded-lg bg-zinc-100 p-2 text-navy">
             <User className="h-4 w-4" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Applicant Demographics</h2>
-            <p className="text-[11px] text-[#626260] mt-0.5">Verified details and profile dossier</p>
+            <h2 className="text-sm font-semibold text-navy tracking-tight">Applicant Demographics</h2>
+            <p className="text-[11px] text-slate-600 mt-0.5">Verified details and profile dossier</p>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
@@ -53,14 +53,14 @@ export function ApplicantDetails({ formData: fd, firstName, lastName, email, sel
 
       {/* Birthplace */}
       {fd?.placeOfBirth && (
-        <div className="rounded-xl border border-[#d3cec6] bg-white p-6 md:p-8 transition-all">
-          <div className="mb-6 flex items-center border-b border-[#ebe7e1] pb-4">
-            <div className="rounded-lg bg-zinc-100 p-2 text-[#111111] mr-3">
+        <div className="rounded-xl border border-border bg-white p-6 md:p-8 transition-all">
+          <div className="mb-6 flex items-center border-b border-slate-200 pb-4">
+            <div className="rounded-lg bg-zinc-100 p-2 text-navy mr-3">
               <MapPin className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Birth Details</h2>
-              <p className="text-[11px] text-[#626260] mt-0.5">Recorded place of birth</p>
+              <h2 className="text-sm font-semibold text-navy tracking-tight">Birth Details</h2>
+              <p className="text-[11px] text-slate-600 mt-0.5">Recorded place of birth</p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
@@ -77,14 +77,14 @@ export function ApplicantDetails({ formData: fd, firstName, lastName, email, sel
 
       {/* Permanent Address */}
       {fd?.permanentAddress && (
-        <div className="rounded-xl border border-[#d3cec6] bg-white p-6 md:p-8 transition-all">
-          <div className="mb-6 flex items-center border-b border-[#ebe7e1] pb-4">
-            <div className="rounded-lg bg-zinc-100 p-2 text-[#111111] mr-3">
+        <div className="rounded-xl border border-border bg-white p-6 md:p-8 transition-all">
+          <div className="mb-6 flex items-center border-b border-slate-200 pb-4">
+            <div className="rounded-lg bg-zinc-100 p-2 text-navy mr-3">
               <MapPin className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Permanent Address</h2>
-              <p className="text-[11px] text-[#626260] mt-0.5">Primary residential address</p>
+              <h2 className="text-sm font-semibold text-navy tracking-tight">Permanent Address</h2>
+              <p className="text-[11px] text-slate-600 mt-0.5">Primary residential address</p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
@@ -103,14 +103,14 @@ export function ApplicantDetails({ formData: fd, firstName, lastName, email, sel
 
       {/* Language Proficiency */}
       {fd?.language1 && (
-        <div className="rounded-xl border border-[#d3cec6] bg-white p-6 md:p-8 transition-all">
-          <div className="mb-6 flex items-center border-b border-[#ebe7e1] pb-4">
-            <div className="rounded-lg bg-zinc-100 p-2 text-[#111111] mr-3">
+        <div className="rounded-xl border border-border bg-white p-6 md:p-8 transition-all">
+          <div className="mb-6 flex items-center border-b border-slate-200 pb-4">
+            <div className="rounded-lg bg-zinc-100 p-2 text-navy mr-3">
               <Globe className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-[#111111] tracking-tight">Language Proficiency</h2>
-              <p className="text-[11px] text-[#626260] mt-0.5">Self-reported language skills</p>
+              <h2 className="text-sm font-semibold text-navy tracking-tight">Language Proficiency</h2>
+              <p className="text-[11px] text-slate-600 mt-0.5">Self-reported language skills</p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
@@ -124,7 +124,7 @@ export function ApplicantDetails({ formData: fd, firstName, lastName, email, sel
             </div>
           </div>
           {fd.otherLanguages?.map((lang: any, i: number) => (
-            <div key={i} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 pt-4 border-t border-[#ebe7e1]">
+            <div key={i} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 pt-4 border-t border-slate-200">
               <div className="divide-y divide-zinc-100">
                 <KeyValueRow label="Language" value={lang.name} />
                 <KeyValueRow label="Reading Level" value={lang.reading} />

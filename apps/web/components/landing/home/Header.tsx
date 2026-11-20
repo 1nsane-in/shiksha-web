@@ -31,11 +31,11 @@ export function Header() {
     (href === "/universities" && pathname.startsWith("/student/university"));
 
   return (
-    <header className="fixed inset-x-0 top-3 z-50">
-      <div
-        className={`mx-auto flex h-16 max-w-6xl w-full items-center justify-between gap-8 rounded-full bg-brand-canvas px-4 sm:px-6 lg:px-8 transition-all duration-300 ${scrolled ? "border shadow-sm" : "border border-transparent"}`}
-        style={{ borderColor: scrolled ? brand.hairline : "transparent" }}
-      >
+    <header className="fixed inset-x-0 top-8 z-50">
+      <div className="flex h-16 w-full items-center justify-center bg-brand-canvas transition-all duration-300">
+        <div
+          className={`mx-auto flex max-w-6xl w-full items-center justify-between gap-8 px-4 sm:px-6 lg:px-8 `}
+        >
         {/* ─── Logo ─── */}
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <Image
@@ -129,8 +129,9 @@ export function Header() {
           </button>
         </div>
       </div>
+    </div>
 
-      {/* ─── Mobile menu ─── */}
+    {/* ─── Mobile menu ─── */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div

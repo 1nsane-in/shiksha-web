@@ -44,10 +44,10 @@ export function UniversityCard({
 }: UniversityCardProps) {
   // Country color coding
   const countryColors: Record<string, { bg: string; text: string; border: string }> = {
-    Kyrgyzstan: { bg: "#fef2f2", text: "#dc2626", border: "#fecaca" },
-    Uzbekistan: { bg: "#f0fdf4", text: "#16a34a", border: "#bbf7d0" },
-    Kazakhstan: { bg: "#ecfeff", text: "#0891b2", border: "#a5f3fc" },
-    Russia: { bg: "#eff6ff", text: "#2563eb", border: "#bfdbfe" },
+    Kyrgyzstan: { bg: "#fef2f2", text: "var(--error)", border: "#fecaca" },
+    Uzbekistan: { bg: "#f0fdf4", text: "var(--success)", border: "#bbf7d0" },
+    Kazakhstan: { bg: "#ecfeff", text: "var(--medical-cyan)", border: "#a5f3fc" },
+    Russia: { bg: "#eff6ff", text: "var(--royal-blue)", border: "#bfdbfe" },
   };
 
   const colors = countryColors[country] || { bg: brand.goldLight, text: brand.gold, border: brand.hairline };
@@ -243,7 +243,7 @@ export function UniversityCard({
                   className="px-2 py-1 text-xs rounded-md font-medium"
                   style={{
                     backgroundColor: "#dcfce7",
-                    color: "#166534",
+                    color: "var(--success)",
                   }}
                 >
                   ✓ {approval}

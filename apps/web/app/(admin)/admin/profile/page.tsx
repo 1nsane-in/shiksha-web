@@ -31,7 +31,7 @@ export default function AdminProfilePage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#2D2154]">Not signed in</h2>
+        <h2 className="text-lg font-semibold text-navy">Not signed in</h2>
         <p className="text-sm text-gray-500 mt-1 mb-6">Please log in to view your profile.</p>
         <Link href="/login">
           <Button variant="outline">Go to Login</Button>
@@ -45,7 +45,7 @@ export default function AdminProfilePage() {
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 max-w-6xl mx-auto w-full px-4 lg:px-6">
           <div>
-            <h1 className="text-2xl font-bold text-[#2D2154]">Profile</h1>
+            <h1 className="text-2xl font-bold text-navy">Profile</h1>
             <p className="text-sm text-gray-500 mt-1">Your account details</p>
           </div>
           <ProfileInfo user={user} />

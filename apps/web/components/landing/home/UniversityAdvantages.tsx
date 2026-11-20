@@ -47,7 +47,7 @@ export function UniversityAdvantages() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         {/* Core Advantages */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#1A153A] mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
             Advantages to Study MBBS in Kyrgyzstan
           </h2>
           <p className="text-slate-600 leading-relaxed">
@@ -59,18 +59,18 @@ export function UniversityAdvantages() {
           {advantages.map((item) => (
             <div
               key={item.title}
-              className="rounded-xl border border-slate-100 bg-slate-50/50 p-6 transition-all duration-200 hover:border-[#C4953B]/50 hover:bg-white hover:shadow-md"
+              className="rounded-xl border border-slate-100 bg-slate-50/50 p-6 transition-all duration-200 hover:border-champagne-gold/50 hover:bg-white hover:shadow-md"
             >
-              <h3 className="text-lg font-semibold text-[#1A153A] mb-3">{item.title}</h3>
+              <h3 className="text-lg font-semibold text-navy mb-3">{item.title}</h3>
               <p className="text-slate-600 leading-relaxed text-sm">{item.description}</p>
             </div>
           ))}
         </div>
 
         {/* Hostel & Mess Showcase Tabs */}
-        <div className="bg-[#FAF9F6] rounded-2xl border border-amber-200/40 p-6 sm:p-10 max-w-5xl mx-auto shadow-sm">
+        <div className="bg-white rounded-2xl border border-amber-200/40 p-6 sm:p-10 max-w-5xl mx-auto shadow-sm">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-[#1A153A] mb-2">Student Life & Comfort Abroad</h3>
+            <h3 className="text-2xl font-bold text-navy mb-2">Student Life & Comfort Abroad</h3>
             <p className="text-sm text-slate-500">We ensure homeland comforts, safety, and hygiene so students thrive academically.</p>
           </div>
 
@@ -80,8 +80,8 @@ export function UniversityAdvantages() {
               onClick={() => setActiveTab("hostel")}
               className="flex-1 py-3 text-center text-sm font-bold border-b-2 transition-all duration-150 flex items-center justify-center gap-2"
               style={{
-                borderColor: activeTab === "hostel" ? "#C4953B" : "transparent",
-                color: activeTab === "hostel" ? "#1A153A" : "#6B6599",
+                borderColor: activeTab === "hostel" ? "var(--champagne-gold)" : "transparent",
+                color: activeTab === "hostel" ? "var(--navy)" : "var(--muted-foreground)",
               }}
             >
               <Home className="size-4" />
@@ -91,8 +91,8 @@ export function UniversityAdvantages() {
               onClick={() => setActiveTab("mess")}
               className="flex-1 py-3 text-center text-sm font-bold border-b-2 transition-all duration-150 flex items-center justify-center gap-2"
               style={{
-                borderColor: activeTab === "mess" ? "#C4953B" : "transparent",
-                color: activeTab === "mess" ? "#1A153A" : "#6B6599",
+                borderColor: activeTab === "mess" ? "var(--champagne-gold)" : "transparent",
+                color: activeTab === "mess" ? "var(--navy)" : "var(--muted-foreground)",
               }}
             >
               <Utensils className="size-4" />
@@ -104,8 +104,8 @@ export function UniversityAdvantages() {
           {activeTab === "hostel" ? (
             <div className="grid md:grid-cols-12 gap-8 items-center animate-fadeIn">
               <div className="md:col-span-7 space-y-4">
-                <h4 className="text-lg font-bold text-[#1A153A] flex items-center gap-2">
-                  <ShieldCheck className="size-5 text-[#C4953B]" />
+                <h4 className="text-lg font-bold text-navy flex items-center gap-2">
+                  <ShieldCheck className="size-5 text-champagne-gold" />
                   Separate, Fully Managed Safe Hostels
                 </h4>
                 <p className="text-sm text-slate-600 leading-relaxed">
@@ -113,37 +113,37 @@ export function UniversityAdvantages() {
                 </p>
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="flex items-start gap-2.5 text-xs text-slate-600">
-                    <ShieldCheck className="size-4 text-[#C4953B] shrink-0 mt-0.5" />
+                    <ShieldCheck className="size-4 text-champagne-gold shrink-0 mt-0.5" />
                     <span>24/7 Guards & CCTV Surveillance</span>
                   </div>
                   <div className="flex items-start gap-2.5 text-xs text-slate-600">
-                    <Wifi className="size-4 text-[#C4953B] shrink-0 mt-0.5" />
+                    <Wifi className="size-4 text-champagne-gold shrink-0 mt-0.5" />
                     <span>High-Speed Wi-Fi & Study Rooms</span>
                   </div>
                   <div className="flex items-start gap-2.5 text-xs text-slate-600">
-                    <Tv className="size-4 text-[#C4953B] shrink-0 mt-0.5" />
+                    <Tv className="size-4 text-champagne-gold shrink-0 mt-0.5" />
                     <span>Common Lounge & Recreational Area</span>
                   </div>
                   <div className="flex items-start gap-2.5 text-xs text-slate-600">
-                    <Coffee className="size-4 text-[#C4953B] shrink-0 mt-0.5" />
+                    <Coffee className="size-4 text-champagne-gold shrink-0 mt-0.5" />
                     <span>Laundry Rooms & Hot Water Supply</span>
                   </div>
                 </div>
               </div>
               <div className="md:col-span-5 border border-amber-200/20 rounded-xl overflow-hidden shadow-sm bg-white p-5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#C4953B] bg-amber-100/60 px-2 py-1 rounded">Hostel Policy</span>
-                <h5 className="font-bold text-sm text-[#1A153A] mt-3 mb-2">Strict Safety Norms</h5>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-champagne-gold bg-amber-100/60 px-2 py-1 rounded">Hostel Policy</span>
+                <h5 className="font-bold text-sm text-navy mt-3 mb-2">Strict Safety Norms</h5>
                 <ul className="text-xs text-slate-500 space-y-2">
                   <li className="flex items-center gap-2">
-                    <span className="size-1 bg-[#C4953B] rounded-full" />
+                    <span className="size-1 bg-champagne-gold rounded-full" />
                     Separate wings/buildings for boys and girls
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="size-1 bg-[#C4953B] rounded-full" />
+                    <span className="size-1 bg-champagne-gold rounded-full" />
                     Strict warden supervision & curfew hours
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="size-1 bg-[#C4953B] rounded-full" />
+                    <span className="size-1 bg-champagne-gold rounded-full" />
                     Regular sanitization & weekly room cleaning
                   </li>
                 </ul>
@@ -152,8 +152,8 @@ export function UniversityAdvantages() {
           ) : (
             <div className="grid md:grid-cols-12 gap-8 items-center animate-fadeIn">
               <div className="md:col-span-7 space-y-4">
-                <h4 className="text-lg font-bold text-[#1A153A] flex items-center gap-2">
-                  <ChefHat className="size-5 text-[#C4953B]" />
+                <h4 className="text-lg font-bold text-navy flex items-center gap-2">
+                  <ChefHat className="size-5 text-champagne-gold" />
                   Hygienic Indian Food Prepared by Native Chefs
                 </h4>
                 <p className="text-sm text-slate-600 leading-relaxed">
@@ -161,26 +161,26 @@ export function UniversityAdvantages() {
                 </p>
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="flex items-start gap-2.5 text-xs text-slate-600">
-                    <ChefHat className="size-4 text-[#C4953B] shrink-0 mt-0.5" />
+                    <ChefHat className="size-4 text-champagne-gold shrink-0 mt-0.5" />
                     <span>Experienced Cooks from India</span>
                   </div>
                   <div className="flex items-start gap-2.5 text-xs text-slate-600">
-                    <Coffee className="size-4 text-[#C4953B] shrink-0 mt-0.5" />
+                    <Coffee className="size-4 text-champagne-gold shrink-0 mt-0.5" />
                     <span>Pure Vegetarian & Non-Veg separate sections</span>
                   </div>
                   <div className="flex items-start gap-2.5 text-xs text-slate-600">
-                    <Utensils className="size-4 text-[#C4953B] shrink-0 mt-0.5" />
+                    <Utensils className="size-4 text-champagne-gold shrink-0 mt-0.5" />
                     <span>Fresh daily deliveries of groceries & spices</span>
                   </div>
                   <div className="flex items-start gap-2.5 text-xs text-slate-600">
-                    <HeartHandshake className="size-4 text-[#C4953B] shrink-0 mt-0.5" />
+                    <HeartHandshake className="size-4 text-champagne-gold shrink-0 mt-0.5" />
                     <span>Custom menu for national festivals</span>
                   </div>
                 </div>
               </div>
               <div className="md:col-span-5 border border-amber-200/20 rounded-xl overflow-hidden shadow-sm bg-white p-5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#C4953B] bg-amber-100/60 px-2 py-1 rounded">Meal Schedule</span>
-                <h5 className="font-bold text-sm text-[#1A153A] mt-3 mb-2">3 Wholesome Meals Daily</h5>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-champagne-gold bg-amber-100/60 px-2 py-1 rounded">Meal Schedule</span>
+                <h5 className="font-bold text-sm text-navy mt-3 mb-2">3 Wholesome Meals Daily</h5>
                 <ul className="text-xs text-slate-500 space-y-2">
                   <li className="flex justify-between border-b pb-1 border-slate-100">
                     <span>Breakfast:</span> <span className="font-semibold text-slate-700">Teas, Parathas, Eggs, Poha</span>

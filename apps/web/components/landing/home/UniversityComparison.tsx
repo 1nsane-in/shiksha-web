@@ -72,7 +72,7 @@ export function UniversityComparison() {
                 return (
                   <tr
                     key={row.label}
-                    className={isEven ? "bg-white" : "bg-[#FAF9F6]"}
+                    className={isEven ? "bg-white" : "bg-white"}
                   >
                     <td
                       className="px-5 py-4 text-xs font-semibold whitespace-nowrap"
@@ -87,9 +87,9 @@ export function UniversityComparison() {
                         return (
                           <td key={c.name} className="px-5 py-4">
                             {val ? (
-                              <Check className="size-4" style={{ color: "#16a34a" }} />
+                              <Check className="size-4" style={{ color: "var(--success)" }} />
                             ) : (
-                              <Minus className="size-4" style={{ color: "#d1d5db" }} />
+                              <Minus className="size-4" style={{ color: "var(--hairline)" }} />
                             )}
                           </td>
                         );
@@ -98,7 +98,7 @@ export function UniversityComparison() {
                         <td
                           key={c.name}
                           className={`px-5 py-4 text-xs ${
-                            c.name === "India" ? "text-gray-400" : "text-[#2D2154]"
+                            c.name === "India" ? "text-gray-400" : "text-navy"
                           } ${row.highlight ? "font-bold" : ""}`}
                         >
                           {val}

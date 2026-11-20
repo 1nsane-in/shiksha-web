@@ -150,10 +150,10 @@ export default function UniversitiesPage() {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold tracking-tight text-[#111]">
+            <h1 className="text-2xl font-bold tracking-tight text-navy">
               Universities
             </h1>
-            <p className="text-sm text-[#666]">
+            <p className="text-sm text-slate-500">
               Onboard and manage medical school information, academic courses, and
               admissions.
             </p>
@@ -162,7 +162,7 @@ export default function UniversitiesPage() {
             <Button
               onClick={() => router.push("/admin/universities/new")}
               size="sm"
-              className="bg-[#3730A3] hover:bg-[#2e288a] text-white font-medium cursor-pointer flex items-center gap-1.5 h-10 px-4"
+              className="bg-royal-blue hover:bg-navy-light text-white font-medium cursor-pointer flex items-center gap-1.5 h-10 px-4"
             >
               <Plus className="h-4 w-4" />
               Add University
@@ -176,7 +176,7 @@ export default function UniversitiesPage() {
             onClick={() => setActiveTab("universities")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 border ${
               activeTab === "universities"
-                ? "bg-white text-[#1A153A] shadow-sm border-gray-200"
+                ? "bg-white text-navy shadow-sm border-gray-200"
                 : "text-gray-500 hover:text-gray-700 border-transparent"
             }`}
           >
@@ -190,7 +190,7 @@ export default function UniversitiesPage() {
             onClick={() => setActiveTab("requests")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 border ${
               activeTab === "requests"
-                ? "bg-white text-[#1A153A] shadow-sm border-gray-200"
+                ? "bg-white text-navy shadow-sm border-gray-200"
                 : "text-gray-500 hover:text-gray-700 border-transparent"
             }`}
           >
@@ -207,7 +207,7 @@ export default function UniversitiesPage() {
       {activeTab === "universities" ? (
         <>
           {/* Filters bar */}
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center bg-[#FAFAF8] border border-[#ECEAE6] rounded-xl p-4">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center bg-white border border-slate-200 rounded-xl p-4">
         <div className="relative flex-1 sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
@@ -217,7 +217,7 @@ export default function UniversitiesPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="pl-10 bg-white border-[#E5E7EB] text-sm h-10"
+            className="pl-10 bg-white border-slate-200 text-sm h-10"
           />
         </div>
         <div className="flex flex-wrap gap-2">
@@ -228,7 +228,7 @@ export default function UniversitiesPage() {
               value={statusFilter}
               onValueChange={(value) => setStatusFilter(value ?? "all")}
             >
-              <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-9">
+              <SelectTrigger className="w-full sm:w-[140px] bg-white border-slate-200 text-xs h-9">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
               <SelectContent>
@@ -249,7 +249,7 @@ export default function UniversitiesPage() {
               value={typeFilter}
               onValueChange={(value) => setTypeFilter(value ?? "all")}
             >
-              <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-9">
+              <SelectTrigger className="w-full sm:w-[140px] bg-white border-slate-200 text-xs h-9">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
@@ -270,7 +270,7 @@ export default function UniversitiesPage() {
               size="sm"
               onClick={() => refetchUniversities()}
               disabled={isLoading}
-              className="h-9 px-3 border-[#E5E7EB] hover:bg-white"
+              className="h-9 px-3 border-slate-200 hover:bg-white"
             >
               <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             </Button>
@@ -282,22 +282,22 @@ export default function UniversitiesPage() {
       <div className="flex flex-col gap-3 md:hidden">
         {isLoading ? (
           <div className="py-12 flex justify-center items-center">
-            <Loader2 className="h-6 w-6 text-[#3730A3] animate-spin" />
+            <Loader2 className="h-6 w-6 text-royal-blue animate-spin" />
           </div>
         ) : universities.length === 0 ? (
-          <div className="text-center py-12 text-sm text-gray-500 bg-white border border-[#ECEAE6] rounded-xl">
+          <div className="text-center py-12 text-sm text-gray-500 bg-white border border-slate-200 rounded-xl">
             No universities matched your search.
           </div>
         ) : (
           universities.map((uni) => (
             <div
               key={uni.id}
-              className="cursor-pointer rounded-xl border border-[#ECEAE6] bg-white p-4 transition-all hover:shadow-md active:bg-[#FAFAF8]"
+              className="cursor-pointer rounded-xl border border-slate-200 bg-white p-4 transition-all hover:shadow-md active:bg-white"
               onClick={() => router.push(`/admin/universities/${uni.id}`)}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <h4 className="truncate text-base font-bold text-[#111]">
+                  <h4 className="truncate text-base font-bold text-navy">
                     {uni.name}
                   </h4>
                   <p className="text-xs text-gray-400 font-medium">
@@ -313,7 +313,7 @@ export default function UniversitiesPage() {
                 </Badge>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-gray-500 border-t pt-3 border-gray-100">
-                <span className="flex items-center gap-1 font-semibold text-[10px] text-[#3730A3]">
+                <span className="flex items-center gap-1 font-semibold text-[10px] text-royal-blue">
                   <Building2 className="h-3 w-3" /> {uni.type}
                 </span>
                 {uni.location && (
@@ -332,26 +332,26 @@ export default function UniversitiesPage() {
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block overflow-hidden rounded-xl border p-2 border-[#ECEAE6] bg-white">
+      <div className="hidden md:block overflow-hidden rounded-xl border p-2 border-slate-200 bg-white">
         <Table>
           <TableHeader>
-            <TableRow className="bg-[#FAFAF8] border-[#ECEAE6]">
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+            <TableRow className="bg-white border-slate-200">
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4">
                 University
               </TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4">
                 Type
               </TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4">
                 Location
               </TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-center">
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4 text-center">
                 Status
               </TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-center">
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4 text-center">
                 Est.
               </TableHead>
-              <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-right">
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4 text-right">
                 Actions
               </TableHead>
             </TableRow>
@@ -360,14 +360,14 @@ export default function UniversitiesPage() {
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-12">
-                  <Loader2 className="h-6 w-6 text-[#3730A3] animate-spin mx-auto" />
+                  <Loader2 className="h-6 w-6 text-royal-blue animate-spin mx-auto" />
                 </TableCell>
               </TableRow>
             ) : universities.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={6}
-                  className="text-center py-12 text-sm text-[#888]"
+                  className="text-center py-12 text-sm text-slate-400"
                 >
                   No universities found matching current filters.
                 </TableCell>
@@ -376,12 +376,12 @@ export default function UniversitiesPage() {
               universities.map((uni) => (
                 <TableRow
                   key={uni.id}
-                  className="cursor-pointer border-[#ECEAE6] hover:bg-[#F2F1ED] transition-colors"
+                  className="cursor-pointer border-slate-200 hover:bg-ice-grey transition-colors"
                   onClick={() => router.push(`/admin/universities/${uni.id}`)}
                 >
                   <TableCell className="py-4">
                     <div>
-                      <div className="font-bold text-sm text-[#111]">
+                      <div className="font-bold text-sm text-navy">
                         {uni.name}
                       </div>
                       <div className="text-xs text-gray-400 font-medium mt-0.5">
@@ -399,7 +399,7 @@ export default function UniversitiesPage() {
                   <TableCell>
                     {uni.location ? (
                       <div className="text-sm">
-                        <div className="font-medium text-[#111]">
+                        <div className="font-medium text-navy">
                           {uni.location.city}
                         </div>
                         <div className="text-xs text-gray-400 mt-0.5">
@@ -419,7 +419,7 @@ export default function UniversitiesPage() {
                       {uni.status.replace("_", " ")}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-center font-mono text-sm font-medium text-[#111]">
+                  <TableCell className="text-center font-mono text-sm font-medium text-navy">
                     {uni.establishedYear}
                   </TableCell>
                   <TableCell
@@ -433,7 +433,7 @@ export default function UniversitiesPage() {
                         onClick={() =>
                           router.push(`/admin/universities/${uni.id}`)
                         }
-                        className="text-[#3730A3] hover:text-[#2e288a] font-semibold text-xs cursor-pointer"
+                        className="text-royal-blue hover:text-navy-light font-semibold text-xs cursor-pointer"
                       >
                         <Eye className="h-4 w-4 mr-1" /> View
                       </Button>
@@ -481,7 +481,7 @@ export default function UniversitiesPage() {
               size="sm"
               onClick={() => setPage(page - 1)}
               disabled={page === 1}
-              className="cursor-pointer border-[#ECEAE6] hover:bg-[#FAFAF8] bg-white text-xs h-9"
+              className="cursor-pointer border-slate-200 hover:bg-white bg-white text-xs h-9"
             >
               <ChevronLeft className="h-4 w-4 mr-1" /> Previous
             </Button>
@@ -490,7 +490,7 @@ export default function UniversitiesPage() {
               size="sm"
               onClick={() => setPage(page + 1)}
               disabled={page === totalPages}
-              className="cursor-pointer border-[#ECEAE6] hover:bg-[#FAFAF8] bg-white text-xs h-9"
+              className="cursor-pointer border-slate-200 hover:bg-white bg-white text-xs h-9"
             >
               Next <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
@@ -501,7 +501,7 @@ export default function UniversitiesPage() {
       ) : (
         <>
           {/* Requests Filters */}
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end bg-[#FAFAF8] border border-[#ECEAE6] rounded-xl p-4">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end bg-white border border-slate-200 rounded-xl p-4">
             <div className="flex flex-wrap gap-3 flex-1">
               {/* Status Filter */}
               <div className="flex flex-col gap-1">
@@ -510,7 +510,7 @@ export default function UniversitiesPage() {
                   value={requestStatusFilter}
                   onValueChange={(value) => setRequestStatusFilter(value ?? "all")}
                 >
-                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-[#E5E7EB] text-xs h-9">
+                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-slate-200 text-xs h-9">
                     <SelectValue placeholder="All Statuses" />
                   </SelectTrigger>
                   <SelectContent>
@@ -531,7 +531,7 @@ export default function UniversitiesPage() {
                   value={requestTypeFilter}
                   onValueChange={(value) => setRequestTypeFilter(value ?? "all")}
                 >
-                  <SelectTrigger className="w-full sm:w-[140px] bg-white border-[#E5E7EB] text-xs h-9">
+                  <SelectTrigger className="w-full sm:w-[140px] bg-white border-slate-200 text-xs h-9">
                     <SelectValue placeholder="All Types" />
                   </SelectTrigger>
                   <SelectContent>
@@ -551,7 +551,7 @@ export default function UniversitiesPage() {
                   value={requestCountryFilter}
                   onValueChange={(value) => setRequestCountryFilter(value ?? "all")}
                 >
-                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-[#E5E7EB] text-xs h-9">
+                  <SelectTrigger className="w-full sm:w-[150px] bg-white border-slate-200 text-xs h-9">
                     <SelectValue placeholder="All Countries" />
                   </SelectTrigger>
                   <SelectContent>
@@ -581,7 +581,7 @@ export default function UniversitiesPage() {
                   value={requestProgramFilter}
                   onValueChange={(value) => setRequestProgramFilter(value ?? "all")}
                 >
-                  <SelectTrigger className="w-full sm:w-[160px] bg-white border-[#E5E7EB] text-xs h-9">
+                  <SelectTrigger className="w-full sm:w-[160px] bg-white border-slate-200 text-xs h-9">
                     <SelectValue placeholder="All Programs" />
                   </SelectTrigger>
                   <SelectContent>
@@ -631,7 +631,7 @@ export default function UniversitiesPage() {
                   size="sm"
                   onClick={() => refetchRequests()}
                   disabled={isLoadingRequests}
-                  className="h-9 px-3 border-[#E5E7EB] hover:bg-white"
+                  className="h-9 px-3 border-slate-200 hover:bg-white"
                 >
                   <RefreshCw className={`h-4 w-4 ${isLoadingRequests ? 'animate-spin' : ''}`} />
                 </Button>
@@ -639,32 +639,32 @@ export default function UniversitiesPage() {
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-500">
-                Showing <span className="font-semibold text-[#111]">{filteredRequests.length}</span> of {requests.length}
+                Showing <span className="font-semibold text-navy">{filteredRequests.length}</span> of {requests.length}
               </p>
             </div>
           </div>
 
           {/* Requests Table */}
-          <div className="overflow-hidden rounded-xl border p-2 border-[#ECEAE6] bg-white">
+          <div className="overflow-hidden rounded-xl border p-2 border-slate-200 bg-white">
             <Table>
               <TableHeader>
-                <TableRow className="bg-[#FAFAF8] border-[#ECEAE6]">
-                  <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+                <TableRow className="bg-white border-slate-200">
+                  <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4">
                     University
                   </TableHead>
-                  <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+                  <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4">
                     Website
                   </TableHead>
-                  <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+                  <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4">
                     Location
                   </TableHead>
-                  <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+                  <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4">
                     Type
                   </TableHead>
-                  <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4">
+                  <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4">
                     Programs
                   </TableHead>
-                  <TableHead className="text-xs font-semibold text-[#666] uppercase tracking-wider py-4 text-center">
+                  <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider py-4 text-center">
                     Status
                   </TableHead>
                 </TableRow>
@@ -673,14 +673,14 @@ export default function UniversitiesPage() {
                 {isLoadingRequests ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-12">
-                      <Loader2 className="h-6 w-6 text-[#3730A3] animate-spin mx-auto" />
+                      <Loader2 className="h-6 w-6 text-royal-blue animate-spin mx-auto" />
                     </TableCell>
                   </TableRow>
                 ) : filteredRequests.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={6}
-                      className="text-center py-12 text-sm text-[#888]"
+                      className="text-center py-12 text-sm text-slate-400"
                     >
                       {requests.length === 0 
                         ? "No university requests found." 
@@ -691,14 +691,14 @@ export default function UniversitiesPage() {
                   filteredRequests.map((req: any) => (
                     <TableRow
                       key={req.id}
-                      className="border-[#ECEAE6] hover:bg-[#F2F1ED] transition-colors cursor-pointer"
+                      className="border-slate-200 hover:bg-ice-grey transition-colors cursor-pointer"
                       onClick={() => {
                         setSelectedRequest(req);
                         setIsDrawerOpen(true);
                       }}
                     >
                       <TableCell className="py-4">
-                        <div className="font-bold text-sm text-[#111]">
+                        <div className="font-bold text-sm text-navy">
                           {req.universityName}
                         </div>
                       </TableCell>
@@ -708,7 +708,7 @@ export default function UniversitiesPage() {
                             href={req.website}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-[#3730A3] hover:underline flex items-center gap-1"
+                            className="text-xs text-royal-blue hover:underline flex items-center gap-1"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Globe className="h-3 w-3" />
@@ -722,7 +722,7 @@ export default function UniversitiesPage() {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div className="font-medium text-[#111]">
+                          <div className="font-medium text-navy">
                             {req.state || req.country}
                           </div>
                           <div className="text-xs text-gray-400 mt-0.5">
@@ -781,7 +781,7 @@ export default function UniversitiesPage() {
               <div className="px-6 py-5 border-b border-gray-100 bg-white">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-bold text-[#111] leading-tight">
+                    <h2 className="text-xl font-bold text-navy leading-tight">
                       {selectedRequest.universityName}
                     </h2>
                     <div className="flex items-center gap-2 mt-2">
@@ -809,7 +809,7 @@ export default function UniversitiesPage() {
                       <MapPin className="h-3.5 w-3.5" />
                       <span className="text-[10px] font-semibold uppercase tracking-wider">Location</span>
                     </div>
-                    <p className="text-sm font-semibold text-[#111]">
+                    <p className="text-sm font-semibold text-navy">
                       {selectedRequest.state || selectedRequest.country}
                     </p>
                     <p className="text-xs text-gray-500">{selectedRequest.country}</p>
@@ -835,10 +835,10 @@ export default function UniversitiesPage() {
                       href={selectedRequest.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-[#3730A3] hover:text-[#2e288a] transition-colors group"
+                      className="flex items-center gap-2 text-sm text-royal-blue hover:text-navy-light transition-colors group"
                     >
-                      <div className="w-8 h-8 rounded-lg bg-[#3730A3]/10 flex items-center justify-center group-hover:bg-[#3730A3]/20 transition-colors">
-                        <Globe className="h-4 w-4 text-[#3730A3]" />
+                      <div className="w-8 h-8 rounded-lg bg-royal-blue/10 flex items-center justify-center group-hover:bg-royal-blue/20 transition-colors">
+                        <Globe className="h-4 w-4 text-royal-blue" />
                       </div>
                       <span className="font-medium truncate">{selectedRequest.website.replace(/^https?:\/\//, '')}</span>
                     </a>
@@ -855,7 +855,7 @@ export default function UniversitiesPage() {
                     {selectedRequest.programs?.filter((p: string) => p !== "Other").map((program: string) => (
                       <span
                         key={program}
-                        className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-[#3730A3]/5 text-[#3730A3] border border-[#3730A3]/10"
+                        className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-royal-blue/5 text-royal-blue border border-royal-blue/10"
                       >
                         {program}
                       </span>
@@ -880,7 +880,7 @@ export default function UniversitiesPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[10px] text-gray-400 uppercase tracking-wider">Email</p>
-                        <p className="text-sm font-medium text-[#111] truncate">{selectedRequest.contactEmail}</p>
+                        <p className="text-sm font-medium text-navy truncate">{selectedRequest.contactEmail}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
@@ -889,7 +889,7 @@ export default function UniversitiesPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[10px] text-gray-400 uppercase tracking-wider">Phone</p>
-                        <p className="text-sm font-medium text-[#111]">{selectedRequest.contactPhone}</p>
+                        <p className="text-sm font-medium text-navy">{selectedRequest.contactPhone}</p>
                       </div>
                     </div>
                   </div>

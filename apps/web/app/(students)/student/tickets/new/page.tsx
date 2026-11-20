@@ -62,7 +62,7 @@ export default function NewTicketPage() {
       <button
         type="button"
         onClick={() => router.push("/student/tickets")}
-        className="flex items-center gap-1.5 text-sm text-[#4B2D8E] hover:text-[#2D2154] font-medium"
+        className="flex items-center gap-1.5 text-sm text-royal-blue hover:text-navy font-medium"
       >
         <ArrowLeft className="size-4" />
         Back to Tickets

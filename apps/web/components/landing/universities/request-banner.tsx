@@ -13,7 +13,7 @@ export function RequestBanner({
 }) {
   return (
     <div className="max-w-5xl mx-auto mt-16">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#1A153A] via-[#2d2652] to-[#1A153A] border border-gold/20">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-navy via-navy to-navy border border-gold/20">
         {/* Decorative pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-gold blur-3xl" />
@@ -44,7 +44,7 @@ export function RequestBanner({
           <div className="shrink-0">
             <button
               onClick={onRequestUniversity}
-              className="group inline-flex items-center gap-2 px-6 py-3 bg-gold hover:bg-[#b0852f] text-[#1A153A] font-bold text-sm rounded-xl transition-all duration-200 active:scale-[0.98] whitespace-nowrap"
+              className="group inline-flex items-center gap-2 px-6 py-3 bg-gold hover:bg-gold-dark text-navy font-bold text-sm rounded-xl transition-all duration-200 active:scale-[0.98] whitespace-nowrap"
             >
               <span>Request University</span>
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />

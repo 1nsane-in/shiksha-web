@@ -54,7 +54,7 @@ export default function AdminTicketsPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#2D2154]">Failed to load tickets</h2>
+        <h2 className="text-lg font-semibold text-navy">Failed to load tickets</h2>
         <Button onClick={() => refetch()} variant="outline" className="gap-2 mt-4">
           <RefreshCw className="size-4" /> Retry
         </Button>
@@ -66,7 +66,7 @@ export default function AdminTicketsPage() {
     <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-[#2D2154]">Support Tickets</h1>
+          <h1 className="text-xl font-bold text-navy">Support Tickets</h1>
           <p className="text-sm text-gray-500">Manage student support tickets</p>
         </div>
       </div>
@@ -116,7 +116,7 @@ export default function AdminTicketsPage() {
                       <div className="flex items-center gap-3 min-w-0 flex-1">
                         <MessageSquare className="size-4 text-gray-400 shrink-0" />
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-[#2D2154] truncate">{ticket.subject}</p>
+                          <p className="text-sm font-medium text-navy truncate">{ticket.subject}</p>
                           <p className="text-xs text-gray-500 truncate">{ticket.student?.user?.name ?? "Unknown"}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">

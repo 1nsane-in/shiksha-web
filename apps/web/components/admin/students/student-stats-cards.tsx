@@ -28,12 +28,12 @@ export function StudentStatsCards({ stats }: Props) {
 
 function StatCard({ icon, bg, label, value }: { icon: React.ReactNode; bg: string; label: string; value: number }) {
   return (
-    <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
+    <Card className="border-slate-200 bg-white">
       <CardContent className="pt-4 flex items-center gap-4">
         <div className={`rounded-lg ${bg} p-2.5`}>{icon}</div>
         <div>
           <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">{label}</p>
-          <p className="text-xl font-bold text-[#111] mt-0.5">{value}</p>
+          <p className="text-xl font-bold text-navy mt-0.5">{value}</p>
         </div>
       </CardContent>
     </Card>

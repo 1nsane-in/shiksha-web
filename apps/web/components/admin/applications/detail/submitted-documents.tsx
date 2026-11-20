@@ -41,25 +41,25 @@ export function SubmittedDocuments({ documents, passportUrl, certificateUrl }: P
     <>
       <PreviewDialog isOpen={!!previewFile} onClose={() => setPreviewFile(null)} fileUrl={previewFile?.url || null} fileName={previewFile?.name || null} />
 
-      <div className="rounded-xl border border-[#d3cec6] bg-white p-6">
-        <div className="mb-5 flex items-center gap-2 border-b border-[#ebe7e1] pb-3">
+      <div className="rounded-xl border border-border bg-white p-6">
+        <div className="mb-5 flex items-center gap-2 border-b border-slate-200 pb-3">
           <div className="rounded-lg bg-zinc-100 p-1.5">
-            <FileText className="h-4 w-4 text-[#111111]" />
+            <FileText className="h-4 w-4 text-navy" />
           </div>
-          <h2 className="text-sm font-medium text-[#111111] tracking-tight">Submitted Documents</h2>
+          <h2 className="text-sm font-medium text-navy tracking-tight">Submitted Documents</h2>
         </div>
         {allDocuments.length > 0 ? (
-          <div className="divide-y divide-[#ebe7e1]">
+          <div className="divide-y divide-slate-200">
             {allDocuments.map((doc: Document) => (
               <div key={doc.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
                 <div>
-                  <p className="font-medium text-sm text-[#111111]">{doc.documentType?.name}</p>
-                  <p className="text-[10px] text-[#626260] mt-0.5">Code: {doc.documentType?.code}</p>
+                  <p className="font-medium text-sm text-navy">{doc.documentType?.name}</p>
+                  <p className="text-[10px] text-slate-600 mt-0.5">Code: {doc.documentType?.code}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   {doc.fileUrl && (
                     <button type="button" onClick={() => setPreviewFile({ url: doc.fileUrl, name: doc.documentType?.name })}
-                      className="inline-flex items-center gap-1 rounded-lg border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer">
+                      className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-2.5 py-1 text-xs font-medium text-navy hover:bg-zinc-50 transition-all cursor-pointer">
                       <ExternalLink className="h-3 w-3" /> View
                     </button>
                   )}
@@ -75,7 +75,7 @@ export function SubmittedDocuments({ documents, passportUrl, certificateUrl }: P
             ))}
           </div>
         ) : (
-          <p className="text-xs text-[#626260] py-4 text-center">No documents uploaded yet</p>
+          <p className="text-xs text-slate-600 py-4 text-center">No documents uploaded yet</p>
         )}
       </div>
     </>

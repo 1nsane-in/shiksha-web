@@ -88,17 +88,17 @@ export default function CoursesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight text-[#111]">
+          <h1 className="text-2xl font-bold tracking-tight text-navy">
             Courses
           </h1>
-          <p className="text-sm text-[#666]">
+          <p className="text-sm text-slate-500">
             Manage medical courses, degrees, and program offerings.
           </p>
         </div>
         <Button
           onClick={() => router.push("/admin/courses/new")}
           size="sm"
-          className="bg-[#3730A3] hover:bg-[#2e288a] text-white font-medium cursor-pointer flex items-center gap-1.5 h-10 px-4"
+          className="bg-royal-blue hover:bg-navy-light text-white font-medium cursor-pointer flex items-center gap-1.5 h-10 px-4"
         >
           <Plus className="h-4 w-4" />
           Add Course
@@ -106,7 +106,7 @@ export default function CoursesPage() {
       </div>
 
       {/* Search */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center bg-[#FAFAF8] border border-[#ECEAE6] rounded-xl p-4">
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center bg-white border border-slate-200 rounded-xl p-4">
         <div className="relative flex-1 sm:max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
@@ -116,7 +116,7 @@ export default function CoursesPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="pl-10 bg-white border-[#E5E7EB] text-sm h-10"
+            className="pl-10 bg-white border-slate-200 text-sm h-10"
           />
         </div>
       </div>
@@ -124,10 +124,10 @@ export default function CoursesPage() {
       {/* Course Grid */}
       {isLoading ? (
         <div className="py-12 flex justify-center items-center">
-          <Loader2 className="h-6 w-6 text-[#3730A3] animate-spin" />
+          <Loader2 className="h-6 w-6 text-royal-blue animate-spin" />
         </div>
       ) : courses.length === 0 ? (
-        <div className="text-center py-12 text-sm text-gray-500 bg-white border border-[#ECEAE6] rounded-xl">
+        <div className="text-center py-12 text-sm text-gray-500 bg-white border border-slate-200 rounded-xl">
           No courses found.
         </div>
       ) : (
@@ -135,16 +135,16 @@ export default function CoursesPage() {
           {courses.map((course) => (
             <div
               key={course.id}
-              className="cursor-pointer rounded-xl border border-[#ECEAE6] bg-white p-5 transition-all hover:shadow-md hover:border-[#3730A3]/20 group"
+              className="cursor-pointer rounded-xl border border-slate-200 bg-white p-5 transition-all hover:shadow-md hover:border-royal-blue/20 group"
               onClick={() => router.push(`/admin/courses/${course.id}`)}
             >
               {/* Icon & Name */}
               <div className="flex items-start gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[#3730A3]/10 flex items-center justify-center shrink-0 group-hover:bg-[#3730A3]/20 transition-colors">
-                  <GraduationCap className="h-6 w-6 text-[#3730A3]" />
+                <div className="w-12 h-12 rounded-xl bg-royal-blue/10 flex items-center justify-center shrink-0 group-hover:bg-royal-blue/20 transition-colors">
+                  <GraduationCap className="h-6 w-6 text-royal-blue" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-bold text-lg text-[#111] truncate">
+                  <h3 className="font-bold text-lg text-navy truncate">
                     {course.name}
                   </h3>
                   <p className="text-sm text-gray-500 line-clamp-2 mt-0.5">
@@ -192,7 +192,7 @@ export default function CoursesPage() {
               size="sm"
               onClick={() => setPage(page - 1)}
               disabled={page === 1}
-              className="cursor-pointer border-[#ECEAE6] hover:bg-[#FAFAF8] bg-white text-xs h-9"
+              className="cursor-pointer border-slate-200 hover:bg-white bg-white text-xs h-9"
             >
               <ChevronLeft className="h-4 w-4 mr-1" /> Previous
             </Button>
@@ -201,7 +201,7 @@ export default function CoursesPage() {
               size="sm"
               onClick={() => setPage(page + 1)}
               disabled={page === totalPages}
-              className="cursor-pointer border-[#ECEAE6] hover:bg-[#FAFAF8] bg-white text-xs h-9"
+              className="cursor-pointer border-slate-200 hover:bg-white bg-white text-xs h-9"
             >
               Next <ChevronRight className="h-4 w-4 ml-1" />
             </Button>

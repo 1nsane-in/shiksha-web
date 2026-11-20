@@ -31,7 +31,7 @@ export default function AdminPaymentsPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#2D2154]">Failed to load payments</h2>
+        <h2 className="text-lg font-semibold text-navy">Failed to load payments</h2>
         <Button onClick={() => refetch()} variant="outline" className="gap-2 mt-4">
           <RefreshCw className="size-4" /> Retry
         </Button>
@@ -42,7 +42,7 @@ export default function AdminPaymentsPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
       <div>
-        <h1 className="text-xl font-bold text-[#2D2154]">Payment Management</h1>
+        <h1 className="text-xl font-bold text-navy">Payment Management</h1>
         <p className="text-sm text-gray-500">Monitor and approve student payments</p>
       </div>
 

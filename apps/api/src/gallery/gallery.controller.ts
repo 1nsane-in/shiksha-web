@@ -17,17 +17,11 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Public } from '../auth/decorators/public.decorator';
+import { SAFE_UPLOAD_MIMES } from '../common/helpers/file-type';
 
-const ALLOWED_MIMES = [
-  'image/jpeg',
-  'image/png',
-  'image/jpg',
-  'image/webp',
-  'image/gif',
-  'video/mp4',
-  'video/webm',
-  'video/quicktime',
-];
+const ALLOWED_MIMES: readonly string[] = SAFE_UPLOAD_MIMES.filter(
+  (mime) => mime.startsWith('image/') || mime.startsWith('video/'),
+);
 
 @Controller('gallery')
 export class GalleryController {
@@ -50,16 +44,14 @@ export class GalleryController {
   @Roles('ADMIN', 'SUPER_ADMIN')
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 200 * 1024 * 1024 }, // 200MB
+      limits: { fileSize: 55 * 1024 * 1024 },
       fileFilter: (_req, file, callback) => {
         if (ALLOWED_MIMES.includes(file.mimetype)) {
           callback(null, true);
         } else {
           callback(
             new BadRequestException(
-              'Unsupported file type: ' +
-                file.mimetype +
-                '. Allowed: JPEG, PNG, JPG, WEBP, GIF, MP4, WebM, MOV',
+              'Unsupported file type. Allowed: JPEG, PNG, WebP, GIF, MP4, WebM, MOV',
             ),
             false,
           );

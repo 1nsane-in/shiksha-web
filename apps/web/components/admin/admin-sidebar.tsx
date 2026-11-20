@@ -73,12 +73,12 @@ export function AdminSidebar() {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-56 shrink-0 flex-col border-r border-[#ECEAE6] bg-[#FAFAF8] transition-transform duration-200 md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-56 shrink-0 flex-col border-r border-slate-200 bg-white transition-transform duration-200 md:static md:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Logo */}
-        <div className="flex h-14 items-center gap-2.5 border-b border-[#ECEAE6] px-4">
+        <div className="flex h-14 items-center gap-2.5 border-b border-slate-200 px-4">
           <Image
             src="/img/logo.png"
             alt=""
@@ -86,7 +86,7 @@ export function AdminSidebar() {
             height={24}
             className="h-6 w-auto"
           />
-          <span className="ml-auto rounded-full bg-[#EEF2FF] px-1.5 py-0.5 text-[10px] font-medium text-[#3730A3]">
+          <span className="ml-auto rounded-full bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-royal-blue">
             Admin
           </span>
         </div>
@@ -105,12 +105,12 @@ export function AdminSidebar() {
                     onClick={close}
                     className={`group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
                       active
-                        ? "bg-[#3730A3] text-white"
-                        : "text-[#4B5563] hover:bg-[#F0EEF8] hover:text-[#111]"
+                        ? "bg-royal-blue text-white"
+                        : "text-gray-600 hover:bg-ice-grey hover:text-navy"
                     }`}
                   >
                     <Icon
-                      className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-[#9CA3AF] group-hover:text-[#3730A3]"}`}
+                      className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-slate-400 group-hover:text-royal-blue"}`}
                     />
                     <span className="truncate">{label}</span>
                     {active && (
@@ -124,23 +124,23 @@ export function AdminSidebar() {
         </nav>
 
         {/* User */}
-        <div className="border-t border-[#ECEAE6] p-3">
+        <div className="border-t border-slate-200 p-3">
           <div className="flex items-center gap-2.5 rounded-lg px-2 py-2">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-xs font-semibold text-[#3730A3]">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-xs font-semibold text-royal-blue">
               {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-medium text-[#111]">
+              <p className="truncate text-xs font-medium text-navy">
                 {user?.name || "Admin"}
               </p>
-              <p className="truncate text-[10px] text-[#9CA3AF]">
+              <p className="truncate text-[10px] text-slate-400">
                 {user?.email}
               </p>
             </div>
             <button
               onClick={handleLogout}
               disabled={logoutMutation.isPending}
-              className="rounded-md p-1 text-[#9CA3AF] transition-colors hover:bg-[#F0EEF8] hover:text-[#3730A3] disabled:opacity-50"
+              className="rounded-md p-1 text-slate-400 transition-colors hover:bg-ice-grey hover:text-royal-blue disabled:opacity-50"
               title="Sign out"
             >
               <LogOut className="h-3.5 w-3.5" />

@@ -8,6 +8,14 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
+import { PASSWORD_SALT_ROUNDS } from '../common/constants';
+import { verifyOtpRecord } from '../common/helpers/otp-verification';
+import { rotateRefreshSession } from '../common/helpers/session-rotation';
+import {
+  generateTotpSecret,
+  otpauthUrl,
+  verifyTotp,
+} from '../common/helpers/totp';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { EmailValidationService } from '../common/services/email-validation.service';
@@ -32,6 +40,8 @@ import {
   MigratePhoneDto,
   AddEmailDto,
   AddEmailVerifyOtpDto,
+  EnableMfaDto,
+  VerifyMfaLoginDto,
 } from './auth.dto';
 
 @Injectable()
@@ -138,27 +148,11 @@ export class AuthService {
   }
 
   async verifyPhoneOtp(dto: PhoneVerifyOtpDto) {
-    const record = await this.prisma.otpVerification.findFirst({
-      where: {
-        phone: dto.phone,
-        otp: dto.otp,
-        verifiedAt: null,
-        completedAt: null,
-        expiresAt: { gte: new Date() },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    if (!record) {
-      throw new BadRequestException('Invalid or expired OTP');
-    }
-
-    const token = crypto.randomUUID();
-    await this.prisma.otpVerification.update({
-      where: { id: record.id },
-      data: { verifiedAt: new Date(), token },
-    });
-
+    const { token } = await verifyOtpRecord(
+      this.prisma,
+      { phone: dto.phone },
+      dto.otp,
+    );
     return { message: 'OTP verified successfully', token };
   }
 
@@ -211,7 +205,7 @@ export class AuthService {
       throw new BadRequestException('Phone number already registered');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 8);
+    const hashedPassword = await bcrypt.hash(dto.password, PASSWORD_SALT_ROUNDS);
     const role = dto.role === 'PARENT' ? 'PARENT' : 'STUDENT';
 
     const user = await this.prisma.user.create({
@@ -380,20 +374,11 @@ export class AuthService {
   }
 
   async addEmailVerify(userId: string, dto: AddEmailVerifyOtpDto) {
-    const record = await this.prisma.otpVerification.findFirst({
-      where: {
-        email: dto.email,
-        otp: dto.otp,
-        verifiedAt: null,
-        completedAt: null,
-        expiresAt: { gte: new Date() },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    if (!record) {
-      throw new BadRequestException('Invalid or expired OTP');
-    }
+    const verified = await verifyOtpRecord(
+      this.prisma,
+      { email: dto.email },
+      dto.otp,
+    );
 
     const user = await this.prisma.user.update({
       where: { id: userId },
@@ -404,8 +389,8 @@ export class AuthService {
     });
 
     await this.prisma.otpVerification.update({
-      where: { id: record.id },
-      data: { verifiedAt: new Date(), completedAt: new Date() },
+      where: { id: verified.id },
+      data: { completedAt: new Date() },
     });
 
     return { message: 'Email added and verified successfully', user };
@@ -414,28 +399,11 @@ export class AuthService {
   /* ---------- Email OTP Flow ---------- */
 
   async verifyOtp(dto: VerifyOtpDto) {
-    const record = await this.prisma.otpVerification.findFirst({
-      where: {
-        email: dto.email,
-        otp: dto.otp,
-        verifiedAt: null,
-        completedAt: null,
-        expiresAt: { gte: new Date() },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    if (!record) {
-      throw new BadRequestException('Invalid or expired OTP');
-    }
-
-    const token = crypto.randomUUID();
-
-    await this.prisma.otpVerification.update({
-      where: { id: record.id },
-      data: { verifiedAt: new Date(), token },
-    });
-
+    const { token } = await verifyOtpRecord(
+      this.prisma,
+      { email: dto.email },
+      dto.otp,
+    );
     return { message: 'OTP verified successfully', token };
   }
 
@@ -460,7 +428,7 @@ export class AuthService {
       throw new BadRequestException('Email already registered');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 8);
+    const hashedPassword = await bcrypt.hash(dto.password, PASSWORD_SALT_ROUNDS);
     const role = dto.role === 'PARENT' ? 'PARENT' : 'STUDENT';
 
     const user = await this.prisma.user.create({
@@ -546,6 +514,20 @@ export class AuthService {
     // Successful login — clear lockout counter
     await this.redis.del(lockoutKey);
 
+    const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN';
+    const twoFactor = isAdmin
+      ? await this.prisma.twoFactorAuth?.findUnique({
+          where: { userId: user.id },
+        })
+      : null;
+
+    if (twoFactor?.verified) {
+      // password alone is not enough for admins: issue a short-lived challenge
+      const challengeToken = crypto.randomUUID();
+      await this.redis.set(`mfa:challenge:${challengeToken}`, user.id, 300);
+      return { mfaRequired: true, challengeToken };
+    }
+
     const { accessToken, refreshToken } = await this.generateTokens(user);
 
     // ponytail: flag if phone needs verification for migration
@@ -557,25 +539,17 @@ export class AuthService {
       accessToken,
       refreshToken,
       ...(phoneMigrationRequired ? { phoneMigrationRequired } : {}),
+      ...(isAdmin ? { mfaSetupRequired: true } : {}),
     };
   }
 
   async googleLogin(dto: GoogleAuthDto) {
-    this.logger.log(
-      `Google login attempt with token: ${dto.accessToken?.substring(0, 20)}...`,
-    );
-
     const userInfo = await this.verifyGoogleToken(dto.accessToken);
-    this.logger.debug(
-      `Google token verification result: ${JSON.stringify(userInfo)}`,
-    );
 
     if (!userInfo) {
       this.logger.warn('Invalid Google token');
       throw new UnauthorizedException('Invalid Google token');
     }
-
-    this.logger.log(`Google user info: ${userInfo.email}, ${userInfo.name}`);
 
     let user = await this.prisma.user.findUnique({
       where: { email: userInfo.email },
@@ -660,48 +634,116 @@ export class AuthService {
     };
   }
 
+  async setupMfa(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new BadRequestException('User not found');
+
+    const secret = generateTotpSecret();
+    await this.prisma.twoFactorAuth.upsert({
+      where: { userId },
+      create: { userId, secret, verified: false },
+      update: { secret, verified: false, enabledAt: null, backupCodes: [] },
+    });
+
+    return {
+      secret,
+      otpauthUrl: otpauthUrl(secret, user.email ?? user.phone ?? user.id),
+    };
+  }
+
+  async enableMfa(userId: string, dto: EnableMfaDto) {
+    const record = await this.prisma.twoFactorAuth.findUnique({
+      where: { userId },
+    });
+    if (!record || record.verified) {
+      throw new BadRequestException('No pending MFA setup');
+    }
+    if (!verifyTotp(record.secret, dto.code)) {
+      throw new BadRequestException('Invalid MFA code');
+    }
+
+    const codes = Array.from({ length: 8 }, () =>
+      crypto.randomBytes(4).toString('hex'),
+    );
+    const hashes = codes.map((code) =>
+      crypto.createHash('sha256').update(code).digest('hex'),
+    );
+    await this.prisma.twoFactorAuth.update({
+      where: { userId },
+      data: { verified: true, enabledAt: new Date(), backupCodes: hashes },
+    });
+    return { message: 'MFA enabled', backupCodes: codes };
+  }
+
+  async verifyMfaLogin(dto: VerifyMfaLoginDto) {
+    const key = `mfa:challenge:${dto.challengeToken}`;
+    const userId = await this.redis.get<string>(key);
+    if (!userId) {
+      throw new UnauthorizedException('Invalid or expired MFA challenge');
+    }
+
+    const [user, twoFactor] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id: userId } }),
+      this.prisma.twoFactorAuth.findUnique({ where: { userId } }),
+    ]);
+    if (!user || !twoFactor?.verified) {
+      throw new UnauthorizedException('MFA is not enabled for this account');
+    }
+
+    const validTotp = verifyTotp(twoFactor.secret, dto.code);
+    const codeHash = crypto.createHash('sha256').update(dto.code).digest('hex');
+    const validBackup = twoFactor.backupCodes.includes(codeHash);
+    if (!validTotp && !validBackup) {
+      throw new UnauthorizedException('Invalid MFA code');
+    }
+
+    await this.redis.del(key);
+    if (validBackup) {
+      await this.prisma.twoFactorAuth.update({
+        where: { userId },
+        data: {
+          backupCodes: {
+            set: twoFactor.backupCodes.filter((code: string) => code !== codeHash),
+          },
+        },
+      });
+    }
+
+    const tokens = await this.generateTokens(user);
+    return { message: 'Login successful', user, ...tokens };
+  }
+
   async logout(refreshToken: string) {
     const hash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-    await this.prisma.userSession.deleteMany({ where: { tokenHash: hash } });
+    const session = await this.prisma.userSession.findUnique({
+      where: { tokenHash: hash },
+    });
+    if (session?.familyId) {
+      // logout kills every device in the same login family
+      await this.prisma.userSession.updateMany({
+        where: { familyId: session.familyId },
+        data: { revokedAt: new Date() },
+      });
+    } else {
+      await this.prisma.userSession.deleteMany({ where: { tokenHash: hash } });
+    }
     return { message: 'Logged out successfully' };
   }
 
   async refreshTokens(refreshToken: string) {
     const hash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    const { user, familyId } = await rotateRefreshSession(this.prisma, hash);
 
-    const session = await this.prisma.userSession.findUnique({
-      where: { tokenHash: hash },
-      include: { user: true },
-    });
+    const tokens = await this.generateTokens(user, familyId);
 
-    if (!session || session.expiresAt < new Date()) {
-      throw new UnauthorizedException('Invalid or expired refresh token');
-    }
-
-    if (!session.user.isActive) {
-      throw new UnauthorizedException('Account is deactivated');
-    }
-
-    // Grace period: keep old session valid for 30s instead of deleting immediately.
-    // Prevents multi-tab logout race: if Tab B tries to refresh with the same
-    // old token while Tab A's refresh is in-flight, it can still find the session.
-    await this.prisma.userSession.update({
-      where: { id: session.id },
-      data: { expiresAt: new Date(Date.now() + 30 * 1000) },
-    });
-
-    // Cleanup: garbage-collect fully expired sessions
+    // cleanup only fully expired sessions; revoked rows stay for reuse detection
     await this.prisma.userSession.deleteMany({
       where: { expiresAt: { lt: new Date() } },
     });
 
-    const { accessToken, refreshToken: newRefreshToken } =
-      await this.generateTokens(session.user);
-
     return {
       message: 'Tokens refreshed successfully',
-      accessToken,
-      refreshToken: newRefreshToken,
+      ...tokens,
     };
   }
 
@@ -731,7 +773,7 @@ export class AuthService {
       throw new BadRequestException('User already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 8);
+    const hashedPassword = await bcrypt.hash(dto.password, PASSWORD_SALT_ROUNDS);
 
     const user = await this.prisma.user.create({
       data: {
@@ -799,7 +841,7 @@ export class AuthService {
       throw new BadRequestException('Invalid or expired reset token');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 8);
+    const hashedPassword = await bcrypt.hash(dto.password, PASSWORD_SALT_ROUNDS);
 
     // Get user info for email
     const user = await this.prisma.user.findUnique({
@@ -830,12 +872,15 @@ export class AuthService {
     return { message: 'Password reset successful' };
   }
 
-  private async generateTokens(user: {
-    id: string;
-    role: string;
-    email?: string | null;
-    phone?: string | null;
-  }) {
+  private async generateTokens(
+    user: {
+      id: string;
+      role: string;
+      email?: string | null;
+      phone?: string | null;
+    },
+    familyId?: string,
+  ) {
     const payload: Record<string, any> = {
       sub: user.id,
       id: user.id,
@@ -856,6 +901,7 @@ export class AuthService {
       data: {
         userId: user.id,
         tokenHash: refreshHash,
+        familyId: familyId ?? crypto.randomUUID(),
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });
@@ -966,8 +1012,6 @@ export class AuthService {
           picture?: string;
           email_verified?: boolean;
         };
-        this.logger.debug(`Token info: ${JSON.stringify(tokenInfo)}`);
-
         // Verify the audience matches our client ID
         const expectedAudience = this.config.get<string>('GOOGLE_CLIENT_ID');
         if (tokenInfo.aud !== expectedAudience) {
@@ -1011,7 +1055,6 @@ export class AuthService {
           name?: string;
           picture?: string;
         };
-        this.logger.debug(`User info: ${JSON.stringify(userInfo)}`);
         return userInfo;
       }
     } catch (error) {

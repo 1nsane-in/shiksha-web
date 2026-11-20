@@ -21,8 +21,8 @@ export default function GalleryPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-[#111]">Gallery Management</h1>
-        <p className="text-sm text-[#666]">Upload photos, videos and manage the website gallery.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-navy">Gallery Management</h1>
+        <p className="text-sm text-slate-500">Upload photos, videos and manage the website gallery.</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">

@@ -33,8 +33,8 @@ export function ReviewStep({ formData, onPublish, isPending, onBack, submitLabel
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-medium text-[#111111]">Review & Publish</h2>
-        <p className="text-sm text-[#626260]">
+        <h2 className="text-xl font-medium text-navy">Review & Publish</h2>
+        <p className="text-sm text-slate-600">
           Review your exam configuration before publishing
         </p>
       </div>
@@ -71,58 +71,58 @@ export function ReviewStep({ formData, onPublish, isPending, onBack, submitLabel
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[#f5f1ec] rounded-lg p-4 border border-[#d3cec6]">
-          <p className="text-2xl font-medium text-[#111111]">{questions.length}</p>
-          <p className="text-sm text-[#626260]">Questions</p>
+        <div className="bg-ice-grey rounded-lg p-4 border border-border">
+          <p className="text-2xl font-medium text-navy">{questions.length}</p>
+          <p className="text-sm text-slate-600">Questions</p>
         </div>
-        <div className="bg-[#f5f1ec] rounded-lg p-4 border border-[#d3cec6]">
-          <p className="text-2xl font-medium text-[#111111]">{totalMarks}</p>
-          <p className="text-sm text-[#626260]">Total Marks</p>
+        <div className="bg-ice-grey rounded-lg p-4 border border-border">
+          <p className="text-2xl font-medium text-navy">{totalMarks}</p>
+          <p className="text-sm text-slate-600">Total Marks</p>
         </div>
-        <div className="bg-[#f5f1ec] rounded-lg p-4 border border-[#d3cec6]">
-          <p className="text-2xl font-medium text-[#111111]">{basic.durationMinutes || 0}</p>
-          <p className="text-sm text-[#626260]">Minutes</p>
+        <div className="bg-ice-grey rounded-lg p-4 border border-border">
+          <p className="text-2xl font-medium text-navy">{basic.durationMinutes || 0}</p>
+          <p className="text-sm text-slate-600">Minutes</p>
         </div>
-        <div className="bg-[#f5f1ec] rounded-lg p-4 border border-[#d3cec6]">
-          <p className="text-2xl font-medium text-[#111111]">{basic.passingPercentage || 0}</p>
-          <p className="text-sm text-[#626260]">Passing Marks</p>
+        <div className="bg-ice-grey rounded-lg p-4 border border-border">
+          <p className="text-2xl font-medium text-navy">{basic.passingPercentage || 0}</p>
+          <p className="text-sm text-slate-600">Passing Marks</p>
         </div>
       </div>
 
       {/* Basic Info Summary */}
-      <div className="bg-white rounded-lg border border-[#d3cec6] p-6">
-        <h3 className="text-sm font-medium text-[#111111] uppercase tracking-wide mb-4">
+      <div className="bg-white rounded-lg border border-border p-6">
+        <h3 className="text-sm font-medium text-navy uppercase tracking-wide mb-4">
           Basic Information
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-start gap-3">
-            <FileText className="h-5 w-5 text-[#9c9fa5] mt-0.5" />
+            <FileText className="h-5 w-5 text-slate-400 mt-0.5" />
             <div>
-              <p className="text-sm text-[#626260]">Exam Name</p>
-              <p className="font-medium text-[#111111]">{basic.name || "N/A"}</p>
+              <p className="text-sm text-slate-600">Exam Name</p>
+              <p className="font-medium text-navy">{basic.name || "N/A"}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <Building2 className="h-5 w-5 text-[#9c9fa5] mt-0.5" />
+            <Building2 className="h-5 w-5 text-slate-400 mt-0.5" />
             <div>
-              <p className="text-sm text-[#626260]">University</p>
-              <p className="font-medium text-[#111111]">{basic.universityId ? basic.universityId.slice(0, 8) + "…" : "N/A"}</p>
+              <p className="text-sm text-slate-600">University</p>
+              <p className="font-medium text-navy">{basic.universityId ? basic.universityId.slice(0, 8) + "…" : "N/A"}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <Calendar className="h-5 w-5 text-[#9c9fa5] mt-0.5" />
+            <Calendar className="h-5 w-5 text-slate-400 mt-0.5" />
             <div>
-              <p className="text-sm text-[#626260]">Date Window</p>
-              <p className="font-medium text-[#111111]">
+              <p className="text-sm text-slate-600">Date Window</p>
+              <p className="font-medium text-navy">
                 {basic.dateWindowStart ? new Date(basic.dateWindowStart).toLocaleDateString("en-IN") : "N/A"} - {basic.dateWindowEnd ? new Date(basic.dateWindowEnd).toLocaleDateString("en-IN") : "N/A"}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <Clock className="h-5 w-5 text-[#9c9fa5] mt-0.5" />
+            <Clock className="h-5 w-5 text-slate-400 mt-0.5" />
             <div>
-              <p className="text-sm text-[#626260]">Duration</p>
-              <p className="font-medium text-[#111111]">{basic.durationMinutes} minutes</p>
+              <p className="text-sm text-slate-600">Duration</p>
+              <p className="font-medium text-navy">{basic.durationMinutes} minutes</p>
             </div>
           </div>
         </div>
@@ -130,24 +130,24 @@ export function ReviewStep({ formData, onPublish, isPending, onBack, submitLabel
 
       {/* Questions Preview */}
       {questions.length > 0 && (
-        <div className="bg-white rounded-lg border border-[#d3cec6] p-6">
-          <h3 className="text-sm font-medium text-[#111111] uppercase tracking-wide mb-4">
+        <div className="bg-white rounded-lg border border-border p-6">
+          <h3 className="text-sm font-medium text-navy uppercase tracking-wide mb-4">
             Questions Preview ({questions.length} MCQ • 1 mark each)
           </h3>
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {questions.slice(0, 5).map((question, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 bg-[#f5f1ec] rounded-lg">
-                <span className="text-sm font-medium text-[#626260] w-6">{index + 1}</span>
+              <div key={index} className="flex items-start gap-3 p-3 bg-ice-grey rounded-lg">
+                <span className="text-sm font-medium text-slate-600 w-6">{index + 1}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-[#111111] line-clamp-2">{question.questionText}</p>
-                  <p className="text-xs text-[#626260] mt-1">
+                  <p className="text-sm text-navy line-clamp-2">{question.questionText}</p>
+                  <p className="text-xs text-slate-600 mt-1">
                     MCQ • {question.options?.length || 0} options
                   </p>
                 </div>
               </div>
             ))}
             {questions.length > 5 && (
-              <p className="text-sm text-[#626260] text-center">
+              <p className="text-sm text-slate-600 text-center">
                 + {questions.length - 5} more questions
               </p>
             )}
@@ -156,19 +156,19 @@ export function ReviewStep({ formData, onPublish, isPending, onBack, submitLabel
       )}
 
       {/* Action Buttons */}
-      <div className="border-t border-[#d3cec6] pt-6">
+      <div className="border-t border-border pt-6">
         <div className="flex items-center justify-between">
           <Button
             variant="outline"
             onClick={onBack}
-            className="border-[#ECEAE6] text-[#626260] hover:text-[#111111] font-medium"
+            className="border-slate-200 text-slate-600 hover:text-navy font-medium"
           >
             Back to Questions
           </Button>
           <Button
             onClick={onPublish}
             disabled={!isReadyToPublish || isPending}
-            className="bg-[#111111] hover:bg-[#313130] text-white"
+            className="bg-navy hover:bg-slate-800 text-white"
           >
             {isPending ? "Saving..." : submitLabel || "Create & Publish Exam"}
             <Check className="h-4 w-4 ml-2" />

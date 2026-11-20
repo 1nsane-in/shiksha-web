@@ -73,12 +73,12 @@ const methods = [
 export default function PaymentsPage() {
   return (
     <>
-      <section className="relative overflow-hidden bg-[#1A153A] pb-24 pt-36">
+      <section className="relative overflow-hidden bg-navy pb-24 pt-36">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle at 18% 0%, rgba(196,149,59,0.24), transparent 42%), radial-gradient(circle at 82% 18%, rgba(255,255,255,0.08), transparent 38%)",
+              "radial-gradient(circle at 18% 0%, rgba(201,164,92,0.24), transparent 42%), radial-gradient(circle at 82% 18%, rgba(255,255,255,0.08), transparent 38%)",
           }}
         />
 

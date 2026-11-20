@@ -171,7 +171,7 @@ function Skeleton() {
               className="animate-pulse overflow-hidden rounded-2xl"
               style={{
                 background: brand.surface,
-                boxShadow: "0 1px 3px rgba(26,21,58,0.06)",
+                boxShadow: "0 1px 3px rgba(16,44,80,0.06)",
               }}
             >
               <div className="flex flex-col sm:flex-row">
@@ -322,7 +322,7 @@ export function UniversityCards() {
                     background: brand.surface,
                     borderRadius: radius.card,
                     boxShadow:
-                      "0 1px 3px rgba(26,21,58,0.06), 0 1px 2px rgba(26,21,58,0.04)",
+                      "0 1px 3px rgba(16,44,80,0.06), 0 1px 2px rgba(16,44,80,0.04)",
                   }}
                 >
                   {/* hover indicator */}
@@ -365,7 +365,7 @@ export function UniversityCards() {
                           >
                             <Building2
                               className="size-10"
-                              style={{ color: "#9590B5" }}
+                              style={{ color: "var(--muted-foreground)" }}
                             />
                             <span
                               className="text-xs font-medium"
@@ -406,6 +406,7 @@ export function UniversityCards() {
                               src={uni.logo}
                               alt={uni.shortName || uni.name}
                               fill
+                              unoptimized
                               className="object-cover"
                               sizes="32px"
                             />
@@ -421,7 +422,7 @@ export function UniversityCards() {
                           {uni.shortName && (
                             <span
                               className="text-xs font-medium tracking-wide uppercase"
-                              style={{ color: "#9590B5" }}
+                              style={{ color: "var(--muted-foreground)" }}
                             >
                               {uni.shortName}
                             </span>
@@ -444,7 +445,7 @@ export function UniversityCards() {
                         <span
                           className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-medium leading-none"
                           style={{
-                            background: "rgba(26,21,58,0.05)",
+                            background: "rgba(16,44,80,0.05)",
                             color: brand.inkMuted,
                           }}
                         >
@@ -454,7 +455,7 @@ export function UniversityCards() {
                         <span
                           className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-medium leading-none"
                           style={{
-                            background: "rgba(26,21,58,0.05)",
+                            background: "rgba(16,44,80,0.05)",
                             color: brand.inkMuted,
                           }}
                         >
@@ -465,7 +466,7 @@ export function UniversityCards() {
                           <span
                             className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-medium leading-none"
                             style={{
-                              background: "rgba(26,21,58,0.05)",
+                              background: "rgba(16,44,80,0.05)",
                               color: brand.inkMuted,
                             }}
                           >
@@ -483,21 +484,21 @@ export function UniversityCards() {
                       <div className="mt-3 flex flex-wrap gap-2">
                         <span
                           className="inline-flex items-center gap-1 text-[11px] font-medium"
-                          style={{ color: "#059669" }}
+                          style={{ color: "var(--success)" }}
                         >
                           <CheckCircle className="size-3" />
                           NMC Approved
                         </span>
                         <span
                           className="inline-flex items-center gap-1 text-[11px] font-medium"
-                          style={{ color: "#2563EB" }}
+                          style={{ color: "var(--royal-blue)" }}
                         >
                           <CheckCircle className="size-3" />
                           WHO Listed
                         </span>
                         <span
                           className="inline-flex items-center gap-1 text-[11px] font-medium"
-                          style={{ color: "#7C3AED" }}
+                          style={{ color: "var(--medical-cyan)" }}
                         >
                           <CheckCircle className="size-3" />
                           English Medium
@@ -508,7 +509,7 @@ export function UniversityCards() {
                       {uni.contact?.email && (
                         <div
                           className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px]"
-                          style={{ color: "#9590B5" }}
+                          style={{ color: "var(--muted-foreground)" }}
                         >
                           <span className="inline-flex items-center gap-1">
                             <Globe className="size-3" />

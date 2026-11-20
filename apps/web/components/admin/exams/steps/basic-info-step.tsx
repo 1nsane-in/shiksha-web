@@ -76,15 +76,15 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-medium text-[#111111]">Basic Information</h2>
-        <p className="text-sm text-[#626260]">
+        <h2 className="text-xl font-medium text-navy">Basic Information</h2>
+        <p className="text-sm text-slate-600">
           Enter the exam details and scheduling information.
         </p>
       </div>
 
       {/* Exam Name */}
       <div className="space-y-2">
-        <Label htmlFor="name" className="text-sm font-medium text-[#111111]">
+        <Label htmlFor="name" className="text-sm font-medium text-navy">
           Exam Name <span className="text-red-500">*</span>
         </Label>
         <Input
@@ -92,7 +92,7 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
           value={formData.name}
           onChange={(e) => handleChange("name", e.target.value)}
           placeholder="e.g., Medical Entrance Exam 2026"
-          className={`border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111] ${
+          className={`border-border focus:border-navy focus:ring-navy ${
             errors.name ? "border-red-500" : ""
           }`}
         />
@@ -101,7 +101,7 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
 
       {/* Description */}
       <div className="space-y-2">
-        <Label htmlFor="description" className="text-sm font-medium text-[#111111]">
+        <Label htmlFor="description" className="text-sm font-medium text-navy">
           Description
         </Label>
         <Textarea
@@ -110,13 +110,13 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
           onChange={(e) => handleChange("description", e.target.value)}
           placeholder="Brief description of the exam..."
           rows={3}
-          className="border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111] resize-none"
+          className="border-border focus:border-navy focus:ring-navy resize-none"
         />
       </div>
 
       {/* University */}
       <div className="space-y-2">
-        <Label htmlFor="universityId" className="text-sm font-medium text-[#111111]">
+        <Label htmlFor="universityId" className="text-sm font-medium text-navy">
           University <span className="text-red-500">*</span>
         </Label>
         <select
@@ -126,7 +126,7 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
           className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 ${
             errors.universityId
               ? "border-red-500 focus:ring-red-500"
-              : "border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111]"
+              : "border-border focus:border-navy focus:ring-navy"
           }`}
         >
           <option value="">{uniLoading ? "Loading..." : "Select University"}</option>
@@ -142,17 +142,17 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
       {/* Date Window */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="dateWindowStart" className="text-sm font-medium text-[#111111]">
+          <Label htmlFor="dateWindowStart" className="text-sm font-medium text-navy">
             Start Date <span className="text-red-500">*</span>
           </Label>
           <div className="relative">
-            <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-[#626260]" />
+            <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-slate-600" />
             <Input
               id="dateWindowStart"
               type="date"
               value={formData.dateWindowStart}
               onChange={(e) => handleChange("dateWindowStart", e.target.value)}
-              className={`pl-10 border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111] ${
+              className={`pl-10 border-border focus:border-navy focus:ring-navy ${
                 errors.dateWindowStart ? "border-red-500" : ""
               }`}
             />
@@ -163,17 +163,17 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="dateWindowEnd" className="text-sm font-medium text-[#111111]">
+          <Label htmlFor="dateWindowEnd" className="text-sm font-medium text-navy">
             End Date <span className="text-red-500">*</span>
           </Label>
           <div className="relative">
-            <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-[#626260]" />
+            <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-slate-600" />
             <Input
               id="dateWindowEnd"
               type="date"
               value={formData.dateWindowEnd}
               onChange={(e) => handleChange("dateWindowEnd", e.target.value)}
-              className={`pl-10 border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111] ${
+              className={`pl-10 border-border focus:border-navy focus:ring-navy ${
                 errors.dateWindowEnd ? "border-red-500" : ""
               }`}
             />
@@ -186,7 +186,7 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
 
       {/* Duration */}
       <div className="space-y-2">
-        <Label htmlFor="durationMinutes" className="text-sm font-medium text-[#111111]">
+        <Label htmlFor="durationMinutes" className="text-sm font-medium text-navy">
           Duration (minutes) <span className="text-red-500">*</span>
         </Label>
         <Input
@@ -196,7 +196,7 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
           max={300}
           value={formData.durationMinutes}
           onChange={(e) => handleChange("durationMinutes", parseInt(e.target.value) || 0)}
-          className={`border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111] ${
+          className={`border-border focus:border-navy focus:ring-navy ${
             errors.durationMinutes ? "border-red-500" : ""
           }`}
         />
@@ -207,7 +207,7 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
 
       {/* Passing Marks */}
       <div className="space-y-2">
-        <Label htmlFor="passingPercentage" className="text-sm font-medium text-[#111111]">
+        <Label htmlFor="passingPercentage" className="text-sm font-medium text-navy">
           Passing Marks <span className="text-red-500">*</span>
         </Label>
         <div className="flex items-center gap-4">
@@ -217,11 +217,11 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
             min={0}
             value={formData.passingPercentage}
             onChange={(e) => handleChange("passingPercentage", parseInt(e.target.value) || 0)}
-            className={`w-32 border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111] ${
+            className={`w-32 border-border focus:border-navy focus:ring-navy ${
               errors.passingPercentage ? "border-red-500" : ""
             }`}
           />
-          <span className="text-sm text-[#626260]">marks</span>
+          <span className="text-sm text-slate-600">marks</span>
         </div>
         {errors.passingPercentage && (
           <p className="text-xs text-red-500">{errors.passingPercentage}</p>
@@ -230,7 +230,7 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
 
       {/* Max Attempts */}
       <div className="space-y-2">
-        <Label htmlFor="maxAttempts" className="text-sm font-medium text-[#111111]">
+        <Label htmlFor="maxAttempts" className="text-sm font-medium text-navy">
           Maximum Attempts
         </Label>
         <Input
@@ -240,16 +240,16 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
           max={5}
           value={formData.maxAttempts}
           onChange={(e) => handleChange("maxAttempts", parseInt(e.target.value) || 1)}
-          className="w-32 border-[#d3cec6] focus:border-[#111111] focus:ring-[#111111]"
+          className="w-32 border-border focus:border-navy focus:ring-navy"
         />
-        <p className="text-xs text-[#9c9fa5]">
+        <p className="text-xs text-slate-400">
           How many times a student can attempt this exam
         </p>
       </div>
 
       {/* Result Timing */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium text-[#111111]">Result Timing</Label>
+        <Label className="text-sm font-medium text-navy">Result Timing</Label>
         <div className="flex flex-wrap gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -258,9 +258,9 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
               value="IMMEDIATE"
               checked={formData.resultTiming === "IMMEDIATE"}
               onChange={(e) => handleChange("resultTiming", e.target.value)}
-              className="accent-[#111111]"
+              className="accent-navy"
             />
-            <span className="text-sm text-[#111111]">Show right after exam</span>
+            <span className="text-sm text-navy">Show right after exam</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -269,9 +269,9 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
               value="SCHEDULED"
               checked={formData.resultTiming === "SCHEDULED"}
               onChange={(e) => handleChange("resultTiming", e.target.value)}
-              className="accent-[#111111]"
+              className="accent-navy"
             />
-            <span className="text-sm text-[#111111]">Schedule for later</span>
+            <span className="text-sm text-navy">Schedule for later</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -280,34 +280,34 @@ export function BasicInfoStep({ data, onChange, onValidationChange }: Props) {
               value="EMAIL"
               checked={formData.resultTiming === "EMAIL"}
               onChange={(e) => handleChange("resultTiming", e.target.value)}
-              className="accent-[#111111]"
+              className="accent-navy"
             />
-            <span className="text-sm text-[#111111]">Send via email</span>
+            <span className="text-sm text-navy">Send via email</span>
           </label>
         </div>
       </div>
 
       {/* Shuffle Settings */}
-      <div className="space-y-3 pt-4 border-t border-[#ebe7e1]">
-        <h3 className="text-sm font-medium text-[#111111]">Randomization</h3>
+      <div className="space-y-3 pt-4 border-t border-slate-200">
+        <h3 className="text-sm font-medium text-navy">Randomization</h3>
         <div className="flex flex-col gap-2">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={formData.shuffleQuestions}
               onChange={(e) => handleChange("shuffleQuestions", e.target.checked)}
-              className="accent-[#111111]"
+              className="accent-navy"
             />
-            <span className="text-sm text-[#626260]">Shuffle questions for each student</span>
+            <span className="text-sm text-slate-600">Shuffle questions for each student</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={formData.shuffleOptions}
               onChange={(e) => handleChange("shuffleOptions", e.target.checked)}
-              className="accent-[#111111]"
+              className="accent-navy"
             />
-            <span className="text-sm text-[#626260]">Shuffle options for questions</span>
+            <span className="text-sm text-slate-600">Shuffle options for questions</span>
           </label>
         </div>
       </div>

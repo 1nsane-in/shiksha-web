@@ -130,16 +130,16 @@ export default function CreateExamPage() {
               variant="outline"
               size="sm"
               onClick={() => router.push("/admin/exams")}
-              className="border-[#ECEAE6] text-[#626260] hover:text-[#111] font-medium"
+              className="border-slate-200 text-slate-600 hover:text-navy font-medium"
             >
               <ChevronLeft className="mr-1 h-3.5 w-3.5" />
               Back
             </Button>
             <div>
-              <h1 className="text-base font-semibold text-[#111]">
+              <h1 className="text-base font-semibold text-navy">
                 Create Online Exam
               </h1>
-              <p className="text-xs text-[#7b7b78]">
+              <p className="text-xs text-slate-500">
                 Step {currentStep + 1} of {STEPS.length}
               </p>
             </div>
@@ -170,10 +170,10 @@ export default function CreateExamPage() {
                     <div
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-medium transition-colors ${
                         isActive
-                          ? "border-[#111] bg-[#111] text-white"
+                          ? "border-navy bg-navy text-white"
                           : isCompleted
-                          ? "border-[#111] bg-[#111] text-white"
-                          : "border-[#D4D2CE] bg-white text-[#9c9fa5]"
+                          ? "border-navy bg-navy text-white"
+                          : "border-slate-300 bg-white text-slate-400"
                       }`}
                     >
                       {isCompleted ? (
@@ -185,7 +185,7 @@ export default function CreateExamPage() {
                     <div className="hidden sm:block text-center">
                       <p
                         className={`text-xs font-medium leading-tight ${
-                          isActive ? "text-[#111]" : "text-[#626260]"
+                          isActive ? "text-navy" : "text-slate-600"
                         }`}
                       >
                         {step.label}
@@ -197,7 +197,7 @@ export default function CreateExamPage() {
                     <div className="hidden sm:block flex-1 self-center mx-3">
                       <div
                         className={`h-px w-full transition-colors ${
-                          isCompleted ? "bg-[#111]" : "bg-[#ECEAE6]"
+                          isCompleted ? "bg-navy" : "bg-slate-200"
                         }`}
                       />
                     </div>
@@ -211,7 +211,7 @@ export default function CreateExamPage() {
 
       {/* Content + Navigation */}
       <div className="mx-auto w-full max-w-3xl px-4 py-8 md:px-6">
-        <div className="rounded-xl border border-[#ECEAE6] bg-white p-6 shadow-sm md:p-8">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           {renderStep()}
         </div>
 
@@ -221,7 +221,7 @@ export default function CreateExamPage() {
               variant="outline"
               onClick={handleBack}
               disabled={currentStep === 0}
-              className="border-[#ECEAE6] text-[#626260] hover:text-[#111] font-medium disabled:opacity-40"
+              className="border-slate-200 text-slate-600 hover:text-navy font-medium disabled:opacity-40"
             >
               <ChevronLeft className="mr-1.5 h-3.5 w-3.5" />
               Previous
@@ -230,7 +230,7 @@ export default function CreateExamPage() {
             <Button
               onClick={handleNext}
               disabled={currentStep === 0 ? !isStepValid : false}
-              className="bg-[#111] text-white hover:bg-[#313130] disabled:opacity-40 font-medium"
+              className="bg-navy text-white hover:bg-slate-800 disabled:opacity-40 font-medium"
             >
               Next
               <ChevronRight className="ml-1.5 h-3.5 w-3.5" />

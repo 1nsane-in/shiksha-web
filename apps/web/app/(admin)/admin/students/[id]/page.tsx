@@ -79,7 +79,7 @@ export default function StudentDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <h2 className="text-xl font-semibold">Failed to load student profile</h2>
-        <Button onClick={() => router.push("/admin/students")} className="mt-4 bg-[#3730A3] text-white">
+        <Button onClick={() => router.push("/admin/students")} className="mt-4 bg-royal-blue text-white">
           Back to Students
         </Button>
       </div>

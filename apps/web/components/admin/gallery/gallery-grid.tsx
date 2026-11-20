@@ -31,7 +31,7 @@ export function GalleryGrid({ images, isLoading, error, onDelete, deletePending,
   }, [hasNextPage, isFetchingNextPage, onLoadMore]);
 
   return (
-    <Card className="md:col-span-2 border-[#ECEAE6] bg-[#FAFAF8]">
+    <Card className="md:col-span-2 border-slate-200 bg-white">
       <CardHeader>
         <CardTitle className="text-base font-semibold flex items-center gap-2">
           <ImageIcon className="h-4 w-4" />
@@ -50,7 +50,7 @@ export function GalleryGrid({ images, isLoading, error, onDelete, deletePending,
             ))}
           </div>
         ) : images.length === 0 ? (
-          <div className="text-center py-12 text-[#888] text-sm">
+          <div className="text-center py-12 text-slate-400 text-sm">
             No items yet. Use the upload panel to add photos or videos.
           </div>
         ) : (

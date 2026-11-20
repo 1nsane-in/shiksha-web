@@ -18,26 +18,34 @@
  */
 
 export const brand = {
+  /* ─── Shiksha Signature Palette ─── */
+  navy: "#102C50",
+  royalBlue: "#245B96",
+  medicalCyan: "#19A9CE",
+  champagneGold: "#C9A45C",
+  pureWhite: "#FFFFFF",
+  iceGrey: "#F1F5F9",
+
   /* ─── Text ─── */
-  ink: "#1A153A",
-  inkMuted: "#6B6599",
-  inkSubtle: "#9794BA",
+  ink: "#102C50",
+  inkMuted: "#64748B",
+  inkSubtle: "#94A3B8",
 
   /* ─── Chromatic accent ─── */
-  gold: "#C4953B",
-  goldLight: "rgba(196, 149, 59, 0.10)",
-  goldGlow: "rgba(196, 149, 59, 0.15)",
-  goldBorder: "rgba(196, 149, 59, 0.25)",
+  gold: "#C9A45C",
+  goldLight: "rgba(201, 164, 92, 0.10)",
+  goldGlow: "rgba(201, 164, 92, 0.15)",
+  goldBorder: "rgba(201, 164, 92, 0.25)",
 
   /* ─── Surfaces ─── */
-  canvas: "#FAF9F6",
+  canvas: "#FFFFFF",
   surface: "#FFFFFF",
 
   /* ─── Borders ─── */
-  hairline: "rgba(26, 21, 58, 0.08)",
+  hairline: "rgba(16, 44, 80, 0.08)",
 
   /* ─── Utility tints ─── */
-  purpleLight: "rgba(75, 45, 142, 0.05)",
+  purpleLight: "rgba(36, 91, 150, 0.05)",
 
   /* ─── Component tokens ─── */
   btnRadius: "0.5rem",

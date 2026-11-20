@@ -17,7 +17,7 @@ export function UniversityOverview() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#2D2154] mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy mb-6">
               MBBS in Kyrgyzstan
             </h2>
             <p className="text-gray-600 leading-relaxed mb-6">
@@ -37,10 +37,10 @@ export function UniversityOverview() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {keyFeatures.map((feature) => (
-              <Card key={feature.label} className="border border-[#E0D8F0]">
+              <Card key={feature.label} className="border border-border">
                 <CardContent className="p-5">
-                  <p className="text-sm text-[#6B6B6B] mb-1">{feature.label}</p>
-                  <p className="text-base font-semibold text-[#2D2154]">{feature.value}</p>
+                  <p className="text-sm text-slate-500 mb-1">{feature.label}</p>
+                  <p className="text-base font-semibold text-navy">{feature.value}</p>
                 </CardContent>
               </Card>
             ))}

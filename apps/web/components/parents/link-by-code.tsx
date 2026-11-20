@@ -67,7 +67,7 @@ export function LinkByCode() {
                   maxLength={6}
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase())}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-2xl font-bold tracking-[0.3em] text-gray-900 placeholder:text-gray-300 focus:border-[#4B2D8E] focus:outline-none focus:ring-2 focus:ring-[#4B2D8E]/20 uppercase"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-2xl font-bold tracking-[0.3em] text-gray-900 placeholder:text-gray-300 focus:border-royal-blue focus:outline-none focus:ring-2 focus:ring-royal-blue/20 uppercase"
                   autoComplete="off"
                   spellCheck={false}
                 />

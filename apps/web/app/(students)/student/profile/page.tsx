@@ -68,7 +68,7 @@ export default function StudentDashboardPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#2D2154]">
+        <h2 className="text-lg font-semibold text-navy">
           Failed to load dashboard
         </h2>
         <p className="text-sm text-gray-500 mt-1 mb-6">
@@ -102,7 +102,7 @@ export default function StudentDashboardPage() {
               </div>
             ) : profile ? (
               <div className="flex items-center gap-3">
-                <div className="size-12 rounded-xl bg-[#4B2D8E] flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm shadow-[#4B2D8E]/20">
+                <div className="size-12 rounded-xl bg-royal-blue flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm shadow-royal-blue/20">
                   {(profile.name || user?.name || "?").charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -138,8 +138,8 @@ export default function StudentDashboardPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-[#F8F6FC] rounded-lg p-3">
-                    <p className="text-xl font-bold text-[#4B2D8E]">
+                  <div className="bg-ice-grey rounded-lg p-3">
+                    <p className="text-xl font-bold text-royal-blue">
                       {applications.length}
                     </p>
                     <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
@@ -195,7 +195,7 @@ export default function StudentDashboardPage() {
               <div className="space-y-3">
                 {deadlines.map((dl, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <div className="size-2 rounded-full bg-[#F0A030] mt-1.5 shrink-0" />
+                    <div className="size-2 rounded-full bg-royal-blue mt-1.5 shrink-0" />
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-gray-900">
                         {dl.title}
@@ -334,8 +334,8 @@ export default function StudentDashboardPage() {
             ) : (
               <Card className="p-4">
                 <div className="flex items-center gap-4">
-                  <div className="size-10 rounded-lg bg-[#F8F6FC] flex items-center justify-center shrink-0">
-                    <GraduationCap className="size-5 text-[#4B2D8E]" />
+                  <div className="size-10 rounded-lg bg-ice-grey flex items-center justify-center shrink-0">
+                    <GraduationCap className="size-5 text-royal-blue" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-gray-900">
@@ -349,7 +349,7 @@ export default function StudentDashboardPage() {
                   <button
                     type="button"
                     onClick={() => router.push("/student/university")}
-                    className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#4B2D8E] hover:bg-[#3d2473] px-4 py-2 rounded-md transition-colors"
+                    className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-royal-blue hover:bg-navy px-4 py-2 rounded-md transition-colors"
                   >
                     Browse Universities <ArrowRight className="size-3" />
                   </button>
@@ -421,12 +421,12 @@ function StageProgress({ stage, status }: { stage: number; status: string }) {
           <div key={n} className="flex-1">
             <div
               className={`h-2 rounded-full transition-all ${
-                i + 1 <= stage ? "bg-[#4B2D8E]" : "bg-gray-100"
+                i + 1 <= stage ? "bg-royal-blue" : "bg-gray-100"
               }`}
             />
             <p
               className={`text-[10px] mt-1.5 text-center font-medium ${
-                i + 1 === stage ? "text-[#4B2D8E]" : "text-gray-400"
+                i + 1 === stage ? "text-royal-blue" : "text-gray-400"
               }`}
             >
               {n}
@@ -440,23 +440,23 @@ function StageProgress({ stage, status }: { stage: number; status: string }) {
 
 function ScholarshipBanner() {
   return (
-    <div className="p-4 border border-amber-200/50 rounded-xl bg-gradient-to-r from-[#FAF9F6] to-amber-50/50 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-3">
+    <div className="p-4 border border-amber-200/50 rounded-xl bg-gradient-to-r from-white to-amber-50/50 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-3">
       <div className="space-y-1.5 text-center sm:text-left">
-        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#C4953B] bg-amber-100/60 px-2 py-0.5 rounded">
+        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-champagne-gold bg-amber-100/60 px-2 py-0.5 rounded">
           Scholarship Alert
         </span>
-        <h2 className="text-sm font-bold text-[#1A153A]">
+        <h2 className="text-sm font-bold text-navy">
           Shiksha Entrance Scholarship Program
         </h2>
         <p className="text-xs text-slate-500 leading-relaxed max-w-xl">
-          Up to <strong className="text-[#1A153A]">$100,000+</strong> total
+          Up to <strong className="text-navy">$100,000+</strong> total
           funding available. Awarded based on NEET score (&gt;450) and 12th PCB
           marks (&gt;85%).
         </p>
       </div>
       <Link
         href="/student/tickets/new?subject=Scholarship%20Inquiry"
-        className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-wider py-2.5 px-5 rounded-xl transition-all duration-150 active:scale-[0.97] bg-[#C4953B] text-[#1A153A] shrink-0 hover:bg-[#b88935]"
+        className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-wider py-2.5 px-5 rounded-xl transition-all duration-150 active:scale-[0.97] bg-champagne-gold text-navy shrink-0 hover:bg-gold-dark"
       >
         Check Eligibility
         <ArrowRight className="size-3.5" />
@@ -633,7 +633,7 @@ function RequiredActionsSection({
         {visible.map((action) => (
           <Card
             key={action.title}
-            className={`p-4 ${action.primary ? "border-[#4B2D8E]/20" : "border-gray-200/80"}`}
+            className={`p-4 ${action.primary ? "border-royal-blue/20" : "border-gray-200/80"}`}
           >
             <div className="flex items-center justify-between h-full gap-3">
               <div className="min-w-0 flex-1">
@@ -647,7 +647,7 @@ function RequiredActionsSection({
                 variant={action.primary ? "default" : "secondary"}
                 className={`gap-1 shrink-0 ${
                   action.primary
-                    ? "bg-[#4B2D8E] hover:bg-[#3d2473] text-white"
+                    ? "bg-royal-blue hover:bg-navy text-white"
                     : "border-gray-200 text-gray-600"
                 }`}
                 onClick={() => router.push(action.href)}
@@ -780,7 +780,7 @@ function RecentActivitySection({
             key={event.id}
             className="flex items-start gap-4 rounded-lg p-3 hover:bg-gray-50/50 transition-colors border border-gray-100"
           >
-            <div className="size-2 rounded-full bg-[#4B2D8E] mt-1.5 shrink-0" />
+            <div className="size-2 rounded-full bg-royal-blue mt-1.5 shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900">
                 {event.title}

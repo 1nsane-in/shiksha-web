@@ -15,17 +15,17 @@ interface Props {
 
 export function StudentStageWorkflow({ stage, status, isPending, hasChanges, onStageChange, onStatusChange, onSave }: Props) {
   return (
-    <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
+    <Card className="border-slate-200 bg-white">
       <CardHeader>
-        <CardTitle className="text-sm font-bold uppercase tracking-wider text-[#666]">Manage Workflow Stage</CardTitle>
+        <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-500">Manage Workflow Stage</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold uppercase tracking-wider text-[#666]">Select Stage</label>
+          <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Select Stage</label>
           <select
             value={String(stage ?? "")}
             onChange={(e) => onStageChange(parseInt(e.target.value))}
-            className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#3730A3]"
+            className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-royal-blue"
           >
             {[1, 2, 3, 4, 5].map((s) => (
               <option key={s} value={s}>Stage {s}: {["Application Submission", "Admission Fee Payment", "Entrance Exam Process", "Invitation Letter Issue", "Visa Support & Processing"][s - 1]}</option>
@@ -34,11 +34,11 @@ export function StudentStageWorkflow({ stage, status, isPending, hasChanges, onS
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold uppercase tracking-wider text-[#666]">Select Status</label>
+          <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Select Status</label>
           <select
             value={status ?? ""}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#3730A3]"
+            className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-royal-blue"
           >
             {["NOT_STARTED","STAGE_1_PENDING","STAGE_1_APPROVED","STAGE_2_PENDING","STAGE_2_APPROVED","STAGE_3_ACTIVE","STAGE_4_PENDING","STAGE_4_APPROVED","STAGE_5_UNLOCKED","COMPLETED","REJECTED"].map((s) => (
               <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
@@ -50,7 +50,7 @@ export function StudentStageWorkflow({ stage, status, isPending, hasChanges, onS
           type="button"
           onClick={onSave}
           disabled={isPending || !hasChanges}
-          className="w-full bg-[#3730A3] hover:bg-[#2e288a] text-white font-medium text-xs h-10 mt-2"
+          className="w-full bg-royal-blue hover:bg-navy-light text-white font-medium text-xs h-10 mt-2"
         >
           {isPending ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Updating...</> : "Save Progression"}
         </Button>

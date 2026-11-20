@@ -50,24 +50,24 @@ function ExamCard({ exam }: { exam: ExamDetail }) {
       <CardContent>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {exam.examSubject && (
-            <div className="flex items-start gap-3 bg-[#F8F6FC] rounded-lg p-3">
-              <div className="size-8 rounded-lg bg-[#4B2D8E]/10 flex items-center justify-center shrink-0">
-                <GraduationCap className="size-4 text-[#4B2D8E]" />
+            <div className="flex items-start gap-3 bg-ice-grey rounded-lg p-3">
+              <div className="size-8 rounded-lg bg-royal-blue/10 flex items-center justify-center shrink-0">
+                <GraduationCap className="size-4 text-royal-blue" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Subject</p>
-                <p className="text-sm font-medium text-[#2D2154]">{exam.examSubject}</p>
+                <p className="text-sm font-medium text-navy">{exam.examSubject}</p>
               </div>
             </div>
           )}
           {exam.examDate && (
-            <div className="flex items-start gap-3 bg-[#F8F6FC] rounded-lg p-3">
-              <div className="size-8 rounded-lg bg-[#4B2D8E]/10 flex items-center justify-center shrink-0">
-                <Calendar className="size-4 text-[#4B2D8E]" />
+            <div className="flex items-start gap-3 bg-ice-grey rounded-lg p-3">
+              <div className="size-8 rounded-lg bg-royal-blue/10 flex items-center justify-center shrink-0">
+                <Calendar className="size-4 text-royal-blue" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Scheduled Date</p>
-                <p className="text-sm font-medium text-[#2D2154]">
+                <p className="text-sm font-medium text-navy">
                   {new Date(exam.examDate).toLocaleDateString("en-IN", {
                     weekday: "long",
                     day: "numeric",
@@ -79,30 +79,30 @@ function ExamCard({ exam }: { exam: ExamDetail }) {
             </div>
           )}
           {exam.examCenter && (
-            <div className="flex items-start gap-3 bg-[#F8F6FC] rounded-lg p-3">
-              <div className="size-8 rounded-lg bg-[#4B2D8E]/10 flex items-center justify-center shrink-0">
-                <MapPin className="size-4 text-[#4B2D8E]" />
+            <div className="flex items-start gap-3 bg-ice-grey rounded-lg p-3">
+              <div className="size-8 rounded-lg bg-royal-blue/10 flex items-center justify-center shrink-0">
+                <MapPin className="size-4 text-royal-blue" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Exam Center</p>
-                <p className="text-sm font-medium text-[#2D2154]">{exam.examCenter}</p>
+                <p className="text-sm font-medium text-navy">{exam.examCenter}</p>
               </div>
             </div>
           )}
-          <div className="flex items-start gap-3 bg-[#F8F6FC] rounded-lg p-3">
-            <div className="size-8 rounded-lg bg-[#4B2D8E]/10 flex items-center justify-center shrink-0">
-              <Hash className="size-4 text-[#4B2D8E]" />
+          <div className="flex items-start gap-3 bg-ice-grey rounded-lg p-3">
+            <div className="size-8 rounded-lg bg-royal-blue/10 flex items-center justify-center shrink-0">
+              <Hash className="size-4 text-royal-blue" />
             </div>
             <div>
               <p className="text-xs text-gray-500">Attempt</p>
-              <p className="text-sm font-medium text-[#2D2154]">#{exam.attemptNumber}</p>
+              <p className="text-sm font-medium text-navy">#{exam.attemptNumber}</p>
             </div>
           </div>
         </div>
         {exam.resultRemarks && (
           <div className="mt-4 bg-gray-50 rounded-lg p-3">
             <p className="text-xs text-gray-500 mb-1">Remarks</p>
-            <p className="text-sm text-[#2D2154]">{exam.resultRemarks}</p>
+            <p className="text-sm text-navy">{exam.resultRemarks}</p>
           </div>
         )}
       </CardContent>
@@ -129,7 +129,7 @@ export default function ExamsPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#2D2154]">Failed to load exam details</h2>
+        <h2 className="text-lg font-semibold text-navy">Failed to load exam details</h2>
         <p className="text-sm text-gray-500 mt-1 mb-6">Something went wrong. Please try again.</p>
         <Button onClick={() => refetch()} variant="outline" className="gap-2">
           <RefreshCw className="size-4" />
@@ -142,8 +142,8 @@ export default function ExamsPage() {
   if (!exam) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <Inbox className="size-16 text-[#4B2D8E]/30 mb-4" />
-        <h2 className="text-xl font-bold text-[#2D2154]">No exam scheduled yet</h2>
+        <Inbox className="size-16 text-royal-blue/30 mb-4" />
+        <h2 className="text-xl font-bold text-navy">No exam scheduled yet</h2>
         <p className="text-sm text-gray-500 mt-2 max-w-sm">
           Your entrance exam details will appear here once scheduled. Complete your application and admission payment first.
         </p>
@@ -154,7 +154,7 @@ export default function ExamsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#2D2154]">Entrance Exam</h1>
+        <h1 className="text-2xl font-bold text-navy">Entrance Exam</h1>
         <p className="text-sm text-gray-500 mt-1">View your exam schedule and results</p>
       </div>
       <ExamCard exam={exam} />

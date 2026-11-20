@@ -16,34 +16,34 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
 
   return (
     <Card
-      className="p-5 border border-[#E0D8F0] hover:border-[#F0A030]/50 transition-all cursor-pointer"
+      className="p-5 border border-border hover:border-royal-blue/50 transition-all cursor-pointer"
       onClick={() => router.push(`/student/applications/${application.id}`)}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <Building2 className="size-4 text-[#8B7FAD] shrink-0" />
-            <h3 className="font-semibold text-[#2D2154] truncate">
+            <Building2 className="size-4 text-slate-400 shrink-0" />
+            <h3 className="font-semibold text-navy truncate">
               {application.university?.name || "University"}
             </h3>
           </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#6B6B6B]">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
             <span>
               {application.firstName} {application.lastName}
             </span>
             {application.selectedProgram && (
               <>
-                <span className="text-[#D0C8E0]">|</span>
+                <span className="text-slate-300">|</span>
                 <span>{application.selectedProgram}</span>
               </>
             )}
-            <span className="text-[#D0C8E0]">|</span>
+            <span className="text-slate-300">|</span>
             <span>{formatDate(application.submittedAt)}</span>
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <StatusBadge status={application.status} />
-          <ExternalLink className="size-4 text-[#8B7FAD]" />
+          <ExternalLink className="size-4 text-slate-400" />
         </div>
       </div>
     </Card>

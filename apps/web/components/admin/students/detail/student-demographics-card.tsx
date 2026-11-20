@@ -18,9 +18,9 @@ export function StudentDemographicsCard({ email, phone, dob, address, city, stat
   const addr = address ? `${address}, ${city ?? ""}, ${state ?? ""}, ${country ?? ""}` : "N/A";
 
   return (
-    <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
+    <Card className="border-slate-200 bg-white">
       <CardHeader>
-        <CardTitle className="text-sm font-bold uppercase tracking-wider text-[#666]">Demographics & Details</CardTitle>
+        <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-500">Demographics & Details</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 text-xs">
         <Row icon={<Mail className="h-4 w-4 text-gray-400 shrink-0" />} label="Email Address" value={email} />
@@ -39,7 +39,7 @@ function Row({ icon, label, value, mono }: { icon: React.ReactNode; label: strin
       {icon}
       <div>
         <p className="font-semibold text-gray-500">{label}</p>
-        <p className={`text-sm text-[#111] mt-0.5 ${mono ? "font-mono" : ""}`}>{value}</p>
+        <p className={`text-sm text-navy mt-0.5 ${mono ? "font-mono" : ""}`}>{value}</p>
       </div>
     </div>
   );

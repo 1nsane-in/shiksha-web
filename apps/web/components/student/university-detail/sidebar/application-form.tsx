@@ -59,7 +59,7 @@ function FormField({
         style={{
           background: theme.canvas,
           color: theme.ink,
-          border: "1px solid " + (error ? "#EF4444" : theme.hairline),
+          border: "1px solid " + (error ? "var(--error)" : theme.hairline),
         }}
       />
       {error && <p className="mt-0.5 text-xs text-red-500">{error}</p>}
@@ -99,7 +99,7 @@ function SelectField({
         style={{
           background: theme.canvas,
           color: theme.ink,
-          border: "1px solid " + (error ? "#EF4444" : theme.hairline),
+          border: "1px solid " + (error ? "var(--error)" : theme.hairline),
         }}
       >
         {options.map((opt) => (
@@ -340,8 +340,8 @@ export function ApplicationForm({
       <div
         className="rounded-lg px-4 py-3 text-sm text-center"
         style={{
-          background: "rgba(196, 149, 59, 0.08)",
-          border: "1px solid rgba(196, 149, 59, 0.2)",
+          background: "rgba(201, 164, 92, 0.08)",
+          border: "1px solid rgba(201, 164, 92, 0.2)",
           color: theme.inkMuted,
         }}
       >
@@ -362,9 +362,9 @@ export function ApplicationForm({
     const app = checkResult.application;
     const statusColors: Record<string, string> = {
       pending: "#CA8A04",
-      in_review: "#2563EB",
-      approved: "#16A34A",
-      rejected: "#DC2626",
+      in_review: "var(--royal-blue)",
+      approved: "var(--success)",
+      rejected: "var(--error)",
     };
     const statusColor = statusColors[app.status] || theme.inkMuted;
 
@@ -377,7 +377,7 @@ export function ApplicationForm({
         }}
       >
         <div className="flex items-center gap-2 mb-2">
-          <Check className="size-4" style={{ color: "#16A34A" }} />
+          <Check className="size-4" style={{ color: "var(--success)" }} />
           <p className="text-sm font-semibold" style={{ color: theme.ink }}>
             Already Applied
           </p>
@@ -529,7 +529,7 @@ export function ApplicationForm({
             </div>
             {extraLanguages.map((lang, i) => (
               <div key={i} className="grid grid-cols-1 gap-3 p-3 rounded-lg relative" style={{ background: theme.canvas, border: "1px solid " + theme.hairline }}>
-                <button type="button" onClick={() => removeLanguage(i)} className="absolute top-2 right-2 p-1 rounded hover:opacity-70" style={{ color: "#EF4444" }}><X size={14} /></button>
+                <button type="button" onClick={() => removeLanguage(i)} className="absolute top-2 right-2 p-1 rounded hover:opacity-70" style={{ color: "var(--error)" }}><X size={14} /></button>
                 <FormField label="Language Name" name={`langExtra_${i}_name`} value={lang.name} onChange={(e) => handleLangChange(i, "name", e.target.value)} placeholder="e.g. Hindi" />
                 <div className="grid grid-cols-3 gap-2">
                   <SelectField label="Speaking" name={`langExtra_${i}_speaking`} value={lang.speaking} onChange={(e) => handleLangChange(i, "speaking", e.target.value)} options={[
@@ -557,10 +557,10 @@ export function ApplicationForm({
             {passportFile ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs">
-                  <Check size={14} style={{ color: "#16a34a" }} />
+                  <Check size={14} style={{ color: "var(--success)" }} />
                   <span className="truncate max-w-[200px]">{passportFile.name}</span>
                 </div>
-                <button type="button" onClick={() => setPassportFile(null)} className="text-xs hover:underline" style={{ color: "#EF4444" }}>Remove</button>
+                <button type="button" onClick={() => setPassportFile(null)} className="text-xs hover:underline" style={{ color: "var(--error)" }}>Remove</button>
               </div>
             ) : (
               <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs transition-all hover:opacity-70" style={{ border: "1px dashed " + theme.hairline }}>
@@ -575,10 +575,10 @@ export function ApplicationForm({
             {certificateFile ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs">
-                  <Check size={14} style={{ color: "#16a34a" }} />
+                  <Check size={14} style={{ color: "var(--success)" }} />
                   <span className="truncate max-w-[200px]">{certificateFile.name}</span>
                 </div>
-                <button type="button" onClick={() => setCertificateFile(null)} className="text-xs hover:underline" style={{ color: "#EF4444" }}>Remove</button>
+                <button type="button" onClick={() => setCertificateFile(null)} className="text-xs hover:underline" style={{ color: "var(--error)" }}>Remove</button>
               </div>
             ) : (
               <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs transition-all hover:opacity-70" style={{ border: "1px dashed " + theme.hairline }}>

@@ -53,10 +53,10 @@ export function ServicesSection() {
 
           {/* Right: FMGE coaching card */}
           <div
-            className="bg-[#FAF9F6] border rounded-2xl p-8 space-y-6"
+            className="bg-white border rounded-2xl p-8 space-y-6"
             style={{ borderColor: brand.hairline }}
           >
-            <h3 className="font-bold text-sm text-[#2D2154] uppercase tracking-wider">
+            <h3 className="font-bold text-sm text-navy uppercase tracking-wider">
               Free FMGE / NEXT Coaching
             </h3>
             <p
@@ -77,7 +77,7 @@ export function ServicesSection() {
                 and the hostel staff ensured I had home-style Indian food from
                 day one.&quot;
               </p>
-              <p className="text-[10px] font-bold mt-2 text-[#2D2154]">
+              <p className="text-[10px] font-bold mt-2 text-navy">
                 - Medical Student, Jalal-Abad State University
               </p>
             </div>

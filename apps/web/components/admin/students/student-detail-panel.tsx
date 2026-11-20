@@ -18,7 +18,7 @@ interface Props {
 export function StudentDetailPanel({ student, editStage, editStatus, isPending, onStageChange, onStatusChange, onSave }: Props) {
   if (!student) {
     return (
-      <Card className="h-full flex items-center justify-center p-6 text-center text-gray-400 border-dashed border-2 border-[#ECEAE6] bg-[#FAFAF8]">
+      <Card className="h-full flex items-center justify-center p-6 text-center text-gray-400 border-dashed border-2 border-slate-200 bg-white">
         <div>
           <User className="size-8 mx-auto text-gray-300 mb-2" />
           <p className="text-sm font-medium">Select student from list</p>
@@ -49,14 +49,14 @@ function StudentDetailCard({ student, editStage, editStatus, isPending, onStageC
   ] as const;
 
   return (
-    <Card className="sticky top-6 border-[#ECEAE6] bg-[#FAFAF8]">
-      <CardHeader className="pb-3 border-b border-[#ECEAE6]">
-        <CardTitle className="text-base font-semibold text-[#111]">Student Overview</CardTitle>
+    <Card className="sticky top-6 border-slate-200 bg-white">
+      <CardHeader className="pb-3 border-b border-slate-200">
+        <CardTitle className="text-base font-semibold text-navy">Student Overview</CardTitle>
         <CardDescription className="text-xs">Quick progress controls & credentials.</CardDescription>
       </CardHeader>
       <CardContent className="pt-4 space-y-5">
         <div>
-          <h3 className="font-bold text-sm text-[#111] mb-1">{student.user?.name}</h3>
+          <h3 className="font-bold text-sm text-navy mb-1">{student.user?.name}</h3>
           <p className="text-xs text-gray-400">Email: {student.user?.email}</p>
           <p className="text-xs text-gray-400">Phone: {student.user?.phone ?? "N/A"}</p>
         </div>
@@ -64,12 +64,12 @@ function StudentDetailCard({ student, editStage, editStatus, isPending, onStageC
         <Button
           size="sm" variant="outline"
           onClick={() => router.push(`/admin/students/${student.id}`)}
-          className="w-full border-[#3730A3] text-[#3730A3] hover:bg-[#EEF2FF] font-semibold flex items-center justify-center gap-1.5 cursor-pointer h-9 text-xs"
+          className="w-full border-royal-blue text-royal-blue hover:bg-indigo-50 font-semibold flex items-center justify-center gap-1.5 cursor-pointer h-9 text-xs"
         >
           Full Profile & Documents <ArrowRight className="size-4" />
         </Button>
 
-        <div className="bg-white border border-[#ECEAE6] rounded-xl p-3.5 space-y-2">
+        <div className="bg-white border border-slate-200 rounded-xl p-3.5 space-y-2">
           <h4 className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Academics</h4>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <KV label="NEET Score" value={student.neetScore ?? "N/A"} />
@@ -91,13 +91,13 @@ function StudentDetailCard({ student, editStage, editStatus, isPending, onStageC
           </p>
         </div>
 
-        <div className="border-t border-[#ECEAE6] pt-4 space-y-3">
+        <div className="border-t border-slate-200 pt-4 space-y-3">
           <h4 className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Update Progression</h4>
           <div className="space-y-2">
             <div>
               <label className="text-[10px] text-gray-400 block mb-1">Current Stage</label>
               <Select value={String(editStage ?? "")} onValueChange={(v) => onStageChange(Number(v))}>
-                <SelectTrigger className="w-full text-xs bg-white border-[#E5E7EB]">
+                <SelectTrigger className="w-full text-xs bg-white border-slate-200">
                   <SelectValue placeholder="Select stage" />
                 </SelectTrigger>
                 <SelectContent>
@@ -111,7 +111,7 @@ function StudentDetailCard({ student, editStage, editStatus, isPending, onStageC
             <div>
               <label className="text-[10px] text-gray-400 block mb-1">Application Status</label>
               <Select value={editStatus ?? ""} onValueChange={onStatusChange}>
-                <SelectTrigger className="w-full text-xs bg-white border-[#E5E7EB]">
+                <SelectTrigger className="w-full text-xs bg-white border-slate-200">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -124,7 +124,7 @@ function StudentDetailCard({ student, editStage, editStatus, isPending, onStageC
 
             <Button
               size="sm"
-              className="w-full bg-[#3730A3] hover:bg-[#2e288a] text-white font-medium text-xs h-9"
+              className="w-full bg-royal-blue hover:bg-navy-light text-white font-medium text-xs h-9"
               disabled={isPending || (editStage === student.currentStage && editStatus === student.applicationStatus)}
               onClick={onSave}
             >
@@ -141,7 +141,7 @@ function KV({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-gray-400">{label}</p>
-      <p className="font-bold text-sm text-[#111]">{value}</p>
+      <p className="font-bold text-sm text-navy">{value}</p>
     </div>
   );
 }

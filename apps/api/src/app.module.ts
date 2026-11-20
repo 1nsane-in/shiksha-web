@@ -27,12 +27,14 @@ import { ConsultationModule } from './consultation/consultation.module';
 import { ParentsModule } from './parents/parents.module';
 import { UniversityRequestModule } from './university-requests/university-request.module';
 import { RedisModule } from './redis/redis.module';
+import { validateConfig } from './common/config.validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
+      validate: validateConfig,
     }),
     RateLimitingModule,
     SharedJwtModule,

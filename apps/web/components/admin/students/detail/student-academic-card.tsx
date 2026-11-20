@@ -12,7 +12,7 @@ interface Props {
 
 export function StudentAcademicCard({ neetScore, neetRank, twelfthPercentage, tenthPercentage }: Props) {
   return (
-    <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
+    <Card className="border-slate-200 bg-white">
       <CardHeader>
         <CardTitle className="text-base font-semibold flex items-center gap-2">
           <GraduationCap className="h-4 w-4" />
@@ -33,9 +33,9 @@ export function StudentAcademicCard({ neetScore, neetRank, twelfthPercentage, te
 
 function ScoreTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-white border border-[#ECEAE6] p-3.5 rounded-xl text-center">
+    <div className="bg-white border border-slate-200 p-3.5 rounded-xl text-center">
       <p className="text-xs text-gray-400">{label}</p>
-      <p className="text-xl font-bold text-[#111] mt-1">{value}</p>
+      <p className="text-xl font-bold text-navy mt-1">{value}</p>
     </div>
   );
 }

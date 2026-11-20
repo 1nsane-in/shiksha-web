@@ -39,7 +39,7 @@ export function UniversitySearchToolbar({
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search university by name or abbreviation (e.g. OSMU)..."
-          className="w-full py-2.5 pl-10 pr-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold bg-slate-50/50 text-[#1A153A]"
+          className="w-full py-2.5 pl-10 pr-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold bg-slate-50/50 text-navy"
         />
       </div>
 

@@ -13,7 +13,7 @@ export function StudentsFilters({ stage, status, onStageChange, onStatusChange }
   return (
     <div className="flex gap-2">
       <Select value={stage === undefined ? "all" : String(stage)} onValueChange={(v) => onStageChange(v === "all" ? undefined : Number(v))}>
-        <SelectTrigger className="w-[130px] bg-white border-[#E5E7EB] text-xs">
+        <SelectTrigger className="w-[130px] bg-white border-slate-200 text-xs">
           <SelectValue placeholder="Stage" />
         </SelectTrigger>
         <SelectContent>
@@ -25,7 +25,7 @@ export function StudentsFilters({ stage, status, onStageChange, onStatusChange }
       </Select>
 
       <Select value={status === undefined ? "all" : status} onValueChange={(v) => onStatusChange(v === "all" ? undefined : v)}>
-        <SelectTrigger className="w-[140px] bg-white border-[#E5E7EB] text-xs">
+        <SelectTrigger className="w-[140px] bg-white border-slate-200 text-xs">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>

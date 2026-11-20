@@ -8,7 +8,7 @@ import { brand, admissionYear } from "@/lib/brand";
  */
 export function ContactHero() {
   return (
-    <section className="relative pb-20 pt-32 overflow-hidden bg-[#1A153A] h-[50vh] flex items-center justify-center">
+    <section className="relative pb-20 pt-32 overflow-hidden bg-navy h-[50vh] flex items-center justify-center">
       <div className="pointer-events-none absolute inset-0 opacity-15">
         <Image
           alt="Medical counseling consultation"
@@ -18,7 +18,7 @@ export function ContactHero() {
           priority
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-[#1A153A]/95" />
+        <div className="absolute inset-0 bg-navy/95" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">

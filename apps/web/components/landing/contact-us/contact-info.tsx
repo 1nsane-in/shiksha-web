@@ -79,7 +79,7 @@ export function ContactInfo() {
       </div>
 
       {/* Trust Badge */}
-      <div className="p-4 rounded-xl flex items-center gap-3 bg-[#EEF2FF] border border-[#E0E7FF]">
+      <div className="p-4 rounded-xl flex items-center gap-3 bg-indigo-50 border border-indigo-100">
         <ShieldCheck className="h-6 w-6 text-indigo-600 shrink-0" />
         <p className="text-xs text-indigo-950 font-medium leading-relaxed">
           Your details are encrypted and securely shared only with authorized counselors. We respect student privacy.

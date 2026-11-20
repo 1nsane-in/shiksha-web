@@ -84,7 +84,7 @@ export default function EditUniversityPage() {
   if (isLoading || !formData) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-sm text-[#6B6B6B]">Loading...</p>
+        <p className="text-sm text-slate-500">Loading...</p>
       </div>
     );
   }
@@ -157,8 +157,8 @@ export default function EditUniversityPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="min-w-0">
-          <h1 className="text-lg font-bold text-[#2D2154] sm:text-2xl">Edit University</h1>
-          <p className="text-xs text-[#6B6B6B] sm:text-sm">{university?.name}</p>
+          <h1 className="text-lg font-bold text-navy sm:text-2xl">Edit University</h1>
+          <p className="text-xs text-slate-500 sm:text-sm">{university?.name}</p>
         </div>
       </div>
 
@@ -994,7 +994,7 @@ export default function EditUniversityPage() {
       </div>
 
       {/* Save button */}
-      <div className="sticky bottom-0 flex justify-end gap-2 border-t border-border bg-[#F7F5F2] py-3 -mx-4 px-4 sm:-mx-6 sm:px-6">
+      <div className="sticky bottom-0 flex justify-end gap-2 border-t border-border bg-ice-grey py-3 -mx-4 px-4 sm:-mx-6 sm:px-6">
         <Button variant="outline" size="sm" onClick={() => router.back()}>
           Cancel
         </Button>

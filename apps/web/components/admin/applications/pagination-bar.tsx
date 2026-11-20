@@ -14,7 +14,7 @@ export function PaginationBar({ page, totalPages, total, onPageChange }: Props) 
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between pt-5 border-t border-[#ECEAE6]">
+    <div className="flex items-center justify-between pt-5 border-t border-slate-200">
       <p className="text-xs text-gray-400 font-semibold">
         Page {page} of {totalPages} ({total} total applications)
       </p>

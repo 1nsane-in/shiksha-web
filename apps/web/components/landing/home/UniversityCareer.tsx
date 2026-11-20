@@ -28,10 +28,10 @@ const careers = [
 
 export function UniversityCareer() {
   return (
-    <section className="py-20 bg-[#F8F6FC]">
+    <section className="py-20 bg-ice-grey">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#2D2154] mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
             Career Options After MBBS
           </h2>
           <p className="text-gray-600 leading-relaxed">
@@ -40,11 +40,11 @@ export function UniversityCareer() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {careers.map((career) => (
-            <Card key={career.title} className="border border-[#E0D8F0] hover:border-[#F0A030]/50 transition-all text-center p-6">
-              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-[#F0A030]/10 text-[#F0A030] mb-4">
+            <Card key={career.title} className="border border-border hover:border-royal-blue/50 transition-all text-center p-6">
+              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-royal-blue/10 text-royal-blue mb-4">
                 {career.icon}
               </div>
-              <h3 className="text-lg font-semibold text-[#2D2154] mb-3">{career.title}</h3>
+              <h3 className="text-lg font-semibold text-navy mb-3">{career.title}</h3>
               <p className="text-gray-600 text-sm leading-relaxed">{career.description}</p>
             </Card>
           ))}

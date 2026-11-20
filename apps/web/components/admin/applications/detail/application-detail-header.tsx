@@ -31,26 +31,26 @@ export function ApplicationDetailHeader({
   const StatusIcon = config.icon;
 
   return (
-    <div className="border-b border-[#d3cec6] bg-transparent">
+    <div className="border-b border-border bg-transparent">
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/admin/applications")}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d3cec6] bg-white text-[#111111] hover:bg-zinc-50 transition-all"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-white text-navy hover:bg-zinc-50 transition-all"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-medium tracking-tight text-[#111111]">
+              <h1 className="text-lg font-medium tracking-tight text-navy">
                 {firstName} {lastName}
               </h1>
-              <span className="inline-flex items-center gap-1 rounded-full border border-[#d3cec6] px-2.5 py-0.5 text-[11px] font-medium bg-white text-[#111111]">
-                <StatusIcon className="h-3 w-3 text-[#626260]" />
+              <span className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-0.5 text-[11px] font-medium bg-white text-navy">
+                <StatusIcon className="h-3 w-3 text-slate-600" />
                 {config.label}
               </span>
             </div>
-            <p className="text-[11px] text-[#626260] mt-0.5">
+            <p className="text-[11px] text-slate-600 mt-0.5">
               ID: <span className="font-mono text-zinc-500">{id}</span>
             </p>
           </div>
@@ -59,7 +59,7 @@ export function ApplicationDetailHeader({
         {showActions && (
           <div className="flex items-center gap-2">
             <button
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#111111] px-4 py-2 text-xs font-medium text-white hover:bg-black transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-navy px-4 py-2 text-xs font-medium text-white hover:bg-black transition-all disabled:opacity-50 cursor-pointer"
               onClick={onApprove}
               disabled={isPending}
             >
@@ -71,7 +71,7 @@ export function ApplicationDetailHeader({
               Approve
             </button>
             <button
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-4 py-2 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2 text-xs font-medium text-navy hover:bg-zinc-50 transition-all disabled:opacity-50 cursor-pointer"
               onClick={onReject}
               disabled={isPending}
             >

@@ -11,7 +11,7 @@ export function WhyWciecCard({ icon, title, desc }: WhyShikshaItem) {
   const Icon: LucideIcon = iconMap[icon] ?? GraduationCap;
 
   return (
-    <div className="flex gap-5 p-6 rounded-xl transition-all hover:bg-[#FAF9F6] border border-transparent hover:border-gray-100">
+    <div className="flex gap-5 p-6 rounded-xl transition-all hover:bg-white border border-transparent hover:border-gray-100">
       <div
         className="flex size-10 shrink-0 items-center justify-center rounded-lg"
         style={{ background: brand.goldLight, color: brand.gold }}
@@ -19,7 +19,7 @@ export function WhyWciecCard({ icon, title, desc }: WhyShikshaItem) {
         <Icon className="size-5" />
       </div>
       <div>
-        <h3 className="font-bold text-base text-[#2D2154]">{title}</h3>
+        <h3 className="font-bold text-base text-navy">{title}</h3>
         <p className="mt-2 text-xs sm:text-sm leading-relaxed" style={{ color: brand.inkMuted }}>
           {desc}
         </p>

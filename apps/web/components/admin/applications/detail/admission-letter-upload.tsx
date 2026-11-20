@@ -69,26 +69,26 @@ export function AdmissionLetterUpload({ applicationId, existingLetter }: Props) 
   const letterToDisplay = latestLetter || existingLetter;
 
   return (
-    <div className="rounded-xl border border-[#d3cec6] bg-white p-6 space-y-4">
+    <div className="rounded-xl border border-border bg-white p-6 space-y-4">
       <PreviewDialog isOpen={!!previewFile} onClose={() => setPreviewFile(null)} fileUrl={previewFile?.url || null} fileName={previewFile?.name || null} />
 
       <div className="flex items-center gap-2">
-        <Upload className="h-4 w-4 text-[#111111]" />
-        <h2 className="text-sm font-medium text-[#111111] tracking-tight">Official Admission Letter</h2>
+        <Upload className="h-4 w-4 text-navy" />
+        <h2 className="text-sm font-medium text-navy tracking-tight">Official Admission Letter</h2>
       </div>
-      <p className="text-xs text-[#626260] leading-relaxed">
+      <p className="text-xs text-slate-600 leading-relaxed">
         Upload the official university admission letter PDF.
       </p>
 
       {letterToDisplay && !selectedFile && (
-        <div className="flex items-center justify-between rounded-lg border border-[#d3cec6] bg-zinc-50 px-4 py-3 text-xs font-medium text-[#111111] flex-wrap gap-2">
+        <div className="flex items-center justify-between rounded-lg border border-border bg-zinc-50 px-4 py-3 text-xs font-medium text-navy flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
             <span className="truncate max-w-[280px]">Letter active: {letterToDisplay.fileName || "Admission_Letter.pdf"}</span>
           </div>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setPreviewFile({ url: letterToDisplay.fileUrl, name: letterToDisplay.fileName || "Admission Letter" })}
-              className="inline-flex items-center gap-1 rounded-md border border-[#d3cec6] bg-white px-2.5 py-1 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer">
+              className="inline-flex items-center gap-1 rounded-md border border-border bg-white px-2.5 py-1 text-xs font-medium text-navy hover:bg-zinc-50 transition-all cursor-pointer">
               <ExternalLink className="h-3 w-3" /> View
             </button>
             <button type="button" onClick={handleRemove}
@@ -102,12 +102,12 @@ export function AdmissionLetterUpload({ applicationId, existingLetter }: Props) 
       {selectedFile && (
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d3cec6] bg-zinc-50 px-3 py-1 text-xs font-medium text-[#111111]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-zinc-50 px-3 py-1 text-xs font-medium text-navy">
               Selected: {selectedFile.name}
             </span>
             {localPreviewUrl && (
               <button type="button" onClick={() => setPreviewFile({ url: localPreviewUrl, name: selectedFile.name })}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#d3cec6] bg-white px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-zinc-50 transition-all cursor-pointer">
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-navy hover:bg-zinc-50 transition-all cursor-pointer">
                 <ExternalLink className="h-3 w-3" /> Preview
               </button>
             )}
@@ -118,7 +118,7 @@ export function AdmissionLetterUpload({ applicationId, existingLetter }: Props) 
           </div>
           {!success && (
             <button type="button" onClick={handleUpload} disabled={uploading}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#111111] px-4 py-2 text-xs font-medium text-white hover:bg-black transition-all cursor-pointer disabled:opacity-50">
+              className="inline-flex items-center gap-2 rounded-lg bg-navy px-4 py-2 text-xs font-medium text-white hover:bg-black transition-all cursor-pointer disabled:opacity-50">
               {uploading ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading...</> : <><Upload className="h-3.5 w-3.5" /> Upload to Server</>}
             </button>
           )}
@@ -142,7 +142,7 @@ export function AdmissionLetterUpload({ applicationId, existingLetter }: Props) 
         <>
           <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" onChange={handleFileSelect} className="hidden" />
           <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#d3cec6] bg-zinc-50 px-4 py-2 text-xs font-medium text-[#111111] hover:bg-zinc-100 transition-all disabled:opacity-50">
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-zinc-50 px-4 py-2 text-xs font-medium text-navy hover:bg-zinc-100 transition-all disabled:opacity-50">
             <Upload className="h-3.5 w-3.5" /> Select Admission Letter PDF
           </button>
         </>

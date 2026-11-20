@@ -145,7 +145,7 @@ export default function AdminParentLinksPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center max-w-lg mx-auto">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#111]">
+        <h2 className="text-lg font-semibold text-navy">
           Failed to load parent-student links
         </h2>
         <p className="text-sm text-gray-500 mt-1 mb-6">
@@ -162,10 +162,10 @@ export default function AdminParentLinksPage() {
     <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 max-w-7xl mx-auto">
       {/* Page header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-[#111]">
+        <h1 className="text-2xl font-bold tracking-tight text-navy">
           Parent-Student Links
         </h1>
-        <p className="text-sm text-[#666]">
+        <p className="text-sm text-slate-500">
           View, create, approve, reject, and manage parent-student
           relationships.
         </p>
@@ -173,7 +173,7 @@ export default function AdminParentLinksPage() {
 
       {/* Stats bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
+        <Card className="border-slate-200 bg-white">
           <CardContent className="pt-4 flex items-center gap-4">
             <div className="rounded-lg bg-indigo-100 p-2.5">
               <Link2 className="size-5 text-indigo-600" />
@@ -182,14 +182,14 @@ export default function AdminParentLinksPage() {
               <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">
                 Total Links
               </p>
-              <p className="text-xl font-bold text-[#111] mt-0.5">
+              <p className="text-xl font-bold text-navy mt-0.5">
                 {data?.total ?? 0}
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
+        <Card className="border-slate-200 bg-white">
           <CardContent className="pt-4 flex items-center gap-4">
             <div className="rounded-lg bg-emerald-100 p-2.5">
               <UserCheck className="size-5 text-emerald-600" />
@@ -198,7 +198,7 @@ export default function AdminParentLinksPage() {
               <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">
                 Approved
               </p>
-              <p className="text-xl font-bold text-[#111] mt-0.5">
+              <p className="text-xl font-bold text-navy mt-0.5">
                 {data?.total
                   ? links.filter((l) => l.status === "APPROVED").length
                   : 0}
@@ -207,7 +207,7 @@ export default function AdminParentLinksPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
+        <Card className="border-slate-200 bg-white">
           <CardContent className="pt-4 flex items-center gap-4">
             <div className="rounded-lg bg-amber-100 p-2.5">
               <Clock className="size-5 text-amber-600" />
@@ -216,7 +216,7 @@ export default function AdminParentLinksPage() {
               <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">
                 Pending
               </p>
-              <p className="text-xl font-bold text-[#111] mt-0.5">
+              <p className="text-xl font-bold text-navy mt-0.5">
                 {data?.total
                   ? links.filter((l) => l.status === "PENDING").length
                   : 0}
@@ -227,7 +227,7 @@ export default function AdminParentLinksPage() {
       </div>
 
       {/* Filters & Create button */}
-      <Card className="border-[#ECEAE6] bg-[#FAFAF8]">
+      <Card className="border-slate-200 bg-white">
         <CardHeader className="flex flex-row items-center justify-between pb-2 flex-wrap gap-2">
           <div>
             <CardTitle className="text-base font-semibold">
@@ -237,7 +237,7 @@ export default function AdminParentLinksPage() {
           <Button
             size="sm"
             onClick={() => setCreateOpen(true)}
-            className="bg-[#3730A3] hover:bg-[#2e288a] text-white gap-1.5 cursor-pointer"
+            className="bg-royal-blue hover:bg-navy-light text-white gap-1.5 cursor-pointer"
           >
             <Plus className="size-4" /> Create Link
           </Button>
@@ -249,7 +249,7 @@ export default function AdminParentLinksPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
               <Input
                 placeholder="Search by parent or student name/email..."
-                className="pl-9 bg-white border-[#E5E7EB]"
+                className="pl-9 bg-white border-slate-200"
                 value={searchInput}
                 onChange={(e) => {
                   setSearchInput(e.target.value);
@@ -261,7 +261,7 @@ export default function AdminParentLinksPage() {
               value={statusFilter || "all"}
               onValueChange={handleStatusFilterChange}
             >
-              <SelectTrigger className="w-[140px] bg-white border-[#E5E7EB] text-xs">
+              <SelectTrigger className="w-[140px] bg-white border-slate-200 text-xs">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
               <SelectContent>
@@ -295,23 +295,23 @@ export default function AdminParentLinksPage() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-[#ECEAE6]">
-                      <TableHead className="font-semibold text-xs text-[#666] uppercase tracking-wider">
+                    <TableRow className="border-slate-200">
+                      <TableHead className="font-semibold text-xs text-slate-500 uppercase tracking-wider">
                         Parent
                       </TableHead>
-                      <TableHead className="font-semibold text-xs text-[#666] uppercase tracking-wider">
+                      <TableHead className="font-semibold text-xs text-slate-500 uppercase tracking-wider">
                         Student
                       </TableHead>
-                      <TableHead className="font-semibold text-xs text-[#666] uppercase tracking-wider">
+                      <TableHead className="font-semibold text-xs text-slate-500 uppercase tracking-wider">
                         Relation
                       </TableHead>
-                      <TableHead className="font-semibold text-xs text-[#666] uppercase tracking-wider">
+                      <TableHead className="font-semibold text-xs text-slate-500 uppercase tracking-wider">
                         Status
                       </TableHead>
-                      <TableHead className="font-semibold text-xs text-[#666] uppercase tracking-wider">
+                      <TableHead className="font-semibold text-xs text-slate-500 uppercase tracking-wider">
                         Created
                       </TableHead>
-                      <TableHead className="font-semibold text-xs text-[#666] uppercase tracking-wider text-right">
+                      <TableHead className="font-semibold text-xs text-slate-500 uppercase tracking-wider text-right">
                         Actions
                       </TableHead>
                     </TableRow>
@@ -320,11 +320,11 @@ export default function AdminParentLinksPage() {
                     {links.map((link) => (
                       <TableRow
                         key={link.id}
-                        className="hover:bg-[#F2F1ED] border-[#ECEAE6] transition-colors"
+                        className="hover:bg-ice-grey border-slate-200 transition-colors"
                       >
                         <TableCell>
                           <div>
-                            <p className="font-semibold text-sm text-[#111]">
+                            <p className="font-semibold text-sm text-navy">
                               {link.parentName}
                             </p>
                             <p className="text-xs text-gray-400 font-mono">
@@ -334,7 +334,7 @@ export default function AdminParentLinksPage() {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-semibold text-sm text-[#111]">
+                            <p className="font-semibold text-sm text-navy">
                               {link.studentName}
                             </p>
                             <p className="text-xs text-gray-400 font-mono">
@@ -343,7 +343,7 @@ export default function AdminParentLinksPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="text-xs text-[#555]">
+                          <span className="text-xs text-slate-600">
                             {link.relation ?? "—"}
                           </span>
                         </TableCell>
@@ -430,7 +430,7 @@ export default function AdminParentLinksPage() {
 
               {/* Pagination */}
               {data && data.totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#ECEAE6]">
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
                   <p className="text-xs text-gray-400">
                     Showing page {data.page} of {data.totalPages}
                   </p>
@@ -596,7 +596,7 @@ function CreateLinkSheet({
             <Button
               type="submit"
               disabled={createMutation.isPending}
-              className="bg-[#3730A3] hover:bg-[#2e288a] text-white cursor-pointer"
+              className="bg-royal-blue hover:bg-navy-light text-white cursor-pointer"
             >
               {createMutation.isPending ? "Creating..." : "Create Link"}
             </Button>

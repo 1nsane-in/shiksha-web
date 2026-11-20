@@ -26,7 +26,7 @@ export function GalleryGrid({ images, isLoading, error, onOpenLightbox }: Galler
           {Array.from({ length: 9 }).map((_, i) => (
             <div
               key={i}
-              className="aspect-video relative rounded-2xl bg-[#EEEDE9] animate-pulse border border-[#ECEAE6]"
+              className="aspect-video relative rounded-2xl bg-ice-grey animate-pulse border border-slate-200"
             />
           ))}
         </div>

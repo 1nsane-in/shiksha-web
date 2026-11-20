@@ -165,7 +165,7 @@ export function ConsultationForm({
             placeholder="e.g., Tushar Sharma"
             value={form.name}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm"
             required
           />
         </div>
@@ -185,7 +185,7 @@ export function ConsultationForm({
             placeholder="e.g., tushar@example.com"
             value={form.email}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm"
             required
           />
         </div>
@@ -206,7 +206,7 @@ export function ConsultationForm({
             name="country"
             value={selectedCountryIso}
             onChange={handleCountryChange}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm bg-white"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm bg-white"
             required
           >
             <option value="">Select Country</option>
@@ -232,7 +232,7 @@ export function ConsultationForm({
             value={form.state}
             onChange={handleStateChange}
             disabled={!selectedCountryIso}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm bg-white disabled:opacity-60"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm bg-white disabled:opacity-60"
           >
             <option value="">Select State</option>
             {states.map((s) => (
@@ -254,9 +254,9 @@ export function ConsultationForm({
           >
             Mobile No. <span className="text-red-500">*</span>
           </label>
-          <div className="relative flex rounded-lg border border-gray-300 overflow-hidden focus-within:ring-1 focus-within:ring-[#3730A3] focus-within:border-[#3730A3]">
+          <div className="relative flex rounded-lg border border-gray-300 overflow-hidden focus-within:ring-1 focus-within:ring-royal-blue focus-within:border-royal-blue">
             {selectedCountryPhoneCode && (
-              <span className="bg-gray-50 border-r border-gray-300 px-3 py-2 text-sm font-semibold text-[#1A153A] flex items-center select-none shrink-0">
+              <span className="bg-gray-50 border-r border-gray-300 px-3 py-2 text-sm font-semibold text-navy flex items-center select-none shrink-0">
                 {selectedCountryPhoneCode}
               </span>
             )}
@@ -285,7 +285,7 @@ export function ConsultationForm({
             style={{ color: brand.inkMuted }}
           >
             NEET Score{" "}
-            <span className="text-xs lowercase text-[#999]">(0-720)</span>
+            <span className="text-xs lowercase text-slate-400">(0-720)</span>
           </label>
           <input
             id="neetScore"
@@ -296,7 +296,7 @@ export function ConsultationForm({
             onChange={handleChange}
             min="0"
             max="720"
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm"
           />
         </div>
       </div>
@@ -316,7 +316,7 @@ export function ConsultationForm({
             name="preferredUniversity"
             value={form.preferredUniversity}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm bg-white"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm bg-white"
           >
             <option value="">Select University</option>
             <option value="Jalal-Abad State University">Jalal-Abad State Univ</option>
@@ -345,7 +345,7 @@ export function ConsultationForm({
             name="preferredIntake"
             value={form.preferredIntake}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#3730A3] focus:border-[#3730A3] text-sm bg-white"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm bg-white"
           >
             <option value="">Select Intake</option>
             <option value="Summer">Summer Intake (May/Jun)</option>

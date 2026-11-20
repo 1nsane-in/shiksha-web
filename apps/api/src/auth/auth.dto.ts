@@ -4,6 +4,7 @@ import {
   IsOptional,
   MinLength,
   IsIn,
+  Length,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Match } from '../common/decorators/match.decorator';
@@ -25,6 +26,23 @@ export class LogoutDto {
   @IsOptional()
   @IsString()
   refreshToken?: string;
+}
+
+export class EnableMfaDto {
+  @ApiProperty({ example: '123456' })
+  @IsString()
+  @Length(6, 6)
+  code!: string;
+}
+
+export class VerifyMfaLoginDto {
+  @ApiProperty({ description: 'Short-lived challenge from admin login' })
+  @IsString()
+  challengeToken!: string;
+
+  @ApiProperty({ example: '123456', description: 'TOTP code or backup code' })
+  @IsString()
+  code!: string;
 }
 
 export class LoginDto {

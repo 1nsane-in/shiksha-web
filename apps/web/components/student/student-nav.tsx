@@ -28,7 +28,7 @@ export function StudentNav() {
   return (
     <>
       {/* Desktop top navigation */}
-      <nav className="hidden md:flex items-center gap-1 bg-white rounded-xl border border-[#E0D8F0] p-1">
+      <nav className="hidden md:flex items-center gap-1 bg-white rounded-xl border border-border p-1">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
@@ -37,8 +37,8 @@ export function StudentNav() {
               href={item.href}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-[#4B2D8E] text-white"
-                  : "text-[#6B6B6B] hover:text-[#4B2D8E] hover:bg-[#F0A030]/10"
+                  ? "bg-royal-blue text-white"
+                  : "text-slate-500 hover:text-royal-blue hover:bg-royal-blue/10"
               }`}
             >
               <item.icon className="size-4" />
@@ -49,7 +49,7 @@ export function StudentNav() {
       </nav>
 
       {/* Mobile bottom navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-[#E0D8F0] safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-border safe-area-bottom">
         <div className="flex items-center justify-around px-2 py-1">
           {navItems.map((item) => {
             const isActive = pathname.startsWith(item.href);
@@ -58,7 +58,7 @@ export function StudentNav() {
                 key={item.name}
                 href={item.href}
                 className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg min-w-0 ${
-                  isActive ? "text-[#4B2D8E]" : "text-[#6B6B6B]"
+                  isActive ? "text-royal-blue" : "text-slate-500"
                 }`}
               >
                 <item.icon className="size-5" />

@@ -195,7 +195,7 @@ export default function PaymentsPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="size-12 text-red-400 mb-4" />
-        <h2 className="text-lg font-semibold text-[#2D2154]">
+        <h2 className="text-lg font-semibold text-navy">
           Failed to load payments
         </h2>
         <p className="text-sm text-gray-500 mt-1 mb-6">
@@ -216,7 +216,7 @@ export default function PaymentsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-[#2D2154]">Payments</h1>
+        <h1 className="text-2xl font-bold text-navy">Payments</h1>
         <p className="text-sm text-gray-500 mt-1">
           Manage your admission and exam fees
         </p>
@@ -236,15 +236,15 @@ export default function PaymentsPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <CreditCard className="size-4 text-[#4B2D8E]" />
-                      <h3 className="font-semibold text-sm text-[#2D2154]">
+                      <CreditCard className="size-4 text-royal-blue" />
+                      <h3 className="font-semibold text-sm text-navy">
                         {item.label}
                       </h3>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
                       {item.description}
                     </p>
-                    <p className="text-lg font-bold text-[#4B2D8E] mt-2">
+                    <p className="text-lg font-bold text-royal-blue mt-2">
                       ₹{item.amount?.toLocaleString("en-IN")}
                     </p>
                   </div>

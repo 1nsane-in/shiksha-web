@@ -31,7 +31,7 @@ function capitalize(str: string): string {
 function LanguageDisplay({ language }: { language: { name: string; speaking: string; reading: string; writing: string } }) {
   const levelStyle = (level: string): { bg: string; text: string } => {
     switch (level.toLowerCase()) {
-      case "native":      return { bg: "#DCFCE7", text: "#166534" };
+      case "native":      return { bg: "#DCFCE7", text: "var(--success)" };
       case "fluent":      return { bg: "#DBEAFE", text: "#1E40AF" };
       case "intermediate": return { bg: "#FEF3C7", text: "#92400E" };
       case "beginner":    return { bg: "#F3F4F6", text: "#6B7280" };
@@ -96,7 +96,7 @@ function DocThumb({ label, url, onClick }: { label: string; url: string; onClick
       {isPdf(url) ? (
         <div className="flex h-32 items-center justify-center" style={{ background: brand.canvas }}>
           <div className="text-center">
-            <FileIcon className="mx-auto size-7" style={{ color: "#DC2626" }} />
+            <FileIcon className="mx-auto size-7" style={{ color: "var(--error)" }} />
             <p className="mt-1 text-[11px] font-medium" style={{ color: brand.inkMuted }}>PDF</p>
           </div>
         </div>
@@ -535,26 +535,26 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
 
           {/* Application Progress — redesigned with impeccable principles */}
           {timelineEvents.length > 0 && (
-            <section className="rounded-2xl bg-white p-6 sm:p-8" style={{ border: '1px solid #d3cec6' }}>
+            <section className="rounded-2xl bg-white p-6 sm:p-8" style={{ border: '1px solid var(--hairline)' }}>
               {/* Section Header */}
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-lg" style={{ background: '#f5f1ec' }}>
-                  <Clock className="size-5" style={{ color: '#111111' }} />
+                <div className="flex size-10 items-center justify-center rounded-lg" style={{ background: 'var(--ice-grey)' }}>
+                  <Clock className="size-5" style={{ color: 'var(--navy)' }} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-medium tracking-tight" style={{ color: '#111111', fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+                  <h2 className="text-lg font-medium tracking-tight" style={{ color: 'var(--navy)', fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
                     Application Progress
                   </h2>
-                  <p className="text-sm" style={{ color: '#626260' }}>
+                  <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
                     {timelineEvents.filter(e => e.isCompleted).length} of {timelineEvents.length} stages completed
                   </p>
                 </div>
               </div>
 
               {/* Progress Overview */}
-              <div className="mb-6 rounded-xl p-4" style={{ background: '#f5f1ec' }}>
+              <div className="mb-6 rounded-xl p-4" style={{ background: 'var(--ice-grey)' }}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium" style={{ color: '#111111' }}>
+                  <span className="text-sm font-medium" style={{ color: 'var(--navy)' }}>
                     {(() => {
                       const activeEvent = timelineEvents.find(e => e.isActive);
                       if (activeEvent) return `Current: ${activeEvent.title}`;
@@ -562,16 +562,16 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                       return allDone ? 'All stages completed!' : 'Application in progress';
                     })()}
                   </span>
-                  <span className="text-sm font-medium" style={{ color: '#111111' }}>
+                  <span className="text-sm font-medium" style={{ color: 'var(--navy)' }}>
                     {Math.round((timelineEvents.filter(e => e.isCompleted).length / timelineEvents.length) * 100)}%
                   </span>
                 </div>
-                <div className="h-2 w-full rounded-full overflow-hidden" style={{ background: '#ebe7e1' }}>
+                <div className="h-2 w-full rounded-full overflow-hidden" style={{ background: 'var(--hairline)' }}>
                   <div 
                     className="h-full rounded-full transition-all duration-500"
                     style={{ 
                       width: `${(timelineEvents.filter(e => e.isCompleted).length / timelineEvents.length) * 100}%`,
-                      background: '#111111'
+                      background: 'var(--navy)'
                     }}
                   />
                 </div>
@@ -595,8 +595,8 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                           <div 
                             className="relative flex size-8 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300"
                             style={{
-                              borderColor: done ? '#0bdf50' : active ? '#111111' : '#d3cec6',
-                              background: done ? '#0bdf50' : active ? '#111111' : '#ffffff',
+                              borderColor: done ? 'var(--success-bright)' : active ? 'var(--navy)' : 'var(--hairline)',
+                              background: done ? 'var(--success-bright)' : active ? 'var(--navy)' : 'var(--pure-white)',
                             }}
                           >
                             {done ? (
@@ -604,7 +604,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                             ) : active ? (
                               <div className="size-2 rounded-full bg-white" />
                             ) : (
-                              <div className="size-2 rounded-full" style={{ background: '#d3cec6' }} />
+                              <div className="size-2 rounded-full" style={{ background: 'var(--hairline)' }} />
                             )}
                           </div>
                           {/* Connector line */}
@@ -612,7 +612,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                             <div
                               className="w-0.5 flex-1 min-h-[24px] my-1 transition-colors duration-300"
                               style={{
-                                background: done ? '#0bdf50' : '#ebe7e1',
+                                background: done ? 'var(--success-bright)' : 'var(--hairline)',
                               }}
                             />
                           )}
@@ -623,8 +623,8 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                           <div 
                             className={`rounded-xl p-4 transition-all duration-200 ${active ? 'ring-1' : ''}`}
                             style={{ 
-                              background: active ? '#ffffff' : 'transparent',
-                              border: active ? '1px solid #111111' : '1px solid transparent',
+                              background: active ? 'var(--pure-white)' : 'transparent',
+                              border: active ? '1px solid var(--navy)' : '1px solid transparent',
                               boxShadow: active ? '0 1px 3px rgba(0,0,0,0.04)' : 'none'
                             }}
                           >
@@ -634,7 +634,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                                   <p 
                                     className="text-sm font-medium leading-snug"
                                     style={{ 
-                                      color: done ? '#111111' : active ? '#111111' : '#9c9fa5',
+                                      color: done ? 'var(--navy)' : active ? 'var(--navy)' : 'var(--muted-foreground)',
                                       fontFamily: 'Inter, system-ui, sans-serif'
                                     }}
                                   >
@@ -644,8 +644,8 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                                     <span 
                                       className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
                                       style={{
-                                        background: '#111111',
-                                        color: '#ffffff',
+                                        background: 'var(--navy)',
+                                        color: 'var(--pure-white)',
                                       }}
                                     >
                                       In Progress
@@ -656,7 +656,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                                       className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
                                       style={{
                                         background: '#dcfce7',
-                                        color: '#15803d',
+                                        color: 'var(--success)',
                                       }}
                                     >
                                       Completed
@@ -664,12 +664,12 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
                                   )}
                                 </div>
                                 {event.description && (
-                                  <p className="mt-1.5 text-sm leading-relaxed" style={{ color: done ? '#626260' : active ? '#626260' : '#9c9fa5' }}>
+                                  <p className="mt-1.5 text-sm leading-relaxed" style={{ color: done ? 'var(--muted-foreground)' : active ? 'var(--muted-foreground)' : 'var(--muted-foreground)' }}>
                                     {event.description}
                                   </p>
                                 )}
                               </div>
-                              <span className="shrink-0 text-xs whitespace-nowrap" style={{ color: '#7b7b78' }}>
+                              <span className="shrink-0 text-xs whitespace-nowrap" style={{ color: 'var(--muted-foreground)' }}>
                                 {formatDate(event.occurredAt)}
                               </span>
                             </div>

@@ -12,7 +12,7 @@ export default function MyApplicationsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="size-6 animate-spin text-[#4B2D8E]" />
+        <Loader2 className="size-6 animate-spin text-royal-blue" />
       </div>
     );
   }
@@ -43,8 +43,8 @@ export default function MyApplicationsPage() {
 
       {applications.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
-          <FileText className="size-12 text-[#D0C8E0]" />
-          <p className="text-[#6B6B6B]">No applications submitted yet</p>
+          <FileText className="size-12 text-slate-300" />
+          <p className="text-slate-500">No applications submitted yet</p>
           <Button onClick={() => window.location.assign("/")}>
             Browse Universities
           </Button>
