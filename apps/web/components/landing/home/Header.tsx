@@ -100,15 +100,15 @@ export function Header() {
           ) : (
             <div className="hidden lg:block">
               <Link
-                href={loginUrl}
+                href="/universities"
                 className="inline-flex items-center justify-center px-5 py-2 text-sm font-medium transition-all duration-200 active:scale-[0.97]"
                 style={{
-                  background: brand.ink,
-                  color: "#fff",
+                  background: brand.gold,
+                  color: brand.ink,
                   borderRadius: 10,
                 }}
               >
-                Login
+                Apply Now
               </Link>
             </div>
           )}
@@ -165,7 +165,7 @@ export function Header() {
               {!isAuthenticated && (
                 <div className="pt-3">
                   <Link
-                    href={loginUrl}
+                    href="/universities"
                     className="flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium"
                     style={{
                       background: brand.gold,
@@ -173,7 +173,7 @@ export function Header() {
                     }}
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Login
+                    Apply Now
                   </Link>
                 </div>
               )}

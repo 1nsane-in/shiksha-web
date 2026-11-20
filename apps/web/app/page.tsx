@@ -8,27 +8,14 @@ export const metadata: Metadata = {
     "Shiksha International — your trusted global education ally. MBBS admissions in Kyrgyzstan, Uzbekistan, Kazakhstan & Russia. Official university collaborations, free FMGE/NEXT coaching, and transparent admissions.",
 };
 
+// Critical above-the-fold components - load immediately
 import { Header } from "@/components/landing/home/Header";
 import { TopBar } from "@/components/landing/home/TopBar";
 import { HeroCarousel } from "@/components/landing/home/HeroCarousel";
 import { CountrySection } from "@/components/landing/home/CountrySection";
-import { TrustBar } from "@/components/landing/home/TrustBar";
-import { ProblemSection } from "@/components/landing/home/ProblemSection";
-import { SolutionSection } from "@/components/landing/home/SolutionSection";
-import { HowItWorks } from "@/components/landing/home/HowItWorks";
-import { Features } from "@/components/landing/home/Features";
-import { WhyTrustUs } from "@/components/landing/home/WhyTrustUs";
-import { AudienceSection } from "@/components/landing/home/AudienceSection";
-import { FinalCTA } from "@/components/landing/home/FinalCTA";
-import { Footer } from "@/components/landing/home/Footer";
-import { EligibilityCalculator } from "@/components/landing/home/EligibilityCalculator";
-import { UniversityHero } from "@/components/landing/home/UniversityHero";
-import { UniversityOverview } from "@/components/landing/home/UniversityOverview";
-import { UniversityComparison } from "@/components/landing/home/UniversityComparison";
-import { UniversityAdvantages } from "@/components/landing/home/UniversityAdvantages";
-import { UniversityCards } from "@/components/landing/home/UniversityCards";
-import { UniversityProcess } from "@/components/landing/home/UniversityProcess";
-import { UniversityCareer } from "@/components/landing/home/UniversityCareer";
+
+// Below-the-fold components - lazy loaded via client component
+import { LazySections } from "@/components/landing/home/LazySections";
 
 function decodeToken(token: string): { role?: string } | null {
   try {
@@ -62,21 +49,8 @@ export default async function Home() {
       <Header />
       <HeroCarousel />
       <CountrySection />
-      {/* Rest of the page */}
-      <main className="mx-auto">
-        <UniversityCards />
-        <TrustBar />
-        <ProblemSection />
-        <SolutionSection />
-        <HowItWorks />
-        <Features />
-        <UniversityComparison />
-        {/* <UniversityAdvantages /> */}
-        {/* <WhyTrustUs /> */}
-        {/* <AudienceSection /> */}
-        <FinalCTA />
-      </main>
-      <Footer />
+      {/* Rest of the page - lazy loaded below the fold */}
+      <LazySections />
     </>
   );
 }
