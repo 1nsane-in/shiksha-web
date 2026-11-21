@@ -32,10 +32,8 @@ export function Header() {
 
   return (
     <header className="fixed inset-x-0 top-8 z-50">
-      <div className="flex h-16 w-full items-center justify-center bg-brand-canvas transition-all duration-300">
-        <div
-          className={`mx-auto flex max-w-6xl w-full items-center justify-between gap-8 px-4 sm:px-6 lg:px-8 `}
-        >
+      <div className="flex h-16 w-full items-center bg-brand-canvas px-4 sm:px-6 lg:px-8 transition-all duration-300">
+        <div className="mx-auto flex max-w-7xl w-full items-center justify-between gap-8">
         {/* ─── Logo ─── */}
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <Image
@@ -45,6 +43,20 @@ export function Header() {
             height={28}
             className="h-9 w-auto"
           />
+          <span className="flex flex-col leading-none">
+            <span
+              className="text-[15px] font-bold tracking-tight"
+              style={{ color: brand.ink }}
+            >
+              Siksha
+            </span>
+            <span
+              className="mt-0.5 text-[10px] font-semibold tracking-wide"
+              style={{ color: brand.gold }}
+            >
+              International
+            </span>
+          </span>
         </Link>
 
         {/* ─── Desktop nav ─── */}

@@ -45,10 +45,10 @@ const loginLinks: LoginLink[] = [
 export function TopBar() {
   return (
     <div
-      className="fixed inset-x-0 top-0 z-[60] h-8 flex items-center justify-center bg-brand-navy text-white"
+      className="fixed inset-x-0 top-0 z-[60] h-8 flex items-center bg-brand-navy px-4 sm:px-6 lg:px-8 text-white"
       style={{ background: brand.navy }}
     >
-      <div className="mx-auto max-w-6xl w-full px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl w-full">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-2 lg:gap-0">
           {/* ─── Left: Contact info ─── */}
           <div className="flex items-center gap-4 lg:gap-6 text-xs sm:text-sm">

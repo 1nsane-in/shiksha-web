@@ -18,11 +18,11 @@ export function DirectorSection() {
           {/* Director Image & Info */}
           <div className="lg:col-span-4 text-center">
             <div
-              className="relative mx-auto size-48 sm:size-56 rounded-full overflow-hidden border-4"
+              className="relative mx-auto size-48 sm:size-56 rounded-2xl overflow-hidden border-4"
               style={{ borderColor: brand.gold }}
             >
               <Image
-                src="https://cdn.shiksha.study/landing/director.jpeg"
+                src="https://cdn.shiksha.study/landing/director02.jpeg"
                 alt="Kamal Singh Pilania - Director"
                 fill
                 unoptimized
