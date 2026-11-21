@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { Suspense, useState, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useUniversities } from "@/domains/universities/universities.queries";
 import { seedUniversities } from "@/components/landing/universities/universities-data";
 import { UniversityHero } from "@/components/landing/universities/university-hero";
@@ -30,12 +30,17 @@ const UniversityCardGrid = dynamic(
 /**
  * Public-facing universities listing page.
  */
-export default function PublicUniversitiesPage() {
+function PublicUniversitiesContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedCountry = searchParams.get("country") || "";
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<UniversityTypeFilter>("ALL");
 
-  const { data: response, isLoading, error } = useUniversities({ limit: 50 });
+  const { data: response, isLoading, error } = useUniversities({
+    limit: 50,
+    ...(selectedCountry ? { country: selectedCountry } : {}),
+  });
   const universities = response?.data?.length
     ? response.data
     : seedUniversities;
@@ -47,9 +52,12 @@ export default function PublicUniversitiesPage() {
         uni.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         uni.shortName?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesType = typeFilter === "ALL" || uni.type === typeFilter;
-      return matchesSearch && matchesType;
+      const matchesCountry =
+        !selectedCountry ||
+        uni.location?.country?.toLowerCase() === selectedCountry.toLowerCase();
+      return matchesSearch && matchesType && matchesCountry;
     });
-  }, [universities, searchTerm, typeFilter]);
+  }, [universities, searchTerm, typeFilter, selectedCountry]);
 
   const handleApply = useCallback(
     (slug: string) => router.push(`/student/university/${slug}`),
@@ -69,6 +77,21 @@ export default function PublicUniversitiesPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-32">
       <UniversityHero />
+
+      {selectedCountry && (
+        <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <span>
+            Showing universities in <strong>{selectedCountry}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={() => router.replace("/universities")}
+            className="font-medium underline underline-offset-4 hover:no-underline"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
 
       <UniversitySearchToolbar
         searchTerm={searchTerm}
@@ -92,5 +115,13 @@ export default function PublicUniversitiesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PublicUniversitiesPage() {
+  return (
+    <Suspense fallback={<UniversityLoading />}>
+      <PublicUniversitiesContent />
+    </Suspense>
   );
 }

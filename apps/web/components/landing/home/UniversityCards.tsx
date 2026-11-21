@@ -41,7 +41,7 @@ const seedUniversities = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=JAIU",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Jalalabad+International+University",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=JAIU",
     location: {
       city: "Jalalabad",
       country: "Kyrgyzstan",
@@ -66,7 +66,7 @@ const seedUniversities = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=OSMU",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Osh+State+University",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=OSMU",
     location: {
       city: "Osh",
       country: "Kyrgyzstan",
@@ -91,7 +91,7 @@ const seedUniversities = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=ASI",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Asian+Medical+Institute",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=ASI",
     location: {
       city: "Kant",
       country: "Kyrgyzstan",
@@ -169,30 +169,28 @@ function Skeleton() {
             style={{ background: brand.hairline }}
           />
         </div>
-        <div className="grid gap-6 md:grid-cols-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="animate-pulse overflow-hidden rounded-2xl"
-              style={{
-                background: brand.surface,
-                boxShadow: "0 1px 3px rgba(16,44,80,0.06)",
-              }}
-            >
-              <div className="flex flex-col sm:flex-row">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
                 <div
-                  className="h-48 w-full shrink-0 sm:h-auto sm:w-44"
-                  style={{ background: brand.hairline }}
-                />
-                <div className="flex-1 space-y-3 p-5">
-                  <div className="h-4 w-3/4 rounded bg-gray-200" />
-                  <div className="h-3 w-1/3 rounded bg-gray-100" />
-                  <div className="h-3 w-full rounded bg-gray-100" />
-                  <div className="h-3 w-2/3 rounded bg-gray-100" />
-                  <div className="h-9 w-full rounded-lg bg-gray-100" />
+                  key={i}
+                  className="animate-pulse overflow-hidden rounded-2xl"
+                  style={{
+                    background: brand.surface,
+                    boxShadow: "0 1px 3px rgba(16,44,80,0.06)",
+                  }}
+                >
+                  <div
+                    className="h-48 w-full"
+                    style={{ background: brand.hairline }}
+                  />
+                  <div className="space-y-3 p-5">
+                    <div className="h-4 w-3/4 rounded bg-gray-200" />
+                    <div className="h-3 w-1/3 rounded bg-gray-100" />
+                    <div className="h-3 w-full rounded bg-gray-100" />
+                    <div className="h-3 w-2/3 rounded bg-gray-100" />
+                    <div className="h-9 w-full rounded-lg bg-gray-100" />
+                  </div>
                 </div>
-              </div>
-            </div>
           ))}
         </div>
       </div>
@@ -261,7 +259,7 @@ export function UniversityCards() {
     isLoading,
     error,
     refetch,
-  } = useUniversities({ limit: 10 });
+  } = useUniversities({ limit: 9 });
   const universities = response?.data?.length
     ? response.data
     : seedUniversities;
@@ -332,7 +330,7 @@ export function UniversityCards() {
             No universities match your search.
           </p>
         ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredUniversities.map((uni, index) => {
             const typeBadge = universityTypeBadge(uni.type);
             const imageSrc = uni.bannerImage || uni.logo || "";
@@ -371,42 +369,45 @@ export function UniversityCards() {
                     }}
                   />
 
-                  <div className="flex flex-col sm:flex-row">
-                    {/* ─── image column ─── */}
-                    <div className="relative w-full shrink-0 overflow-hidden sm:w-44 sm:min-h-[260px]">
-                      <div className="relative h-48 w-full sm:h-full">
-                        {hasImage ? (
+                  <div className="flex flex-col">
+                    {/* ─── image band ─── */}
+                    <div className="relative w-full overflow-hidden">
+                      <div className="relative h-52 w-full sm:h-60">
+                        {/* fallback stays behind the image, shows if the asset fails */}
+                        <div
+                          className="absolute inset-0 flex flex-col items-center justify-center gap-2"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, " +
+                              brand.ink +
+                              "08, " +
+                              brand.ink +
+                              "03)",
+                          }}
+                        >
+                          <Building2
+                            className="size-10"
+                            style={{ color: "var(--muted-foreground)" }}
+                          />
+                          <span
+                            className="text-xs font-medium"
+                            style={{ color: brand.inkMuted }}
+                          >
+                            {uni.shortName || "University"}
+                          </span>
+                        </div>
+                        {hasImage && (
                           <Image
                             src={imageSrc}
-                            alt={uni.name}
+                            alt={uni.shortName || uni.name}
                             fill
                             unoptimized
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            sizes="(max-width: 640px) 100vw, 176px"
-                          />
-                        ) : (
-                          <div
-                            className="flex h-full w-full flex-col items-center justify-center gap-2"
-                            style={{
-                              background:
-                                "linear-gradient(135deg, " +
-                                brand.ink +
-                                "08, " +
-                                brand.ink +
-                                "03)",
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
                             }}
-                          >
-                            <Building2
-                              className="size-10"
-                              style={{ color: "var(--muted-foreground)" }}
-                            />
-                            <span
-                              className="text-xs font-medium"
-                              style={{ color: brand.inkMuted }}
-                            >
-                              {uni.shortName || "University"}
-                            </span>
-                          </div>
+                            className="z-10 object-cover transition-transform duration-500 group-hover:scale-105"
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                          />
                         )}
                       </div>
 

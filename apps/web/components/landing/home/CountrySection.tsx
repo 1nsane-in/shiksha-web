@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "motion/react";
 
 const countries = [
@@ -113,12 +114,12 @@ export function CountrySection() {
 
                   {/* Hover overlay with CTA */}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <a
-                      href={`/countries/${country.slug}`}
+                    <Link
+                      href={`/universities?country=${encodeURIComponent(country.name)}`}
                       className="px-6 py-2.5 text-sm font-medium text-white rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors"
                     >
                       Explore Universities
-                    </a>
+                    </Link>
                   </div>
                 </motion.article>
               ))}
