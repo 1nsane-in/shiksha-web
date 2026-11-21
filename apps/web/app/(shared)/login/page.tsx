@@ -24,7 +24,14 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
   const role = searchParams.get("role");
-  const isAdmin = role === "admin";
+  const activeRole = role === "admin" || role === "parent" ? role : "student";
+  const isAdmin = activeRole === "admin";
+
+  const roleLink = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("role", value);
+    return `/login?${params.toString()}`;
+  };
 
   const [serverError, setServerError] = useState("");
   const [email, setEmail] = useState("");
@@ -125,6 +132,24 @@ function LoginContent() {
                       Sign in to continue to your account
                     </p>
                   </div>
+                </div>
+
+                {/* Role switcher */}
+                <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1">
+                  {(["student", "parent", "admin"] as const).map((value) => (
+                    <Link
+                      key={value}
+                      href={roleLink(value)}
+                      aria-current={activeRole === value ? "page" : undefined}
+                      className={`rounded-md py-1.5 text-center text-xs font-medium capitalize transition-colors ${
+                        activeRole === value
+                          ? "bg-white text-navy shadow-sm"
+                          : "text-slate-500 hover:text-navy"
+                      }`}
+                    >
+                      {value}
+                    </Link>
+                  ))}
                 </div>
 
                 {/* Error */}
