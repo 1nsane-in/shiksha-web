@@ -20,14 +20,14 @@ const contactItems: ContactItem[] = [
   },
   {
     icon: <FaWhatsapp className="size-4" />,
-    label: "WhatsApp",
+    label: "+91 98765 43210",
     href: "https://wa.me/919876543210",
     external: true,
   },
   {
     icon: <Mail className="size-4" />,
-    label: "admissions@shiksha.edu",
-    href: "mailto:admissions@shiksha.edu",
+    label: "info@shiksha.study",
+    href: "mailto:info@shiksha.study",
   },
 ];
 

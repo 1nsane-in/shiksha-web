@@ -34,8 +34,12 @@ function PublicUniversitiesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedCountry = searchParams.get("country") || "";
+  const typeParam = searchParams.get("type");
+  const typeFilter: UniversityTypeFilter =
+    typeParam === "GOVERNMENT" || typeParam === "PRIVATE"
+      ? typeParam
+      : "ALL";
   const [searchTerm, setSearchTerm] = useState("");
-  const [typeFilter, setTypeFilter] = useState<UniversityTypeFilter>("ALL");
 
   const { data: response, isLoading, error } = useUniversities({ limit: 50 });
   const universities = response?.data?.length
@@ -79,11 +83,27 @@ function PublicUniversitiesContent() {
   );
 
   const handleCountryChange = useCallback(
-    (country: string) =>
+    (country: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (country) params.set("country", country);
+      else params.delete("country");
       router.replace(
-        country ? `/universities?country=${encodeURIComponent(country)}` : "/universities",
-      ),
-    [router],
+        params.size ? `/universities?${params.toString()}` : "/universities",
+      );
+    },
+    [router, searchParams],
+  );
+
+  const handleTypeFilterChange = useCallback(
+    (value: UniversityTypeFilter) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value === "ALL") params.delete("type");
+      else params.set("type", value);
+      router.replace(
+        params.size ? `/universities?${params.toString()}` : "/universities",
+      );
+    },
+    [router, searchParams],
   );
 
   const handleRequestUniversity = useCallback(
@@ -99,7 +119,7 @@ function PublicUniversitiesContent() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         typeFilter={typeFilter}
-        onTypeFilterChange={setTypeFilter}
+        onTypeFilterChange={handleTypeFilterChange}
         countries={countryOptions}
         countryFilter={selectedCountry}
         onCountryFilterChange={handleCountryChange}

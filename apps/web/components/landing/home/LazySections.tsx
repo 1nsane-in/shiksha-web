@@ -12,6 +12,15 @@ const UniversityComparison = lazy(() => import("./UniversityComparison").then((m
 const FinalCTA = lazy(() => import("./FinalCTA").then((mod) => ({ default: mod.FinalCTA })));
 const Footer = lazy(() => import("./Footer").then((mod) => ({ default: mod.Footer })));
 const UniversityCards = lazy(() => import("./UniversityCards").then((mod) => ({ default: mod.UniversityCards })));
+const {
+  WhyShikshaSection,
+  ScholarshipsSection,
+  StudentStoriesSection,
+} = {
+  WhyShikshaSection: lazy(() => import("./AdditionalSections").then((mod) => ({ default: mod.WhyShikshaSection }))),
+  ScholarshipsSection: lazy(() => import("./AdditionalSections").then((mod) => ({ default: mod.ScholarshipsSection }))),
+  StudentStoriesSection: lazy(() => import("./AdditionalSections").then((mod) => ({ default: mod.StudentStoriesSection }))),
+};
 
 // Skeleton placeholders
 const Skeleton = ({ height }: { height: string }) => <div className={`h-${height} animate-pulse bg-slate-100` } />;
@@ -22,6 +31,15 @@ export function LazySections() {
       <main className="mx-auto">
         <Suspense fallback={<Skeleton height="96" />}>
           <UniversityCards />
+        </Suspense>
+        <Suspense fallback={<Skeleton height="64" />}>
+          <WhyShikshaSection />
+        </Suspense>
+        <Suspense fallback={<Skeleton height="64" />}>
+          <ScholarshipsSection />
+        </Suspense>
+        <Suspense fallback={<Skeleton height="64" />}>
+          <StudentStoriesSection />
         </Suspense>
         <Suspense fallback={<Skeleton height="16" />}>
           <TrustBar />
@@ -35,9 +53,9 @@ export function LazySections() {
         <Suspense fallback={<Skeleton height="64" />}>
           <HowItWorks />
         </Suspense>
-        <Suspense fallback={<Skeleton height="64" />}>
+        {/* <Suspense fallback={<Skeleton height="64" />}>
           <Features />
-        </Suspense>
+        </Suspense> */}
         <Suspense fallback={<Skeleton height="64" />}>
           <UniversityComparison />
         </Suspense>
