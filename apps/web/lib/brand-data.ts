@@ -17,6 +17,7 @@ export const navLinks: NavLink[] = [
   { name: "Universities", href: "/universities" },
   { name: "Gallery", href: "/gallery" },
   { name: "Medical Academy", href: "/medical-academy" },
+  { name: "FMGE/NExT", href: "/fmge-next" },
   { name: "Online Payment", href: "/payments" },
   { name: "Scholarship", href: "/scholarship" },
   { name: "Contact Us", href: "/contact-us" },

@@ -424,6 +424,11 @@ export class UniversitiesService {
         content: dto.content
           ? { create: this.sanitizeContent(dto.content) as any }
           : undefined,
+        admin: dto.admin
+          ? { create: this.sanitizeAdmin(dto.admin) as any }
+          : undefined,
+        studentDemographics: dto.studentDemographics as any,
+        socialLinks: dto.socialLinks as any,
       },
     });
 
@@ -505,6 +510,24 @@ export class UniversitiesService {
     };
   }
 
+  private sanitizeAdmin(adm: any) {
+    // UniversityAdmin has required columns — fill defaults so partial payloads don't fail
+    return {
+      ...adm,
+      pocName: adm.pocName ?? '',
+      pocDesignation: adm.pocDesignation ?? '',
+      pocEmail: adm.pocEmail ?? '',
+      phoneCountryCode: adm.phoneCountryCode ?? '+91',
+      phoneNumber: adm.phoneNumber ?? '',
+      accountName: adm.accountName ?? '',
+      accountNumber: adm.accountNumber ?? '',
+      bankName: adm.bankName ?? '',
+      bankBranch: adm.bankBranch ?? '',
+      ifscCode: adm.ifscCode ?? '',
+      commission: adm.commission ?? 0,
+    };
+  }
+
   async update(id: string, dto: UpdateUniversityDto) {
     const existing = await this.findByIdOrThrow(id);
 
@@ -573,6 +596,7 @@ export class UniversitiesService {
     const relationFields: Array<{
       key: keyof UpdateUniversityDto;
       transform?: (val: unknown) => unknown;
+      createTransform?: (val: unknown) => unknown;
     }> = [
       { key: 'location' },
       { key: 'contact' },
@@ -582,7 +606,10 @@ export class UniversitiesService {
       { key: 'infrastructure' },
       { key: 'support' },
       { key: 'content' },
-      { key: 'admin' },
+      {
+        key: 'admin',
+        createTransform: (val) => this.sanitizeAdmin(val),
+      },
       {
         key: 'admission',
         transform: (val) => {
@@ -597,10 +624,12 @@ export class UniversitiesService {
       },
     ];
 
-    for (const { key, transform } of relationFields) {
+    for (const { key, transform, createTransform } of relationFields) {
       const value = dto[key];
       if (value !== undefined) {
-        updateData[key] = { update: transform ? transform(value) : value };
+        const update = transform ? transform(value) : value;
+        const create = createTransform ? createTransform(value) : update;
+        updateData[key] = { upsert: { create, update } };
       }
     }
 

@@ -1,9 +1,14 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/ui";
 import { useRouter } from "next/navigation";
 import { useUniversities } from "@/domains/universities/universities.queries";
+import {
+  UniversitySearchToolbar,
+  type UniversityTypeFilter,
+} from "@/components/landing/universities/university-search-toolbar";
 import {
   MapPin,
   GraduationCap,
@@ -249,6 +254,8 @@ function ErrorState({
 /* ─── main component ─── */
 export function UniversityCards() {
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState<UniversityTypeFilter>("ALL");
   const {
     data: response,
     isLoading,
@@ -258,6 +265,17 @@ export function UniversityCards() {
   const universities = response?.data?.length
     ? response.data
     : seedUniversities;
+
+  const filteredUniversities = useMemo(() => {
+    const term = searchTerm.toLowerCase();
+    return universities.filter((uni) => {
+      const matchesSearch =
+        uni.name.toLowerCase().includes(term) ||
+        !!uni.shortName?.toLowerCase().includes(term);
+      const matchesType = typeFilter === "ALL" || uni.type === typeFilter;
+      return matchesSearch && matchesType;
+    });
+  }, [universities, searchTerm, typeFilter]);
 
   if (isLoading) return <Skeleton />;
   if (error && !universities.length)
@@ -298,9 +316,24 @@ export function UniversityCards() {
           </p>
         </div>
 
+        <UniversitySearchToolbar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          typeFilter={typeFilter}
+          onTypeFilterChange={setTypeFilter}
+        />
+
         {/* ─── card grid ─── */}
+        {filteredUniversities.length === 0 ? (
+          <p
+            className="py-12 text-center text-sm"
+            style={{ color: brand.inkMuted }}
+          >
+            No universities match your search.
+          </p>
+        ) : (
         <div className="grid gap-6 md:grid-cols-2">
-          {universities.map((uni, index) => {
+          {filteredUniversities.map((uni, index) => {
             const typeBadge = universityTypeBadge(uni.type);
             const imageSrc = uni.bannerImage || uni.logo || "";
             const hasImage = !!imageSrc;
@@ -582,6 +615,7 @@ export function UniversityCards() {
             );
           })}
         </div>
+        )}
 
         {/* ─── footer CTA ─── */}
         <div className="mt-10 text-center">

@@ -11,12 +11,16 @@ async function main() {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
   try {
-    const email = 'admin@shiksha.com';
-    const password = 'Admin@123456';
-    const name = 'Super Admin';
+    const email = process.argv[2] ?? 'admin@shiksha.com';
+    const password = process.argv[3] ?? 'Admin@123456';
+    const name = process.argv[4] ?? 'Super Admin';
+    const role = process.argv[5] ?? 'SUPER_ADMIN';
     const hash = bcrypt.hashSync(password, PASSWORD_SALT_ROUNDS);
 
-    const existing = await pool.query('SELECT id FROM "User" WHERE email = $1', [email]);
+    const existing = await pool.query(
+      'SELECT id FROM "User" WHERE email = $1',
+      [email],
+    );
     if (existing.rows.length > 0) {
       console.log('Super admin already exists:', email);
       return;
@@ -24,8 +28,8 @@ async function main() {
 
     await pool.query(
       `INSERT INTO "User" (id, email, "passwordHash", name, role, "emailVerified", "isActive", "createdAt", "updatedAt")
-       VALUES (gen_random_uuid(), $1, $2, $3, 'SUPER_ADMIN', true, true, NOW(), NOW())`,
-      [email, hash, name]
+       VALUES (gen_random_uuid(), $1, $2, $3, $4, true, true, NOW(), NOW())`,
+      [email, hash, name, role],
     );
 
     console.log('Super admin created');
