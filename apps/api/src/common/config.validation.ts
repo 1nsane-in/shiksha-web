@@ -23,8 +23,7 @@ export function validateConfig(config: Record<string, unknown>) {
         'DATABASE_URL',
         'JWT_SECRET',
         'FRONTEND_URL',
-        'PAYU_KEY',
-        'PAYU_SALT',
+        // PayU credentials are optional at boot; payment endpoints fail without them
         'R2_ENDPOINT',
         'R2_ACCESS_KEY_ID',
         'R2_SECRET_ACCESS_KEY',

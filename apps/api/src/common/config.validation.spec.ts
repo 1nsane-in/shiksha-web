@@ -22,9 +22,15 @@ describe('validateConfig', () => {
   });
 
   it('rejects missing production secrets', () => {
-    expect(() => validateConfig({ ...prodEnv, PAYU_SALT: '' })).toThrow(
-      /PAYU_SALT/,
+    expect(() => validateConfig({ ...prodEnv, R2_BUCKET_NAME: '' })).toThrow(
+      /R2_BUCKET_NAME/,
     );
+  });
+
+  it('allows missing PayU credentials', () => {
+    expect(
+      validateConfig({ ...prodEnv, PAYU_KEY: '', PAYU_SALT: '' }),
+    ).toBeDefined();
   });
 
   it('rejects short JWT secrets in production', () => {
