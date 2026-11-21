@@ -37,13 +37,22 @@ function PublicUniversitiesContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<UniversityTypeFilter>("ALL");
 
-  const { data: response, isLoading, error } = useUniversities({
-    limit: 50,
-    ...(selectedCountry ? { country: selectedCountry } : {}),
-  });
+  const { data: response, isLoading, error } = useUniversities({ limit: 50 });
   const universities = response?.data?.length
     ? response.data
     : seedUniversities;
+
+  const countryOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          universities
+            .map((uni) => uni.location?.country)
+            .filter((country): country is string => !!country),
+        ),
+      ).sort(),
+    [universities],
+  );
 
   // Filter logic (memoized)
   const filteredUniversities = useMemo(() => {
@@ -69,6 +78,14 @@ function PublicUniversitiesContent() {
     [router],
   );
 
+  const handleCountryChange = useCallback(
+    (country: string) =>
+      router.replace(
+        country ? `/universities?country=${encodeURIComponent(country)}` : "/universities",
+      ),
+    [router],
+  );
+
   const handleRequestUniversity = useCallback(
     () => router.push("/contact-us?subject=university-request"),
     [router],
@@ -78,26 +95,14 @@ function PublicUniversitiesContent() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-32">
       <UniversityHero />
 
-      {selectedCountry && (
-        <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          <span>
-            Showing universities in <strong>{selectedCountry}</strong>
-          </span>
-          <button
-            type="button"
-            onClick={() => router.replace("/universities")}
-            className="font-medium underline underline-offset-4 hover:no-underline"
-          >
-            Clear filter
-          </button>
-        </div>
-      )}
-
       <UniversitySearchToolbar
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         typeFilter={typeFilter}
         onTypeFilterChange={setTypeFilter}
+        countries={countryOptions}
+        countryFilter={selectedCountry}
+        onCountryFilterChange={handleCountryChange}
       />
 
       {isLoading ? (

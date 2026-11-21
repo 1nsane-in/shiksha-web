@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { brand } from "@/lib/brand";
 
 export type UniversityTypeFilter = "ALL" | "GOVERNMENT" | "PRIVATE";
@@ -23,12 +23,21 @@ export function UniversitySearchToolbar({
   onSearchChange,
   typeFilter,
   onTypeFilterChange,
+  countries,
+  countryFilter,
+  onCountryFilterChange,
 }: {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   typeFilter: UniversityTypeFilter;
   onTypeFilterChange: (value: UniversityTypeFilter) => void;
+  countries?: string[];
+  countryFilter?: string;
+  onCountryFilterChange?: (value: string) => void;
 }) {
+  const hasActiveFilter =
+    !!searchTerm || !!countryFilter || typeFilter !== "ALL";
+
   return (
     <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm max-w-4xl mx-auto mb-12 flex flex-col sm:flex-row items-center gap-4">
       {/* Search Input */}
@@ -43,25 +52,68 @@ export function UniversitySearchToolbar({
         />
       </div>
 
-      {/* Type Filters */}
-      <div className="flex gap-2 shrink-0 w-full sm:w-auto justify-center sm:justify-start border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
-        {FILTER_OPTIONS.map((filter) => (
-          <button
-            key={filter.id}
-            onClick={() => onTypeFilterChange(filter.id)}
-            className="py-2 px-4 rounded-xl text-xs font-bold transition-all duration-150 border"
+      {/* Country Filter */}
+      {countries && (
+        <div className="w-full sm:w-44 shrink-0">
+          <select
+            aria-label="Filter by country"
+            value={countryFilter || ""}
+            onChange={(e) => onCountryFilterChange?.(e.target.value)}
+            className="w-full py-2.5 px-3 border rounded-xl text-sm focus:outline-none text-navy"
             style={{
-              background:
-                typeFilter === filter.id ? brand.goldLight : "transparent",
-              borderColor:
-                typeFilter === filter.id ? brand.gold : brand.hairline,
-              color: typeFilter === filter.id ? brand.ink : brand.inkMuted,
+              borderColor: countryFilter ? brand.gold : brand.hairline,
+              background: countryFilter ? brand.goldLight : "rgb(248 250 252 / 0.5)",
             }}
           >
-            {filter.label}
-          </button>
-        ))}
+            <option value="">All Countries</option>
+            {countries.map((country) => (
+              <option key={country} value={country}>
+                {country}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Type Filter */}
+      <div className="w-full sm:w-40 shrink-0">
+        <select
+          aria-label="Filter by university type"
+          value={typeFilter}
+          onChange={(e) =>
+            onTypeFilterChange(e.target.value as UniversityTypeFilter)
+          }
+          className="w-full py-2.5 px-3 border rounded-xl text-sm focus:outline-none text-navy"
+          style={{
+            borderColor: typeFilter === "ALL" ? brand.hairline : brand.gold,
+            background:
+              typeFilter === "ALL" ? "rgb(248 250 252 / 0.5)" : brand.goldLight,
+          }}
+        >
+          {FILTER_OPTIONS.map((filter) => (
+            <option key={filter.id} value={filter.id}>
+              {filter.label}
+            </option>
+          ))}
+        </select>
       </div>
+
+      {hasActiveFilter && (
+        <button
+          type="button"
+          onClick={() => {
+            onSearchChange("");
+            onCountryFilterChange?.("");
+            onTypeFilterChange("ALL");
+          }}
+          aria-label="Clear all filters"
+          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-bold text-navy transition-colors hover:bg-slate-50"
+          style={{ border: `1px solid ${brand.gold}` }}
+        >
+          <X className="size-3.5" />
+          Clear
+        </button>
+      )}
     </div>
   );
 }
