@@ -41,26 +41,29 @@ export function UniversityCard({
         {/* top accent bar */}
         <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 bg-gold" />
 
-        <div className="flex flex-col sm:flex-row">
+        <div className="flex flex-col">
           {/* Image banner */}
-          <div className="relative w-full shrink-0 overflow-hidden sm:w-44 sm:min-h-[260px] bg-slate-50">
-            <div className="relative h-48 w-full sm:h-full">
-              {hasImage ? (
+          <div className="relative w-full overflow-hidden bg-slate-50">
+            <div className="relative h-52 w-full sm:h-60">
+              {/* fallback stays visible if the banner asset fails */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                <Building2 className="size-10 text-slate-300" />
+                <span className="text-xs font-semibold text-slate-400">
+                  {university.shortName || "MBBS"}
+                </span>
+              </div>
+              {hasImage && (
                 <Image
                   src={imageSrc}
-                  alt={university.name}
+                  alt={university.shortName || university.name}
                   fill
                   unoptimized
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 640px) 100vw, 176px"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                  className="z-10 object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 33vw"
                 />
-              ) : (
-                <div className="flex h-full w-full flex-col items-center justify-center gap-2">
-                  <Building2 className="size-10 text-slate-300" />
-                  <span className="text-xs font-semibold text-slate-400">
-                    {university.shortName || "MBBS"}
-                  </span>
-                </div>
               )}
             </div>
 

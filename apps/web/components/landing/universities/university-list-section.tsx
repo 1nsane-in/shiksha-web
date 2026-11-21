@@ -63,7 +63,7 @@ export function UniversityCardGrid({
   if (universities.length === 0) return null;
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 max-w-5xl mx-auto">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
       {universities.map((uni, index) => (
         <UniversityCard
           key={uni.id}

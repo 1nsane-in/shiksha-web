@@ -16,7 +16,7 @@ export const seedUniversities: UniversityListItem[] = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=JASU",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Jalal-Abad+State+University",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=JASU",
     location: {
       city: "Jalal-Abad",
       country: "Kyrgyzstan",
@@ -43,7 +43,7 @@ export const seedUniversities: UniversityListItem[] = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=BIMI",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Bishkek+International+Medical+Institute",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=BIMI",
     location: {
       city: "Bishkek",
       country: "Kyrgyzstan",
@@ -70,7 +70,7 @@ export const seedUniversities: UniversityListItem[] = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=JIU",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Jalalabad+International+University",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=JIU",
     location: {
       city: "Jalalabad",
       country: "Kyrgyzstan",
@@ -97,7 +97,7 @@ export const seedUniversities: UniversityListItem[] = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=OSMU",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Osh+State+University",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=OSMU",
     location: {
       city: "Osh",
       country: "Kyrgyzstan",
@@ -125,7 +125,7 @@ export const seedUniversities: UniversityListItem[] = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=ASMI",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Andijan+State+Medical+Institute",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=ASMI",
     location: {
       city: "Andijan",
       country: "Uzbekistan",
@@ -153,7 +153,7 @@ export const seedUniversities: UniversityListItem[] = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=NKSMU",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=North+Kazakhstan+State+Medical+University",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=NKSMU",
     location: {
       city: "Petropavl",
       country: "Kazakhstan",
@@ -181,7 +181,7 @@ export const seedUniversities: UniversityListItem[] = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=SevSU",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Sevastopol+State+University",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=SevSU",
     location: {
       city: "Sevastopol",
       country: "Russia",
@@ -208,7 +208,7 @@ export const seedUniversities: UniversityListItem[] = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=KemSU",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Kemerovo+State+University",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=KemSU",
     location: {
       city: "Kemerovo",
       country: "Russia",
@@ -235,7 +235,7 @@ export const seedUniversities: UniversityListItem[] = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=MSMI",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Maykop+State+Medical+Institute",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=MSMI",
     location: {
       city: "Maykop",
       country: "Russia",
@@ -262,7 +262,7 @@ export const seedUniversities: UniversityListItem[] = [
     status: "ACTIVE",
     logo: "https://placehold.co/200x200/1A153A/C4953B?text=KSMU",
     bannerImage:
-      "https://placehold.co/1200x400/1A153A/FAF9F6?text=Kirov+State+Medical+University",
+      "https://placehold.co/1200x400/1A153A/FAF9F6?text=KSMU",
     location: {
       city: "Kirov",
       country: "Russia",
