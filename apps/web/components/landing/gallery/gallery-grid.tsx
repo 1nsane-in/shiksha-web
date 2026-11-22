@@ -11,9 +11,18 @@ interface GalleryGridProps {
   isLoading: boolean;
   error: Error | null;
   onOpenLightbox: (index: number) => void;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
-export function GalleryGrid({ images, isLoading, error, onOpenLightbox }: GalleryGridProps) {
+export function GalleryGrid({
+  images,
+  isLoading,
+  error,
+  onOpenLightbox,
+  emptyTitle = "No Gallery Images Yet",
+  emptyDescription = "The gallery is currently empty. Administrative staff will upload photos and videos soon.",
+}: GalleryGridProps) {
   return (
     <section className="py-16 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       {error ? (
@@ -37,10 +46,10 @@ export function GalleryGrid({ images, isLoading, error, onOpenLightbox }: Galler
             <Maximize2 className="h-6 w-6" />
           </div>
           <h3 className="text-lg font-medium" style={{ color: brand.ink }}>
-            No Gallery Images Yet
+            {emptyTitle}
           </h3>
           <p className="text-sm mt-1 max-w-md mx-auto" style={{ color: brand.inkMuted }}>
-            The gallery is currently empty. Administrative staff will upload photos and videos soon.
+            {emptyDescription}
           </p>
         </div>
       ) : (

@@ -1,12 +1,15 @@
 import React from "react";
 import Image from "next/image";
 import { brand } from "@/lib/brand";
+import { galleryViews, type GalleryView } from "@/lib/gallery-views";
 
 /**
  * Full-width hero banner for the gallery page.
- * Dark overlay with bg image, badge, title, and description.
+ * Copy follows the active Student Life view.
  */
-export function GalleryHero() {
+export function GalleryHero({ view }: { view: GalleryView }) {
+  const config = galleryViews[view];
+
   return (
     <section className="relative pb-20 pt-32 overflow-hidden bg-navy">
       <div className="pointer-events-none absolute inset-0 opacity-20">
@@ -30,15 +33,19 @@ export function GalleryHero() {
             className="size-1.5 rounded-full"
             style={{ background: brand.gold }}
           />
-          Shiksha Global Campus Life
+          {config.eyebrow}
         </p>
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">
-          Our <span style={{ color: brand.gold }}>University Gallery</span>
+          {view === "all" ? (
+            <>
+              Our <span style={{ color: brand.gold }}>University Gallery</span>
+            </>
+          ) : (
+            config.title
+          )}
         </h1>
         <p className="max-w-2xl mx-auto text-base text-gray-300 leading-relaxed">
-          Explore our world-class campus infrastructures, modern academic
-          libraries, advanced anatomy labs, hostel facilities, and the vibrant
-          life of our medical students abroad.
+          {config.description}
         </p>
       </div>
     </section>

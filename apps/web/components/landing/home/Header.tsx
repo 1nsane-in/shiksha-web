@@ -54,10 +54,10 @@ const navMenus: Record<string, NavMenu> = {
     description:
       "Real experiences, campus moments, comfortable stays and travel support — from arrival to graduation.",
     items: [
-      { title: "Student Experiences", href: "/#student-stories" },
+      { title: "Student Experiences", href: "/gallery?view=experiences" },
       { title: "Gallery", href: "/gallery" },
-      { title: "Accommodation", href: "/contact-us?subject=accommodation" },
-      { title: "Travel Support", href: "/contact-us?subject=travel-support" },
+      { title: "Accommodation", href: "/gallery?view=accommodation" },
+      { title: "Travel Support", href: "/gallery?view=travel-support" },
     ],
   },
   "Shiksha Academy": {

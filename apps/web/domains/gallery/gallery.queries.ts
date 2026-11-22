@@ -1,7 +1,11 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
 import { getGalleryImages, uploadGalleryImage, deleteGalleryImage } from "./gallery.api";
-import type { GalleryImage, GalleryPage } from "./gallery.types";
+import type {
+  GalleryImage,
+  GalleryInfiniteData,
+  GalleryPage,
+} from "./gallery.types";
 
 function interleave(items: GalleryImage[]): GalleryImage[] {
   const images = items.filter((i) => i.type === "IMAGE");
@@ -20,18 +24,21 @@ function interleave(items: GalleryImage[]): GalleryImage[] {
 }
 
 export function useGalleryImages() {
-  return useInfiniteQuery<GalleryPage>({
+  return useInfiniteQuery<GalleryPage, Error, GalleryInfiniteData>({
     queryKey: queryKeys.gallery.all,
     queryFn: ({ pageParam }) => getGalleryImages(pageParam as number),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
-    select: (data) => ({
-      ...data,
-      pages: data.pages.flatMap((p) => p.items),
-      // ponytail: interleave full list from all loaded pages
-      interleaved: interleave(data.pages.flatMap((p) => p.items)),
-    }),
+    select: (data): GalleryInfiniteData => {
+      const items = data.pages.flatMap((page) => page.items);
+      return {
+        pages: items,
+        pageParams: data.pageParams,
+        // ponytail: interleave full list from all loaded pages
+        interleaved: interleave(items),
+      };
+    },
   });
 }
 

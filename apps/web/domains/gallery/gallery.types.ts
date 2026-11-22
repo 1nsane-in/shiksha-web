@@ -15,3 +15,10 @@ export interface GalleryPage {
   page: number;
   totalPages: number;
 }
+
+/** Flattened result returned by useGalleryImages(). */
+export interface GalleryInfiniteData {
+  pages: GalleryImage[];
+  pageParams: unknown[];
+  interleaved: GalleryImage[];
+}

@@ -1,30 +1,75 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  Suspense,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useGalleryImages } from "@/domains/gallery";
 import { GalleryHero } from "@/components/landing/gallery/gallery-hero";
 import { GalleryGrid } from "@/components/landing/gallery/gallery-grid";
 import { GalleryLightbox } from "@/components/landing/gallery/gallery-lightbox";
+import { brand } from "@/lib/brand";
+import {
+  galleryHref,
+  galleryViewKeys,
+  galleryViews,
+  matchesGalleryView,
+  resolveGalleryView,
+  type GalleryView,
+} from "@/lib/gallery-views";
 
-export default function GalleryPage() {
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, error } = useGalleryImages();
-  const images = data?.interleaved ?? [];
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+function GalleryContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const view = resolveGalleryView(searchParams.get("view"));
+  const config = galleryViews[view];
 
-  const openLightbox = (index: number) => setActiveIndex(index);
-  const closeLightbox = () => setActiveIndex(null);
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    error,
+  } = useGalleryImages();
+  const allImages = useMemo(() => data?.interleaved ?? [], [data]);
+
+  const matchedImages = useMemo(
+    () => allImages.filter((image) => matchesGalleryView(image, view)),
+    [allImages, view],
+  );
+  const usingFallback =
+    view !== "all" && matchedImages.length === 0 && allImages.length > 0;
+  const images = matchedImages.length > 0 ? matchedImages : allImages;
+
+  const [lightbox, setLightbox] = useState<{
+    view: GalleryView;
+    index: number;
+  } | null>(null);
+  const activeIndex = lightbox?.view === view ? lightbox.index : null;
+
+  const openLightbox = (index: number) => setLightbox({ view, index });
+  const closeLightbox = () => setLightbox(null);
 
   const showNext = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (activeIndex !== null && images.length > 0) {
-      setActiveIndex((activeIndex + 1) % images.length);
+      setLightbox({ view, index: (activeIndex + 1) % images.length });
     }
   };
 
   const showPrev = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (activeIndex !== null && images.length > 0) {
-      setActiveIndex((activeIndex - 1 + images.length) % images.length);
+      setLightbox({
+        view,
+        index: (activeIndex - 1 + images.length) % images.length,
+      });
     }
   };
 
@@ -34,25 +79,72 @@ export default function GalleryPage() {
   useEffect(() => {
     if (!sentinelRef.current || !hasNextPage || isFetchingNextPage) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) fetchNextPage(); },
+      ([entry]) => {
+        if (entry.isIntersecting) fetchNextPage();
+      },
       { rootMargin: "300px" },
     );
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  const selectView = useCallback(
+    (next: (typeof galleryViewKeys)[number]) =>
+      router.replace(galleryHref(next), { scroll: false }),
+    [router],
+  );
+
   return (
     <>
-      <GalleryHero />
+      <GalleryHero view={view} />
+
+      <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap gap-2 border-b border-slate-100 pb-5">
+          {galleryViewKeys.map((key) => {
+            const active = key === view;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => selectView(key)}
+                aria-pressed={active}
+                className="rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60"
+                style={{
+                  borderColor: active ? brand.ink : brand.hairline,
+                  background: active ? brand.ink : "#fff",
+                  color: active ? "#fff" : brand.inkMuted,
+                }}
+              >
+                {galleryViews[key].label}
+              </button>
+            );
+          })}
+        </div>
+
+        {usingFallback && (
+          <p
+            className="pt-4 text-sm"
+            style={{ color: brand.inkMuted }}
+          >
+            No images tagged for {config.label.toLowerCase()} yet. Showing the
+            full gallery.
+          </p>
+        )}
+      </div>
+
       <GalleryGrid
         images={images}
         isLoading={isLoading}
         error={error}
         onOpenLightbox={openLightbox}
+        emptyTitle={`No ${config.label} images yet`}
+        emptyDescription="Images added with a matching title will appear in this view."
       />
       <div ref={sentinelRef} className="h-4" />
       {isFetchingNextPage && (
-        <div className="py-8 text-center text-sm text-gray-400">Loading more...</div>
+        <div className="py-8 text-center text-sm text-gray-400">
+          Loading more...
+        </div>
       )}
       <GalleryLightbox
         images={images}
@@ -62,5 +154,13 @@ export default function GalleryPage() {
         onPrev={showPrev}
       />
     </>
+  );
+}
+
+export default function GalleryPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <GalleryContent />
+    </Suspense>
   );
 }
