@@ -143,19 +143,11 @@ export function Header() {
             height={28}
             className="h-9 w-auto"
           />
-          <span className="flex flex-col leading-none">
-            <span
-              className="text-[15px] font-bold tracking-tight"
-              style={{ color: brand.ink }}
-            >
-              Siksha
-            </span>
-            <span
-              className="mt-0.5 text-[10px] font-semibold tracking-wide"
-              style={{ color: brand.gold }}
-            >
-              International
-            </span>
+          <span
+            className="text-[15px] font-bold uppercase tracking-tight"
+            style={{ color: brand.ink }}
+          >
+            Siksha
           </span>
         </Link>
 

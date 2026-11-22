@@ -70,8 +70,8 @@ export function Footer() {
                 height={36}
                 className="h-10 w-auto"
               />
-              <span className="text-xl font-bold tracking-tight" style={{ color: brand.ink }}>
-                Siksha International
+              <span className="text-xl font-bold uppercase tracking-tight" style={{ color: brand.ink }}>
+                Siksha
               </span>
             </Link>
 
