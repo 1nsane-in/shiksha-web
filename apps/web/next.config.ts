@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
         destination: '/medical-academy',
         permanent: true,
       },
+      {
+        source: '/shiksha-acadamy',
+        destination: '/shiksha-academy',
+        permanent: true,
+      },
     ];
   },
   typescript: {

@@ -21,7 +21,12 @@ type NavMenu = {
 };
 
 const subjectHref = (name: string) =>
-  `/shiksha-academy?subject=${encodeURIComponent(name.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}`;
+  `/shiksha-academy?subject=${encodeURIComponent(
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, ""),
+  )}`;
 const subject = (name: string): MenuItem => ({
   title: name,
   href: subjectHref(name),
