@@ -54,7 +54,7 @@ export function TopBar() {
           <div className="hidden items-center gap-4 text-xs sm:text-sm lg:flex lg:gap-6">
             {contactItems.map((item) => (
               <Link
-                key={item.label}
+                key={item.href}
                 href={item.href}
                 target={item.external ? "_blank" : undefined}
                 rel={item.external ? "noopener noreferrer" : undefined}

@@ -21,7 +21,7 @@ export const academySubjects: AcademySubject[] = [
     slug: "anatomy",
     name: "Anatomy",
     group: "Pre-clinical",
-    blurb: "Structure of the human body — from tissues and systems to clinical surface anatomy.",
+    blurb: "Structure of the human body: from tissues and systems to clinical surface anatomy.",
     topics: [
       "General Anatomy & Terminology",
       "Osteology, Arthrology & Myology",
@@ -39,7 +39,7 @@ export const academySubjects: AcademySubject[] = [
     slug: "physiology",
     name: "Physiology",
     group: "Pre-clinical",
-    blurb: "How the body works — cells, blood, nerves, organs and the systems that keep them in balance.",
+    blurb: "How the body works: cells, blood, nerves, organs and the systems that keep them in balance.",
     topics: [
       "Cell & Membrane Physiology",
       "Blood & Haemostasis",
@@ -58,7 +58,7 @@ export const academySubjects: AcademySubject[] = [
     slug: "biochemistry",
     name: "Biochemistry",
     group: "Pre-clinical",
-    blurb: "The chemistry of life — molecules, enzymes, metabolism and the basis of laboratory medicine.",
+    blurb: "The chemistry of life: molecules, enzymes, metabolism and the basis of laboratory medicine.",
     topics: [
       "Cell & Subcellular Structures",
       "pH, Buffers & Isotopes",
@@ -77,7 +77,7 @@ export const academySubjects: AcademySubject[] = [
     slug: "pathology",
     name: "Pathology",
     group: "Para-clinical",
-    blurb: "Disease processes — cell injury, inflammation, neoplasia and organ-wise pathology.",
+    blurb: "Disease processes: cell injury, inflammation, neoplasia and organ-wise pathology.",
     topics: [
       "Cell Injury & Adaptation",
       "Inflammation & Repair",
@@ -125,7 +125,7 @@ export const academySubjects: AcademySubject[] = [
     slug: "forensic-medicine",
     name: "Forensic Medicine",
     group: "Para-clinical",
-    blurb: "Law, ethics and medicine — consent, injuries, postmortem findings and toxicology.",
+    blurb: "Law, ethics and medicine: consent, injuries, postmortem findings and toxicology.",
     topics: [
       "Medical Jurisprudence & Ethics",
       "Consent & Documentation",
@@ -140,7 +140,7 @@ export const academySubjects: AcademySubject[] = [
     slug: "community-medicine-psm",
     name: "Community Medicine (PSM)",
     group: "Para-clinical",
-    blurb: "Public health — epidemiology, biostatistics, disease control and health programmes.",
+    blurb: "Public health: epidemiology, biostatistics, disease control and health programmes.",
     topics: [
       "Epidemiology & Study Designs",
       "Biostatistics",
@@ -190,7 +190,7 @@ export const academySubjects: AcademySubject[] = [
     slug: "obstetrics-gynaecology",
     name: "Obstetrics & Gynaecology",
     group: "Clinical",
-    blurb: "Pregnancy, childbirth and women's health — from antenatal care to gynaecological practice.",
+    blurb: "Pregnancy, childbirth and women's health: from antenatal care to gynaecological practice.",
     topics: [
       "Antenatal Care",
       "Labour & Delivery",
@@ -205,7 +205,7 @@ export const academySubjects: AcademySubject[] = [
     slug: "paediatrics",
     name: "Paediatrics",
     group: "Clinical",
-    blurb: "Child health — growth, development, nutrition, infection and paediatric emergencies.",
+    blurb: "Child health: growth, development, nutrition, infection and paediatric emergencies.",
     topics: [
       "Growth & Development",
       "Neonatology",
@@ -234,7 +234,7 @@ export const academySubjects: AcademySubject[] = [
     slug: "ent",
     name: "ENT",
     group: "Clinical",
-    blurb: "Ear, nose and throat — hearing, balance, sinus disease and airway emergencies.",
+    blurb: "Ear, nose and throat: hearing, balance, sinus disease and airway emergencies.",
     topics: [
       "Ear & Hearing",
       "Vertigo & Otitis Media",
@@ -248,7 +248,7 @@ export const academySubjects: AcademySubject[] = [
     slug: "dermatology",
     name: "Dermatology",
     group: "Clinical",
-    blurb: "Skin, hair and nails — morphology, infections, inflammatory disease and STDs.",
+    blurb: "Skin, hair and nails: morphology, infections, inflammatory disease and STDs.",
     topics: [
       "Skin Lesion Morphology",
       "Eczema & Psoriasis",
@@ -306,7 +306,7 @@ export const academySubjects: AcademySubject[] = [
     slug: "orthopaedics",
     name: "Orthopaedics",
     group: "Clinical",
-    blurb: "Bones, joints and spine — trauma, degenerative disease, tumours and reconstruction.",
+    blurb: "Bones, joints and spine: trauma, degenerative disease, tumours and reconstruction.",
     topics: [
       "Fractures & Dislocations",
       "Bone Healing & Grafts",
