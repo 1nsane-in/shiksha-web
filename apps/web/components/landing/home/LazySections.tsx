@@ -23,7 +23,12 @@ const {
 };
 
 // Skeleton placeholders
-const Skeleton = ({ height }: { height: string }) => <div className={`h-${height} animate-pulse bg-slate-100` } />;
+const Skeleton = ({ height }: { height: string }) => (
+  <div
+    className="w-full animate-pulse bg-slate-100"
+    style={{ height: `${Number(height) / 4}rem` }}
+  />
+);
 
 export function LazySections() {
   return (

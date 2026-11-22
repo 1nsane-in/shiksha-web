@@ -10,21 +10,19 @@ import { Check, Clock, Globe, Wallet, Home } from "lucide-react";
 export function CountryComparisonSection() {
   return (
     <section
-      className="py-24 border-b"
-      style={{ borderColor: brand.hairline, background: brand.surface }}
+      className="py-24 border-b border-white/10"
+      style={{ background: brand.navy }}
     >
       <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
         <SectionHeader
           eyebrow="Compare Destinations"
           title="Country Comparison (2026)"
           description="Compare MBBS programs across our partner countries to find the best fit for your goals and budget."
+          dark
         />
 
         {/* Comparison Table */}
-        <div
-          className="overflow-hidden rounded-2xl border"
-          style={{ borderColor: brand.hairline }}
-        >
+        <div className="overflow-hidden rounded-2xl border border-white/10">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
@@ -49,11 +47,13 @@ export function CountryComparisonSection() {
               <tbody>
                 <tr style={{ background: brand.canvas }}>
                   <td
-                    className="px-6 py-4 font-medium flex items-center gap-2"
+                    className="px-6 py-4 font-medium"
                     style={{ color: brand.ink }}
                   >
-                    <Clock className="size-4" style={{ color: brand.gold }} />
-                    Duration
+                    <div className="flex items-center gap-2">
+                      <Clock className="size-4" style={{ color: brand.gold }} />{" "}
+                      Duration
+                    </div>
                   </td>
                   {countryComparison.map((c) => (
                     <td
@@ -67,11 +67,13 @@ export function CountryComparisonSection() {
                 </tr>
                 <tr style={{ background: brand.surface }}>
                   <td
-                    className="px-6 py-4 font-medium flex items-center gap-2"
+                    className="px-6 py-4 font-medium"
                     style={{ color: brand.ink }}
                   >
-                    <Globe className="size-4" style={{ color: brand.gold }} />
-                    Language
+                    <div className="flex items-center gap-2">
+                      <Globe className="size-4" style={{ color: brand.gold }} />{" "}
+                      Language
+                    </div>
                   </td>
                   {countryComparison.map((c) => (
                     <td
@@ -85,11 +87,16 @@ export function CountryComparisonSection() {
                 </tr>
                 <tr style={{ background: brand.canvas }}>
                   <td
-                    className="px-6 py-4 font-medium flex items-center gap-2"
+                    className="px-6 py-4 font-medium"
                     style={{ color: brand.ink }}
                   >
-                    <Wallet className="size-4" style={{ color: brand.gold }} />
-                    Cost
+                    <div className="flex items-center gap-2">
+                      <Wallet
+                        className="size-4"
+                        style={{ color: brand.gold }}
+                      />{" "}
+                      Cost
+                    </div>
                   </td>
                   {countryComparison.map((c) => (
                     <td
@@ -121,11 +128,13 @@ export function CountryComparisonSection() {
                 </tr>
                 <tr style={{ background: brand.surface }}>
                   <td
-                    className="px-6 py-4 font-medium flex items-center gap-2"
+                    className="px-6 py-4 font-medium"
                     style={{ color: brand.ink }}
                   >
-                    <Home className="size-4" style={{ color: brand.gold }} />
-                    Living Cost
+                    <div className="flex items-center gap-2">
+                      <Home className="size-4" style={{ color: brand.gold }} />{" "}
+                      Living Cost
+                    </div>
                   </td>
                   {countryComparison.map((c) => (
                     <td
@@ -146,7 +155,7 @@ export function CountryComparisonSection() {
         <div className="mt-10">
           <h3
             className="text-sm font-semibold uppercase tracking-wider mb-4 text-center"
-            style={{ color: brand.inkSubtle }}
+            style={{ color: "rgba(255,255,255,0.6)" }}
           >
             Common Benefits Across All Countries
           </h3>
@@ -156,8 +165,8 @@ export function CountryComparisonSection() {
                 key={i}
                 className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium"
                 style={{
-                  background: brand.goldLight,
-                  color: brand.ink,
+                  background: "rgba(255,255,255,0.05)",
+                  color: "rgba(255,255,255,0.85)",
                   border: "1px solid " + brand.goldBorder,
                 }}
               >

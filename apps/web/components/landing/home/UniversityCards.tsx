@@ -161,11 +161,11 @@ function Skeleton() {
             style={{ background: brand.hairline }}
           />
           <div
-            className="h-8 w-80 animate-pulse rounded-lg"
+            className="h-8 w-full max-w-xs animate-pulse rounded-lg"
             style={{ background: brand.hairline }}
           />
           <div
-            className="h-4 w-96 animate-pulse rounded-md"
+            className="h-4 w-full max-w-sm animate-pulse rounded-md"
             style={{ background: brand.hairline }}
           />
         </div>
@@ -296,7 +296,7 @@ export function UniversityCards() {
             NMC & WHO Recognized
           </div>
           <h2
-            className="text-balance text-3xl font-bold leading-tight tracking-tight md:text-4xl flex items-center justify-center gap-2"
+            className="flex flex-wrap items-center justify-center gap-x-2 text-balance text-3xl font-bold leading-tight tracking-tight md:text-4xl"
             style={{ color: brand.ink }}
           >
             <span>Top Medical Universities in </span>

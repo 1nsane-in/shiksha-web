@@ -29,13 +29,14 @@ export function FoundationSection() {
         </h2>
 
         <p className="mx-auto mt-6 max-w-2xl text-xs sm:text-sm leading-relaxed opacity-80">
-          We reward students for dedication, discipline, and academic excellence.
-          Internal scholarship examinations are held after every academic year.
-          High performers receive up to 70% tuition fee scholarships to
-          encourage better performance and long-term success in medical education.
+          We reward students for dedication, discipline, and academic
+          excellence. Internal scholarship examinations are held after every
+          academic year. High performers receive up to 70% tuition fee
+          scholarships to encourage better performance and long-term success in
+          medical education.
         </p>
 
-        <div className="mt-12 grid grid-cols-3 gap-4 max-w-lg mx-auto border-t border-white/10 pt-8">
+        <div className="mx-auto mt-12 grid max-w-lg grid-cols-3 gap-2 border-t border-white/10 pt-8 sm:gap-4">
           {foundationStats.map((stat) => (
             <StatBadge key={stat.label} {...stat} />
           ))}

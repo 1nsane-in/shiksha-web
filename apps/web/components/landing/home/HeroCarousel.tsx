@@ -38,7 +38,7 @@ export function HeroCarousel() {
       />
 
       {/* ─── Content ─── */}
-      <div className="absolute inset-0 z-10 flex items-center">
+      <div className="absolute inset-0 z-10 flex items-center pb-8 pt-24">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <motion.div

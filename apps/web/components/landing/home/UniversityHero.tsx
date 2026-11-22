@@ -11,7 +11,7 @@ export function UniversityHero() {
           <span className="inline-block px-4 py-1.5 rounded-full bg-royal-blue/20 text-royal-blue text-sm font-medium mb-6">
             Admissions Open 2026-27
           </span>
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+          <h1 className="mb-6 text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl">
             Study <span className="text-royal-blue">MBBS</span> in Kyrgyzstan
           </h1>
           <p className="text-lg text-white/70 mb-8 max-w-3xl mx-auto leading-relaxed">

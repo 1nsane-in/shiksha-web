@@ -10,7 +10,7 @@ import { Quote } from "lucide-react";
 export function DirectorSection() {
   return (
     <section
-      className="py-24 border-b"
+      className="border-b pb-24 pt-40"
       style={{ borderColor: brand.hairline, background: brand.canvas }}
     >
       <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
@@ -49,12 +49,12 @@ export function DirectorSection() {
               >
                 Director&apos;s Message
               </span>
-              <h2
+              <h1
                 className="text-3xl sm:text-4xl font-extrabold tracking-tight"
                 style={{ color: brand.ink }}
               >
                 Guiding Dreams, Building Future Doctors
-              </h2>
+              </h1>
             </div>
 
             <div

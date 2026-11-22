@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { HeroSection } from "@/components/landing/about-us/hero-section";
 import { StorySection } from "@/components/landing/about-us/story-section";
 import { DirectorSection } from "@/components/landing/about-us/director-section";
 import { WhyMBBSAbroadSection } from "@/components/landing/about-us/why-mbbs-abroad-section";
@@ -33,9 +32,8 @@ export function generateMetadata(): Metadata {
 export default function AboutUsPage() {
   return (
     <>
-      <HeroSection />
-      <StorySection />
       <DirectorSection />
+      <StorySection />
       <WhyMBBSAbroadSection />
       <WhyWciecSection />
       <PartnerSection />

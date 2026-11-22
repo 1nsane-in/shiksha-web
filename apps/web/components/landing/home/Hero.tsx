@@ -12,7 +12,7 @@ export function Hero() {
             Premium Medical Admission Platform
           </p>
           
-          <h1 className="text-[56px] md:text-[72px] font-medium text-navy mb-6 leading-[1.05] tracking-tight" style={{ letterSpacing: '-1.4px' }}>
+          <h1 className="mb-6 text-4xl font-medium leading-[1.05] tracking-tight text-navy sm:text-5xl md:text-[72px]" style={{ letterSpacing: '-1.4px' }}>
             Your Medical University Admission Journey, <span className="text-navy">Simplified</span>
           </h1>
           

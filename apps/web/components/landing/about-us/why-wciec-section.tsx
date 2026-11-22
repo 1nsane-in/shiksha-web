@@ -11,14 +11,15 @@ import { WhyWciecCard } from "@/components/landing/about-us/why-wciec-card";
 export function WhyWciecSection() {
   return (
     <section
-      className="py-24 bg-white border-b"
-      style={{ borderColor: brand.hairline }}
+      className="py-24 border-b border-white/10"
+      style={{ background: brand.navy }}
     >
       <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
         <SectionHeader
           eyebrow="Why Shiksha"
           title="Complete Admission & Student Support"
           description="From application to graduation — we provide official university partnerships, transparent admissions, visa assistance, and on-ground support in every country."
+          dark
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

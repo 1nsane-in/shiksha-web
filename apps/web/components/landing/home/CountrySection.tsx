@@ -113,7 +113,7 @@ export function CountrySection() {
                   </div>
 
                   {/* Hover overlay with CTA */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-100 transition-opacity duration-300 sm:opacity-0 sm:group-hover:opacity-100">
                     <Link
                       href={`/universities?country=${encodeURIComponent(country.name)}`}
                       className="px-6 py-2.5 text-sm font-medium text-white rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors"

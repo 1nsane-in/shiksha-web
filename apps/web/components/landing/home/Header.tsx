@@ -389,7 +389,7 @@ export function Header() {
             className="overflow-hidden lg:hidden"
             style={{ background: brand.ink }}
           >
-            <nav className="space-y-1 px-4 pb-6 pt-2">
+            <nav className="max-h-[calc(100vh-6rem)] space-y-1 overflow-y-auto px-4 pb-6 pt-2">
               {navLinks.map((link) => {
                 const active = isLinkActive(link.href);
                 const menu = navMenus[link.name];
@@ -443,6 +443,20 @@ export function Header() {
                   </Link>
                 </div>
               )}
+              <div className="mt-4 border-t border-white/10 pt-4 text-[13px]">
+                <a
+                  href="tel:+919876543210"
+                  className="block px-4 py-2 text-white/60 hover:text-white"
+                >
+                  +91 98765 43210
+                </a>
+                <a
+                  href="mailto:info@shiksha.study"
+                  className="block px-4 py-2 text-white/60 hover:text-white"
+                >
+                  info@shiksha.study
+                </a>
+              </div>
             </nav>
           </motion.div>
         )}

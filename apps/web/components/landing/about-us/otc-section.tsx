@@ -1,6 +1,5 @@
 import React from "react";
 import { brand } from "@/lib/brand";
-import { SectionHeader } from "@/components/landing/about-us/section-header";
 import { Building2, ShieldCheck, Heart, Users } from "lucide-react";
 
 /**
@@ -10,15 +9,15 @@ import { Building2, ShieldCheck, Heart, Users } from "lucide-react";
 export function OTCSection() {
   return (
     <section
-      className="py-24 border-b"
-      style={{ borderColor: brand.hairline, background: brand.canvas }}
+      className="py-24 border-b border-white/10"
+      style={{ background: brand.navy }}
     >
       <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left: Content */}
           <div className="space-y-6">
             <span
-              className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.15em]"
+              className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[10px] font-bold uppercase tracking-normal sm:text-[11px] sm:tracking-[0.15em]"
               style={{ background: brand.goldLight, color: brand.gold }}
             >
               <ShieldCheck className="size-4" />
@@ -27,14 +26,14 @@ export function OTCSection() {
 
             <h2
               className="text-3xl sm:text-4xl font-extrabold tracking-tight"
-              style={{ color: brand.ink }}
+              style={{ color: "#fff" }}
             >
               Supporting Those Who Serve Society
             </h2>
 
             <p
               className="text-base sm:text-lg leading-relaxed"
-              style={{ color: brand.inkMuted }}
+              style={{ color: "rgba(255,255,255,0.62)" }}
             >
               In recognition of their service to society and the nation, Shiksha
               International waives all service charges for eligible families
@@ -45,7 +44,7 @@ export function OTCSection() {
             <div className="space-y-4 pt-4">
               <p
                 className="text-sm font-semibold uppercase tracking-wider"
-                style={{ color: brand.ink }}
+                style={{ color: "#fff" }}
               >
                 Eligible Families
               </p>
@@ -102,22 +101,22 @@ export function OTCSection() {
             <div
               className="mt-6 p-6 rounded-2xl border"
               style={{
-                background: "rgba(34, 197, 94, 0.05)",
-                borderColor: "rgba(34, 197, 94, 0.2)",
+                background: "rgba(255,255,255,0.04)",
+                borderColor: "rgba(52, 211, 153, 0.25)",
               }}
             >
               <div className="flex items-center gap-3">
                 <div
                   className="flex size-10 items-center justify-center rounded-full"
-                  style={{ background: "rgba(34, 197, 94, 0.1)" }}
+                  style={{ background: "rgba(52, 211, 153, 0.12)" }}
                 >
-                  <ShieldCheck className="size-5 text-emerald-600" />
+                  <ShieldCheck className="size-5 text-emerald-300" />
                 </div>
                 <div>
-                  <p className="font-semibold text-emerald-700">
+                  <p className="font-semibold text-emerald-300">
                     Complete Waiver of Service Charges
                   </p>
-                  <p className="text-sm text-emerald-600/80">
+                  <p className="text-sm text-white/60">
                     100% discount on all Shiksha International service fees
                   </p>
                 </div>

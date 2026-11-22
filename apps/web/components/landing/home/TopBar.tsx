@@ -49,9 +49,9 @@ export function TopBar() {
       style={{ background: brand.navy }}
     >
       <div className="mx-auto max-w-7xl w-full">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-2 lg:gap-0">
-          {/* ─── Left: Contact info ─── */}
-          <div className="flex items-center gap-4 lg:gap-6 text-xs sm:text-sm">
+        <div className="flex items-center justify-between">
+          {/* ─── Left: Contact info (desktop only) ─── */}
+          <div className="hidden items-center gap-4 text-xs sm:text-sm lg:flex lg:gap-6">
             {contactItems.map((item) => (
               <Link
                 key={item.label}
@@ -67,7 +67,7 @@ export function TopBar() {
           </div>
 
           {/* ─── Right: Login links ─── */}
-          <div className="flex items-center gap-4 lg:gap-6 text-xs sm:text-sm">
+          <div className="ml-auto flex items-center gap-3 text-[11px] sm:gap-4 sm:text-xs lg:gap-6 lg:text-sm">
             {loginLinks.map((link) => (
               <Link
                 key={link.label}

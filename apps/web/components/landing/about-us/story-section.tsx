@@ -9,8 +9,8 @@ export function StorySection() {
   return (
     <section
       id="story"
-      className="py-24 border-b"
-      style={{ borderColor: brand.hairline }}
+      className="py-24 border-b border-white/10"
+      style={{ background: brand.navy }}
     >
       <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
@@ -25,14 +25,14 @@ export function StorySection() {
               </span>
               <h2
                 className="text-3xl sm:text-4xl font-extrabold tracking-tight"
-                style={{ color: brand.ink }}
+                style={{ color: "#fff" }}
               >
                 Igniting Ambition, Building Future Doctors
               </h2>
             </div>
             <div
               className="space-y-4 text-sm sm:text-base leading-relaxed"
-              style={{ color: brand.inkMuted }}
+              style={{ color: "rgba(255,255,255,0.62)" }}
             >
               <p>
                 Shiksha International is a global education consultancy
@@ -50,7 +50,8 @@ export function StorySection() {
               <p>
                 Our mission is to guide students with honesty and transparency,
                 help them secure quality medical education abroad, and provide
-                strong international support through every step of their journey.
+                strong international support through every step of their
+                journey.
               </p>
             </div>
           </div>
@@ -74,7 +75,10 @@ export function StorySection() {
                 >
                   12,000+
                 </p>
-                <p className="text-sm font-semibold" style={{ color: brand.ink }}>
+                <p
+                  className="text-sm font-semibold"
+                  style={{ color: brand.ink }}
+                >
                   Successful Admissions
                 </p>
               </div>

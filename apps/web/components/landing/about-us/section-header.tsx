@@ -4,13 +4,19 @@ interface SectionHeaderProps {
   eyebrow: string;
   title: string;
   description?: string;
+  dark?: boolean;
 }
 
 /**
  * Reusable section header used across landing pages.
  * Renders an eyebrow label, a bold title, and optional description.
  */
-export function SectionHeader({ eyebrow, title, description }: SectionHeaderProps) {
+export function SectionHeader({
+  eyebrow,
+  title,
+  description,
+  dark,
+}: SectionHeaderProps) {
   return (
     <div className="max-w-2xl mb-12 sm:mb-16">
       <span
@@ -21,12 +27,15 @@ export function SectionHeader({ eyebrow, title, description }: SectionHeaderProp
       </span>
       <h2
         className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2"
-        style={{ color: brand.ink }}
+        style={{ color: dark ? "#fff" : brand.ink }}
       >
         {title}
       </h2>
       {description && (
-        <p className="text-sm sm:text-base mt-2 sm:mt-3" style={{ color: brand.inkMuted }}>
+        <p
+          className="text-sm sm:text-base mt-2 sm:mt-3"
+          style={{ color: dark ? "rgba(255,255,255,0.62)" : brand.inkMuted }}
+        >
           {description}
         </p>
       )}
