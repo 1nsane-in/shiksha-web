@@ -28,11 +28,15 @@ export const brand = {
 
   /* ─── Text ─── */
   ink: "#102C50",
-  inkMuted: "#64748B",
+  // ponytail: darkened from #64748B for WCAG AA on tinted surfaces
+  inkMuted: "#475569",
   inkSubtle: "#94A3B8",
 
   /* ─── Chromatic accent ─── */
   gold: "#C9A45C",
+  // WCAG-AA-safe gold for TEXT on light surfaces (4.8:1 on white).
+  // Use brand.gold on dark/navy surfaces only.
+  goldText: "#7a5f26",
   goldLight: "rgba(201, 164, 92, 0.10)",
   goldGlow: "rgba(201, 164, 92, 0.15)",
   goldBorder: "rgba(201, 164, 92, 0.25)",

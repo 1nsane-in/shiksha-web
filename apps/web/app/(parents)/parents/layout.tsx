@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ParentSidebar } from "@/components/parents/parent-sidebar";
 import { AdminMobileToggle } from "@/components/admin/admin-mobile-toggle";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
   title: {
@@ -16,6 +17,7 @@ export default function ParentsLayout({
   children: React.ReactNode;
 }) {
   return (
+    <TooltipProvider>
     <div className="flex h-screen overflow-hidden bg-ice-grey">
       <ParentSidebar />
       <div className="flex flex-1 flex-col overflow-hidden relative">
@@ -25,6 +27,7 @@ export default function ParentsLayout({
         </main>
       </div>
     </div>
+    </TooltipProvider>
   );
 }
 

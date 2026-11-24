@@ -16,7 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/ui"
+} from "@/components/ui/chart"
 import {
   Select,
   SelectContent,

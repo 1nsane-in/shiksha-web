@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/ui";
-import { motion, AnimatePresence } from "motion/react";
 import { brand } from "@/lib/brand";
 import { navLinks } from "@/lib/brand-data";
 
@@ -250,19 +249,14 @@ export function Header() {
     </div>
 
       {/* ─── Nav mega menu ─── */}
-      <AnimatePresence>
-        {activeMenu && (
-          <motion.div
-            key={openDropdown}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-            className="absolute inset-x-0 top-full hidden overflow-hidden border-t shadow-2xl lg:block"
-            style={{ background: brand.navy, borderColor: brand.goldBorder }}
-            onMouseEnter={() => openDropdown && openMenu(openDropdown)}
-            onMouseLeave={scheduleCloseMenu}
-          >
+      {activeMenu && (
+        <div
+          key={openDropdown}
+          className="animate-menu-in absolute inset-x-0 top-full hidden overflow-hidden border-t shadow-2xl lg:block"
+          style={{ background: brand.navy, borderColor: brand.goldBorder }}
+          onMouseEnter={() => openDropdown && openMenu(openDropdown)}
+          onMouseLeave={scheduleCloseMenu}
+        >
             {/* Ambient gold + royal glow for depth on the navy panel */}
             <div
               aria-hidden
@@ -301,16 +295,8 @@ export function Header() {
 
               {activeMenu.groups ? (
                 <div className="grid gap-6 sm:grid-cols-3 lg:border-l lg:border-white/10 lg:pl-10">
-                  {activeMenu.groups.map((group, groupIndex) => (
-                    <motion.div
-                      key={group.title}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        delay: 0.04 + groupIndex * 0.05,
-                        duration: 0.2,
-                      }}
-                    >
+                  {activeMenu.groups.map((group) => (
+                    <div key={group.title}>
                       <p
                         className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em]"
                         style={{ color: brand.gold }}
@@ -331,18 +317,13 @@ export function Header() {
                           </li>
                         ))}
                       </ul>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2 lg:border-l lg:border-white/10 lg:pl-10">
-                  {(activeMenu.items ?? []).map((item, index) => (
-                    <motion.div
-                      key={item.title}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.04 + index * 0.05, duration: 0.2 }}
-                    >
+                  {(activeMenu.items ?? []).map((item) => (
+                    <div key={item.title}>
                       <Link
                         href={item.href}
                         onClick={() => setOpenDropdown(null)}
@@ -366,26 +347,20 @@ export function Header() {
                           <ArrowRight className="size-3.5 text-brand-gold transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-brand-ink" />
                         </span>
                       </Link>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               )}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+      )}
 
     {/* ─── Mobile menu ─── */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="overflow-hidden lg:hidden"
-            style={{ background: brand.ink }}
-          >
+      {isMenuOpen && (
+        <div
+          className="animate-menu-in overflow-hidden lg:hidden"
+          style={{ background: brand.ink }}
+        >
             <nav className="max-h-[calc(100vh-6rem)] space-y-1 overflow-y-auto px-4 pb-6 pt-2">
               {navLinks.map((link) => {
                 const active = isLinkActive(link.href);
@@ -455,9 +430,8 @@ export function Header() {
                 </a>
               </div>
             </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </header>
   );
 }

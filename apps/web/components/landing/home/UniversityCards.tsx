@@ -288,7 +288,7 @@ export function UniversityCards() {
             className="mb-4 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-medium tracking-wide uppercase"
             style={{
               background: brand.goldLight,
-              color: brand.gold,
+              color: brand.goldText,
               border: "1px solid " + brand.gold + "33",
             }}
           >

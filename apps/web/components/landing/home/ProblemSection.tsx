@@ -1,5 +1,3 @@
-"use client";
-
 import { brand } from "@/lib/brand";
 import { IndianRupee, GraduationCap, Globe, ShieldAlert, PhoneOff, FileQuestion } from "lucide-react";
 
@@ -44,7 +42,7 @@ export function ProblemSection() {
         <div className="max-w-2xl mb-16">
           <span
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em]"
-            style={{ background: brand.goldLight, color: brand.gold }}
+            style={{ background: brand.goldLight, color: brand.goldText }}
           >
             The Reality
           </span>
@@ -54,7 +52,7 @@ export function ProblemSection() {
           >
             MBBS in India is getting harder.
             <br />
-            <span style={{ color: brand.gold }}>Every year.</span>
+            <span style={{ color: brand.goldText }}>Every year.</span>
           </h2>
           <p
             className="mt-4 text-sm sm:text-base leading-relaxed max-w-xl"

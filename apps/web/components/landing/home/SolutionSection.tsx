@@ -1,5 +1,3 @@
-"use client";
-
 import { brand } from "@/lib/brand";
 import { Building2, ScrollText, BookOpen, Globe, Plane, ShieldCheck } from "lucide-react";
 
@@ -51,7 +49,7 @@ export function SolutionSection() {
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-4 leading-[1.15] text-white">
             That is why Shiksha exists.
           </h2>
-          <p className="mt-4 text-sm sm:text-base leading-relaxed max-w-xl" style={{ color: "rgba(255,255,255,0.5)" }}>
+          <p className="mt-4 text-sm sm:text-base leading-relaxed max-w-xl" style={{ color: "rgba(255,255,255,0.75)" }}>
             Every problem on the left has a direct answer. Official partnerships. Transparent pricing.
             Real on-ground teams. Free licensing exam coaching.
           </p>
@@ -79,7 +77,7 @@ export function SolutionSection() {
                 <h3 className="text-sm font-extrabold leading-snug mb-2 text-white">
                   {s.title}
                 </h3>
-                <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.75)" }}>
                   {s.desc}
                 </p>
               </div>

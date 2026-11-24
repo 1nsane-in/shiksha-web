@@ -1,5 +1,3 @@
-"use client";
-
 import { brand } from "@/lib/brand";
 import { Search, Route, Files, Plane, Building2 } from "lucide-react";
 
@@ -39,7 +37,7 @@ export function HowItWorks() {
         <div className="max-w-2xl mb-16">
           <span
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em]"
-            style={{ background: brand.goldLight, color: brand.gold }}
+            style={{ background: brand.goldLight, color: brand.goldText }}
           >
             The Process
           </span>
@@ -49,7 +47,7 @@ export function HowItWorks() {
           >
             From application to arrival.
             <br />
-            <span style={{ color: brand.gold }}>We handle everything.</span>
+            <span style={{ color: brand.goldText }}>We handle everything.</span>
           </h2>
         </div>
 
@@ -79,7 +77,7 @@ export function HowItWorks() {
                     </div>
                     <span
                       className="lg:hidden text-xs font-bold uppercase tracking-wider"
-                      style={{ color: brand.gold }}
+                      style={{ color: brand.goldText }}
                     >
                       Step {i + 1}
                     </span>

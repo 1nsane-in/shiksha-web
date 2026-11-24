@@ -96,3 +96,6 @@ export const QUERY_CONFIG = {
   CACHE_TIME: 10 * 60 * 1000,
   RETRY_COUNT: 1,
 } as const;
+
+export const HERO_OG_BANNER: string= "https://cdn.shiksha.study/landing/banner/hero-og.png";
+export const HUMAN_ANATOMY : string= "https://cdn.shiksha.study/landing/banner/human-anatomy.png"

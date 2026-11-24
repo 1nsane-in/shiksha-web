@@ -1,5 +1,3 @@
-"use client";
-
 import { brand } from "@/lib/brand";
 import { Check, Minus } from "lucide-react";
 
@@ -30,7 +28,7 @@ export function UniversityComparison() {
         <div className="max-w-2xl mb-12">
           <span
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em]"
-            style={{ background: brand.goldLight, color: brand.gold }}
+            style={{ background: brand.goldLight, color: brand.goldText }}
           >
             Country Comparison 2026
           </span>
@@ -39,7 +37,7 @@ export function UniversityComparison() {
             style={{ color: brand.ink }}
           >
             India vs.{" "}
-            <span style={{ color: brand.gold }}>Kyrgyzstan, Uzbekistan, Kazakhstan, Russia</span>
+            <span style={{ color: brand.goldText }}>Kyrgyzstan, Uzbekistan, Kazakhstan, Russia</span>
           </h2>
         </div>
 
@@ -49,14 +47,14 @@ export function UniversityComparison() {
             {/* Header */}
             <thead>
               <tr style={{ background: brand.ink }}>
-                <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white/60">
+                <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white/80">
                   Parameter
                 </th>
                 {countries.map((c) => (
                   <th
                     key={c.name}
                     className={`px-5 py-4 text-left text-xs font-bold uppercase tracking-wider ${
-                      c.name === "India" ? "text-white/40" : "text-white"
+                      c.name === "India" ? "text-white/70" : "text-white"
                     }`}
                   >
                     {c.name}
@@ -98,7 +96,7 @@ export function UniversityComparison() {
                         <td
                           key={c.name}
                           className={`px-5 py-4 text-xs ${
-                            c.name === "India" ? "text-gray-400" : "text-navy"
+                            c.name === "India" ? "text-gray-600" : "text-navy"
                           } ${row.highlight ? "font-bold" : ""}`}
                         >
                           {val}

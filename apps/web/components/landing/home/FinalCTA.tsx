@@ -188,7 +188,7 @@ export function FinalCTA() {
                     <h3 className="text-xl font-bold text-navy">
                       Book Free Counseling
                     </h3>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-slate-600 mt-1">
                       Submit your details to enter the admission queue.
                     </p>
                   </div>
@@ -198,11 +198,12 @@ export function FinalCTA() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Name */}
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                      <label htmlFor="cta-name" className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
                         <User className="size-3 text-champagne-gold" /> Name{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <input
+                        id="cta-name"
                         type="text"
                         name="name"
                         required
@@ -215,11 +216,12 @@ export function FinalCTA() {
 
                     {/* Email */}
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                      <label htmlFor="cta-email" className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
                         <Mail className="size-3 text-champagne-gold" /> Email{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <input
+                        id="cta-email"
                         type="email"
                         name="email"
                         required
@@ -232,7 +234,7 @@ export function FinalCTA() {
 
                     {/* Mobile with country code prefix */}
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                      <label htmlFor="cta-mobile" className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
                         <Phone className="size-3 text-champagne-gold" /> Mobile{" "}
                         <span className="text-red-500">*</span>
                       </label>
@@ -243,6 +245,7 @@ export function FinalCTA() {
                           </span>
                         )}
                         <input
+                          id="cta-mobile"
                           type="tel"
                           name="mobile"
                           required
@@ -262,11 +265,12 @@ export function FinalCTA() {
 
                     {/* NEET Score */}
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                      <label htmlFor="cta-neet" className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
                         <BookOpen className="size-3 text-champagne-gold" /> NEET
                         Score
                       </label>
                       <input
+                        id="cta-neet"
                         type="number"
                         name="neetScore"
                         value={formData.neetScore}
@@ -277,11 +281,12 @@ export function FinalCTA() {
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                      <label htmlFor="cta-country" className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
                         <Globe className="size-3 text-champagne-gold" /> Country{" "}
                         <span className="text-red-500">*</span>
                       </label>
                       <select
+                        id="cta-country"
                         value={selectedCountryIso}
                         onChange={handleCountryChange}
                         className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-champagne-gold bg-slate-50/50 cursor-pointer"
@@ -297,11 +302,12 @@ export function FinalCTA() {
 
                     {/* State */}
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                      <label htmlFor="cta-state" className="text-xs font-bold text-slate-500 uppercase tracking-wide">
                         State of Residence
                       </label>
                       {selectedCountryIso ? (
                         <select
+                          id="cta-state"
                           value={formData.stateName}
                           onChange={handleStateChange}
                           className="w-full py-2 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-champagne-gold bg-slate-50/50 cursor-pointer"
@@ -315,6 +321,7 @@ export function FinalCTA() {
                         </select>
                       ) : (
                         <input
+                          id="cta-state"
                           type="text"
                           name="stateName"
                           value={formData.stateName}
@@ -328,10 +335,11 @@ export function FinalCTA() {
 
                     {/* Preferred University */}
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                      <label htmlFor="cta-university" className="text-xs font-bold text-slate-500 uppercase tracking-wide">
                         Preferred University
                       </label>
                       <select
+                        id="cta-university"
                         name="prefUniversity"
                         value={formData.prefUniversity}
                         onChange={handleChange}
@@ -372,10 +380,11 @@ export function FinalCTA() {
 
                     {/* Preferred Intake */}
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                      <label htmlFor="cta-intake" className="text-xs font-bold text-slate-500 uppercase tracking-wide">
                         Preferred Intake
                       </label>
                       <select
+                        id="cta-intake"
                         name="prefIntake"
                         value={formData.prefIntake}
                         onChange={handleChange}

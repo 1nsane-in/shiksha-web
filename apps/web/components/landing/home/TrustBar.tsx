@@ -1,5 +1,3 @@
-"use client";
-
 import { brand } from "@/lib/brand";
 import {
   Building2,
@@ -39,7 +37,7 @@ export function TrustBar() {
                 >
                   {s.value}
                 </p>
-                <p className="mt-1 text-xs uppercase tracking-widest text-white/50 font-semibold">
+                <p className="mt-1 text-xs uppercase tracking-widest text-white/70 font-semibold">
                   {s.label}
                 </p>
               </div>

@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { brand } from "@/lib/brand";
@@ -56,11 +54,11 @@ const testimonials = [
   },
 ];
 
-function Eyebrow({ children }: { children: React.ReactNode }) {
+function Eyebrow({ children, light }: { children: React.ReactNode; light?: boolean }) {
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em]"
-      style={{ background: brand.goldLight, color: brand.gold }}
+      style={{ background: brand.goldLight, color: light ? brand.goldText : brand.gold }}
     >
       {children}
     </span>
@@ -134,7 +132,7 @@ export function ScholarshipsSection() {
         >
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-2xl">
-              <Eyebrow>Scholarships and offers</Eyebrow>
+              <Eyebrow light>Scholarships and offers</Eyebrow>
               <h2 className="mt-5 text-3xl font-bold leading-tight tracking-tight sm:text-4xl" style={{ color: brand.ink }}>
                 Funding details, before you commit.
               </h2>
@@ -202,13 +200,13 @@ export function StudentStoriesSection() {
               <div className="mt-4 flex items-center gap-2">
                 <div
                   className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-medium"
-                  style={{ background: brand.goldLight, color: brand.gold }}
+                  style={{ background: brand.goldLight, color: brand.goldText }}
                 >
                   {t.name.charAt(0)}
                 </div>
                 <div>
                   <p className="text-xs font-medium text-white">{t.name}</p>
-                  <p className="text-[11px] text-white/50">{t.location}</p>
+                  <p className="text-[11px] text-white/70">{t.location}</p>
                 </div>
               </div>
             </article>

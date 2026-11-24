@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
+import { HUMAN_ANATOMY } from "@/shared/api/constants";
 import {
   ArrowLeft,
   ArrowRight,
@@ -35,7 +36,7 @@ function BannerImage({ alt }: { alt?: string }) {
   return (
     <>
       <Image
-        src="/img/human-anatomy.png"
+        src={HUMAN_ANATOMY}
         alt={alt ?? ""}
         fill
         priority

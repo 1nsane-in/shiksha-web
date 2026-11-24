@@ -1,9 +1,21 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { TooltipProvider } from "@/ui";
+import { Inter, Manrope } from "next/font/google";
+import { Toaster } from "sonner";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { Providers } from "@/lib/providers";
-import { Toaster } from "sonner";
+
+// Self-hosted fonts — removes render-blocking Google Fonts @import chain.
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Shiksha | Medical Admission Platform",
@@ -18,13 +30,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-      <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${manrope.variable} scroll-smooth`}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body className="antialiased">
         <Providers>
           <AuthProvider>
-            <TooltipProvider>
-              <div className="bg-background">{children}</div>
-            </TooltipProvider>
+            <div className="bg-background">{children}</div>
             <Toaster position="top-right" richColors />
           </AuthProvider>
         </Providers>

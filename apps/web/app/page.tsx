@@ -14,8 +14,21 @@ import { TopBar } from "@/components/landing/home/TopBar";
 import { HeroCarousel } from "@/components/landing/home/HeroCarousel";
 import { CountrySection } from "@/components/landing/home/CountrySection";
 
-// Below-the-fold components - lazy loaded via client component
-import { LazySections } from "@/components/landing/home/LazySections";
+// Static below-the-fold sections - server components, zero client JS
+import { TrustBar } from "@/components/landing/home/TrustBar";
+import { ProblemSection } from "@/components/landing/home/ProblemSection";
+import { SolutionSection } from "@/components/landing/home/SolutionSection";
+import { HowItWorks } from "@/components/landing/home/HowItWorks";
+import { UniversityComparison } from "@/components/landing/home/UniversityComparison";
+import { Footer } from "@/components/landing/home/Footer";
+import {
+  WhyShikshaSection,
+  ScholarshipsSection,
+  StudentStoriesSection,
+} from "@/components/landing/home/AdditionalSections";
+
+// Interactive below-the-fold components - lazy loaded via client component
+import { LazySections, LazyFinalCTA } from "@/components/landing/home/LazySections";
 
 function decodeToken(token: string): { role?: string } | null {
   try {
@@ -49,8 +62,21 @@ export default async function Home() {
       <Header />
       <HeroCarousel />
       <CountrySection />
-      {/* Rest of the page - lazy loaded below the fold */}
-      <LazySections />
+      {/* Below the fold: static sections are server-rendered (zero JS),
+          interactive ones lazy load */}
+      <main className="mx-auto">
+        <LazySections />
+        <WhyShikshaSection />
+        <ScholarshipsSection />
+        <StudentStoriesSection />
+        <TrustBar />
+        <ProblemSection />
+        <SolutionSection />
+        <HowItWorks />
+        <UniversityComparison />
+        <LazyFinalCTA />
+      </main>
+      <Footer />
     </>
   );
 }
