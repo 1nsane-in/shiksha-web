@@ -1,74 +1,92 @@
 import React from "react";
 import { Phone, Mail, MapPin, Clock, ShieldCheck } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { brand } from "@/lib/brand";
 
+type ContactCard = {
+  icon: LucideIcon;
+  title: string;
+  value: string;
+  extra?: string;
+};
+
 /**
- * Contact info sidebar with office details, hours, and a trust badge.
- * Used on the contact-us page alongside the request forms.
+ * Contact details as a quiet office list next to the request form.
  */
 export function ContactInfo() {
-  const cards = [
+  const cards: ContactCard[] = [
     {
       icon: Phone,
-      title: "International Helpline",
+      title: "International helpline",
       value: "+7 918 482-65-01",
       extra: "India: +91 88264 27297",
     },
     {
       icon: Mail,
-      title: "Email Address",
+      title: "Email",
       value: "admin@shiksha.study",
     },
     {
       icon: MapPin,
-      title: "Corporate Office",
-      value: "Shiksha International — India Office & International Support Offices",
+      title: "Office",
+      value: "India office and international support offices",
     },
     {
       icon: Clock,
-      title: "Consultation Hours",
-      value: "Monday – Saturday: 9:00 AM – 6:30 PM",
+      title: "Consultation hours",
+      value: "Monday to Saturday, 9:00 AM to 6:30 PM",
       extra: "Online requests open 24/7",
     },
-  ] as const;
+  ];
 
   return (
     <div className="space-y-8">
-      <div className="space-y-4">
-          <h2 className="text-2xl font-bold tracking-tight" style={{ color: brand.ink }}>
-          Contact Information
+      <div>
+        <h2
+          className="text-2xl font-medium tracking-[-0.01em]"
+          style={{ color: brand.ink }}
+        >
+          Admissions desk
         </h2>
-        <p className="text-sm leading-relaxed" style={{ color: brand.inkMuted }}>
-          Connect with Shiksha International directly for MBBS abroad admissions.
-          We offer university shortlisting, application assistance, documentation,
-          visa support, and free FMGE/NEXT coaching.
+        <p
+          className="mt-3 text-sm leading-relaxed"
+          style={{ color: brand.inkMuted }}
+        >
+          Reach us directly for MBBS abroad guidance, document checks, visa
+          support and FMGE/NEXT coaching.
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="border-t border-brand-hairline">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
             <div
               key={card.title}
-              className="flex gap-4 p-4 rounded-xl border bg-white"
-              style={{ borderColor: brand.hairline }}
+              className="flex gap-4 border-b border-brand-hairline py-5"
             >
-              <div
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
-                style={{ background: brand.goldLight, color: brand.gold }}
-              >
-                <Icon className="h-5 w-5" />
-              </div>
+              <Icon
+                className="mt-0.5 size-4 shrink-0 text-brand-ink-muted"
+                strokeWidth={1.5}
+              />
               <div>
-                <h4 className="text-sm font-semibold" style={{ color: brand.ink }}>
+                <h3
+                  className="text-sm font-medium"
+                  style={{ color: brand.ink }}
+                >
                   {card.title}
-                </h4>
-                <p className="text-sm mt-1" style={{ color: brand.inkMuted }}>
+                </h3>
+                <p
+                  className="mt-1 text-sm leading-relaxed"
+                  style={{ color: brand.inkMuted }}
+                >
                   {card.value}
                 </p>
                 {card.extra && (
-                  <p className="text-xs mt-0.5" style={{ color: brand.gold }}>
+                  <p
+                    className="mt-1 text-xs"
+                    style={{ color: brand.inkMuted }}
+                  >
                     {card.extra}
                   </p>
                 )}
@@ -78,11 +96,13 @@ export function ContactInfo() {
         })}
       </div>
 
-      {/* Trust Badge */}
-      <div className="p-4 rounded-xl flex items-center gap-3 bg-indigo-50 border border-indigo-100">
-        <ShieldCheck className="h-6 w-6 text-indigo-600 shrink-0" />
-        <p className="text-xs text-indigo-950 font-medium leading-relaxed">
-          Your details are encrypted and securely shared only with authorized counselors. We respect student privacy.
+      <div className="flex items-start gap-3 border-t border-brand-hairline pt-5">
+        <ShieldCheck
+          className="mt-0.5 size-4 shrink-0 text-brand-ink-muted"
+          strokeWidth={1.5}
+        />
+        <p className="text-xs leading-relaxed text-brand-ink-muted">
+          We use your details only to respond to this request.
         </p>
       </div>
     </div>

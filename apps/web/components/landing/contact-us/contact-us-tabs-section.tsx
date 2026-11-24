@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { brand } from "@/lib/brand";
 import { FormTabs, type TabId } from "@/components/landing/contact-us/form-tabs";
@@ -15,14 +15,13 @@ import {
 // ---------------------------------------------------------------------------
 const TAB_CONTENT: Record<TabId, { title: string; description: string }> = {
   consultation: {
-    title: "Free Guidance Request Form",
-    description:
-      "All fields are securely verified. Ensure correct mobile number for OTP/Call.",
+    title: "Free guidance request",
+    description: "Use a mobile number we can reach you on.",
   },
   university: {
-    title: "Request to Add University",
+    title: "Request a university",
     description:
-      "Can't find your desired university? Submit details and we'll add it within 24-48 hours.",
+      "Can't find your university? Send the details and we will review it within 24-48 hours.",
   },
 };
 
@@ -33,15 +32,11 @@ const TAB_CONTENT: Record<TabId, { title: string; description: string }> = {
  */
 export function ContactUsTabsSection() {
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<TabId>("consultation");
-
-  // Set initial tab from ?subject=university-request
-  useEffect(() => {
-    const subject = searchParams.get("subject");
-    if (subject === "university-request") {
-      setActiveTab("university");
-    }
-  }, [searchParams]);
+  const [activeTab, setActiveTab] = useState<TabId>(
+    searchParams.get("subject") === "university-request"
+      ? "university"
+      : "consultation"
+  );
 
   const content = TAB_CONTENT[activeTab];
 
@@ -51,12 +46,12 @@ export function ContactUsTabsSection() {
 
       <div className="mb-6">
         <h3
-          className="text-xl font-bold tracking-tight"
+          className="text-lg font-medium tracking-[-0.01em]"
           style={{ color: brand.ink }}
         >
           {content.title}
         </h3>
-        <p className="text-xs mt-1" style={{ color: brand.inkMuted }}>
+        <p className="mt-2 text-sm" style={{ color: brand.inkMuted }}>
           {content.description}
         </p>
       </div>

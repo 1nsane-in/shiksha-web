@@ -4,21 +4,19 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Send } from "lucide-react";
 import { Country, State } from "country-state-city";
-import { brand } from "@/lib/brand";
 import { useCreateConsultation } from "@/domains/consultations";
 import type { CreateConsultationPayload } from "@/domains/consultations/consultations.types";
+
+const fieldClass =
+  "w-full rounded-lg border border-hairline bg-white px-4 py-3 text-sm text-brand-ink placeholder:text-brand-ink-muted focus:border-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-ink/15 disabled:bg-ice-grey disabled:text-brand-ink-muted";
+
+const labelClass = "text-xs font-medium text-brand-ink";
 
 /**
  * Self-contained consultation request form.
  * Manages its own form state, country/state dropdowns, validation, and submission.
  */
-export function ConsultationForm({
-  title,
-  submitLabel,
-}: {
-  title?: string;
-  submitLabel?: string;
-}) {
+export function ConsultationForm() {
   const createMutation = useCreateConsultation();
   const countries = Country.getAllCountries();
 
@@ -40,7 +38,9 @@ export function ConsultationForm({
     ? State.getStatesOfCountry(selectedCountryIso)
     : [];
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -76,23 +76,23 @@ export function ConsultationForm({
     e.preventDefault();
 
     if (!form.name.trim()) {
-      toast.error("Please enter your Full Name");
+      toast.error("Enter your name");
       return;
     }
     if (!form.email.trim()) {
-      toast.error("Please enter your Email Id");
+      toast.error("Enter your email");
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-      toast.error("Please enter a valid Email Id");
+      toast.error("Enter a valid email");
       return;
     }
     if (!form.phone.trim()) {
-      toast.error("Please enter your Mobile No.");
+      toast.error("Enter your mobile number");
       return;
     }
     if (selectedCountryIso && form.phone.trim().length !== 10) {
-      toast.error("Please enter a valid 10-digit Mobile No.");
+      toast.error("Enter a 10-digit mobile number");
       return;
     }
 
@@ -104,7 +104,7 @@ export function ConsultationForm({
     if (form.neetScore.trim()) {
       const scoreNum = parseInt(form.neetScore.trim(), 10);
       if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 720) {
-        toast.error("Please enter a valid NEET Score (0 to 720)");
+        toast.error("Enter a NEET score from 0 to 720");
         return;
       }
       neetScore = scoreNum;
@@ -124,7 +124,7 @@ export function ConsultationForm({
     try {
       await createMutation.mutateAsync(payload);
       toast.success(
-        "Consultation Request submitted successfully! Our advisor will contact you soon."
+        "Consultation request submitted. Our advisor will contact you soon."
       );
       setForm({
         name: "",
@@ -138,78 +138,66 @@ export function ConsultationForm({
       });
       setSelectedCountryIso("");
       setSelectedCountryPhoneCode("");
-    } catch (err: any) {
-      toast.error(
-        err?.response?.data?.message ||
-          "Failed to submit request. Please try again."
-      );
+    } catch (err: unknown) {
+      const message = (
+        err as { response?: { data?: { message?: string } } }
+      )?.response?.data?.message;
+      toast.error(message || "Could not submit your request. Try again.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Full Name & Email Id */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div className="space-y-1.5">
-          <label
-            htmlFor="name"
-            className="text-xs font-semibold uppercase tracking-wider"
-            style={{ color: brand.inkMuted }}
-          >
-            Your Name / Full Name <span className="text-red-500">*</span>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label htmlFor="name" className={labelClass}>
+            Your name <span className="text-red-600">*</span>
           </label>
           <input
             id="name"
             name="name"
             type="text"
-            placeholder="e.g., Tushar Sharma"
+            autoComplete="name"
+            placeholder="As on your passport"
             value={form.name}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm"
+            className={fieldClass}
             required
           />
         </div>
 
-        <div className="space-y-1.5">
-          <label
-            htmlFor="email"
-            className="text-xs font-semibold uppercase tracking-wider"
-            style={{ color: brand.inkMuted }}
-          >
-            Email Id <span className="text-red-500">*</span>
+        <div className="space-y-2">
+          <label htmlFor="email" className={labelClass}>
+            Email <span className="text-red-600">*</span>
           </label>
           <input
             id="email"
             name="email"
             type="email"
-            placeholder="e.g., tushar@example.com"
+            autoComplete="email"
+            placeholder="you@example.com"
             value={form.email}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm"
+            className={fieldClass}
             required
           />
         </div>
       </div>
 
-      {/* Country & State Select Dropdowns */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div className="space-y-1.5">
-          <label
-            htmlFor="country"
-            className="text-xs font-semibold uppercase tracking-wider"
-            style={{ color: brand.inkMuted }}
-          >
-            Country <span className="text-red-500">*</span>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label htmlFor="country" className={labelClass}>
+            Country <span className="text-red-600">*</span>
           </label>
           <select
             id="country"
             name="country"
             value={selectedCountryIso}
             onChange={handleCountryChange}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm bg-white"
+            className={fieldClass}
             required
           >
-            <option value="">Select Country</option>
+            <option value="">Select country</option>
             {countries.map((c) => (
               <option key={c.isoCode} value={c.isoCode}>
                 {c.name}
@@ -218,12 +206,8 @@ export function ConsultationForm({
           </select>
         </div>
 
-        <div className="space-y-1.5">
-          <label
-            htmlFor="state"
-            className="text-xs font-semibold uppercase tracking-wider"
-            style={{ color: brand.inkMuted }}
-          >
+        <div className="space-y-2">
+          <label htmlFor="state" className={labelClass}>
             State
           </label>
           <select
@@ -232,9 +216,9 @@ export function ConsultationForm({
             value={form.state}
             onChange={handleStateChange}
             disabled={!selectedCountryIso}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm bg-white disabled:opacity-60"
+            className={fieldClass}
           >
-            <option value="">Select State</option>
+            <option value="">Select state</option>
             {states.map((s) => (
               <option key={s.isoCode} value={s.name}>
                 {s.name}
@@ -244,19 +228,14 @@ export function ConsultationForm({
         </div>
       </div>
 
-      {/* Mobile No & NEET Score */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div className="space-y-1.5">
-          <label
-            htmlFor="phone"
-            className="text-xs font-semibold uppercase tracking-wider"
-            style={{ color: brand.inkMuted }}
-          >
-            Mobile No. <span className="text-red-500">*</span>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label htmlFor="phone" className={labelClass}>
+            Mobile number <span className="text-red-600">*</span>
           </label>
-          <div className="relative flex rounded-lg border border-gray-300 overflow-hidden focus-within:ring-1 focus-within:ring-royal-blue focus-within:border-royal-blue">
+          <div className="flex overflow-hidden rounded-lg border border-hairline bg-white focus-within:border-brand-ink focus-within:ring-2 focus-within:ring-brand-ink/15">
             {selectedCountryPhoneCode && (
-              <span className="bg-gray-50 border-r border-gray-300 px-3 py-2 text-sm font-semibold text-navy flex items-center select-none shrink-0">
+              <span className="flex shrink-0 select-none items-center border-r border-hairline bg-ice-grey px-3 text-sm font-medium text-brand-ink">
                 {selectedCountryPhoneCode}
               </span>
             )}
@@ -264,97 +243,100 @@ export function ConsultationForm({
               id="phone"
               name="phone"
               type="tel"
+              autoComplete="tel"
               placeholder={
-                selectedCountryPhoneCode
-                  ? "10-digit number"
-                  : "e.g., 9876543210"
+                selectedCountryPhoneCode ? "10-digit number" : "Mobile number"
               }
               value={form.phone}
               onChange={handlePhoneChange}
-              className="w-full px-4 py-2.5 text-sm outline-none border-none bg-white"
+              className="min-w-0 flex-1 bg-white px-4 py-3 text-sm text-brand-ink placeholder:text-brand-ink-muted focus:outline-none"
               maxLength={selectedCountryIso ? 10 : undefined}
               required
             />
           </div>
         </div>
 
-        <div className="space-y-1.5">
-          <label
-            htmlFor="neetScore"
-            className="text-xs font-semibold uppercase tracking-wider"
-            style={{ color: brand.inkMuted }}
-          >
-            NEET Score{" "}
-            <span className="text-xs lowercase text-slate-400">(0-720)</span>
+        <div className="space-y-2">
+          <label htmlFor="neetScore" className={labelClass}>
+            NEET score <span className="text-brand-ink-muted">(0-720)</span>
           </label>
           <input
             id="neetScore"
             name="neetScore"
             type="number"
-            placeholder="Enter Your Score"
+            inputMode="numeric"
+            placeholder="Enter score"
             value={form.neetScore}
             onChange={handleChange}
             min="0"
             max="720"
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm"
+            className={fieldClass}
           />
         </div>
       </div>
 
-      {/* Preferred University & Intake */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div className="space-y-1.5">
-          <label
-            htmlFor="preferredUniversity"
-            className="text-xs font-semibold uppercase tracking-wider"
-            style={{ color: brand.inkMuted }}
-          >
-            Preferred University
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label htmlFor="preferredUniversity" className={labelClass}>
+            Preferred university
           </label>
           <select
             id="preferredUniversity"
             name="preferredUniversity"
             value={form.preferredUniversity}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm bg-white"
+            className={fieldClass}
           >
-            <option value="">Select University</option>
-            <option value="Jalal-Abad State University">Jalal-Abad State Univ</option>
-            <option value="Bishkek International Medical Institute">Bishkek Int. Medical Institute</option>
-            <option value="Jalalabad International University">Jalalabad International Univ</option>
-            <option value="Osh State University">Osh State Univ</option>
-            <option value="Andijan State Medical Institute">Andijan State Medical Institute</option>
-            <option value="North Kazakhstan State Medical University">North Kazakhstan State Medical Univ</option>
-            <option value="Sevastopol State University">Sevastopol State Univ</option>
-            <option value="Kemerovo State University">Kemerovo State Univ</option>
-            <option value="Maykop State Medical Institute">Maykop State Medical Institute</option>
-            <option value="Kirov State Medical University">Kirov State Medical Univ</option>
+            <option value="">Select university</option>
+            <option value="Jalal-Abad State University">
+              Jalal-Abad State University
+            </option>
+            <option value="Bishkek International Medical Institute">
+              Bishkek International Medical Institute
+            </option>
+            <option value="Jalalabad International University">
+              Jalalabad International University
+            </option>
+            <option value="Osh State University">Osh State University</option>
+            <option value="Andijan State Medical Institute">
+              Andijan State Medical Institute
+            </option>
+            <option value="North Kazakhstan State Medical University">
+              North Kazakhstan State Medical University
+            </option>
+            <option value="Sevastopol State University">
+              Sevastopol State University
+            </option>
+            <option value="Kemerovo State University">
+              Kemerovo State University
+            </option>
+            <option value="Maykop State Medical Institute">
+              Maykop State Medical Institute
+            </option>
+            <option value="Kirov State Medical University">
+              Kirov State Medical University
+            </option>
           </select>
         </div>
 
-        <div className="space-y-1.5">
-          <label
-            htmlFor="preferredIntake"
-            className="text-xs font-semibold uppercase tracking-wider"
-            style={{ color: brand.inkMuted }}
-          >
-            Preferred Intake
+        <div className="space-y-2">
+          <label htmlFor="preferredIntake" className={labelClass}>
+            Preferred intake
           </label>
           <select
             id="preferredIntake"
             name="preferredIntake"
             value={form.preferredIntake}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-royal-blue focus:border-royal-blue text-sm bg-white"
+            className={fieldClass}
           >
-            <option value="">Select Intake</option>
-            <option value="Summer">Summer Intake (May/Jun)</option>
-            <option value="Winter">Winter Intake (Sep/Oct)</option>
+            <option value="">Select intake</option>
+            <option value="Summer">Summer intake (May/Jun)</option>
+            <option value="Winter">Winter intake (Sep/Oct)</option>
           </select>
         </div>
       </div>
 
-      {/* Submit Button */}
       <div className="pt-2">
         <button
           type="submit"
@@ -363,22 +345,19 @@ export function ConsultationForm({
             !form.email.trim() ||
             !form.phone.trim() ||
             !form.country.trim() ||
-            !form.state.trim() ||
-            !form.neetScore.trim() ||
             createMutation.isPending
           }
-          className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          style={{ background: brand.ink }}
+          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-gold px-6 py-3 text-sm font-medium text-brand-ink transition-colors hover:bg-gold-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ink/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {createMutation.isPending ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" />
               Submitting...
             </>
           ) : (
             <>
-              <Send className="h-4 w-4" />
-              Submit Request
+              <Send className="size-4" strokeWidth={1.5} />
+              Submit request
             </>
           )}
         </button>

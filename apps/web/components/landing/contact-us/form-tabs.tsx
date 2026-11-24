@@ -10,12 +10,12 @@ export interface TabItem {
 }
 
 const TABS: TabItem[] = [
-  { id: "consultation", label: "Free Consultation", icon: Phone },
-  { id: "university", label: "Request University", icon: Building2 },
+  { id: "consultation", label: "Consultation", icon: Phone },
+  { id: "university", label: "University request", icon: Building2 },
 ];
 
 /**
- * Pill-style tab switcher for toggling between consultation and university request forms.
+ * Two quiet tabs for the consultation and university request forms.
  */
 export function FormTabs({
   activeTab,
@@ -25,7 +25,7 @@ export function FormTabs({
   onTabChange: (tab: TabId) => void;
 }) {
   return (
-    <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
+    <div className="mb-8 flex gap-4 border-b border-brand-hairline">
       {TABS.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
@@ -33,17 +33,16 @@ export function FormTabs({
           <button
             key={tab.id}
             type="button"
+            aria-pressed={isActive}
             onClick={() => onTabChange(tab.id)}
-            className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
+            className={`-mb-px flex flex-1 items-center justify-center gap-2 border-b-2 px-2 pb-3 pt-1 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ink/30 ${
               isActive
-                ? "bg-white text-navy shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "border-brand-ink text-brand-ink"
+                : "border-transparent text-brand-ink-muted hover:text-brand-ink"
             }`}
           >
-            <span className="flex items-center justify-center gap-2">
-              <Icon className="h-4 w-4" />
-              {tab.label}
-            </span>
+            <Icon className="size-4" strokeWidth={1.5} />
+            {tab.label}
           </button>
         );
       })}

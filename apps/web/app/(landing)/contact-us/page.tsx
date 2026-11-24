@@ -19,8 +19,11 @@ export default function ContactUsPage() {
     <>
       <ContactHero />
 
-      <section className="py-16 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
+      <section
+        id="contact-form"
+        className="mx-auto max-w-7xl scroll-mt-32 px-4 py-20 sm:px-6 lg:px-8"
+      >
+        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-5">
           {/* Contact info sidebar */}
           <div className="lg:col-span-2">
             <ContactInfo />
@@ -29,7 +32,7 @@ export default function ContactUsPage() {
           {/* Tabbed forms */}
           <div className="lg:col-span-3">
             <div
-              className="bg-white rounded-2xl border p-6 sm:p-8 shadow-sm"
+              className="rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
               style={{ borderColor: brand.hairline }}
             >
               <Suspense fallback={<ContactPageLoading />}>
