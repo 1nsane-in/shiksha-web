@@ -34,7 +34,13 @@ export class AdminApplicationsController {
   @ApiQuery({ name: 'limit', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, type: String })
   @ApiQuery({ name: 'search', required: false, type: String })
-  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,firstName,lastName,university.name,student.user.name' })
+  @ApiQuery({
+    name: 'fields',
+    required: false,
+    type: String,
+    description:
+      'Comma-separated fields. E.g. id,firstName,lastName,university.name,student.user.name',
+  })
   @ApiResponse({ status: 200, description: 'List of applications' })
   async findAll(
     @Query('page') page?: string,
@@ -55,7 +61,13 @@ export class AdminApplicationsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get application by ID (Admin)' })
   @ApiParam({ name: 'id', description: 'Application ID' })
-  @ApiQuery({ name: 'fields', required: false, type: String, description: 'Comma-separated fields. E.g. id,status,university.name,student.user.name' })
+  @ApiQuery({
+    name: 'fields',
+    required: false,
+    type: String,
+    description:
+      'Comma-separated fields. E.g. id,status,university.name,student.user.name',
+  })
   @ApiResponse({ status: 200, description: 'Application details' })
   @ApiResponse({ status: 404, description: 'Application not found' })
   async findOne(@Param('id') id: string, @Query('fields') fields?: string) {

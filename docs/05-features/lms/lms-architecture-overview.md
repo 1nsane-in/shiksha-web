@@ -1,5 +1,7 @@
 # LMS Platform Architecture Overview
 
+> **Superseded for implementation by [LMS_MASTER_SPEC.md](./LMS_MASTER_SPEC.md).** Keep this file as early research only.
+
 ## Core Modules
 
 ### 1. Courses Module

@@ -67,7 +67,11 @@ export class GalleryController {
     if (!file) {
       throw new BadRequestException('No file provided');
     }
-    return this.galleryService.uploadImage(file, title, duration ? parseInt(duration, 10) : undefined);
+    return this.galleryService.uploadImage(
+      file,
+      title,
+      duration ? parseInt(duration, 10) : undefined,
+    );
   }
 
   @Delete(':id')

@@ -1,5 +1,7 @@
 # LMS Integration — Open Questions
 
+> **Superseded for implementation by [LMS_MASTER_SPEC.md](./LMS_MASTER_SPEC.md).** The open questions below are answered there.
+
 Created: 2026-05-25  
 Reference video: [Build A Course Platform LMS With Next.js 15, React 19, Stripe, Drizzle, Shadcn, Postgres](https://www.youtube.com/watch?v=xqoYkX4hfwg) (Web Dev Simplified)
 

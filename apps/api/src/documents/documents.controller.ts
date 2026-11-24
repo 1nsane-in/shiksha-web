@@ -98,7 +98,9 @@ export class AdminDocumentsController {
   }
 
   @Put('types/:id')
-  @UseInterceptors(Auditable({ entityType: 'document_type', entityIdParam: 'id' }))
+  @UseInterceptors(
+    Auditable({ entityType: 'document_type', entityIdParam: 'id' }),
+  )
   async updateDocumentType(
     @Param('id') id: string,
     @Body() dto: UpdateDocumentTypeDto,
@@ -107,7 +109,9 @@ export class AdminDocumentsController {
   }
 
   @Delete('types/:id')
-  @UseInterceptors(Auditable({ entityType: 'document_type', entityIdParam: 'id' }))
+  @UseInterceptors(
+    Auditable({ entityType: 'document_type', entityIdParam: 'id' }),
+  )
   async deleteDocumentType(@Param('id') id: string) {
     return this.documentsService.deleteDocumentType(id);
   }
