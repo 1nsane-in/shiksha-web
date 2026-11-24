@@ -39,7 +39,9 @@ function RotatingText({
       <AnimatePresence mode="wait">
         <motion.div
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y }}
+          // visibility:hidden while exiting — invisible text must not be
+          // exposed to the accessibility tree (axe color-contrast).
+          exit={{ opacity: 0, y, visibility: "hidden" }}
           initial={{ opacity: 0, y: -y }}
           key={currentText}
           transition={transition}

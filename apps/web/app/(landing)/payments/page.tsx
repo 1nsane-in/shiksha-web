@@ -126,7 +126,7 @@ export default function PaymentsPage() {
             </Link>
           </div>
 
-          <div className="mx-auto mt-9 flex max-w-3xl flex-wrap justify-center gap-x-6 gap-y-3 text-xs text-gray-400">
+          <div className="mx-auto mt-9 flex max-w-3xl flex-wrap justify-center gap-x-6 gap-y-3 text-xs text-gray-600">
             <span className="inline-flex items-center gap-1.5">
               <LockKeyhole className="size-3.5" />
               Encrypted payment gateway
@@ -147,7 +147,7 @@ export default function PaymentsPage() {
         <div className="mx-auto max-w-2xl text-center">
           <p
             className="text-xs font-semibold uppercase tracking-[0.14em]"
-            style={{ color: brand.gold }}
+            style={{ color: brand.goldText }}
           >
             How it works
           </p>
@@ -314,7 +314,7 @@ export default function PaymentsPage() {
                 <Link
                   href="/contact-us"
                   className="inline-flex items-center gap-1.5 pt-2 text-sm font-semibold"
-                  style={{ color: brand.gold }}
+                  style={{ color: brand.goldText }}
                 >
                   Contact support
                   <ArrowRight className="size-3.5" />

@@ -48,7 +48,7 @@ export function UniversityCard({
               {/* fallback stays visible if the banner asset fails */}
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
                 <Building2 className="size-10 text-slate-300" />
-                <span className="text-xs font-semibold text-slate-400">
+                <span className="text-xs font-semibold text-slate-600">
                   {university.shortName || "MBBS"}
                 </span>
               </div>
@@ -76,11 +76,11 @@ export function UniversityCard({
           <div className="flex min-w-0 flex-1 flex-col p-5 justify-between">
             <div className="space-y-3">
               <div className="min-w-0">
-                <h3 className="text-base font-bold text-navy leading-snug truncate">
+                <h2 className="text-base font-bold text-navy leading-snug truncate">
                   {university.name}
-                </h3>
+                </h2>
                 {university.shortName && (
-                  <span className="text-[10px] font-extrabold tracking-wider text-slate-400 uppercase">
+                  <span className="text-[10px] font-extrabold tracking-wider text-slate-600 uppercase">
                     {university.shortName}
                   </span>
                 )}
@@ -94,16 +94,16 @@ export function UniversityCard({
 
               {/* Tags */}
               <div className="flex flex-wrap gap-1.5 pt-1">
-                <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-500">
+                <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-600">
                   <Calendar className="size-3" />
                   {formatEstablished(university.establishedYear)}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-500">
+                <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-600">
                   <GraduationCap className="size-3" />
                   {university.academic?.medium || "English"}
                 </span>
                 {university.location?.city && (
-                  <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-500 block truncate max-w-[140px]">
+                  <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-600 truncate max-w-[140px]">
                     <MapPin className="size-3" />
                     {university.location.city}
                   </span>
@@ -111,7 +111,7 @@ export function UniversityCard({
               </div>
 
               {/* Approvals */}
-              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] font-bold text-emerald-600">
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] font-bold text-emerald-700">
                 <span className="flex items-center gap-1">
                   <CheckCircle className="size-3" /> NMC
                 </span>
@@ -129,7 +129,7 @@ export function UniversityCard({
                 onClick={() =>
                   onApply(`${university.slug}?apply=true`)
                 }
-                className="flex-1 py-2 px-3 text-center text-xs font-bold text-white rounded-lg transition-all duration-150 active:scale-[0.98] bg-gold"
+                className="flex-1 py-2 px-3 text-center text-xs font-bold text-navy rounded-lg transition-all duration-150 active:scale-[0.98] bg-gold"
               >
                 Apply Now
               </button>

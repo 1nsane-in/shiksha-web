@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { brand } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Medical Academy | Shiksha International",
@@ -11,12 +12,18 @@ const atlasSrc =
 
 export default function MedicalAcademyPage() {
   return (
-    <iframe
-      src={atlasSrc}
-      title="Medical Academy 3D Human Anatomy Atlas"
-      className="block h-dvh w-full border-0"
-      loading="eager"
-      allow="fullscreen"
-    />
+    // ponytail: static backdrop so page paints before the cross-origin iframe
+    <div className="relative h-dvh w-full" style={{ background: brand.navy }}>
+      <p className="absolute inset-0 flex items-center justify-center text-sm text-white/70">
+        Loading 3D anatomy atlas…
+      </p>
+      <iframe
+        src={atlasSrc}
+        title="Medical Academy 3D Human Anatomy Atlas"
+        className="relative block h-dvh w-full border-0"
+        loading="eager"
+        allow="fullscreen"
+      />
+    </div>
   );
 }

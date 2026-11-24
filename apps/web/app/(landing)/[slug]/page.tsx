@@ -64,7 +64,7 @@ const md: Components = {
     <a
       href={href}
       className="underline underline-offset-2 transition-colors hover:no-underline"
-      style={{ color: brand.gold }}
+      style={{ color: brand.goldText }}
     >
       {children}
     </a>

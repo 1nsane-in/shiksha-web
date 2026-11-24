@@ -58,7 +58,7 @@ export function TopBar() {
                 href={item.href}
                 target={item.external ? "_blank" : undefined}
                 rel={item.external ? "noopener noreferrer" : undefined}
-                className="flex items-center gap-1.5 hover:text-brand-gold transition-colors duration-200"
+                className="flex items-center gap-1.5 text-white hover:text-brand-gold transition-colors duration-200 py-1.5"
               >
                 {item.icon}
                 <span className="whitespace-nowrap">{item.label}</span>
@@ -72,7 +72,7 @@ export function TopBar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="hover:text-brand-gold transition-colors duration-200 whitespace-nowrap"
+                className="inline-flex items-center py-2 text-white hover:text-brand-gold transition-colors duration-200 whitespace-nowrap"
               >
                 {link.label}
               </Link>

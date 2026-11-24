@@ -79,7 +79,7 @@ export function GalleryLightbox({
             <h4 className="text-lg font-semibold">
               {images[activeIndex].title || (images[activeIndex].type === "VIDEO" ? "Campus Video" : "Campus Image")}
             </h4>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               {images[activeIndex].type === "VIDEO" ? "Video" : "Image"} {activeIndex + 1} of {images.length}
             </p>
           </div>

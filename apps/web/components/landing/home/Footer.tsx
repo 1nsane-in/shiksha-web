@@ -90,9 +90,9 @@ export function Footer() {
 
           {/* Quick Links Column */}
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider" style={{ color: brand.ink }}>
+            <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: brand.ink }}>
               Quick Navigation
-            </h4>
+            </h2>
             <ul className="space-y-2.5">
               {footerQuickLinks.map((link) => (
                 <li key={link.name}>
@@ -110,9 +110,9 @@ export function Footer() {
 
           {/* Contact Details Column */}
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider" style={{ color: brand.ink }}>
+            <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: brand.ink }}>
               Contact Center
-            </h4>
+            </h2>
             <ul className="space-y-3">
               <ContactRow icon={Phone} label="Russia Helpline" value="+7 918 482-65-01" />
               <ContactRow icon={Phone} label="India Helpline" value="+91 88264 27297" />
@@ -123,9 +123,9 @@ export function Footer() {
 
           {/* Quick Consultation Column */}
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider" style={{ color: brand.ink }}>
+            <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: brand.ink }}>
               Quick Consultation
-            </h4>
+            </h2>
             <p className="text-xs leading-relaxed" style={{ color: brand.inkMuted }}>
               Request a free callback from our certified admissions panel.
             </p>

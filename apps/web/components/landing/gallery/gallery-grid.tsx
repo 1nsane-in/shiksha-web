@@ -26,7 +26,7 @@ export function GalleryGrid({
   return (
     <section className="py-16 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       {error ? (
-        <div className="text-center py-20 text-red-500 text-sm">
+        <div className="text-center py-20 text-red-600 text-sm">
           Failed to load gallery. Please try again.
         </div>
       ) : isLoading ? (
@@ -42,7 +42,7 @@ export function GalleryGrid({
       ) : images.length === 0 ? (
         /* ── Empty state ── */
         <div className="text-center py-20">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400 mb-4">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-500 mb-4">
             <Maximize2 className="h-6 w-6" />
           </div>
           <h3 className="text-lg font-medium" style={{ color: brand.ink }}>

@@ -84,12 +84,8 @@ export function AcademyExplorer() {
         style={{ background: brand.navy }}
       >
         <BannerImage alt="Anatomical illustration of the human body over a world map" />
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative mx-auto max-w-6xl"
-        >
+        {/* ponytail: CSS entrance instead of motion — LCP content must paint at FCP */}
+        <div className="animate-menu-in relative mx-auto max-w-6xl">
           <span
             className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em]"
             style={{ background: brand.goldLight, color: brand.gold }}
@@ -135,7 +131,7 @@ export function AcademyExplorer() {
           >
             3 stages · 19 subjects · {totalAcademyTopics} topics
           </p>
-        </motion.div>
+        </div>
       </section>
 
       <div id="subjects" className="scroll-mt-28" style={{ background: paper }}>
