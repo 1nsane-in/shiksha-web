@@ -1,45 +1,43 @@
 import React from "react";
-import { brand, admissionYear } from "@/lib/brand";
+import Link from "next/link";
+import { ArrowRight, Phone } from "lucide-react";
+import { admissionYear } from "@/lib/brand";
 
 /**
- * Closing call-to-action banner with phone and email links.
+ * Closing CTA: one primary action, one phone line, no glow.
  */
 export function CtaSection() {
   return (
-    <section
-      className="py-24"
-      style={{
-        background: `radial-gradient(100% 160% at 50% 0%, ${brand.goldGlow}, transparent 60%), ${brand.navy}`,
-      }}
-    >
-      <div className="mx-auto max-w-5xl px-6 sm:px-8 lg:px-12">
-        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center sm:p-12">
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Begin Your Journey Toward Medical Excellence
-          </h2>
-          <p className="mt-4 max-w-lg mx-auto text-xs sm:text-sm opacity-80 text-white">
-            Contact our consultants today to check your program eligibility and
-            begin your international university application. Admissions open for
-            {admissionYear()} — apply early for priority processing.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
+    <section className="bg-navy py-24">
+      <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <p className="text-xs font-medium text-white/70">
+              Admissions {admissionYear()}
+            </p>
+            <h2 className="mt-3 text-3xl font-medium leading-[1.1] tracking-[-0.01em] text-white sm:text-4xl">
+              Start the file
+            </h2>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/75 sm:text-base">
+              Tell us your NEET score, budget and preferred country. We will
+              send a shortlist and the document checklist.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 lg:col-span-5 lg:items-end">
+            <Link
+              href="/contact-us"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-gold px-5 text-sm font-medium text-brand-ink transition-colors hover:bg-gold-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-navy"
+            >
+              Talk to an admissions counsellor
+              <ArrowRight className="size-4" strokeWidth={1.5} />
+            </Link>
             <a
               href="tel:+79184826501"
-              className="inline-flex items-center justify-center min-h-11 px-6 py-3 text-xs font-semibold text-navy bg-white rounded-lg transition-all hover:bg-white/95"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/20 px-5 text-sm font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-navy"
             >
+              <Phone className="size-4" strokeWidth={1.5} />
               Call +7 918 482-65-01
-            </a>
-            <a
-              href="tel:+918826427297"
-              className="inline-flex items-center justify-center min-h-11 px-6 py-3 text-xs font-semibold text-navy bg-white rounded-lg transition-all hover:bg-white/95"
-            >
-              Call +91 88264 27297
-            </a>
-            <a
-              href="mailto:admin@shiksha.study"
-              className="inline-flex items-center justify-center min-h-11 px-6 py-3 text-xs font-semibold text-white border border-white/20 rounded-lg transition-all hover:bg-white/10"
-            >
-              Email Us
             </a>
           </div>
         </div>

@@ -1,64 +1,53 @@
 import React from "react";
-import { brand } from "@/lib/brand";
-import { foundationStats } from "@/lib/brand-data";
-import { StatBadge } from "@/components/landing/about-us/stat-badge";
+import { SectionHeader } from "@/components/landing/about-us/section-header";
+
+const FACTS = [
+  {
+    label: "When",
+    value: "After each academic year",
+  },
+  {
+    label: "Who",
+    value: "High performers in the internal exam",
+  },
+  {
+    label: "What",
+    value: "Tuition support for the next year",
+  },
+];
 
 /**
- * Charity foundation section. Dark background with stats.
+ * Scholarship note: a quiet, specific read of how the reward works.
  */
 export function FoundationSection() {
   return (
-    <section className="py-24 text-white" style={{ background: brand.ink }}>
-      <div className="mx-auto max-w-5xl px-6 text-center sm:px-8 lg:px-12">
-        <div
-          className="mx-auto mb-6 flex size-12 items-center justify-center rounded-full"
-          style={{ background: brand.goldLight }}
-        >
-          <HeartIcon />
-        </div>
+    <section className="bg-brand-ink py-24 text-white">
+      <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-20">
+          <div className="lg:col-span-7">
+            <SectionHeader
+              eyebrow="Scholarship program 2026"
+              title="Academic excellence is rewarded"
+              description="Internal scholarship examinations run after each academic year. High performers receive tuition support for the next year."
+              dark
+            />
+          </div>
 
-        <span
-          className="text-[11px] font-bold uppercase tracking-[0.2em]"
-          style={{ color: brand.gold }}
-        >
-          Shiksha Entrance Scholarship Program 2026
-        </span>
-
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-3 text-white">
-          Academic Excellence Reward Program
-        </h2>
-
-        <p className="mx-auto mt-6 max-w-2xl text-xs sm:text-sm leading-relaxed opacity-80">
-          We reward students for dedication, discipline, and academic
-          excellence. Internal scholarship examinations are held after every
-          academic year. High performers receive up to 70% tuition fee
-          scholarships to encourage better performance and long-term success in
-          medical education.
-        </p>
-
-        <div className="mx-auto mt-12 grid max-w-lg grid-cols-3 gap-2 border-t border-white/10 pt-8 sm:gap-4">
-          {foundationStats.map((stat) => (
-            <StatBadge key={stat.label} {...stat} />
-          ))}
+          <div className="lg:col-span-5">
+            <dl className="border-t border-white/15">
+              {FACTS.map((fact) => (
+                <div
+                  key={fact.label}
+                  className="grid grid-cols-[80px_1fr] gap-4 border-b border-white/15 py-4"
+                >
+                  <dt className="text-xs text-white/60">{fact.label}</dt>
+                  <dd className="text-sm text-white">{fact.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </div>
       </div>
     </section>
-  );
-}
-
-function HeartIcon() {
-  return (
-    <svg
-      className="size-6"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ color: brand.gold }}
-    >
-      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-    </svg>
   );
 }

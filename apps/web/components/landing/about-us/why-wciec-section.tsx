@@ -1,30 +1,24 @@
 import React from "react";
-import { brand } from "@/lib/brand";
 import { whyShikshaItems } from "@/lib/brand-data";
 import { SectionHeader } from "@/components/landing/about-us/section-header";
 import { WhyWciecCard } from "@/components/landing/about-us/why-wciec-card";
 
 /**
- * "Why Shiksha" — Feature grid displaying official collaborations,
- * visa support, coaching, and on-ground assistance.
+ * The work Shiksha handles between shortlist and arrival.
  */
 export function WhyWciecSection() {
   return (
-    <section
-      className="py-24 border-b border-white/10"
-      style={{ background: brand.navy }}
-    >
+    <section className="border-b border-brand-hairline bg-white py-24">
       <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
         <SectionHeader
-          eyebrow="Why Shiksha"
-          title="Complete Admission & Student Support"
-          description="From application to graduation — we provide official university partnerships, transparent admissions, visa assistance, and on-ground support in every country."
-          dark
+          eyebrow="What we handle"
+          title="One team, one file, from shortlist to arrival"
+          description="The work that sits between the shortlist and the first day of class"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {whyShikshaItems.map((item) => (
-            <WhyWciecCard key={item.title} {...item} />
+        <div className="grid grid-cols-1 gap-x-12 md:grid-cols-2">
+          {whyShikshaItems.map((item, index) => (
+            <WhyWciecCard key={item.title} {...item} index={index} />
           ))}
         </div>
       </div>

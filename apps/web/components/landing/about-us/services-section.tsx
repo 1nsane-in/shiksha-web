@@ -1,84 +1,47 @@
 import React from "react";
-import { brand } from "@/lib/brand";
+import { Check } from "lucide-react";
 import { e2eServices } from "@/lib/brand-data";
-import { ShieldCheck } from "lucide-react";
+import { SectionHeader } from "@/components/landing/about-us/section-header";
 
 /**
- * End-to-end services section with a split layout.
- * Left: service guarantees list. Right: FMGE prep coaching card.
+ * What sits inside the file: documents, visa, arrival and exam support.
  */
 export function ServicesSection() {
   return (
-    <section
-      className="py-24 bg-white border-b"
-      style={{ borderColor: brand.hairline }}
-    >
+    <section className="border-b border-brand-hairline bg-white py-24">
       <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left: service guarantees */}
-          <div className="space-y-6">
-            <span
-              className="text-[11px] font-bold uppercase tracking-[0.2em]"
-              style={{ color: brand.gold }}
-            >
-              End-to-End Guarantees
-            </span>
-            <h2
-              className="text-3xl font-extrabold tracking-tight"
-              style={{ color: brand.ink }}
-            >
-              Zero Bureaucracy, Pure Guidance
-            </h2>
-            <p
-              className="text-xs sm:text-sm leading-relaxed"
-              style={{ color: brand.inkMuted }}
-            >
-              We coordinate with embassies, prepare legal translations, and
-              manage secure document handling so your files are completely
-              protected and immediately processed — with zero company charges
-              for Panchayat &amp; Army families under our OTC initiative.
-            </p>
-            <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-20">
+          <div className="lg:col-span-7">
+            <SectionHeader
+              eyebrow="What we coordinate"
+              title="The paperwork, handled"
+              description="Documents, translations, university letters and the visa file sit with one team"
+            />
+
+            <ul className="border-t border-brand-hairline">
               {e2eServices.map((service) => (
-                <div
+                <li
                   key={service}
-                  className="flex gap-2 text-xs font-semibold text-gray-700"
+                  className="flex items-start gap-3 border-b border-brand-hairline py-4 text-sm"
                 >
-                  <ShieldCheck className="size-4 text-emerald-600 shrink-0" />
-                  <span>{service}</span>
-                </div>
+                  <Check
+                    className="mt-0.5 size-4 shrink-0 text-brand-ink-muted"
+                    strokeWidth={1.5}
+                  />
+                  <span className="text-brand-ink">{service}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
-          {/* Right: FMGE coaching card */}
-          <div
-            className="bg-white border rounded-2xl p-8 space-y-6"
-            style={{ borderColor: brand.hairline }}
-          >
-            <h3 className="font-bold text-sm text-navy uppercase tracking-wider">
-              Free FMGE / NEXT Coaching
-            </h3>
-            <p
-              className="text-xs sm:text-sm leading-relaxed"
-              style={{ color: brand.inkMuted }}
-            >
-              Every student gains access to subject-wise coaching, annual
-              revision programs, mock tests, clinical case discussions, and
-              dedicated NEXT preparation support — all included at no extra
-              cost.
-            </p>
-            <div
-              className="rounded-lg bg-white p-4 border"
-              style={{ borderColor: brand.hairline }}
-            >
-              <p className="text-xs italic text-gray-500">
-                &quot;Shiksha provided incredible guidance during my visa phase,
-                and the hostel staff ensured I had home-style Indian food from
-                day one.&quot;
-              </p>
-              <p className="text-[10px] font-bold mt-2 text-navy">
-                - Medical Student, Jalal-Abad State University
+          <div className="lg:col-span-5">
+            <div className="rounded-xl border border-brand-hairline bg-ice-grey p-6">
+              <h3 className="text-base font-medium text-brand-ink">
+                FMGE / NEXT
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-brand-ink">
+                Coaching, revision and mock tests are part of the student file.
+                The academic team shares the current schedule before arrival.
               </p>
             </div>
           </div>

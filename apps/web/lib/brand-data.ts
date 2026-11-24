@@ -34,33 +34,33 @@ export interface WhyShikshaItem {
 export const whyShikshaItems: WhyShikshaItem[] = [
   {
     icon: "Building2",
-    title: "Official University Collaborations",
-    desc: "Direct partnerships with government-approved medical universities across Kyrgyzstan, Uzbekistan, Kazakhstan & Russia.",
+    title: "University partnerships",
+    desc: "Direct work with government medical universities in Kyrgyzstan, Uzbekistan, Kazakhstan and Russia.",
   },
   {
     icon: "ScrollText",
-    title: "Transparent & Legal Admission Process",
-    desc: "Full fee disclosure before admission. No hidden charges, no donation or capitation fees — only official university fees.",
+    title: "Transparent admission process",
+    desc: "The fee breakdown is shared before admission, including tuition and hostel costs.",
   },
   {
     icon: "Plane",
-    title: "Visa & Travel Assistance",
-    desc: "Direct flight arrangements, secure visa application processing, and on-ground reception at partner universities.",
+    title: "Visa and travel support",
+    desc: "Visa application, travel planning and arrival support at the university.",
   },
   {
     icon: "Globe",
-    title: "On-Ground International Support",
-    desc: "Local representatives and university support teams provide continuous assistance with housing, meals, and safety.",
+    title: "On-ground support",
+    desc: "Local representatives and university teams help with housing, meals and safety.",
   },
   {
     icon: "Users",
-    title: "Parent-Oriented Guidance",
-    desc: "Regular updates and transparent communication with families. Secure hostels with CCTV and Indian mess facilities.",
+    title: "Parent updates",
+    desc: "Regular updates for families, with hostel and Indian mess details before arrival.",
   },
   {
     icon: "BookOpen",
-    title: "FMGE/NEXT Academic Support",
-    desc: "Free FMGE/NEXT coaching, subject-wise classes, annual revision programs, mock tests, and clinical case discussions.",
+    title: "FMGE/NEXT academic support",
+    desc: "Coaching, revision classes, mock tests and clinical case discussions.",
   },
 ];
 
@@ -83,8 +83,6 @@ export interface PartnerUniversity {
   /** Logo image filename in /img/universities/ */
   logo?: string;
 }
-
-const LOGO_DIR = "/img/universities";
 
 export const partnerUniversities: PartnerUniversity[] = [
   // ─── Russia (8) ───
@@ -252,10 +250,10 @@ export const partnerUniversities: PartnerUniversity[] = [
 
 export const e2eServices: string[] = [
   "Verified document translation and notarization",
-  "Direct liaison with medical state boards",
-  "Guaranteed visa approval support",
-  "Secure on-campus student counselors",
-  "Free FMGE/NEXT coaching included",
+  "University application and state-board liaison",
+  "Visa application and travel support",
+  "On-campus student support",
+  "FMGE/NEXT coaching and mock tests",
 ];
 
 /* ─── Contact Info ─── */
@@ -312,25 +310,6 @@ export const footerQuickLinks: NavLink[] = [
   { name: "Contact & Consultation", href: "/contact-us" },
 ];
 
-/* ─── Foundation Stats ─── */
-
-export interface Stat {
-  value: string;
-  label: string;
-}
-
-export const foundationStats: Stat[] = [
-  { value: "70%", label: "Scholarship Available" },
-  { value: "4+", label: "Countries" },
-  { value: "14+", label: "Partner Universities" },
-];
-
-/* ─── Impact Stats ─── */
-
-export const impactStats: Stat[] = [
-  { value: "12,000+", label: "Successful Admissions" },
-];
-
 /* ─── Why Study MBBS Abroad Benefits ─── */
 
 export interface MBBSBenefit {
@@ -342,23 +321,25 @@ export interface MBBSBenefit {
 export const mbbsBenefits: MBBSBenefit[] = [
   {
     icon: "Wallet",
-    title: "Affordable Tuition Fees",
-    description: "Cheaper than many private medical colleges in India.",
+    title: "Affordable tuition",
+    description: "Tuition varies by university and is shared before you apply.",
   },
   {
     icon: "Ban",
-    title: "No Donation or Capitation Fees",
-    description: "Students only pay official university fees. No hidden charges.",
+    title: "Fee breakdown before admission",
+    description:
+      "The file uses the official university fee, with the breakdown shared before you pay.",
   },
   {
     icon: "Languages",
-    title: "English-Medium Programs",
-    description: "Courses taught fully in English for international students.",
+    title: "English-medium programs",
+    description: "Courses taught in English for international students.",
   },
   {
     icon: "Globe",
-    title: "Globally Recognized Degrees",
-    description: "Eligible for FMGE, NEXT, USMLE, PLAB exams worldwide.",
+    title: "Licensing-exam pathway",
+    description:
+      "Recognition and exam eligibility depend on the university and current rules; we share the record before you apply.",
   },
   {
     icon: "Microscope",
@@ -382,46 +363,6 @@ export const mbbsBenefits: MBBSBenefit[] = [
   },
 ];
 
-import {
-  Heart,
-  Plane,
-  Home,
-  ShieldCheck,
-  BookOpen,
-  GraduationCap,
-  Building2,
-  ScrollText,
-  Globe,
-  Users,
-  Wallet,
-  Ban,
-  Languages,
-  Microscope,
-  Stethoscope,
-  Rocket,
-  Award,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-
-export const iconMap: Record<string, LucideIcon> = {
-  Heart,
-  Plane,
-  Home,
-  ShieldCheck,
-  BookOpen,
-  GraduationCap,
-  Building2,
-  ScrollText,
-  Globe,
-  Users,
-  Wallet,
-  Ban,
-  Languages,
-  Microscope,
-  Stethoscope,
-  Rocket,
-  Award,
-} as const;
 
 /* ─── Parents FAQ Data ─── */
 
@@ -433,7 +374,8 @@ export interface FAQItem {
 export const parentsFAQ: FAQItem[] = [
   {
     question: "Is the degree valid in India?",
-    answer: "Yes, students must qualify FMGE/NEXT according to NMC guidelines to practice in India. Our partner universities are NMC approved and WHO recognized.",
+    answer:
+      "Students qualify through FMGE/NEXT under current NMC rules. We share each university's current approval record before you apply.",
   },
   {
     question: "Is it safe for Indian students?",
@@ -451,7 +393,8 @@ export const parentsFAQ: FAQItem[] = [
   },
   {
     question: "Are there hidden charges?",
-    answer: "No. Fees are communicated transparently before admission. We provide complete fee breakdown including tuition, hostel, and living expenses. No donation or capitation fees.",
+    answer:
+      "The full fee breakdown is shared before admission, including tuition, hostel and living costs. Ask for the written breakdown before you pay.",
   },
   {
     question: "Who supports students abroad?",
@@ -477,28 +420,28 @@ export interface AdmissionBenefit {
 export const admissions2026Benefits: AdmissionBenefit[] = [
   {
     icon: "Users",
-    title: "Limited Seats Available",
-    description: "Apply early to secure your seat at top medical universities.",
+    title: "Intake planning",
+    description: "Open the file early so the university and hostel can be planned.",
   },
   {
     icon: "Rocket",
-    title: "Early Application Advantage",
-    description: "Better admission chances with priority processing.",
+    title: "Earlier review",
+    description: "Files opened early move through document checks sooner.",
   },
   {
     icon: "Plane",
-    title: "Priority Visa Processing",
-    description: "Faster visa support for early applicants.",
+    title: "Visa head start",
+    description: "Start the visa file while the university letter is in progress.",
   },
   {
     icon: "Building2",
-    title: "Direct University Admission",
-    description: "No unnecessary intermediaries — direct university partnerships.",
+    title: "University letter",
+    description: "Work directly with the university admissions office.",
   },
   {
     icon: "Award",
-    title: "Scholarship Eligibility",
-    description: "Opportunity for scholarships based on performance.",
+    title: "Scholarship review",
+    description: "Merit scholarships are reviewed with the application.",
   },
 ];
 
@@ -544,8 +487,8 @@ export const countryComparison: CountryComparison[] = [
 ];
 
 export const commonBenefits = [
-  "No Donation Required",
-  "Hostel Available",
-  "Indian Mess Facility",
-  "Transparent Fee Structure",
+  "Fee breakdown before admission",
+  "Hostel available",
+  "Indian mess facility",
+  "English-medium programs",
 ];

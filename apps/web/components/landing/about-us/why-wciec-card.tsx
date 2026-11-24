@@ -1,29 +1,21 @@
-import { brand } from "@/lib/brand";
-import { GraduationCap } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { iconMap, type WhyShikshaItem } from "@/lib/brand-data";
+import type { WhyShikshaItem } from "@/lib/brand-data";
 
 /**
- * A single feature card for the "Why Shiksha" section.
- * Renders an icon, title, and description.
+ * One row in the support list. Quiet type, no icon tile.
  */
-export function WhyWciecCard({ icon, title, desc }: WhyShikshaItem) {
-  const Icon: LucideIcon = iconMap[icon] ?? GraduationCap;
-
+export function WhyWciecCard({
+  index,
+  title,
+  desc,
+}: WhyShikshaItem & { index: number }) {
   return (
-    <div className="flex gap-5 p-6 rounded-xl border border-white/10 bg-white/[0.03] transition-all duration-200 hover:border-brand-gold/40 hover:bg-white/[0.07]">
-      <div
-        className="flex size-10 shrink-0 items-center justify-center rounded-lg"
-        style={{ background: brand.goldLight, color: brand.gold }}
-      >
-        <Icon className="size-5" />
-      </div>
+    <div className="grid grid-cols-[32px_1fr] gap-4 border-t border-brand-hairline py-5">
+      <span className="text-xs font-medium tabular-nums text-brand-ink-muted">
+        {String(index + 1).padStart(2, "0")}
+      </span>
       <div>
-        <h3 className="font-bold text-base text-white">{title}</h3>
-        <p
-          className="mt-2 text-xs sm:text-sm leading-relaxed"
-          style={{ color: "rgba(255,255,255,0.62)" }}
-        >
+        <h3 className="text-base font-medium text-brand-ink">{title}</h3>
+        <p className="mt-1 text-sm leading-relaxed text-brand-ink-muted">
           {desc}
         </p>
       </div>

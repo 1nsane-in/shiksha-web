@@ -1,74 +1,30 @@
 import React from "react";
 import Image from "next/image";
-import { brand } from "@/lib/brand";
-import { Quote } from "lucide-react";
 
 /**
- * Director's Message section featuring Kamal Singh Pilania
- * with mission statement and goals.
+ * Opening spread: the director's letter, set like the first page of a
+ * prospectus. The portrait stays real and the type stays quiet.
  */
 export function DirectorSection() {
   return (
-    <section
-      className="border-b pb-24 pt-40"
-      style={{ borderColor: brand.hairline, background: brand.canvas }}
-    >
+    <section className="border-b border-brand-hairline bg-white pb-20 pt-32">
       <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Director Image & Info */}
-          <div className="lg:col-span-4 text-center">
-            <div
-              className="relative mx-auto size-48 sm:size-56 rounded-2xl overflow-hidden border-4"
-              style={{ borderColor: brand.gold }}
-            >
-              <Image
-                src="https://cdn.shiksha.study/landing/director02.jpeg"
-                alt="Kamal Singh Pilania - Director"
-                fill
-                unoptimized
-                sizes="240px"
-                className="object-cover"
-              />
-            </div>
-            <div className="mt-6">
-              <h3 className="text-xl font-bold" style={{ color: brand.ink }}>
-                Kamal Singh Pilania
-              </h3>
-              <p className="text-sm mt-1" style={{ color: brand.inkMuted }}>
-                Director, Shiksha International
-              </p>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-start">
+          <div className="lg:order-2 lg:col-span-8">
+            <p className="text-xs font-medium text-brand-ink-muted">
+              A letter from our director
+            </p>
+            <h1 className="mt-4 max-w-3xl text-[clamp(2.5rem,4.5vw,3.75rem)] font-medium leading-[1.06] tracking-[-0.025em] text-brand-ink">
+              We help Indian students become doctors abroad
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-brand-ink-muted sm:text-lg">
+              Shiksha International works on MBBS admissions in Kyrgyzstan,
+              Uzbekistan, Kazakhstan and Russia. One team handles the file from
+              shortlist to visa.
+            </p>
 
-          {/* Message Content */}
-          <div className="lg:col-span-8">
-            <div className="space-y-2 mb-6">
-              <span
-                className="text-[11px] font-bold uppercase tracking-[0.2em]"
-                style={{ color: brand.gold }}
-              >
-                Director&apos;s Message
-              </span>
-              <h1
-                className="text-3xl sm:text-4xl font-extrabold tracking-tight"
-                style={{ color: brand.ink }}
-              >
-                Guiding Dreams, Building Future Doctors
-              </h1>
-            </div>
-
-            <div
-              className="relative pl-6 border-l-2"
-              style={{ borderColor: brand.gold }}
-            >
-              <Quote
-                className="absolute -left-3 -top-2 size-6"
-                style={{ color: brand.gold, background: brand.canvas }}
-              />
-              <p
-                className="text-base sm:text-lg leading-relaxed italic"
-                style={{ color: brand.inkMuted }}
-              >
+            <blockquote className="mt-10 border-l border-brand-gold pl-6">
+              <p className="max-w-2xl text-base leading-relaxed text-brand-ink sm:text-lg">
                 &quot;At Shiksha International, we aim to guide students with
                 honesty and transparency, help them secure quality medical
                 education abroad, and work with globally recognized
@@ -77,30 +33,27 @@ export function DirectorSection() {
                 opportunity to build their future and become a global medical
                 leader.&quot;
               </p>
-            </div>
+            </blockquote>
+          </div>
 
-            {/* Mission Points */}
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                "Guide students with honesty and transparency",
-                "Help secure quality medical education abroad",
-                "Work with globally recognized universities",
-                "Provide structured admission processes",
-                "Offer strong international support",
-                "Build future doctors and global medical leaders",
-              ].map((point, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 text-sm"
-                  style={{ color: brand.inkMuted }}
-                >
-                  <span
-                    className="size-2 rounded-full shrink-0"
-                    style={{ background: brand.gold }}
-                  />
-                  {point}
-                </div>
-              ))}
+          <div className="lg:order-1 lg:col-span-4">
+            <div className="relative mx-auto aspect-square w-full max-w-[240px] overflow-hidden rounded-xl border border-brand-hairline lg:mx-0">
+              <Image
+                src="https://cdn.shiksha.study/landing/director02.jpeg"
+                alt="Kamal Singh Pilania, Director"
+                fill
+                unoptimized
+                sizes="240px"
+                className="object-cover"
+              />
+            </div>
+            <div className="mt-5 text-center lg:text-left">
+              <p className="text-base font-medium text-brand-ink">
+                Kamal Singh Pilania
+              </p>
+              <p className="mt-1 text-sm text-brand-ink-muted">
+                Director, Shiksha International
+              </p>
             </div>
           </div>
         </div>

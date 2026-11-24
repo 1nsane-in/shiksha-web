@@ -17,12 +17,12 @@ import { admissionYear } from "@/lib/brand";
 
 export function generateMetadata(): Metadata {
   return {
-    title: "About Us | Shiksha International — MBBS Abroad Admissions",
+    title: "About Shiksha International | MBBS Abroad Admissions",
     description:
-      "Shiksha International guides ambitious students to prestigious medical universities in Kyrgyzstan, Uzbekistan, Kazakhstan & Russia with transparency, legal compliance, and personalized support.",
+      "Shiksha International helps Indian students apply to medical universities in Kyrgyzstan, Uzbekistan, Kazakhstan and Russia. Read the director's letter, partner register and country comparison.",
     openGraph: {
-      title: "About Shiksha International | Medical Education Consultants",
-      description: `Official university collaborations. Transparent admissions. Free FMGE/NEXT coaching. Admissions open for ${admissionYear()}.`,
+      title: "About Shiksha International",
+      description: `Director's letter, partner university register and country comparison for the ${admissionYear()} intake.`,
     },
   };
 }

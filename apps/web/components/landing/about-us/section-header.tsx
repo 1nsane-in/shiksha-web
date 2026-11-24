@@ -1,5 +1,3 @@
-import { brand } from "@/lib/brand";
-
 interface SectionHeaderProps {
   eyebrow: string;
   title: string;
@@ -8,8 +6,8 @@ interface SectionHeaderProps {
 }
 
 /**
- * Reusable section header used across landing pages.
- * Renders an eyebrow label, a bold title, and optional description.
+ * Quiet section header for the about page.
+ * Sentence-case label, one medium-weight headline, one short description.
  */
 export function SectionHeader({
   eyebrow,
@@ -18,23 +16,26 @@ export function SectionHeader({
   dark,
 }: SectionHeaderProps) {
   return (
-    <div className="max-w-2xl mb-12 sm:mb-16">
-      <span
-        className="text-[11px] font-bold uppercase tracking-[0.2em]"
-        style={{ color: brand.gold }}
+    <div className="mb-10 max-w-2xl sm:mb-12">
+      <p
+        className={`text-xs font-medium ${
+          dark ? "text-white/70" : "text-brand-ink-muted"
+        }`}
       >
         {eyebrow}
-      </span>
+      </p>
       <h2
-        className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2"
-        style={{ color: dark ? "#fff" : brand.ink }}
+        className={`mt-3 text-3xl font-medium leading-[1.12] tracking-[-0.01em] sm:text-4xl ${
+          dark ? "text-white" : "text-brand-ink"
+        }`}
       >
         {title}
       </h2>
       {description && (
         <p
-          className="text-sm sm:text-base mt-2 sm:mt-3"
-          style={{ color: dark ? "rgba(255,255,255,0.62)" : brand.inkMuted }}
+          className={`mt-4 max-w-xl text-sm leading-relaxed sm:text-base ${
+            dark ? "text-white/70" : "text-brand-ink-muted"
+          }`}
         >
           {description}
         </p>

@@ -1,130 +1,76 @@
-"use client";
-
-import React, { useState } from "react";
-import { brand } from "@/lib/brand";
+import React from "react";
+import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { parentsFAQ } from "@/lib/brand-data";
 import { SectionHeader } from "@/components/landing/about-us/section-header";
-import { ChevronDown, HelpCircle } from "lucide-react";
 
-/**
- * Parents FAQ section with accordion-style questions and answers.
- */
-export function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+function Answer({ answer }: { answer: string | string[] }) {
+  if (typeof answer === "string") {
+    return <p>{answer}</p>;
+  }
+
+  const [lead, ...items] = answer;
 
   return (
-    <section
-      className="py-24 border-b"
-      style={{ borderColor: brand.hairline, background: brand.canvas }}
-    >
+    <>
+      <p>{lead}</p>
+      <ul className="mt-3 space-y-2">
+        {items.map((item) => (
+          <li key={item} className="flex items-start gap-2">
+            <span className="mt-2 size-1 shrink-0 rounded-full bg-brand-ink-muted" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+/**
+ * Parents' questions as native details rows. No icon tiles, no custom ARIA.
+ */
+export function FAQSection() {
+  return (
+    <section className="border-b border-brand-hairline bg-white py-24">
       <div className="mx-auto max-w-4xl px-6 sm:px-8 lg:px-12">
         <SectionHeader
-          eyebrow="Parents FAQ"
-          title="Frequently Asked Questions"
-          description="Common questions from parents about safety, degree validity, fees, and student support."
+          eyebrow="Parents' questions"
+          title="Questions families ask before the file opens"
+          description="Safety, degree validity, fees and support, answered plainly"
         />
 
-        <div className="space-y-4">
-          {parentsFAQ.map((faq, i) => (
-            <div
-              key={i}
-              className="rounded-2xl border overflow-hidden transition-all duration-200"
-              style={{
-                background: brand.surface,
-                borderColor: brand.hairline,
-              }}
+        <div className="border-t border-brand-hairline">
+          {parentsFAQ.map((faq) => (
+            <details
+              key={faq.question}
+              className="group border-b border-brand-hairline"
             >
-              <button
-                onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full flex items-center justify-between p-6 text-left"
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className="flex size-10 items-center justify-center rounded-lg shrink-0"
-                    style={{ background: brand.goldLight }}
-                  >
-                    <HelpCircle
-                      className="size-5"
-                      style={{ color: brand.gold }}
-                    />
-                  </div>
-                  <span
-                    className="font-semibold text-base"
-                    style={{ color: brand.ink }}
-                  >
-                    {faq.question}
-                  </span>
-                </div>
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 pr-2 transition-colors hover:bg-ice-grey/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ink/30 focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
+                <span className="text-base font-medium text-brand-ink">
+                  {faq.question}
+                </span>
                 <ChevronDown
-                  className={`size-5 shrink-0 transition-transform duration-200 ${
-                    openIndex === i ? "rotate-180" : ""
-                  }`}
-                  style={{ color: brand.inkMuted }}
+                  className="mt-0.5 size-4 shrink-0 text-brand-ink-muted transition-transform duration-200 group-open:rotate-180"
+                  strokeWidth={1.5}
                 />
-              </button>
-
-              {openIndex === i && (
-                <div
-                  className="px-6 pb-6 pt-0"
-                  style={{ borderTop: "1px solid " + brand.hairline }}
-                >
-                  <div className="pt-4 pl-14">
-                    {Array.isArray(faq.answer) ? (
-                      <ul className="space-y-2">
-                          {/* ponytail: inline style for gold bullets */}
-                          {faq.answer.map((item, j) =>
-                            j === 0 ? (
-                              <p
-                                key={j}
-                                className="text-sm leading-relaxed"
-                                style={{ color: brand.inkMuted }}
-                              >
-                                {item}
-                              </p>
-                            ) : (
-                              <li
-                                key={j}
-                                className="flex items-start gap-2 text-sm"
-                                style={{ color: brand.inkMuted }}
-                              >
-                                <span
-                                  className="mt-1.5 size-1.5 rounded-full shrink-0"
-                                  style={{ background: brand.gold }}
-                                />
-                                {item}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                    ) : (
-                      <p
-                        className="text-sm leading-relaxed"
-                        style={{ color: brand.inkMuted }}
-                      >
-                        {faq.answer}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
+              </summary>
+              <div className="pb-5 pr-10 text-sm leading-relaxed text-brand-ink-muted">
+                <Answer answer={faq.answer} />
+              </div>
+            </details>
           ))}
         </div>
 
-        {/* Contact CTA */}
-        <div className="mt-12 text-center">
-          <p className="text-sm" style={{ color: brand.inkMuted }}>
-            Still have questions?{" "}
-            <a
-              href="/contact-us"
-              className="font-semibold hover:underline"
-              style={{ color: brand.gold }}
-            >
-              Contact our team
-            </a>{" "}
-            for personalized assistance.
-          </p>
-        </div>
+        <p className="mt-10 text-sm text-brand-ink-muted">
+          Still have questions?{" "}
+          <Link
+            href="/contact-us"
+            className="font-medium text-brand-ink underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ink/30 focus-visible:ring-offset-2"
+          >
+            Contact the admissions desk
+          </Link>
+          .
+        </p>
       </div>
     </section>
   );

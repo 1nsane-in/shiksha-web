@@ -1,207 +1,81 @@
 import React from "react";
-import { brand } from "@/lib/brand";
-import { Building2, ShieldCheck, Heart, Users } from "lucide-react";
+import { SectionHeader } from "@/components/landing/about-us/section-header";
+
+const ELIGIBLE = [
+  {
+    title: "Panchayat families",
+    desc: "Families serving in local governance and rural development.",
+  },
+  {
+    title: "Indian Army families",
+    desc: "Families of Indian Army personnel serving the nation.",
+  },
+];
+
+const WAIVED = [
+  {
+    label: "Shiksha service charges",
+    value: "Waived",
+  },
+  {
+    label: "University and living costs",
+    value: "Unchanged",
+  },
+];
 
 /**
- * Zero Company Charges (OTC) Initiative section.
- * Highlights the special program for Panchayat and Army families.
+ * OTC initiative: the eligibility and what is actually waived, stated plainly.
  */
 export function OTCSection() {
   return (
-    <section
-      className="py-24 border-b border-white/10"
-      style={{ background: brand.navy }}
-    >
+    <section className="border-b border-brand-hairline bg-white py-24">
       <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left: Content */}
-          <div className="space-y-6">
-            <span
-              className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[10px] font-bold uppercase tracking-normal sm:text-[11px] sm:tracking-[0.15em]"
-              style={{ background: brand.goldLight, color: brand.gold }}
-            >
-              <ShieldCheck className="size-4" />
-              Zero Company Charges (OTC) Initiative — 2026
-            </span>
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-20">
+          <div className="lg:col-span-7">
+            <SectionHeader
+              eyebrow="OTC initiative"
+              title="Zero company charges for families who serve"
+              description="Shiksha International waives its service charges for eligible Panchayat and Indian Army families. University fees and living costs still apply."
+            />
 
-            <h2
-              className="text-3xl sm:text-4xl font-extrabold tracking-tight"
-              style={{ color: "#fff" }}
-            >
-              Supporting Those Who Serve Society
-            </h2>
-
-            <p
-              className="text-base sm:text-lg leading-relaxed"
-              style={{ color: "rgba(255,255,255,0.62)" }}
-            >
-              In recognition of their service to society and the nation, Shiksha
-              International waives all service charges for eligible families
-              under our OTC (Zero Company Charges) Initiative.
-            </p>
-
-            {/* Eligible Families */}
-            <div className="space-y-4 pt-4">
-              <p
-                className="text-sm font-semibold uppercase tracking-wider"
-                style={{ color: "#fff" }}
-              >
-                Eligible Families
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <dl className="border-t border-brand-hairline">
+              {ELIGIBLE.map((item) => (
                 <div
-                  className="flex items-start gap-4 p-4 rounded-xl border"
-                  style={{
-                    background: brand.surface,
-                    borderColor: brand.hairline,
-                  }}
+                  key={item.title}
+                  className="grid gap-2 border-b border-brand-hairline py-5 sm:grid-cols-[180px_1fr] sm:gap-6"
                 >
-                  <div
-                    className="flex size-10 items-center justify-center rounded-lg shrink-0"
-                    style={{ background: brand.goldLight }}
-                  >
-                    <Users className="size-5" style={{ color: brand.gold }} />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold" style={{ color: brand.ink }}>
-                      Panchayat Families
-                    </h4>
-                    <p className="text-sm" style={{ color: brand.inkMuted }}>
-                      Families serving in local governance and rural development
-                    </p>
-                  </div>
+                  <dt className="text-sm font-medium text-brand-ink">
+                    {item.title}
+                  </dt>
+                  <dd className="text-sm leading-relaxed text-brand-ink-muted">
+                    {item.desc}
+                  </dd>
                 </div>
-
-                <div
-                  className="flex items-start gap-4 p-4 rounded-xl border"
-                  style={{
-                    background: brand.surface,
-                    borderColor: brand.hairline,
-                  }}
-                >
-                  <div
-                    className="flex size-10 items-center justify-center rounded-lg shrink-0"
-                    style={{ background: brand.goldLight }}
-                  >
-                    <Heart className="size-5" style={{ color: brand.gold }} />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold" style={{ color: brand.ink }}>
-                      Army Personnel Families
-                    </h4>
-                    <p className="text-sm" style={{ color: brand.inkMuted }}>
-                      Families of Indian Army personnel serving the nation
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Benefit */}
-            <div
-              className="mt-6 p-6 rounded-2xl border"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                borderColor: "rgba(52, 211, 153, 0.25)",
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="flex size-10 items-center justify-center rounded-full"
-                  style={{ background: "rgba(52, 211, 153, 0.12)" }}
-                >
-                  <ShieldCheck className="size-5 text-emerald-300" />
-                </div>
-                <div>
-                  <p className="font-semibold text-emerald-300">
-                    Complete Waiver of Service Charges
-                  </p>
-                  <p className="text-sm text-white/60">
-                    100% discount on all Shiksha International service fees
-                  </p>
-                </div>
-              </div>
-            </div>
+              ))}
+            </dl>
           </div>
 
-          {/* Right: Visual/Stats */}
-          <div className="relative">
-            <div
-              className="rounded-2xl p-8 border"
-              style={{
-                background: brand.surface,
-                borderColor: brand.hairline,
-              }}
-            >
-              <h3
-                className="text-lg font-bold mb-6"
-                style={{ color: brand.ink }}
-              >
-                Initiative Highlights
+          <div className="lg:col-span-5">
+            <div className="rounded-xl border border-brand-hairline bg-ice-grey p-6">
+              <h3 className="text-sm font-medium text-brand-ink">
+                What changes
               </h3>
-              <div className="space-y-6">
-                <div className="flex items-center gap-4">
+              <dl className="mt-4 border-t border-brand-hairline">
+                {WAIVED.map((item) => (
                   <div
-                    className="flex size-12 items-center justify-center rounded-full text-2xl font-bold"
-                    style={{ background: brand.goldLight, color: brand.gold }}
+                    key={item.label}
+                    className="flex items-center justify-between gap-4 border-b border-brand-hairline py-3"
                   >
-                    0
+                    <dt className="text-sm text-brand-ink">{item.label}</dt>
+                    <dd className="text-sm font-medium text-brand-ink">
+                      {item.value}
+                    </dd>
                   </div>
-                  <div>
-                    <p className="font-semibold" style={{ color: brand.ink }}>
-                      Zero Service Charges
-                    </p>
-                    <p className="text-sm" style={{ color: brand.inkMuted }}>
-                      Complete waiver of all Shiksha fees
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div
-                    className="flex size-12 items-center justify-center rounded-full text-2xl font-bold"
-                    style={{ background: brand.goldLight, color: brand.gold }}
-                  >
-                    2
-                  </div>
-                  <div>
-                    <p className="font-semibold" style={{ color: brand.ink }}>
-                      Eligible Categories
-                    </p>
-                    <p className="text-sm" style={{ color: brand.inkMuted }}>
-                      Panchayat & Army families
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div
-                    className="flex size-12 items-center justify-center rounded-full text-2xl font-bold"
-                    style={{ background: brand.goldLight, color: brand.gold }}
-                  >
-                    <Building2 className="size-6" />
-                  </div>
-                  <div>
-                    <p className="font-semibold" style={{ color: brand.ink }}>
-                      Full Services Included
-                    </p>
-                    <p className="text-sm" style={{ color: brand.inkMuted }}>
-                      All admission & support services
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="mt-6 pt-6 border-t"
-                style={{ borderColor: brand.hairline }}
-              >
-                <p className="text-sm" style={{ color: brand.inkMuted }}>
-                  Contact us to verify eligibility and apply under this
-                  initiative. Our team will guide you through the documentation
-                  process.
-                </p>
-              </div>
+                ))}
+              </dl>
+              <p className="mt-4 text-xs leading-relaxed text-brand-ink">
+                Eligibility is checked before the application file is opened.
+              </p>
             </div>
           </div>
         </div>
