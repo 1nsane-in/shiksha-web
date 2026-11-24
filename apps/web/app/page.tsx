@@ -21,6 +21,7 @@ import { SolutionSection } from "@/components/landing/home/SolutionSection";
 import { HowItWorks } from "@/components/landing/home/HowItWorks";
 import { UniversityComparison } from "@/components/landing/home/UniversityComparison";
 import { Footer } from "@/components/landing/home/Footer";
+import { ScrollToTop } from "@/components/landing/home/ScrollToTop";
 import {
   WhyShikshaSection,
   ScholarshipsSection,
@@ -77,6 +78,7 @@ export default async function Home() {
         <LazyFinalCTA />
       </main>
       <Footer />
+      <ScrollToTop />
     </>
   );
 }

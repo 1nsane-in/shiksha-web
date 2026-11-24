@@ -2,6 +2,7 @@ import React from "react";
 import { Header } from "@/components/landing/home/Header";
 import { TopBar } from "@/components/landing/home/TopBar";
 import { Footer } from "@/components/landing/home/Footer";
+import { ScrollToTop } from "@/components/landing/home/ScrollToTop";
 
 /**
  * Shared layout for all public-facing landing pages.
@@ -19,6 +20,7 @@ export default function LandingLayout({
       <Header />
       <main className="flex-1 pt-8">{children}</main>
       <Footer />
+      <ScrollToTop />
     </div>
   );
 }
