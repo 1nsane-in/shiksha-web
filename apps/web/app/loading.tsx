@@ -3,7 +3,8 @@ import Image from "next/image";
 /**
  * Root Suspense fallback (route transition splash).
  * Full-bleed brand splash instead of a bare spinner: shows the logo + name
- * while a dynamic segment streams in.
+ * while a dynamic segment streams in. Static markup, so it never blocks
+ * hydration.
  */
 export default function RootLoading() {
   return (
