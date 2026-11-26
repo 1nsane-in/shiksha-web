@@ -41,6 +41,13 @@ export function proxy(request: NextRequest) {
 
   const roleMarker = roleFromCookie(request.cookies.get("auth_role")?.value);
 
+  // Admins/parents get their dashboard instead of the marketing home.
+  // Lives here so `/` stays statically prerenderable.
+  if (pathname === "/" && roleMarker && roleMarker !== "student") {
+    const dest = roleDefaults[roleMarker] || "/parents/dashboard";
+    return NextResponse.redirect(new URL(dest, request.url));
+  }
+
   // Redirect logged-in PARENT/ADMIN from auth-only pages (login, register, etc.)
   // Students are allowed on these pages.
   const isPublicOnly = publicOnlyRoutes.some((route) =>
@@ -87,5 +94,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/student/:path*", "/parents/:path*", "/login", "/register", "/forgot-password", "/auth/:path*"],
+  matcher: ["/", "/admin/:path*", "/student/:path*", "/parents/:path*", "/login", "/register", "/forgot-password", "/auth/:path*"],
 };

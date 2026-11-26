@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Shiksha International | MBBS Abroad Admissions 2026",
@@ -31,32 +29,11 @@ import {
 // Interactive below-the-fold components - lazy loaded via client component
 import { LazySections, LazyFinalCTA } from "@/components/landing/home/LazySections";
 
-function decodeToken(token: string): { role?: string } | null {
-  try {
-    const payload = token.split(".")[1];
-    if (!payload) return null;
-    return JSON.parse(atob(payload));
-  } catch {
-    return null;
-  }
-}
+// Home renders no request-dependent data (the admin/parent redirect lives in
+// proxy.ts), so prerender it: no Suspense fallback, no server round-trip.
+export const dynamic = "force-static";
 
-export default async function Home() {
-  // Redirect logged-in PARENT/ADMIN away from landing page
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (token) {
-    const payload = decodeToken(token);
-    const role = payload?.role?.toLowerCase();
-    if (role && role !== "student") {
-      const dest =
-        role === "admin" || role === "super_admin"
-          ? "/admin/dashboard"
-          : "/parents/dashboard";
-      redirect(dest);
-    }
-  }
-
+export default function Home() {
   return (
     <>
       <TopBar />
