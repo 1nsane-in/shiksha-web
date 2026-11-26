@@ -37,13 +37,20 @@ export function isLocal() {
   return BASE_URL.includes('localhost') || BASE_URL.includes('127.0.0.1');
 }
 
-/** Login for any role. Returns the access token. */
+/**
+ * Login for any role. Returns the access token.
+ * `?mobile=true` is required: web logins only receive an httpOnly cookie,
+ * the token is returned in the body for non-browser clients.
+ */
 export function getToken(email, password) {
   const res = http.post(
-    `${BASE_URL}/auth/login`,
+    `${BASE_URL}/auth/login?mobile=true`,
     JSON.stringify({ email, password }),
     { headers: HEADERS },
   );
-  const body = JSON.parse(res.body);
-  return body.accessToken;
+  if (res.status !== 200 && res.status !== 201) {
+    console.error(`login failed for ${email}: ${res.status} ${res.body}`);
+    return null;
+  }
+  return JSON.parse(res.body).accessToken || null;
 }

@@ -30,6 +30,7 @@
     "seed:docs": "tsx src/scripts/seed-document-types.ts",
     "test:perf:check": "k6 run test/performance/check-health.js",
     "test:perf:smoke": "k6 run test/performance/smoke-test.js",
+    "test:perf:audit": "k6 run test/performance/audit-test.js",
     "test:perf:load": "k6 run test/performance/load-test.js",
     "test:perf:stress": "k6 run test/performance/stress-test.js",
     "test:perf:spike": "k6 run test/performance/spike-test.js",

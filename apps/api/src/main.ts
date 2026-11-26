@@ -10,6 +10,7 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { versionMiddleware } from './common/middleware/version-middleware';
 import { Request, Response, NextFunction } from 'express';
+import { randomUUID } from 'crypto';
 import { env } from './common/env.config';
 
 // ponytail: shallow redaction, enough for dev debugging; nested secrets stay redacted only if the key matches
@@ -51,13 +52,22 @@ async function bootstrap() {
 
   app.use(versionMiddleware);
 
+  // Slow-request threshold for the access log. Set SLOW_REQUEST_MS=0 to log
+  // every request at info and none as a warning.
+  const slowRequestMs = Number(process.env.SLOW_REQUEST_MS ?? 0);
+
   app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
+    const requestId = req.header('x-request-id') || randomUUID();
+    res.setHeader('X-Request-Id', requestId);
     res.on('finish', () => {
       const duration = Date.now() - start;
-      logger.log(
-        `${req.method} ${req.path} ${res.statusCode} - ${duration}ms`,
-      );
+      const line = `${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms [${requestId}]`;
+      if (slowRequestMs > 0 && duration >= slowRequestMs) {
+        logger.warn(`SLOW ${line}`);
+      } else {
+        logger.log(line);
+      }
       if (env.isDev && req.body && Object.keys(req.body).length > 0) {
         logger.debug(
           `Request Body: ${JSON.stringify(

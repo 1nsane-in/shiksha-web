@@ -33,12 +33,37 @@ npm run test:perf:check
 bash test/performance/run-all.sh
 
 # 5. Run individual tests
+npm run test:perf:audit   # per-endpoint latency audit (p50/p90/p95 per route)
 npm run test:perf:smoke   # quick smoke test
 npm run test:perf:load    # sustained load (3 min)
 npm run test:perf:spike   # sudden traffic spike
 npm run test:perf:stress  # ramped stress test
 npm run test:perf:soak    # long-duration soak (40 min)
 ```
+
+## Per-endpoint audit (start here)
+
+`audit-test.js` hits every important endpoint once per iteration and tags each
+request with `name`, so the k6 summary gives **latency per endpoint** instead of
+one blended number.
+
+```bash
+BASE_URL=https://api-staging.example \
+  APPLICATION_ID=<uuid> UNIVERSITY_ID=<uuid> STUDENT_ID=<uuid> \
+  k6 run --summary-export=audit.json test/performance/audit-test.js
+
+# HTML/JSON report from the export:
+k6 run --out json=audit.ndjson ...   # then k6-reporter / Grafana, or parse ndjson
+```
+
+- Routes with `:param` are skipped when the matching env var is unset (printed at start).
+- IDs: `APPLICATION_ID UNIVERSITY_ID STUDENT_ID EXAM_ID TICKET_ID PAYMENT_ID ADMIN_ID COURSE_ID DOCUMENT_ID`.
+- Writes are off by default; `WRITE_TESTS=1` adds `POST /consultations`.
+- Credentials: `STUDENT_EMAIL` / `STUDENT_PASSWORD` (defaults `student@example.com` / `test123`), `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+- Login uses `?mobile=true` because web logins only receive an httpOnly cookie (FIND-001).
+
+Reading the output: look for `p(95)` and `max` per `name`. A route whose `max`
+is far above its `p(95)` is usually the one doing the expensive query.
 
 ## Test Types
 
@@ -94,6 +119,85 @@ Under normal conditions on a local dev machine:
 | `/universities` | < 200ms | < 500ms | < 1000ms |
 
 These will vary by environment. Run smoke tests against each environment to establish baselines.
+
+## Finding the slow query
+
+Three layers, cheapest first.
+
+### 1. Request log (per endpoint)
+
+Every request is logged with its duration and a request id:
+
+```bash
+# slowest requests from the server log
+grep -o "GET /[^ ]* [0-9]* - [0-9]*ms" api.log | sort -t- -k2 -n | tail -20
+```
+
+Set `SLOW_REQUEST_MS=1000` on the server to additionally emit
+`SLOW GET /path 200 - 1234ms [request-id]` warnings (and echo `X-Request-Id`
+back to the client so a k6 request can be matched to a log line).
+
+### 2. Prisma SQL log
+
+`SLOW_QUERY_MS` enables SQL timing in any environment (dev defaults to 1000):
+
+```bash
+SLOW_QUERY_MS=100 LOG_LEVEL=debug npm run start:prod 2>&1 | grep "SLOW SQL"
+```
+
+Each line has duration, SQL, and params — this is the query, not just the route.
+
+### 3. PostgreSQL statistics (the real audit)
+
+`pg_stat_statements` aggregates every statement ever run, by total and mean
+time. Neon ships it; enable once per database:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+```
+
+```sql
+-- worst total time (what to index first)
+SELECT round(total_exec_time)::bigint AS total_ms,
+       calls,
+       round(mean_exec_time, 2) AS mean_ms,
+       round((100 * total_exec_time / sum(total_exec_time) OVER ())::numeric, 1) AS pct,
+       rows,
+       left(regexp_replace(query, '\s+', ' ', 'g'), 120) AS query
+FROM pg_stat_statements
+WHERE query NOT ILIKE '%pg_stat_statements%'
+ORDER BY total_exec_time DESC
+LIMIT 20;
+
+-- slowest average per call (bad plans, missing indexes)
+SELECT round(mean_exec_time, 2) AS mean_ms, calls, rows,
+       left(regexp_replace(query, '\s+', ' ', 'g'), 120) AS query
+FROM pg_stat_statements
+WHERE calls > 20
+ORDER BY mean_exec_time DESC
+LIMIT 20;
+
+-- currently stuck queries
+SELECT pid, now() - query_start AS running_for, state, wait_event_type,
+       left(query, 120)
+FROM pg_stat_activity
+WHERE state <> 'idle' AND now() - query_start > interval '2 seconds'
+ORDER BY running_for DESC;
+```
+
+Reset between load runs: `SELECT pg_stat_statements_reset();`
+
+Caveats: Neon is serverless — a "local" API still pays network latency to the
+DB; measure from the same region as the API. `total_exec_time` is cumulative, so
+reset or diff two snapshots around a run. Do **not** run load tests against the
+production database — use a Neon branch.
+
+### 4. Optional APM
+
+For continuous per-route/per-query tracing instead of grep, use OpenTelemetry
+(`@opentelemetry/sdk-node` + Prisma/HTTP instrumentation) exported to
+Grafana Cloud / Axiom / Sentry. Add only when the three layers above stop being
+enough; k6 + `pg_stat_statements` covers "which endpoint, which query, how slow".
 
 ## Thresholds
 
@@ -191,6 +295,7 @@ test/performance/
 ├── thresholds.json     # Shared threshold reference
 ├── setup.js            # Node.js setup script (not k6)
 ├── check-health.js     # k6 health check guard
+├── audit-test.js       # per-endpoint latency audit (p50/p90/p95 per route)
 ├── smoke-test.js       # 10s, 1 VU — basic sanity
 ├── load-test.js        # 3m, 50 VU — sustained load
 ├── stress-test.js      # 8m, 20→200 VU — breaking point

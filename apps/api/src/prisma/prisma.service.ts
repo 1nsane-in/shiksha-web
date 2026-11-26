@@ -32,12 +32,17 @@ export class PrismaService
       ],
     });
 
-    // Log slow queries in development
-    if (config.get('NODE_ENV') === 'development') {
+    // Log slow queries. SLOW_QUERY_MS enables it in any environment
+    // (staging load tests); development defaults to 1000ms, elsewhere off.
+    const isDev = config.get('NODE_ENV') === 'development';
+    const slowQueryMs = Number(
+      process.env.SLOW_QUERY_MS ?? (isDev ? 1000 : 0),
+    );
+    if (slowQueryMs > 0) {
       this.$on('query', (e: Prisma.QueryEvent) => {
-        if (e.duration > 1000) {
+        if (e.duration >= slowQueryMs) {
           this.logger.warn(
-            `Slow query (${e.duration}ms): ${e.query.substring(0, 100)}...`,
+            `SLOW SQL ${e.duration}ms ${e.query.slice(0, 200)} params=${e.params.slice(0, 200)}`,
           );
         }
       });
