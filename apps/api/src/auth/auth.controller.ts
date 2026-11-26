@@ -57,6 +57,12 @@ import {
   VerifyMfaLoginDto,
 } from './auth.dto';
 import { Public } from './decorators/public.decorator';
+import {
+  accessCookieOptions,
+  clearAuthCookies,
+  refreshCookieOptions,
+  setAuthCookies,
+} from './auth-cookies';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -68,13 +74,7 @@ export class AuthController {
   ) {}
 
   private get COOKIE_OPTIONS() {
-    return {
-      httpOnly: true,
-      secure: this.configService.get('NODE_ENV') === 'production',
-      sameSite: this.configService.get('NODE_ENV') === 'production' ? 'none' as const : 'lax' as const,
-      path: '/auth',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    } as const;
+    return refreshCookieOptions(this.configService);
   }
 
   @Public()
@@ -149,11 +149,11 @@ export class AuthController {
   ) {
     const isMobile = mobile === 'true';
     const result = await this.authService.phoneRegister(dto);
-    this.buildCookieResponse(res, result.refreshToken, isMobile);
+    this.buildCookieResponse(res, result.refreshToken, isMobile, result.accessToken);
     return {
       message: result.message,
       user: result.user,
-      accessToken: result.accessToken,
+      ...(isMobile ? { accessToken: result.accessToken } : {}),
       ...(isMobile ? { refreshToken: result.refreshToken } : {}),
     };
   }
@@ -176,11 +176,11 @@ export class AuthController {
   ) {
     const isMobile = mobile === 'true';
     const result = await this.authService.phoneLogin(dto);
-    this.buildCookieResponse(res, result.refreshToken, isMobile);
+    this.buildCookieResponse(res, result.refreshToken, isMobile, result.accessToken);
     return {
       message: result.message,
       user: result.user,
-      accessToken: result.accessToken,
+      ...(isMobile ? { accessToken: result.accessToken } : {}),
       ...(isMobile ? { refreshToken: result.refreshToken } : {}),
     };
   }
@@ -224,14 +224,23 @@ export class AuthController {
     return this.authService.addEmailVerify(user.id, dto);
   }
 
+  private get ACCESS_COOKIE_OPTIONS() {
+    return accessCookieOptions(this.configService);
+  }
+
+  /**
+   * Sets the httpOnly refresh + access cookies. Mobile clients opt out with
+   * ?mobile=true and receive the refresh token in the JSON body instead
+   * (the access token stays in the body for them too).
+   */
   private buildCookieResponse(
     res: Response,
     refreshToken: string,
     mobile: boolean,
+    accessToken?: string,
   ) {
-    if (!mobile) {
-      res.cookie('refreshToken', refreshToken, this.COOKIE_OPTIONS);
-    }
+    if (mobile) return;
+    setAuthCookies(res, this.configService, { accessToken, refreshToken });
   }
 
   @Public()
@@ -255,11 +264,11 @@ export class AuthController {
   ) {
     const isMobile = mobile === 'true';
     const result = await this.authService.completeRegistration(dto);
-    this.buildCookieResponse(res, result.refreshToken, isMobile);
+    this.buildCookieResponse(res, result.refreshToken, isMobile, result.accessToken);
     return {
       message: result.message,
       user: result.user,
-      accessToken: result.accessToken,
+      ...(isMobile ? { accessToken: result.accessToken } : {}),
       ...(isMobile ? { refreshToken: result.refreshToken } : {}),
     };
   }
@@ -288,11 +297,11 @@ export class AuthController {
     if ('challengeToken' in result) {
       return { mfaRequired: true, challengeToken: result.challengeToken };
     }
-    this.buildCookieResponse(res, result.refreshToken, isMobile);
+    this.buildCookieResponse(res, result.refreshToken, isMobile, result.accessToken);
     return {
       message: result.message,
       user: result.user,
-      accessToken: result.accessToken,
+      ...(isMobile ? { accessToken: result.accessToken } : {}),
       ...(isMobile ? { refreshToken: result.refreshToken } : {}),
     };
   }
@@ -315,11 +324,11 @@ export class AuthController {
   ) {
     const isMobile = mobile === 'true';
     const result = await this.authService.googleLogin(dto);
-    this.buildCookieResponse(res, result.refreshToken, isMobile);
+    this.buildCookieResponse(res, result.refreshToken, isMobile, result.accessToken);
     return {
       message: result.message,
       user: result.user,
-      accessToken: result.accessToken,
+      ...(isMobile ? { accessToken: result.accessToken } : {}),
       ...(isMobile ? { refreshToken: result.refreshToken } : {}),
     };
   }
@@ -345,11 +354,11 @@ export class AuthController {
   ) {
     const isMobile = mobile === 'true';
     const result = await this.authService.googleRegister(dto);
-    this.buildCookieResponse(res, result.refreshToken, isMobile);
+    this.buildCookieResponse(res, result.refreshToken, isMobile, result.accessToken);
     return {
       message: result.message,
       user: result.user,
-      accessToken: result.accessToken,
+      ...(isMobile ? { accessToken: result.accessToken } : {}),
       ...(isMobile ? { refreshToken: result.refreshToken } : {}),
     };
   }
@@ -383,11 +392,11 @@ export class AuthController {
   ) {
     const result = await this.authService.verifyMfaLogin(dto);
     const isMobile = mobile === 'true';
-    this.buildCookieResponse(res, result.refreshToken, isMobile);
+    this.buildCookieResponse(res, result.refreshToken, isMobile, result.accessToken);
     return {
       message: result.message,
       user: result.user,
-      accessToken: result.accessToken,
+      ...(isMobile ? { accessToken: result.accessToken } : {}),
       ...(isMobile ? { refreshToken: result.refreshToken } : {}),
     };
   }
@@ -421,10 +430,10 @@ export class AuthController {
       return { statusCode: 401, message: 'No refresh token' };
     }
     const result = await this.authService.refreshTokens(oldRefreshToken);
-    this.buildCookieResponse(res, result.refreshToken, isMobile);
+    this.buildCookieResponse(res, result.refreshToken, isMobile, result.accessToken);
     return {
       message: result.message,
-      accessToken: result.accessToken,
+      ...(isMobile ? { accessToken: result.accessToken } : {}),
       ...(isMobile ? { refreshToken: result.refreshToken } : {}),
     };
   }
@@ -452,12 +461,7 @@ export class AuthController {
     if (refreshToken) {
       await this.authService.logout(refreshToken);
     }
-    res.clearCookie('refreshToken', {
-      path: this.COOKIE_OPTIONS.path,
-      httpOnly: this.COOKIE_OPTIONS.httpOnly,
-      secure: this.COOKIE_OPTIONS.secure,
-      sameSite: this.COOKIE_OPTIONS.sameSite,
-    });
+    clearAuthCookies(res, this.configService);
     return { message: 'Logged out successfully' };
   }
 

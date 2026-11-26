@@ -312,7 +312,7 @@ export interface UpdateCoursePayload {
 
 export interface UploadDocumentPayload {
   type: string;
-  fileUrl: string;
+  fileKey: string;
   fileName: string;
   fileSize: number;
 }

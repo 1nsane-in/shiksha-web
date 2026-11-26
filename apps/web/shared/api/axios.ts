@@ -39,10 +39,7 @@ api.interceptors.response.use((response) => {
 
 api.interceptors.request.use((config) => {
   config.headers["X-Api-Version"] = "1";
-  const token = useAuthStore.getState().access_token;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  // Auth is carried by httpOnly cookies (sent via withCredentials).
   return config;
 });
 
@@ -63,8 +60,8 @@ api.interceptors.response.use(
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
+          .then(() => {
+            delete originalRequest.headers.Authorization;
             return api(originalRequest);
           })
           .catch((err) => Promise.reject(err));
@@ -80,15 +77,11 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
 
-        const body = refreshData?.ok === true ? refreshData.data : refreshData;
-        const newToken = body?.accessToken;
+        // The API sets a fresh httpOnly accessToken cookie on this response.
+        void refreshData;
+        processQueue(null, "");
 
-        // Update zustand store -> this also updates the `token` cookie for middleware
-        useAuthStore.getState().setTokens(newToken);
-
-        processQueue(null, newToken);
-
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        delete originalRequest.headers.Authorization;
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);

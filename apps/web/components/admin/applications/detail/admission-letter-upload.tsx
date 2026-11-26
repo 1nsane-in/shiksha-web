@@ -46,8 +46,8 @@ export function AdmissionLetterUpload({ applicationId, existingLetter }: Props) 
     setUploadError("");
     setSuccess(false);
     try {
-      const uploadResult = await uploadFile.mutateAsync(selectedFile);
-      await uploadLetter.mutateAsync({ applicationId, fileUrl: uploadResult.url, fileName: selectedFile.name });
+      const uploadResult = await uploadFile.mutateAsync({ file: selectedFile, folder: "admission-letters" });
+      await uploadLetter.mutateAsync({ applicationId, fileKey: uploadResult.key, fileName: selectedFile.name });
       setLatestLetter({ fileUrl: uploadResult.url, fileName: selectedFile.name });
       setSuccess(true);
     } catch (err: any) {

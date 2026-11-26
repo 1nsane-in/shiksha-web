@@ -199,13 +199,13 @@ export function validateStep2(
       v(
         e,
         `academic.programs.${i}.annualTuition`,
-        p.annualTuition || p.annualTuition === 0,
+        !!(p.annualTuition || p.annualTuition === 0),
         `Program ${i + 1}: Annual fees is required`,
       );
       v(
         e,
         `academic.programs.${i}.totalSeats`,
-        p.totalSeats || p.totalSeats === 0,
+        !!(p.totalSeats || p.totalSeats === 0),
         `Program ${i + 1}: Total seats is required`,
       );
       validateSeatDistribution(e, p, i);
@@ -306,7 +306,7 @@ export function validateStep6(
     "Application deadline is required",
   );
   const fee = formData.admission?.applicationFee;
-  if (fee === undefined || fee === null || fee === "" || (typeof fee === "number" && isNaN(fee))) {
+  if (fee === undefined || fee === null || (typeof fee === "number" && isNaN(fee))) {
     e["admission.applicationFee"] = "Application fee is required";
   } else if (typeof fee === "number" && fee < 0) {
     e["admission.applicationFee"] = "Application fee cannot be negative";

@@ -252,10 +252,20 @@ describe('ParentsAuthController', () => {
         refreshToken: 'rt',
       });
 
-      const res = await controller.parentRegister(dto);
+      const response = {
+        cookie: jest.fn(),
+        clearCookie: jest.fn(),
+      } as any;
+      const res = await controller.parentRegister(dto, response);
 
       expect(service.parentRegister).toHaveBeenCalledWith(dto);
       expect(res.accessToken).toBe('at');
+      // token is delivered as an httpOnly cookie, never trusted to JS
+      expect(response.cookie).toHaveBeenCalledWith(
+        'accessToken',
+        'at',
+        expect.objectContaining({ httpOnly: true, path: '/' }),
+      );
     });
   });
 });

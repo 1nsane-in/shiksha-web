@@ -103,7 +103,7 @@ export function InfrastructureStep({ formData, formErrors, onFieldUpdate }: Wiza
             { key: "transportation", label: "Transportation" },
           ].map((item) => (
             <label key={item.key} className="flex items-center gap-3 rounded-md border border-border/60 p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-              <Checkbox checked={formData.infrastructure[item.key]} onCheckedChange={(checked) => onFieldUpdate("infrastructure", item.key, checked)} />
+              <Checkbox checked={formData.infrastructure[item.key as keyof typeof formData.infrastructure] as boolean} onCheckedChange={(checked) => onFieldUpdate("infrastructure", item.key, checked)} />
               <span className="text-sm">{item.label}</span>
             </label>
           ))}

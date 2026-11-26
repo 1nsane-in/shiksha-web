@@ -420,7 +420,7 @@ export const OverviewTab = forwardRef<OverviewTabHandle, Props>(function Overvie
                     title="Recognized Departments & Specializations"
                   />
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                    {a.specializations.map((spec) => (
+                    {a.specializations.map((spec: string) => (
                       <div
                         key={spec}
                         className="flex items-center gap-2.5 rounded-lg border border-brand-hairline bg-brand-canvas px-3.5 py-2.5 hover:bg-brand-gold-light transition-colors"
@@ -456,7 +456,7 @@ export const OverviewTab = forwardRef<OverviewTabHandle, Props>(function Overvie
                   university.socialLinks as Record<string, string>;
                 const platformIcons: Record<
                   string,
-                  { icon: IconComponent; label: string }
+                  { icon: typeof Globe; label: string }
                 > = {
                   facebook: { icon: Globe, label: "Facebook" },
                   instagram: { icon: Globe, label: "Instagram" },
@@ -560,7 +560,7 @@ export const OverviewTab = forwardRef<OverviewTabHandle, Props>(function Overvie
                       label="Highlights"
                       value={
                         <div className="flex flex-wrap gap-1.5">
-                          {c.highlights.map((h, i) => (
+                          {c.highlights.map((h: string, i: number) => (
                             <span
                               key={i}
                               className="inline-flex items-center rounded-md bg-brand-gold-light px-2.5 py-1 text-xs font-medium text-brand-gold"

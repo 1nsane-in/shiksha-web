@@ -293,7 +293,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
         applicationId: id,
         stage: 2,
         firstName: user.name ?? "Student",
-        email: user.email,
+        email: user.email ?? "",
         phone: "",
       });
       if (!formRef.current) return;
@@ -687,7 +687,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
         <div className="space-y-6">
           <ProfileCard
             name={[app.firstName, formData?.middleName, app.lastName].filter(Boolean).join(" ") || "N/A"}
-            email={formData?.email || app.email}
+            email={formData?.email || app.email || ""}
             dateOfBirth={formData?.dateOfBirth}
             gender={formData?.gender}
             citizenship={formData?.citizenship}

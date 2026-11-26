@@ -11,7 +11,7 @@ interface Props {
   selectedProgram: string | null;
 }
 
-function formatTitle(str: string) {
+function formatTitle(str: string | null | undefined) {
   return str
     ? str.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
     : "—";

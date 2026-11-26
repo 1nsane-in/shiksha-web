@@ -3,36 +3,31 @@ import { persist } from "zustand/middleware";
 import { storage } from "@/shared/api/storage";
 import { STORAGE_KEYS } from "@/shared/api/constants";
 import { clearQueryCache } from "@/shared/api/queryClient";
+import type { User } from "@/domains/auth/auth.types";
 
-function setTokenCookie(token: string) {
+export type { User };
+
+/**
+ * Auth tokens live in httpOnly cookies set by the API — never in JavaScript.
+ * The only cookie written here is a non-sensitive `auth_role` marker for
+ * Next.js proxy (UX routing only; the API enforces authorization).
+ */
+function setRoleCookie(role: string) {
   if (typeof document === "undefined") return;
-  document.cookie = `token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+  document.cookie = `auth_role=${encodeURIComponent(role)}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
 }
 
-function clearTokenCookie() {
+function clearRoleCookie() {
   if (typeof document === "undefined") return;
-  document.cookie = "token=; path=/; max-age=0";
-}
-
-function clearRefreshTokenCookie() {
-  if (typeof document === "undefined") return;
-  document.cookie = "refreshToken=; path=/; max-age=0";
-}
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: "STUDENT" | "PARENT" | "ADMIN" | "SUPER_ADMIN";
-  isActive: boolean;
+  document.cookie = "auth_role=; path=/; max-age=0";
 }
 
 interface AuthState {
   user: User | null;
-  access_token: string | null;
   loading: boolean;
-  login: (userData: User, accessToken: string) => void;
-  setTokens: (accessToken: string) => void;
+  /** Kept for backwards compatibility; tokens are cookie-only. */
+  login: (userData: User, _accessToken?: string) => void;
+  setTokens: (_accessToken?: string) => void;
   logout: () => void;
 }
 
@@ -40,37 +35,27 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      access_token: null,
       loading: true,
 
-      login: (userData, accessToken) => {
-        set({ user: userData, access_token: accessToken });
-        setTokenCookie(accessToken);
+      login: (userData) => {
+        set({ user: userData });
+        setRoleCookie(userData.role);
       },
 
-      setTokens: (accessToken) => {
-        set({ access_token: accessToken });
-        setTokenCookie(accessToken);
-      },
+      // ponytail: refresh rotates the httpOnly cookie server-side; nothing to store
+      setTokens: () => {},
 
       logout: () => {
-        set({ user: null, access_token: null });
-        clearTokenCookie();
-        clearRefreshTokenCookie();
+        set({ user: null });
+        clearRoleCookie();
         storage.remove(STORAGE_KEYS.AUTH_STORAGE);
         clearQueryCache();
       },
     }),
     {
       name: "auth-storage",
-      partialize: (state) => ({
-        user: state.user,
-        access_token: state.access_token,
-      }),
-      onRehydrateStorage: () => (state) => {
-        if (state?.access_token) {
-          setTokenCookie(state.access_token);
-        }
+      partialize: (state) => ({ user: state.user }),
+      onRehydrateStorage: () => () => {
         useAuthStore.setState({ loading: false });
       },
     }
@@ -78,9 +63,9 @@ export const useAuthStore = create<AuthState>()(
 );
 
 export const selectUser = (s: AuthState) => s.user;
-export const selectToken = (s: AuthState) => s.access_token;
+export const selectToken = (_s: AuthState) => null;
 export const selectLoading = (s: AuthState) => s.loading;
-export const selectIsAuthenticated = (s: AuthState) => !!s.access_token && !!s.user;
+export const selectIsAuthenticated = (s: AuthState) => !!s.user;
 export const selectIsAdmin = (s: AuthState) =>
   s.user?.role === "ADMIN" || s.user?.role === "SUPER_ADMIN";
 export const selectIsSuperAdmin = (s: AuthState) => s.user?.role === "SUPER_ADMIN";

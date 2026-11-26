@@ -1,6 +1,6 @@
 export interface UploadLetterPayload {
   applicationId: string;
-  fileUrl: string;
+  fileKey: string;
   fileName?: string;
 }
 

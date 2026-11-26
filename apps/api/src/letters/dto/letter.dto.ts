@@ -4,8 +4,9 @@ export class UploadLetterDto {
   @IsUUID()
   applicationId!: string;
 
+  /** Bucket key returned by POST /upload. */
   @IsString()
-  fileUrl!: string;
+  fileKey!: string;
 
   @IsOptional()
   @IsString()

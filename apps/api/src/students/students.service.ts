@@ -63,7 +63,7 @@ export class StudentsService {
           throw new NotFoundException('Student not found');
         }
 
-        return student;
+        return this.storage.signDeep(student);
       },
       300, // Cache for 5 minutes
     );
@@ -117,7 +117,7 @@ export class StudentsService {
       currentStage: student.currentStage,
       applicationStatus: student.applicationStatus,
       requirements,
-      documents: student.documents,
+      documents: await this.storage.signDeep(student.documents),
       payments: student.payments,
     };
   }
@@ -230,7 +230,7 @@ export class StudentsService {
           throw new NotFoundException('Student not found');
         }
 
-        return student;
+        return this.storage.signDeep(student);
       },
       300,
     );
@@ -381,8 +381,8 @@ export class StudentsService {
     // upload attached files
     let passportUrl: string | undefined;
     let certificateUrl: string | undefined;
-    if (files?.passport?.[0]) passportUrl = (await this.storage.upload(files.passport[0], 'documents')).url;
-    if (files?.certificate?.[0]) certificateUrl = (await this.storage.upload(files.certificate[0], 'documents')).url;
+    if (files?.passport?.[0]) passportUrl = (await this.storage.upload(files.passport[0], 'documents', student.userId)).key;
+    if (files?.certificate?.[0]) certificateUrl = (await this.storage.upload(files.certificate[0], 'documents', student.userId)).key;
 
     const formData = {
       middleName: dto.middleName,
@@ -519,7 +519,8 @@ export class StudentsService {
       throw new NotFoundException('Application not found');
     }
 
-    return application;
+    // Private keys (documents/…) become short-lived signed URLs.
+    return this.storage.signDeep(application);
   }
 
   async checkApplication(userId: string, universityId: string) {

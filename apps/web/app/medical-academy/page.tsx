@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 const atlasSrc =
-  process.env.NEXT_PUBLIC_ATLAS_URL || "https://shiksha-anatomy.pages.dev";
+  process.env.NEXT_PUBLIC_ATLAS_URL || "https://anatomy.shiksha.study";
 
 export default function MedicalAcademyPage() {
   return (

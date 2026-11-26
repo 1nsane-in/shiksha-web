@@ -1,4 +1,4 @@
-import type { UniversityListItem } from "@/domains/universities/universities.types";
+import type { UniversityAcademic, UniversityListItem } from "@/domains/universities/universities.types";
 
 /**
  * Seed universities used as fallback when the API returns no results.
@@ -24,7 +24,7 @@ export const seedUniversities: UniversityListItem[] = [
       address: "Jalal-Abad, Kyrgyzstan",
     },
     contact: { email: "admissions@jasu.edu.kg", phone: "+996 XXX XXX XXX" },
-    academic: { medium: "English" },
+    academic: { medium: "English" } as unknown as UniversityAcademic,
     content: {
       shortDescription:
         "Government university with recognized medical faculty. Budget-friendly fees and popular among Indian students.",
@@ -51,7 +51,7 @@ export const seedUniversities: UniversityListItem[] = [
       address: "Bishkek, Kyrgyzstan",
     },
     contact: { email: "admissions@bimi.edu.kg", phone: "+996 XXX XXX XXX" },
-    academic: { medium: "English" },
+    academic: { medium: "English" } as unknown as UniversityAcademic,
     content: {
       shortDescription:
         "English-medium MBBS with modern laboratories, affordable tuition, and a large Indian student community.",
@@ -78,7 +78,7 @@ export const seedUniversities: UniversityListItem[] = [
       address: "104 Silk Road St, Jalalabad",
     },
     contact: { email: "admissions@jiu.edu.kg", phone: "+996 XXX XXX XXX" },
-    academic: { medium: "English" },
+    academic: { medium: "English" } as unknown as UniversityAcademic,
     content: {
       shortDescription:
         "NMC & WDOMS listed university with modern infrastructure and updated medical curriculum. Ministry of Health approved.",
@@ -105,7 +105,7 @@ export const seedUniversities: UniversityListItem[] = [
       address: "331 Lenin Ave, Osh",
     },
     contact: { email: "admissions@osmu.edu.kg", phone: "+996 XXX XXX XXX" },
-    academic: { medium: "English" },
+    academic: { medium: "English" } as unknown as UniversityAcademic,
     content: {
       shortDescription:
         "Founded 1939. 40,000+ students, 18 departments, 6 colleges. Modern infrastructure and English-medium MBBS program.",
@@ -133,7 +133,7 @@ export const seedUniversities: UniversityListItem[] = [
       address: "Andijan, Uzbekistan",
     },
     contact: { email: "admissions@asmi.uz", phone: "+998 XXX XXX XXX" },
-    academic: { medium: "English" },
+    academic: { medium: "English" } as unknown as UniversityAcademic,
     content: {
       shortDescription:
         "Government medical institute est. 1955. English-medium MBBS, advanced lab facilities, strong hospital training.",
@@ -161,7 +161,7 @@ export const seedUniversities: UniversityListItem[] = [
       address: "Petropavl, Kazakhstan",
     },
     contact: { email: "admissions@nksmu.kz", phone: "+7 XXX XXX XXX" },
-    academic: { medium: "English" },
+    academic: { medium: "English" } as unknown as UniversityAcademic,
     content: {
       shortDescription:
         "Est. 1937. NMC & WHO approved. 6-year English-medium MBBS with affordable tuition and safe on-campus accommodation.",
@@ -189,7 +189,7 @@ export const seedUniversities: UniversityListItem[] = [
       address: "Sevastopol, Russia",
     },
     contact: { email: "admissions@sevsu.ru", phone: "+7 XXX XXX XXX" },
-    academic: { medium: "English" },
+    academic: { medium: "English" } as unknown as UniversityAcademic,
     content: {
       shortDescription:
         "Government Federal University. NMC & WHO approved. Modern simulation laboratories and English-medium MBBS.",
@@ -216,7 +216,7 @@ export const seedUniversities: UniversityListItem[] = [
       address: "Kemerovo, Russia",
     },
     contact: { email: "admissions@kemsu.ru", phone: "+7 XXX XXX XXX" },
-    academic: { medium: "English" },
+    academic: { medium: "English" } as unknown as UniversityAcademic,
     content: {
       shortDescription:
         "Est. 1974. 21,000+ students. Strong academic reputation with multi-specialty hospital training.",
@@ -243,7 +243,7 @@ export const seedUniversities: UniversityListItem[] = [
       address: "Maykop, Russia",
     },
     contact: { email: "admissions@msmi.ru", phone: "+7 XXX XXX XXX" },
-    academic: { medium: "English" },
+    academic: { medium: "English" } as unknown as UniversityAcademic,
     content: {
       shortDescription:
         "Part of Adyghe State University. NMC approved, English-medium, affordable tuition ~USD 3,000/year.",
@@ -270,7 +270,7 @@ export const seedUniversities: UniversityListItem[] = [
       address: "Kirov, Russia",
     },
     contact: { email: "admissions@ksmu.ru", phone: "+7 XXX XXX XXX" },
-    academic: { medium: "English" },
+    academic: { medium: "English" } as unknown as UniversityAcademic,
     content: {
       shortDescription:
         "NMC & WHO approved. Research-oriented education. Tuition ~USD 2,100–4,000/year. Strong Indian student community.",

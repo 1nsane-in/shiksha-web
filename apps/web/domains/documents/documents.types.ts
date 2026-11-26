@@ -43,17 +43,20 @@ export type DocumentStatus =
 
 export interface UploadDocumentPayload {
   documentTypeId: string;
-  fileUrl: string;
+  /** Bucket key returned by the upload endpoint. */
+  fileKey: string;
   fileName: string;
   fileSize: number;
 }
 
 export interface UploadResponse {
+  /** Public URL or short-lived signed URL (private folders). */
   url: string;
   key: string;
   fileName: string;
   fileSize: number;
   mimeType: string;
+  expiresIn?: number;
 }
 
 export interface PaginatedResponse<T> {

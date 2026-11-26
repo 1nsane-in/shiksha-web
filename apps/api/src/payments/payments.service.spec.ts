@@ -36,6 +36,7 @@ const mockPrisma = {
     findMany: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
+    updateMany: jest.fn(),
     count: jest.fn(),
   },
   user: {
@@ -185,7 +186,7 @@ describe('PaymentsService', () => {
     it('should reuse existing pending payment', async () => {
       prisma.student.findUnique.mockResolvedValue(mockStudent);
       prisma.universityApplication.findUnique.mockResolvedValue(mockApplication);
-      prisma.payment.findFirst.mockResolvedValue(mockPayment);
+      prisma.payment.findFirst.mockResolvedValue({ ...mockPayment, student: { userId: 'user-1' } });
       prisma.payment.update.mockResolvedValue(mockPayment);
       (generatePayUHash as jest.Mock).mockReturnValue('mock-hash');
 
@@ -229,8 +230,9 @@ describe('PaymentsService', () => {
 
     it('should mark payment as SUCCESS and advance stage', async () => {
       (verifyPayUResponse as jest.Mock).mockReturnValue('valid-hash');
-      prisma.payment.findFirst.mockResolvedValue(mockPayment);
-      prisma.payment.update.mockResolvedValue({
+      prisma.payment.findFirst.mockResolvedValue({ ...mockPayment, student: { userId: 'user-1' } });
+      prisma.payment.updateMany.mockResolvedValue({ count: 1 });
+      prisma.payment.findUnique.mockResolvedValue({
         ...mockPayment,
         status: 'SUCCESS',
         razorpayPaymentId: 'MIH456',
@@ -243,7 +245,7 @@ describe('PaymentsService', () => {
       const result = await service.verifyPayment(payuSuccessResponse);
 
       expect(result.success).toBe(true);
-      expect(result.payment.status).toBe('SUCCESS');
+      expect(result.payment?.status).toBe('SUCCESS');
       expect(mockTimeline.onStageAdvanced).toHaveBeenCalled();
     });
 
@@ -254,8 +256,9 @@ describe('PaymentsService', () => {
         error: 'payment_failed',
       };
       (verifyPayUResponse as jest.Mock).mockReturnValue('valid-hash');
-      prisma.payment.findFirst.mockResolvedValue(mockPayment);
-      prisma.payment.update.mockResolvedValue({
+      prisma.payment.findFirst.mockResolvedValue({ ...mockPayment, student: { userId: 'user-1' } });
+      prisma.payment.updateMany.mockResolvedValue({ count: 1 });
+      prisma.payment.findUnique.mockResolvedValue({
         ...mockPayment,
         status: 'FAILED',
       });
@@ -263,7 +266,31 @@ describe('PaymentsService', () => {
       const result = await service.verifyPayment(failedDto);
 
       expect(result.success).toBe(false);
-      expect(result.payment.status).toBe('FAILED');
+      expect(result.payment?.status).toBe('FAILED');
+      expect(mockTimeline.onStageAdvanced).not.toHaveBeenCalled();
+    });
+
+    it('should reject an amount that does not match the stored payment', async () => {
+      (verifyPayUResponse as jest.Mock).mockReturnValue('valid-hash');
+      prisma.payment.findFirst.mockResolvedValue({ ...mockPayment, student: { userId: 'user-1' } });
+
+      await expect(
+        service.verifyPayment({ ...payuSuccessResponse, amount: '1.00' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should not re-credit a replayed success (idempotent)', async () => {
+      (verifyPayUResponse as jest.Mock).mockReturnValue('valid-hash');
+      prisma.payment.findFirst.mockResolvedValue({ ...mockPayment, student: { userId: 'user-1' } });
+      prisma.payment.updateMany.mockResolvedValue({ count: 0 });
+      prisma.payment.findUnique.mockResolvedValue({
+        ...mockPayment,
+        status: 'SUCCESS',
+      });
+
+      const result = await service.handleWebhook(payuSuccessResponse);
+
+      expect(result.duplicate).toBe(true);
       expect(mockTimeline.onStageAdvanced).not.toHaveBeenCalled();
     });
   });

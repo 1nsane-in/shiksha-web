@@ -29,7 +29,7 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<Request>();
-    const token = this.extractTokenFromHeader(request);
+    const token = this.extractToken(request);
 
     if (!token) {
       throw new UnauthorizedException();
@@ -49,8 +49,15 @@ export class JwtAuthGuard implements CanActivate {
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
+  /**
+   * Bearer header (mobile / server-to-server) first, then the httpOnly
+   * accessToken cookie set by the API (web). The cookie is never exposed to
+   * JavaScript, so an XSS payload cannot read it.
+   */
+  private extractToken(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    if (type === 'Bearer' && token) return token;
+    const cookies = (request as Request & { cookies?: Record<string, string> }).cookies;
+    return cookies?.accessToken;
   }
 }

@@ -4,7 +4,10 @@ import {
   Body,
   HttpCode,
   HttpStatus,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 import {
   ApiTags,
   ApiOperation,
@@ -12,6 +15,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { ParentsService } from './parents.service';
+import { setAuthCookies } from '../auth/auth-cookies';
 import { Public } from '../auth/decorators/public.decorator';
 import {
   ParentSendEmailOtpDto,
@@ -24,7 +28,10 @@ import {
 @ApiTags('Parent Auth')
 @Controller('auth')
 export class ParentsAuthController {
-  constructor(private parentsService: ParentsService) {}
+  constructor(
+    private parentsService: ParentsService,
+    private configService: ConfigService,
+  ) {}
 
   @Public()
   @Post('parent-send-email-otp')
@@ -74,7 +81,19 @@ export class ParentsAuthController {
   })
   @ApiOkResponse({ description: 'Parent registration successful' })
   @ApiResponse({ status: 400, description: 'Validation error / Email already registered' })
-  async parentRegister(@Body() dto: ParentRegisterDto) {
-    return this.parentsService.parentRegister(dto);
+  async parentRegister(
+    @Body() dto: ParentRegisterDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.parentsService.parentRegister(dto);
+    // Same httpOnly cookie contract as AuthController: web clients never see
+    // the access token in JS.
+    if (result.refreshToken) {
+      setAuthCookies(res, this.configService, {
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      });
+    }
+    return result;
   }
 }

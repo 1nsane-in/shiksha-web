@@ -110,7 +110,12 @@ function StudentDetailCard({ student, editStage, editStatus, isPending, onStageC
 
             <div>
               <label className="text-[10px] text-gray-400 block mb-1">Application Status</label>
-              <Select value={editStatus ?? ""} onValueChange={onStatusChange}>
+              <Select
+                value={editStatus ?? ""}
+                onValueChange={(v) => {
+                  if (v) onStatusChange(v);
+                }}
+              >
                 <SelectTrigger className="w-full text-xs bg-white border-slate-200">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>

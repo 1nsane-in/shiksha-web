@@ -56,6 +56,10 @@ const mockStorage = {
   delete: jest.fn(),
   getSignedUrl: jest.fn(),
   deleteFromUrl: jest.fn().mockResolvedValue(undefined),
+  assertExists: jest.fn().mockResolvedValue(undefined),
+  signDeep: jest.fn(async (v: unknown) => v),
+  isPrivateKey: jest.fn().mockReturnValue(false),
+  viewUrl: jest.fn(async (v: string) => v),
 };
 
 describe('UniversitiesService', () => {
@@ -367,12 +371,18 @@ describe('UniversitiesService', () => {
       prisma.university.findUnique.mockResolvedValue(mockUniversity);
       prisma.universityDocument.create.mockResolvedValue(mockDocument);
 
-      const dto = { type: 'BROCHURE', fileUrl: 'https://r2.example.com/doc.pdf', fileName: 'doc.pdf', fileSize: 1024 };
+      const dto = { type: 'BROCHURE', fileKey: 'documents/u1/11111111-1111-1111-1111-111111111111.pdf', fileName: 'doc.pdf', fileSize: 1024 };
       const result = await service.uploadDocument('uni-1', dto);
 
       expect(result).toEqual(mockDocument);
       expect(prisma.universityDocument.create).toHaveBeenCalledWith({
-        data: { universityId: 'uni-1', ...dto },
+        data: {
+          universityId: 'uni-1',
+          type: dto.type,
+          fileUrl: dto.fileKey,
+          fileName: dto.fileName,
+          fileSize: dto.fileSize,
+        },
       });
     });
   });

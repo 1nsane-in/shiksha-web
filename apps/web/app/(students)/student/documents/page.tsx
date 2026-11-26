@@ -418,7 +418,7 @@ export default function Page() {
       const result = await uploadFileMutation.mutateAsync(file);
       await uploadDocMutation.mutateAsync({
         documentTypeId: typeId,
-        fileUrl: result.url,
+        fileKey: result.key,
         fileName: result.fileName,
         fileSize: result.fileSize,
       });

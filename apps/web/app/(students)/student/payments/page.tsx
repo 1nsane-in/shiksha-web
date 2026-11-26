@@ -91,7 +91,7 @@ function PayNowForm({
         applicationId,
         stage,
         firstName: user.name ?? "Student",
-        email: user.email,
+        email: user.email ?? "",
         phone: "",
       });
 

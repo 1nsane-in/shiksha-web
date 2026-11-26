@@ -58,7 +58,7 @@ export function SubmittedDocuments({ documents, passportUrl, certificateUrl }: P
                 </div>
                 <div className="flex items-center gap-3">
                   {doc.fileUrl && (
-                    <button type="button" onClick={() => setPreviewFile({ url: doc.fileUrl, name: doc.documentType?.name })}
+                    <button type="button" onClick={() => setPreviewFile({ url: doc.fileUrl!, name: doc.documentType?.name ?? "Document" })}
                       className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-2.5 py-1 text-xs font-medium text-navy hover:bg-zinc-50 transition-all cursor-pointer">
                       <ExternalLink className="h-3 w-3" /> View
                     </button>

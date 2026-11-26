@@ -160,6 +160,13 @@ export const STAGE_PAYMENT_CONFIG: Record<
   },
 };
 
+/** Constant-time comparison for PayU hashes. */
+export function safeCompareHash(expected: string, received: string): boolean {
+  const a = Buffer.from((expected || '').toLowerCase(), 'utf8');
+  const b = Buffer.from((received || '').toLowerCase(), 'utf8');
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
 export function generatePayUHash(data: {
   key: string;
   txnid: string;

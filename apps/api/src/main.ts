@@ -119,6 +119,25 @@ async function bootstrap() {
     exposedHeaders: ['Set-Cookie'],
   });
 
+  // CSRF defense for cookie-based auth: browsers always send Origin on
+  // cross-site unsafe requests; disallowed origins are rejected. Non-browser
+  // clients (PayU webhook, curl, mobile) send no Origin and are not CSRF-able.
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+    const origin = req.headers.origin;
+    if (!origin) return next();
+    const normalized = origin.replace(/\/$/, '');
+    const ok = allowedOrigins.some(
+      (allowed) => allowed.replace(/\/$/, '') === normalized,
+    );
+    if (!ok) {
+      logger.warn(`CSRF origin rejected: ${origin} ${req.method} ${req.path}`);
+      res.status(403).json({ statusCode: 403, message: 'Origin not allowed' });
+      return;
+    }
+    next();
+  });
+
   // Static file serving removed for security. Use StorageService (signed URLs via R2/S3).
   // app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
 

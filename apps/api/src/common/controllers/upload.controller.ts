@@ -14,6 +14,8 @@ import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { StorageService } from '../services/storage.service';
 import { SAFE_UPLOAD_MIMES } from '../helpers/file-type';
+import { AuthUser } from '../../auth/decorators/user.decorator';
+import type { AuthenticatedUser } from '../types/request.type';
 
 @Controller('upload')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -42,6 +44,7 @@ export class UploadController {
   )
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
+    @AuthUser() user: AuthenticatedUser,
     @Query('folder') folder?: string,
   ) {
     if (!file) {
@@ -60,13 +63,18 @@ export class UploadController {
       'admission-letters',
       'invitation-letters',
     ];
+    // Students may only upload into their own documents folder — the server
+    // picks the folder, the client cannot choose a destination.
+    if (user.role === 'STUDENT') {
+      return this.storage.upload(file, 'documents', user.id);
+    }
     // Allow subfolder patterns: "gallery/abc-123" matches "gallery" prefix
     const target = allowed.includes(folder || '')
       ? folder!
       : allowed.some((a) => folder?.startsWith(a + '/'))
         ? folder!
         : 'uploads';
-    return this.storage.upload(file, target);
+    return this.storage.upload(file, target, user.id);
   }
 
   @Delete()

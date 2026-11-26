@@ -3,6 +3,7 @@ import { DocumentsService } from './documents.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { PaginatorService } from '../common/services/paginator.service';
+import { StorageService } from '../common/services/storage.service';
 import {
   NotFoundException,
   BadRequestException,
@@ -33,6 +34,13 @@ const mockRedis = {
   del: jest.fn(),
 };
 
+const mockStorage = {
+  assertExists: jest.fn().mockResolvedValue(undefined),
+  signDeep: jest.fn(async (v: unknown) => v),
+  isPrivateKey: jest.fn().mockReturnValue(false),
+  viewUrl: jest.fn(async (v: string) => v),
+};
+
 const mockPaginator = {
   getSkip: jest.fn().mockReturnValue(0),
   wrapResult: jest.fn((docs, total, meta) => ({
@@ -58,7 +66,7 @@ describe('DocumentsService', () => {
     id: 'doc-1',
     studentId: 'student-1',
     documentTypeId: 'dt-1',
-    fileUrl: 'https://r2.example.com/doc.pdf',
+    fileKey: 'documents/student-1/11111111-1111-1111-1111-111111111111.pdf',
     fileName: 'passport.pdf',
     fileSize: 1024,
     status: 'UPLOADED',
@@ -75,6 +83,7 @@ describe('DocumentsService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: RedisService, useValue: mockRedis },
         { provide: PaginatorService, useValue: mockPaginator },
+        { provide: StorageService, useValue: mockStorage },
       ],
     }).compile();
 
@@ -101,7 +110,7 @@ describe('DocumentsService', () => {
   describe('uploadDocument', () => {
     const dto = {
       documentTypeId: 'dt-1',
-      fileUrl: 'https://r2.example.com/doc.pdf',
+      fileKey: 'documents/student-1/11111111-1111-1111-1111-111111111111.pdf',
       fileName: 'passport.pdf',
       fileSize: 1024,
     };
@@ -146,7 +155,7 @@ describe('DocumentsService', () => {
         data: {
           studentId: 'student-1',
           documentTypeId: 'dt-1',
-          fileUrl: dto.fileUrl,
+          fileUrl: dto.fileKey,
           fileName: dto.fileName,
           fileSize: dto.fileSize,
           status: 'UPLOADED',
@@ -194,7 +203,7 @@ describe('DocumentsService', () => {
       await expect(
         service.uploadMyDocument('user-1', {
           documentTypeId: 'dt-1',
-          fileUrl: 'https://r2.example.com/doc.pdf',
+          fileKey: 'documents/student-1/11111111-1111-1111-1111-111111111111.pdf',
           fileName: 'passport.pdf',
           fileSize: 1024,
         }),
@@ -209,7 +218,7 @@ describe('DocumentsService', () => {
 
       const result = await service.uploadMyDocument('user-1', {
         documentTypeId: 'dt-1',
-        fileUrl: 'https://r2.example.com/doc.pdf',
+        fileKey: 'documents/student-1/11111111-1111-1111-1111-111111111111.pdf',
         fileName: 'passport.pdf',
         fileSize: 1024,
       });

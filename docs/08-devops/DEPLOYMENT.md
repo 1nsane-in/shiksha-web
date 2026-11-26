@@ -112,7 +112,8 @@ RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
 R2_ACCOUNT_ID=your_r2_account_id
 R2_ACCESS_KEY_ID=your_r2_access_key_id
 R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
-R2_BUCKET_NAME=your_bucket_name
+R2_BUCKET_NAME=your_private_bucket_name
+R2_PUBLIC_BUCKET_NAME=your_public_bucket_name  # marketing assets only
 
 # Email Configuration
 ZEPTOMAIL_API_KEY=your_zepomail_api_key

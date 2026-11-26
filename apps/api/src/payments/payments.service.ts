@@ -16,6 +16,7 @@ import {
   ManualPaymentApprovalDto,
   generatePayUHash,
   verifyPayUResponse,
+  safeCompareHash,
 } from './dto/payment.dto';
 import { randomUUID } from 'crypto';
 
@@ -132,8 +133,16 @@ export class PaymentsService {
     };
   }
 
-  async verifyPayment(dto: VerifyPayUPaymentDto) {
-    // Verify PayU response hash
+  /**
+   * Single source of truth for payment outcome, used by both the browser
+   * return (`/payments/verify`) and PayU's server-to-server webhook.
+   *
+   * Guards:
+   *  - reverse hash compared in constant time
+   *  - amount must match the stored payment (prevents underpaid success)
+   *  - only PENDING/PROCESSING may transition (atomic, so replays are no-ops)
+   */
+  private async applyPayUResult(dto: VerifyPayUPaymentDto) {
     const expectedHash = verifyPayUResponse({
       status: dto.status,
       txnid: dto.txnid,
@@ -151,22 +160,29 @@ export class PaymentsService {
       additionalCharges: dto.additionalCharges,
     });
 
-    if (expectedHash !== dto.hash.toLowerCase()) {
+    if (!safeCompareHash(expectedHash, dto.hash)) {
       throw new BadRequestException('Invalid payment response hash');
     }
 
-    // Find payment record
     const payment = await this.prisma.payment.findFirst({
       where: { razorpayOrderId: dto.txnid },
       include: { student: true },
     });
     if (!payment) throw new NotFoundException('Payment record not found');
 
+    const paidAmount = parseFloat(dto.amount);
+    if (
+      !Number.isFinite(paidAmount) ||
+      Math.abs(paidAmount - payment.amount) > 0.01
+    ) {
+      throw new BadRequestException('Payment amount does not match');
+    }
+
     const isSuccess = dto.status === 'success';
 
-    // Update payment record
-    const updated = await this.prisma.payment.update({
-      where: { id: payment.id },
+    // Atomic transition: a second delivery of the same txnid updates 0 rows.
+    const transition = await this.prisma.payment.updateMany({
+      where: { id: payment.id, status: { in: ['PENDING', 'PROCESSING'] } },
       data: {
         razorpayPaymentId: dto.mihpayid || dto.payumoney_id,
         status: isSuccess ? 'SUCCESS' : 'FAILED',
@@ -177,14 +193,44 @@ export class PaymentsService {
       },
     });
 
-    // Clear Redis payment history cache so next fetch shows updated status
-    await this.redis.deletePattern(`payments:history:${payment.student.userId}:*`);
+    if (transition.count === 0) {
+      const current = await this.prisma.payment.findUnique({
+        where: { id: payment.id },
+      });
+      // Repeat delivery for an already-finalised payment: acknowledge, don't
+      // re-credit or advance the stage again.
+      return {
+        success: current?.status === 'SUCCESS',
+        duplicate: true,
+        payment: current,
+      };
+    }
+
+    await this.redis.deletePattern(
+      `payments:history:${payment.student.userId}:*`,
+    );
 
     if (isSuccess) {
       await this.advanceAfterPayment(payment);
     }
 
-    return { success: isSuccess, payment: updated };
+    const updated = await this.prisma.payment.findUnique({
+      where: { id: payment.id },
+    });
+    return { success: isSuccess, duplicate: false, payment: updated };
+  }
+
+  async verifyPayment(dto: VerifyPayUPaymentDto) {
+    return this.applyPayUResult(dto);
+  }
+
+  /**
+   * PayU server-to-server webhook (source of truth). Configure this URL as the
+   * webhook in the PayU dashboard; it is idempotent and hash-authenticated.
+   */
+  async handleWebhook(dto: VerifyPayUPaymentDto) {
+    const result = await this.applyPayUResult(dto);
+    return { status: 'ok', ...result };
   }
 
   private async advanceAfterPayment(payment: {

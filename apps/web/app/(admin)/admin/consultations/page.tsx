@@ -383,7 +383,9 @@ export default function ConsultationsAdminPage() {
                     <TableCell className="text-center">
                       <Select
                         value={item.status}
-                        onValueChange={(val) => handleStatusChange(item.id, val)}
+                        onValueChange={(val) => {
+                          if (val) handleStatusChange(item.id, val);
+                        }}
                       >
                         <SelectTrigger className={`w-[125px] h-8 text-[11px] font-bold px-3 select-none border rounded-full transition-all duration-200 tracking-wide mx-auto flex items-center justify-center gap-1.5 focus:ring-0 ${
                           statusDetails[item.status]?.cls || "text-gray-600 bg-gray-50 border-gray-200"

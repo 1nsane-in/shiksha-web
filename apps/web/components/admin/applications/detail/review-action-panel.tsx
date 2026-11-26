@@ -17,7 +17,7 @@ interface Props {
 export function ReviewActionPanel({ applicationId, firstName, onApprove, onReject, isPending }: Props) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
-  const [uploadedFile, setUploadedFile] = useState<{ url: string; fileName: string } | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{ url: string; key: string; fileName: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [approving, setApproving] = useState(false);
   const [actionError, setActionError] = useState("");
@@ -49,7 +49,7 @@ export function ReviewActionPanel({ applicationId, firstName, onApprove, onRejec
     setActionError("");
     try {
       const result = await uploadFileMutation.mutateAsync({ file: selectedFile, folder: "admission-letters" });
-      setUploadedFile({ url: result.url, fileName: selectedFile.name });
+      setUploadedFile({ url: result.url, key: result.key, fileName: selectedFile.name });
     } catch (err: any) {
       setActionError(err?.message || "File upload failed");
     } finally {
@@ -71,7 +71,7 @@ export function ReviewActionPanel({ applicationId, firstName, onApprove, onRejec
     setActionError("");
     try {
       await onApprove();
-      await uploadLetterMutation.mutateAsync({ applicationId, fileUrl: uploadedFile.url, fileName: uploadedFile.fileName });
+      await uploadLetterMutation.mutateAsync({ applicationId, fileKey: uploadedFile.key, fileName: uploadedFile.fileName });
       setUploadedFile(null);
       setSelectedFile(null);
     } catch (err: any) {

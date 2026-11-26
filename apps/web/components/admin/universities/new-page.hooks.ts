@@ -43,7 +43,7 @@ export function useUniversityForm() {
       const rawForm = parsed.formData as Record<string, unknown> | undefined;
       if (rawForm) {
         const defaults = getDefaultFormData();
-        const merged = { ...defaults };
+        const merged: UniversityFormData = { ...defaults };
         for (const key of Object.keys(rawForm)) {
           const k = key as keyof UniversityFormData;
           const val = rawForm[k];
@@ -55,9 +55,12 @@ export function useUniversityForm() {
             defaultVal &&
             typeof defaultVal === "object"
           ) {
-            merged[k] = { ...defaultVal, ...val };
+            (merged as unknown as Record<string, unknown>)[k] = {
+              ...defaultVal,
+              ...val,
+            };
           } else {
-            (merged as Record<string, unknown>)[k] = val;
+            (merged as unknown as Record<string, unknown>)[k] = val;
           }
         }
         setFormData(merged);
@@ -109,7 +112,7 @@ export function useUniversityForm() {
   const updateField = useCallback(
     (section: string, field: string, value: FormFieldValue) => {
       setFormData((prev) => {
-        const sectionData = (prev as Record<string, unknown>)[section];
+        const sectionData = (prev as unknown as Record<string, unknown>)[section];
         if (typeof sectionData === "object" && sectionData !== null && !Array.isArray(sectionData)) {
           return { ...prev, [section]: { ...sectionData, [field]: value } };
         }

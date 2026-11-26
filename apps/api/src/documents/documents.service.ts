@@ -12,6 +12,7 @@ import {
   UpdateDocumentTypeDto,
 } from './documents.dto';
 import { PaginatorService } from '../common/services/paginator.service';
+import { StorageService } from '../common/services/storage.service';
 
 @Injectable()
 export class DocumentsService {
@@ -19,14 +20,16 @@ export class DocumentsService {
     private prisma: PrismaService,
     private paginator: PaginatorService,
     private redis: RedisService,
+    private storage: StorageService,
   ) {}
 
   async getStudentDocuments(studentId: string) {
-    return this.prisma.studentDocument.findMany({
+    const documents = await this.prisma.studentDocument.findMany({
       where: { studentId },
       include: { documentType: true },
       orderBy: { createdAt: 'desc' },
     });
+    return this.storage.signDeep(documents);
   }
 
   async uploadDocument(studentId: string, dto: UploadDocumentDto) {
@@ -46,6 +49,15 @@ export class DocumentsService {
       throw new NotFoundException('Document type not found');
     }
 
+    // The client only ever sends the key returned by our upload endpoint.
+    // Reject foreign keys (another student's folder) and keys that do not
+    // exist in the bucket.
+    const expectedPrefix = `documents/${studentId}/`;
+    if (!dto.fileKey.startsWith(expectedPrefix)) {
+      throw new BadRequestException('Invalid file key');
+    }
+    await this.storage.assertExists(dto.fileKey);
+
     const existingDocument = await this.prisma.studentDocument.findFirst({
       where: {
         studentId,
@@ -64,9 +76,10 @@ export class DocumentsService {
       data: {
         studentId,
         documentTypeId: dto.documentTypeId,
-        fileUrl: dto.fileUrl,
+        fileUrl: dto.fileKey,
         fileName: dto.fileName,
         fileSize: dto.fileSize,
+        mimeType: dto.mimeType,
         status: 'UPLOADED',
       },
       include: { documentType: true },
@@ -124,7 +137,11 @@ export class DocumentsService {
       this.prisma.studentDocument.count({ where }),
     ]);
 
-    return this.paginator.wrapResult(documents, total, { page, limit });
+    return this.paginator.wrapResult(
+      await this.storage.signDeep(documents),
+      total,
+      { page, limit },
+    );
   }
 
   async verifyDocument(id: string, adminId: string, dto: VerifyDocumentDto) {
@@ -140,7 +157,7 @@ export class DocumentsService {
       throw new BadRequestException('Document cannot be verified');
     }
 
-    return this.prisma.studentDocument.update({
+    const updated = await this.prisma.studentDocument.update({
       where: { id },
       data: {
         status: dto.status,
@@ -155,6 +172,7 @@ export class DocumentsService {
         documentType: true,
       },
     });
+    return this.storage.signDeep(updated);
   }
 
   async markForReupload(id: string, remarks: string) {

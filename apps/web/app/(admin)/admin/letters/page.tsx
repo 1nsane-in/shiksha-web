@@ -43,13 +43,13 @@ export default function AdminLettersPage() {
       if (pendingUpload === "admission") {
         await uploadAdmissionMutation.mutateAsync({
           applicationId: appId,
-          fileUrl: uploadResult.url,
+          fileKey: uploadResult.key,
           fileName: uploadResult.fileName,
         });
       } else {
         await uploadInvitationMutation.mutateAsync({
           applicationId: appId,
-          fileUrl: uploadResult.url,
+          fileKey: uploadResult.key,
           fileName: uploadResult.fileName,
         });
       }

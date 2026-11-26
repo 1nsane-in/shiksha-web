@@ -27,8 +27,9 @@ function AuthCallbackContent() {
         }
 
         const data = await googleLogin({ accessToken, role });
-        if (data.accessToken) {
-          useAuthStore.getState().login(data.user, data.accessToken);
+        // Access token lives in an httpOnly cookie now; only the profile is needed.
+        if (data.user) {
+          useAuthStore.getState().login(data.user);
         }
         sessionStorage.removeItem("googleSelectedRole");
 

@@ -6,6 +6,7 @@ import {
   Param,
   Query,
   UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -47,9 +48,19 @@ export class PaymentsController {
 
   @Public()
   @Post('verify')
-  @ApiOperation({ summary: 'Verify PayU payment response' })
+  @ApiOperation({ summary: 'Verify PayU payment response (browser return)' })
   async verify(@Body() dto: VerifyPayUPaymentDto) {
     return this.paymentsService.verifyPayment(dto);
+  }
+
+  @Public()
+  @Post('webhook')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'PayU server-to-server webhook (source of truth)',
+  })
+  async webhook(@Body() dto: VerifyPayUPaymentDto) {
+    return this.paymentsService.handleWebhook(dto);
   }
 
   @Get('history')

@@ -3,6 +3,7 @@ import { NotFoundException } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginatorService } from '../common/services/paginator.service';
+import { StorageService } from '../common/services/storage.service';
 import { RedisService } from '../redis/redis.service';
 
 /**
@@ -32,6 +33,14 @@ describe('ApplicationsService.findOne - per-application payment scoping', () => 
         {
           provide: PaginatorService,
           useValue: { getSkip: () => 0, wrapResult: (items: unknown) => items },
+        },
+        {
+          provide: StorageService,
+          useValue: {
+            signDeep: jest.fn(async (v: unknown) => v),
+            isPrivateKey: jest.fn().mockReturnValue(false),
+            viewUrl: jest.fn(async (v: string) => v),
+          },
         },
         {
           provide: RedisService,

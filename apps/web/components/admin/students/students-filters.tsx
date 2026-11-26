@@ -24,7 +24,7 @@ export function StudentsFilters({ stage, status, onStageChange, onStatusChange }
         </SelectContent>
       </Select>
 
-      <Select value={status === undefined ? "all" : status} onValueChange={(v) => onStatusChange(v === "all" ? undefined : v)}>
+      <Select value={status === undefined ? "all" : status} onValueChange={(v) => onStatusChange(!v || v === "all" ? undefined : v)}>
         <SelectTrigger className="w-[140px] bg-white border-slate-200 text-xs">
           <SelectValue placeholder="Status" />
         </SelectTrigger>

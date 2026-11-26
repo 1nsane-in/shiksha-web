@@ -108,8 +108,8 @@ export function GoogleLoginButton({
 
   const completeWithResponse = useCallback(
     (data: AuthResponse | null) => {
-      if (data?.accessToken && data?.user) {
-        useAuthStore.getState().login(data.user, data.accessToken);
+      if (data?.user) {
+        useAuthStore.getState().login(data.user);
         if (onLoginSuccess) onLoginSuccess();
         if (redirectTo) {
           router.push(redirectTo);

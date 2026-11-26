@@ -41,7 +41,7 @@ export function LocationStep({
                 onFieldUpdate("location", "state", "");
                 onFieldUpdate("location", "city", "");
                 if (code && formErrors["location.country"]) {
-                  onSetFormErrors((prev) => ({ ...prev, "location.country": undefined }));
+                  onSetFormErrors((prev) => ({ ...prev, "location.country": "" }));
                 }
               }}
               placeholder="Search country..."
@@ -65,7 +65,7 @@ export function LocationStep({
                 onFieldUpdate("location", "state", name);
                 onFieldUpdate("location", "city", "");
                 if (code && formErrors["location.state"]) {
-                  onSetFormErrors((prev) => ({ ...prev, "location.state": undefined }));
+                  onSetFormErrors((prev) => ({ ...prev, "location.state": "" }));
                 }
               }}
               placeholder="Search state..."
@@ -87,7 +87,7 @@ export function LocationStep({
               onChange={(val) => {
                 onFieldUpdate("location", "city", val);
                 if (val && formErrors["location.city"]) {
-                  onSetFormErrors((prev) => ({ ...prev, "location.city": undefined }));
+                  onSetFormErrors((prev) => ({ ...prev, "location.city": "" }));
                 }
               }}
               placeholder="Search city..."
@@ -148,7 +148,7 @@ export function LocationStep({
                   const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
                   onFieldUpdate("contact", "phone", digits);
                   if (digits && formErrors["contact.phone"]) {
-                    onSetFormErrors((prev) => ({ ...prev, "contact.phone": undefined }));
+                    onSetFormErrors((prev) => ({ ...prev, "contact.phone": "" }));
                   }
                 }}
                 placeholder="9876543210"
@@ -173,7 +173,7 @@ export function LocationStep({
                 const time = `${formData.contact._officeHoursFrom || "09:00"} - ${formData.contact._officeHoursTo || "17:00"}`;
                 onFieldUpdate("contact", "admissionOfficeHours", `${val} ${time}`);
                 if (val && formErrors["contact.admissionOfficeHours"]) {
-                  onSetFormErrors((prev) => ({ ...prev, "contact.admissionOfficeHours": undefined }));
+                  onSetFormErrors((prev) => ({ ...prev, "contact.admissionOfficeHours": "" }));
                 }
               }}
             >

@@ -14,11 +14,14 @@ const roleDefaults: Record<string, string> = {
 };
 
 
-function decodeToken(token: string): { role?: string } | null {
+/**
+ * Non-sensitive marker cookie set at login. Used for UX routing only — the
+ * API is the authorization boundary (tokens are httpOnly, unreadable here).
+ */
+function roleFromCookie(value?: string): string | null {
+  if (!value) return null;
   try {
-    const payload = token.split(".")[1];
-    if (!payload) return null;
-    return JSON.parse(atob(payload));
+    return decodeURIComponent(value).toLowerCase();
   } catch {
     return null;
   }
@@ -36,18 +39,16 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
-  const token = request.cookies.get("token")?.value;
+  const roleMarker = roleFromCookie(request.cookies.get("auth_role")?.value);
 
   // Redirect logged-in PARENT/ADMIN from auth-only pages (login, register, etc.)
   // Students are allowed on these pages.
   const isPublicOnly = publicOnlyRoutes.some((route) =>
     pathname.startsWith(route)
   );
-  if (isPublicOnly && token) {
-    const payload = decodeToken(token);
-    const role = payload?.role?.toLowerCase();
-    if (role && role !== "student") {
-      const dest = roleDefaults[role] || "/parents/dashboard";
+  if (isPublicOnly && roleMarker) {
+    if (roleMarker !== "student") {
+      const dest = roleDefaults[roleMarker] || "/parents/dashboard";
       return NextResponse.redirect(new URL(dest, request.url));
     }
   }
@@ -57,20 +58,13 @@ export function proxy(request: NextRequest) {
   );
   if (!isProtected) return response;
 
-  if (!token) {
+  if (!roleMarker) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  const payload = decodeToken(token);
-  if (!payload) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  const role = payload.role?.toLowerCase() ?? "";
+  const role = roleMarker;
 
   // Normalize: JWT stores "PARENT" (singular), route is "/parents" (plural)
   const normalizedRole = role === "parent" ? "parents" : role;

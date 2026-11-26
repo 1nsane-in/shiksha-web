@@ -87,6 +87,38 @@ describe('JwtAuthGuard', () => {
     expect((req as any).user).toEqual(payload);
   });
 
+  it('authenticates from the httpOnly accessToken cookie', async () => {
+    reflector.getAllAndOverride.mockReturnValue(false);
+    const payload = { id: 'user-1', email: 'test@example.com' };
+    jwtService.verifyAsync.mockResolvedValue(payload);
+    configService.get.mockReturnValue('secret');
+    const req: Record<string, any> = {
+      headers: {},
+      cookies: { accessToken: 'cookie-token' },
+    };
+    const ctx = mockContext(req);
+
+    await expect(guard.canActivate(ctx)).resolves.toBe(true);
+    expect((req as any).user).toEqual(payload);
+    expect(jwtService.verifyAsync).toHaveBeenCalledWith('cookie-token', {
+      secret: 'secret',
+    });
+  });
+
+  it('prefers the Authorization header over the cookie', async () => {
+    reflector.getAllAndOverride.mockReturnValue(false);
+    jwtService.verifyAsync.mockResolvedValue({ id: 'user-1' });
+    configService.get.mockReturnValue('secret');
+    const req: Record<string, any> = {
+      headers: { authorization: 'Bearer header-token' },
+      cookies: { accessToken: 'cookie-token' },
+    };
+    await guard.canActivate(mockContext(req));
+    expect(jwtService.verifyAsync).toHaveBeenCalledWith('header-token', {
+      secret: 'secret',
+    });
+  });
+
   it('throws UnauthorizedException when JWT_SECRET is not configured', async () => {
     reflector.getAllAndOverride.mockReturnValue(false);
     configService.get.mockReturnValue(undefined);

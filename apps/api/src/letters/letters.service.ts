@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TimelineService } from '../common/services/timeline.service';
 import { NotificationService } from '../common/services/notification.service';
 import { UploadLetterDto, UpdateLetterDto } from './dto/letter.dto';
+import { StorageService } from '../common/services/storage.service';
 
 @Injectable()
 export class LettersService {
@@ -15,7 +16,15 @@ export class LettersService {
     private prisma: PrismaService,
     private timeline: TimelineService,
     private notification: NotificationService,
+    private storage: StorageService,
   ) {}
+
+  private async assertLetterKey(fileKey: string, prefixes: string[]) {
+    if (!prefixes.some((p) => fileKey.startsWith(p))) {
+      throw new BadRequestException('Invalid file key');
+    }
+    await this.storage.assertExists(fileKey);
+  }
 
   // --- Admission Letter ---
 
@@ -31,10 +40,11 @@ export class LettersService {
       );
     }
 
+    await this.assertLetterKey(dto.fileKey, ['admission-letters/']);
     const letter = await this.prisma.admissionLetter.upsert({
       where: { applicationId: dto.applicationId },
       update: {
-        fileUrl: dto.fileUrl,
+        fileUrl: dto.fileKey,
         fileName: dto.fileName,
         uploadedBy: adminId,
         uploadedAt: new Date(),
@@ -42,7 +52,7 @@ export class LettersService {
       create: {
         studentId: application.studentId,
         applicationId: dto.applicationId,
-        fileUrl: dto.fileUrl,
+        fileUrl: dto.fileKey,
         fileName: dto.fileName,
         uploadedBy: adminId,
       },
@@ -72,7 +82,7 @@ export class LettersService {
       data: { applicationId: dto.applicationId, letterId: letter.id },
     });
 
-    return letter;
+    return this.storage.signDeep(letter);
   }
 
   async getAdmissionLetter(
@@ -96,7 +106,7 @@ export class LettersService {
       where: { id: letter.id },
       data: { viewCount: { increment: 1 } },
     });
-    return letter;
+    return this.storage.signDeep(letter);
   }
 
   async getMyAdmissionLetter(userId: string) {
@@ -144,7 +154,10 @@ export class LettersService {
       where: { id: letter.id },
       data: { viewCount: { increment: 1 } },
     });
-    return { ...letter, isLocked: false as const };
+    return {
+      ...(await this.storage.signDeep(letter)),
+      isLocked: false as const,
+    };
   }
 
   async downloadAdmissionLetter(applicationId: string) {
@@ -156,7 +169,7 @@ export class LettersService {
       where: { id: letter.id },
       data: { downloadCount: { increment: 1 } },
     });
-    return letter;
+    return this.storage.signDeep(letter);
   }
 
   // --- Invitation Letter ---
@@ -168,10 +181,11 @@ export class LettersService {
     });
     if (!application) throw new NotFoundException('Application not found');
 
+    await this.assertLetterKey(dto.fileKey, ['invitation-letters/']);
     const letter = await this.prisma.invitationLetter.upsert({
       where: { applicationId: dto.applicationId },
       update: {
-        fileUrl: dto.fileUrl,
+        fileUrl: dto.fileKey,
         fileName: dto.fileName,
         uploadedBy: adminId,
         uploadedAt: new Date(),
@@ -179,7 +193,7 @@ export class LettersService {
       create: {
         studentId: application.studentId,
         applicationId: dto.applicationId,
-        fileUrl: dto.fileUrl,
+        fileUrl: dto.fileKey,
         fileName: dto.fileName,
         uploadedBy: adminId,
       },
@@ -213,7 +227,7 @@ export class LettersService {
       data: { applicationId: dto.applicationId, letterId: letter.id },
     });
 
-    return letter;
+    return this.storage.signDeep(letter);
   }
 
   async getInvitationLetter(
@@ -237,7 +251,7 @@ export class LettersService {
       where: { id: letter.id },
       data: { viewCount: { increment: 1 } },
     });
-    return letter;
+    return this.storage.signDeep(letter);
   }
 
   async getMyInvitationLetter(userId: string) {
@@ -257,7 +271,7 @@ export class LettersService {
       where: { id: letter.id },
       data: { viewCount: { increment: 1 } },
     });
-    return letter;
+    return this.storage.signDeep(letter);
   }
 
   async downloadInvitationLetter(applicationId: string) {
@@ -278,14 +292,15 @@ export class LettersService {
       where: { id: letter.id },
       data: { downloadCount: { increment: 1 } },
     });
-    return letter;
+    return this.storage.signDeep(letter);
   }
 
   async updateInvitationLetter(letterId: string, dto: UpdateLetterDto) {
-    return this.prisma.invitationLetter.update({
+    const letter = await this.prisma.invitationLetter.update({
       where: { id: letterId },
       data: dto,
     });
+    return this.storage.signDeep(letter);
   }
 
   // --- Stage 4 approval after invitation letter ---

@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Avatar,
   AvatarFallback,
@@ -33,6 +33,7 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const router = useRouter()
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -78,11 +79,12 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link href="/admin/profile" className="cursor-pointer">
-                  <CircleUserRoundIcon />
-                  Account
-                </Link>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => router.push("/admin/profile")}
+              >
+                <CircleUserRoundIcon />
+                Account
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <CreditCardIcon

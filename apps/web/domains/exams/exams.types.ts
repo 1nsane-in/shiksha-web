@@ -34,6 +34,8 @@ export interface ExamQuestion {
   topic?: string;
   orderIndex: number;
   options?: QuestionOption[];
+  /** Question-type specific settings (e.g. wordLimit for descriptive). */
+  config?: { wordLimit?: number; [key: string]: unknown };
 }
 
 export interface Exam {

@@ -3,6 +3,7 @@ import { StudentsService } from '../../src/students/students.service';
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { RedisService } from '../../src/redis/redis.service';
 import { PaginatorService } from '../../src/common/services/paginator.service';
+import { StorageService } from '../../src/common/services/storage.service';
 import {
   NotFoundException,
   ConflictException,
@@ -100,6 +101,16 @@ describe('StudentsService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: RedisService, useValue: mockRedis },
         { provide: PaginatorService, useValue: mockPaginator },
+        {
+          provide: StorageService,
+          useValue: {
+            upload: jest.fn(),
+            assertExists: jest.fn().mockResolvedValue(undefined),
+            signDeep: jest.fn(async (v: unknown) => v),
+            isPrivateKey: jest.fn().mockReturnValue(false),
+            viewUrl: jest.fn(async (v: string) => v),
+          },
+        },
       ],
     }).compile();
 

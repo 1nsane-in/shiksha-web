@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from "react";
 // ─── Sub-types ───────────────────────────────────────────
 
 export interface FeeBreakdownItem {
+  id?: string;
   name: string;
   amount: number;
 }
@@ -71,6 +72,10 @@ export interface UniversityFormData {
     email: string;
     phone: string;
     admissionOfficeHours: string;
+    /** UI-only parts of the office-hours picker; folded into admissionOfficeHours. */
+    _officeHoursDays?: string;
+    _officeHoursFrom?: string;
+    _officeHoursTo?: string;
   };
   academic: {
     programs: Program[];
@@ -88,6 +93,8 @@ export interface UniversityFormData {
     nationalRankingSource: string;
     otherRankingSource: string;
     otherNationalRankingSource: string;
+    worldRank?: string;
+    nationalRank?: string;
     subjectRankings: SubjectRanking[];
   };
   fees: {
@@ -154,7 +161,14 @@ export interface UniversityFormData {
   socialLinks: SocialLinks;
 }
 
-export type FormFieldValue = string | number | boolean | string[] | Record<string, string> | null | undefined;
+export type FormFieldValue =
+  | string
+  | number
+  | boolean
+  | readonly unknown[]
+  | Record<string, unknown>
+  | null
+  | undefined;
 
 // ─── Image keys ──────────────────────────────────────────
 

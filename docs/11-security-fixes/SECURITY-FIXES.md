@@ -3,7 +3,7 @@
 Date: 2026-11-18
 Scope: NestJS API (`apps/api`) + Next.js web (`apps/web`)
 Method: static code review (not a penetration test)
-Status: OPEN
+Status: P0 code fixes implemented 2026-11-25 — ops actions, P1/P2 and test debt still OPEN (see §6)
 
 > Supersedes the open items in `docs/07-security/SECURITY_AUDIT_REPORT.md` where they overlap.
 > Some older findings are already fixed (helmet, CORS allowlist, rate limiting, account lockout,
@@ -273,12 +273,38 @@ Legend: severity = impact if exploited. `P0` = do this week, `P1` = 2 weeks, `P2
 ## 2. Implementation checklist
 
 ### P0 (this week)
-- [ ] FIND-001 httpOnly access token; remove `document.cookie` token writes
+- [x] FIND-001 httpOnly access token; remove `document.cookie` token writes (2026-11-25)
+  - API sets `accessToken` httpOnly cookie (path `/`, 15m, `SameSite=None; Secure` in prod,
+    `Lax` in dev) alongside `refreshToken`; `JwtAuthGuard` still accepts `Authorization: Bearer`
+    first (mobile/SSR) then falls back to the cookie. Logout clears it.
+  - Web sends `withCredentials` only; no token in JS/localStorage. `proxy.ts` gates routes on a
+    non-sensitive `auth_role` marker cookie (UX only — API enforces).
+  - Added global Origin check for unsafe methods (CSRF defense for cookie auth).
 - [x] FIND-002 prod: no body/query logs; dev: gated + redacted body logs (2026-11-18)
-- [ ] FIND-003 random owner-scoped storage keys
-- [ ] FIND-004 server-generated keys; stop trusting `fileUrl`/`fileSize`
-- [ ] FIND-005 split public/private buckets; signed URLs for documents
-- [ ] FIND-006 PayU webhook + amount/status/idempotency checks
+- [x] FIND-003 random owner-scoped storage keys (2026-11-25)
+  - `key = ${folder}/${ownerId}/${crypto.randomUUID()}${ext}` — extension only, no original
+    filename, no overwrite. Students can only upload to `documents/<their userId>/` (the
+    folder is chosen server-side).
+- [x] FIND-004 server-generated keys; stop trusting `fileUrl`/`fileSize` (2026-11-25)
+  - Upload DTOs (`documents`, `letters`, `university documents`) now take `fileKey`; the API
+    validates the folder prefix + ownership and `HeadObject`s the key before storing it.
+    `forbidNonWhitelisted` rejects requests that still send `fileUrl`. Web clients send the
+    server-returned `key`.
+- [x] FIND-005 split public/private buckets; signed URLs for documents (2026-11-25)
+  - Code supports two buckets: public assets (`gallery*`, `video-tours`, `logos`, `banners`,
+    `brochures`, `avatars`) go to `R2_PUBLIC_BUCKET_NAME`; everything else stays in the private
+    bucket and is served only via 1h signed URLs (`StorageService.viewUrl`/`signDeep`).
+  - OPS: create a separate public bucket, set `R2_PUBLIC_BUCKET_NAME`, and make sure
+    `R2_BUCKET_NAME` (private) has no public domain. A boot warning fires while they match.
+  - Access logging for document views/downloads still uses the existing counters (P2).
+- [x] FIND-006 PayU webhook + amount/status/idempotency checks (2026-11-25)
+  - `POST /payments/webhook` (`@Public`, configured in the PayU dashboard) and the browser
+    return now share one `applyPayUResult` path: constant-time hash compare
+    (`crypto.timingSafeEqual`), stored-amount/currency check, atomic
+    `PENDING|PROCESSING → SUCCESS|FAILED` transition via `updateMany`, replay-safe no-op on
+    duplicates.
+  - OPS TODO: point the PayU webhook at `/payments/webhook`, enable S2S; daily settlement
+    reconciliation remains a follow-up job.
 - [x] FIND-007 shared bcrypt cost 12 across all password-hash sites (2026-11-18)
 
 ### P1 (2 weeks)
@@ -286,9 +312,18 @@ Legend: severity = impact if exploited. `P0` = do this week, `P1` = 2 weeks, `P2
 - [x] FIND-009 env validation + production boot guards (2026-11-18)
 - [x] FIND-010 shared OTP lockout + atomic consume + no OTP logging (2026-11-18)
 - [x] FIND-011 atomic refresh rotation + family reuse detection (2026-11-18)
-- [x] FIND-012 origin guard on all cookie-auth routes (2026-11-18)
+- [x] FIND-012 origin guard on all cookie-auth routes (2026-11-18; extended 2026-11-25 to a
+  global Origin check for all unsafe methods in `main.ts`, beyond `/auth/*`)
 - [x] FIND-013 centralized magic-byte validation + size caps + SVG removal (2026-11-18)
-- [ ] FIND-014 Next.js security headers; remove `ignoreBuildErrors`
+- [x] FIND-014 Next.js security headers; remove `ignoreBuildErrors` (2026-11-25)
+  - `apps/web/next.config.ts` now sets CSP, HSTS (prod), `X-Content-Type-Options`,
+    `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`,
+    `Cross-Origin-Opener-Policy: same-origin-allow-popups` (Google popup), and
+    `poweredByHeader: false`. CSP is production-only (dev keeps HMR usable); requires
+    `NEXT_PUBLIC_ATLAS_URL` in `frame-src` if the atlas origin changes.
+  - All 95 pre-existing TypeScript errors fixed (admin university wizard types, exams types,
+    landing seed data, null handling). `typescript.ignoreBuildErrors` removed — `next build`
+    now fails on type errors.
 - [x] FIND-015 admin TOTP backend (enroll/enable/verify + backup codes) (2026-11-18)
 - [ ] FIND-016 ownership helper + authz e2e matrix
 
@@ -313,6 +348,9 @@ grep -rn "JSON.stringify(req.body)\|Request Body" apps/api/src
 
 # bcrypt cost
 grep -rn "bcrypt.hash" apps/api/src/auth
+
+# web security headers (prod build)
+curl -sI http://localhost:3000/ | grep -iE "content-security-policy|strict-transport|x-frame-options"
 
 # swagger exposure
 grep -n "SwaggerModule" apps/api/src/main.ts
@@ -360,3 +398,60 @@ A finding closes only when:
    token refresh, OTP lockout).
 4. `docs/11-security-fixes/SECURITY-FIXES.md` checkboxes updated.
 5. No secrets, tokens, passwords or OTPs appear in logs after the change.
+
+---
+
+## 6. Open follow-ups (tracking, updated 2026-11-25)
+
+### 6.1 Ops / infrastructure (required to close P0 acceptance in production)
+- [ ] Create a dedicated public R2 bucket; set `R2_PUBLIC_BUCKET_NAME`; expose a public domain
+      on that bucket only. Ensure `R2_BUCKET_NAME` (private) has **no** public domain.
+      Until this is done FIND-005 acceptance ("anonymous doc URL → 403") is not met for new files.
+- [ ] Migrate legacy storage rows that still hold old public URLs:
+      `student_documents.file_url`, `university_documents.file_url`, admission/invitation letter
+      `file_url`, and `university_applications.form_data.passportUrl/certificateUrl`.
+      Re-upload or move objects to the private bucket; either way lock the old public folder.
+- [ ] PayU dashboard: set webhook URL to `${API_URL}/payments/webhook`, enable S2S, and confirm
+      `application/x-www-form-urlencoded` bodies are parsed and hash-verified with a live test payment.
+- [ ] Mobile client: auth calls must send `?mobile=true` to receive `accessToken`/`refreshToken`
+      in the response body (web no longer receives them; cookies only).
+- [ ] Confirm `FRONTEND_URL` lists every web origin (CORS allowlist + CSRF Origin check + cookie
+      issuance rely on it); production must be HTTPS for `SameSite=None; Secure` cookies.
+
+### 6.2 Verification gaps (cannot be done from local dev)
+- [ ] Staging smoke test end-to-end: login → `accessToken` httpOnly cookie → `/auth/me` →
+      refresh rotation → logout clears both cookies.
+- [ ] Staging upload smoke test: `POST /upload?folder=documents` → `fileKey` → `POST /documents`
+      (ownership prefix + `HeadObject`) → read returns 1h signed URL → tampered `fileKey`
+      (another student's folder) returns 400.
+- [ ] Staging webhook smoke test: replayed success does not double-advance stage; wrong amount rejected.
+- [ ] Anonymous GET against a stored document key returns 403 once the public bucket split is done.
+
+### 6.3 Test debt
+- [ ] 5 suites failing before this work (mock drift, not production bugs): `src/auth/auth.service.spec.ts`,
+      `test/parents/parents.service.spec.ts`, `test/gallery/gallery.service.spec.ts`,
+      `test/gallery/gallery.controller.spec.ts`, `test/students/students.controller.spec.ts`.
+- [ ] Add integration tests (needs running API + test DB): cookie auth, upload `fileKey` ownership,
+      PayU webhook replay/amount. Unit coverage added 2026-11-25:
+      `storage.service.spec.ts`, guard cookie tests, payment replay/amount tests.
+
+### 6.4 Code follow-ups
+- [ ] Payment settlement reconciliation job against the PayU settlement report; alert on mismatch.
+- [ ] Document view/download access logging (counters exist; add audit trail / signed-URL request logs).
+- [ ] `auth_role` cookie is user-writable by design (routing only) — verify no UI-only authorization
+      depends on it; API remains the enforcement point.
+- [ ] Signed URLs expire after 1h. Any page that keeps a document URL in state longer than that will
+      404/403 on click — re-fetch on click or raise TTL if UX requires.
+- [ ] FIND-016 ownership/authz e2e matrix (fileKey prefix checks are done per-resource; centralize
+      the helper and test the matrix).
+
+### 6.5 Docs
+- [ ] `docs/API.md`: httpOnly access cookie, `?mobile=true`, `POST /payments/webhook` contract,
+      `fileKey` upload flow, `R2_PUBLIC_BUCKET_NAME`.
+- [ ] Note in deployment runbook: private bucket must not have a public domain.
+
+### 6.6 Status snapshot (2026-11-25)
+- API build: clean. API tests: 544/574 pass; 30 failures all in the 5 pre-existing suites above.
+- Web build: passes with type checking enabled (0 TS errors); `ignoreBuildErrors` removed.
+- Web security headers verified on the standalone server (`curl -sI /` shows CSP + HSTS).
+- P0 code: FIND-001/002/003/004/005/006/007 implemented, **not committed yet**.

@@ -239,7 +239,7 @@ export default function UniversityDetailPage() {
       uniId,
       data: {
         type,
-        fileUrl: res.url,
+        fileKey: res.key,
         fileName: file.name,
         fileSize: file.size,
       },

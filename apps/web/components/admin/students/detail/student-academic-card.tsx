@@ -21,8 +21,14 @@ export function StudentAcademicCard({ neetScore, neetRank, twelfthPercentage, te
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <ScoreTile label="NEET Score" value={neetScore ?? "N/A"} />
-          <ScoreTile label="NEET Rank" value={neetRank ?? "N/A"} />
+          <ScoreTile
+            label="NEET Score"
+            value={neetScore != null ? String(neetScore) : "N/A"}
+          />
+          <ScoreTile
+            label="NEET Rank"
+            value={neetRank != null ? String(neetRank) : "N/A"}
+          />
           <ScoreTile label="12th Grade %" value={twelfthPercentage ? `${twelfthPercentage}%` : "N/A"} />
           <ScoreTile label="10th Grade %" value={tenthPercentage ? `${tenthPercentage}%` : "N/A"} />
         </div>

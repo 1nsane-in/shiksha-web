@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAdminUniversity, useUpdateUniversity } from "@/domains/universities";
+import type { UniversityDetail } from "@/domains/universities/universities.types";
 import { Button } from "@/ui";
 import { Input } from "@/ui";
 import { Label } from "@/ui";
@@ -32,7 +33,9 @@ export default function EditUniversityPage() {
       setFormData({
         name: university.name || "",
         shortName: university.shortName || "",
-        code: university.code || "",
+        // `code` is not part of the API payload; kept for the legacy form field.
+        code:
+          (university as UniversityDetail & { code?: string }).code || "",
         establishedYear: university.establishedYear || new Date().getFullYear(),
         type: university.type || "PRIVATE",
         website: university.website || "",
@@ -46,13 +49,13 @@ export default function EditUniversityPage() {
           const rawRec = university.recognition;
           const rawSubj = rawRec?.subjectRankings;
           const subjArr = Array.isArray(rawSubj) ? rawSubj : Object.entries(rawSubj || {}).map(([k, v]) => ({ subject: k, ranking: v as string }));
-          return { bodies: [], ecfmgStatus: "PENDING", nbaAccredited: false, accreditations: [], naacGrade: "", worldRank: null, nationalRank: null, rankingSource: "", worldRankingSource: "", nationalRankingSource: "", otherRankingSource: "", otherNationalRankingSource: "", subjectRankings: subjArr, ...rawRec, subjectRankings: subjArr };
+          return { bodies: [], ecfmgStatus: "PENDING", nbaAccredited: false, accreditations: [], naacGrade: "", worldRank: null, nationalRank: null, rankingSource: "", worldRankingSource: "", nationalRankingSource: "", otherRankingSource: "", otherNationalRankingSource: "", ...rawRec, subjectRankings: subjArr };
         })(),
         fees: (() => {
           const rawFees = university.fees;
           const rawOther = rawFees?.otherFees;
           const otherFeesArr = Array.isArray(rawOther) ? rawOther : Object.entries(rawOther || {}).map(([k, v]) => ({ name: k, amount: v as number }));
-          return { tuitionAnnual: 0, totalProgram: 0, hostelAnnual: 0, registration: 0, examination: 0, library: 0, otherFees: otherFeesArr, currency: "INR", scholarshipAvailable: false, scholarshipDetails: "", paymentSchedule: "", refundPolicy: "", feeHikePolicy: "", ...rawFees, otherFees: otherFeesArr };
+          return { tuitionAnnual: 0, totalProgram: 0, hostelAnnual: 0, registration: 0, examination: 0, library: 0, currency: "INR", scholarshipAvailable: false, scholarshipDetails: "", paymentSchedule: "", refundPolicy: "", feeHikePolicy: "", ...rawFees, otherFees: otherFeesArr };
         })(),
         infrastructure: university.infrastructure || { hospitalBeds: 0, departments: [], hostelBoys: 0, hostelGirls: 0, laboratories: [], facilities: [], cafeteria: false, wifiCampus: false, transportation: false, librarySize: "", campusArea: 0 },
         admission: university.admission || { entranceExams: ["NEET"], minimumMarks: "", ageCriteria: "", eligibility: "", requiredDocuments: [], applicationDeadline: "", applicationFee: 0, selectionProcess: "", reservationPolicy: "", programEligibility: [] },
@@ -62,7 +65,7 @@ export default function EditUniversityPage() {
           const rawAdmin = university.admin;
           const rawBank = rawAdmin?.bankDetails;
           const bankArr = Array.isArray(rawBank) ? rawBank : Object.entries(rawBank || {}).map(([k, v]) => ({ key: k, value: v as string }));
-          return { pocName: "", pocDesignation: "", pocEmail: "", pocPhone: "", phoneCountryCode: "", phoneNumber: "", accountName: "", accountNumber: "", bankName: "", bankBranch: "", ifscCode: "", commission: 10, gstNumber: "", panNumber: "", bankCountry: "", bankDetails: bankArr, ...rawAdmin, bankDetails: bankArr };
+          return { pocName: "", pocDesignation: "", pocEmail: "", pocPhone: "", phoneCountryCode: "", phoneNumber: "", accountName: "", accountNumber: "", bankName: "", bankBranch: "", ifscCode: "", commission: 10, gstNumber: "", panNumber: "", bankCountry: "", ...rawAdmin, bankDetails: bankArr };
         })(),
         socialLinks: university.socialLinks || { facebook: "", instagram: "", youtube: "", linkedin: "", twitter: "", tiktok: "" },
         studentDemographics: university.studentDemographics || { totalStudents: 0, localStudents: 0, foreignStudents: 0, foreignByCountry: [] },

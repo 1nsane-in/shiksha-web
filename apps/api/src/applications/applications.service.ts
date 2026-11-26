@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { PaginatorService } from '../common/services/paginator.service';
+import { StorageService } from '../common/services/storage.service';
 
 @Injectable()
 export class ApplicationsService {
@@ -13,6 +14,7 @@ export class ApplicationsService {
     private prisma: PrismaService,
     private paginator: PaginatorService,
     private redis: RedisService,
+    private storage: StorageService,
   ) {}
 
   async findAll(page = 1, limit = 10, status?: string, search?: string, fields?: string) {
@@ -108,7 +110,8 @@ export class ApplicationsService {
           throw new NotFoundException('Application not found');
         }
 
-        return application;
+        // Private keys (documents/…) become short-lived signed URLs.
+        return this.storage.signDeep(application);
       },
       300, // Cache for 5 minutes
     );

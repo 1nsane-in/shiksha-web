@@ -3,6 +3,7 @@ import { LettersService } from '../../src/letters/letters.service';
 import { PrismaService } from '../../src/prisma/prisma.service';
 import { TimelineService } from '../../src/common/services/timeline.service';
 import { NotificationService } from '../../src/common/services/notification.service';
+import { StorageService } from '../../src/common/services/storage.service';
 import {
   NotFoundException,
   BadRequestException,
@@ -66,7 +67,7 @@ const mockAdmissionLetter = {
   id: 'letter-1',
   studentId: 'student-1',
   applicationId: 'app-1',
-  fileUrl: 'https://example.com/letter.pdf',
+  fileKey: 'admission-letters/u1/11111111-1111-1111-1111-111111111111.pdf',
   fileName: 'admission.pdf',
   uploadedBy: 'admin-1',
   uploadedAt: new Date(),
@@ -80,7 +81,7 @@ const mockInvitationLetter = {
   id: 'inv-1',
   studentId: 'student-1',
   applicationId: 'app-1',
-  fileUrl: 'https://example.com/invitation.pdf',
+  fileKey: 'invitation-letters/u1/22222222-2222-2222-2222-222222222222.pdf',
   fileName: 'invitation.pdf',
   uploadedBy: 'admin-1',
   isDownloadable: false,
@@ -100,7 +101,7 @@ describe('LettersService', () => {
   const adminId = 'admin-1';
   const dto: UploadLetterDto = {
     applicationId: 'app-1',
-    fileUrl: 'https://example.com/letter.pdf',
+    fileKey: 'admission-letters/u1/11111111-1111-1111-1111-111111111111.pdf',
     fileName: 'admission.pdf',
   };
 
@@ -113,6 +114,15 @@ describe('LettersService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: TimelineService, useValue: mockTimeline },
         { provide: NotificationService, useValue: mockNotification },
+        {
+          provide: StorageService,
+          useValue: {
+            assertExists: jest.fn().mockResolvedValue(undefined),
+            signDeep: jest.fn(async (v: unknown) => v),
+            isPrivateKey: jest.fn().mockReturnValue(false),
+            viewUrl: jest.fn(async (v: string) => v),
+          },
+        },
       ],
     }).compile();
 
@@ -157,7 +167,7 @@ describe('LettersService', () => {
       expect(prisma.admissionLetter.upsert).toHaveBeenCalledWith({
         where: { applicationId: dto.applicationId },
         update: {
-          fileUrl: dto.fileUrl,
+          fileUrl: dto.fileKey,
           fileName: dto.fileName,
           uploadedBy: adminId,
           uploadedAt: expect.any(Date),
@@ -165,7 +175,7 @@ describe('LettersService', () => {
         create: {
           studentId: mockApplication.studentId,
           applicationId: dto.applicationId,
-          fileUrl: dto.fileUrl,
+          fileUrl: dto.fileKey,
           fileName: dto.fileName,
           uploadedBy: adminId,
         },
@@ -356,12 +366,18 @@ describe('LettersService', () => {
       timeline.onInvitationLetterUploaded.mockResolvedValue(undefined);
       notification.create.mockResolvedValue(undefined);
 
-      const result = await service.uploadInvitationLetter(adminId, dto);
+      const result = await service.uploadInvitationLetter(adminId, {
+        ...dto,
+        fileKey:
+          'invitation-letters/u1/22222222-2222-2222-2222-222222222222.pdf',
+      });
 
+      const invitationKey =
+        'invitation-letters/u1/22222222-2222-2222-2222-222222222222.pdf';
       expect(prisma.invitationLetter.upsert).toHaveBeenCalledWith({
         where: { applicationId: dto.applicationId },
         update: {
-          fileUrl: dto.fileUrl,
+          fileUrl: invitationKey,
           fileName: dto.fileName,
           uploadedBy: adminId,
           uploadedAt: expect.any(Date),
@@ -369,7 +385,7 @@ describe('LettersService', () => {
         create: {
           studentId: application.studentId,
           applicationId: dto.applicationId,
-          fileUrl: dto.fileUrl,
+          fileUrl: invitationKey,
           fileName: dto.fileName,
           uploadedBy: adminId,
         },

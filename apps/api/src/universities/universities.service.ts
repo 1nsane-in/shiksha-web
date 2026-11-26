@@ -370,7 +370,8 @@ export class UniversitiesService {
       throw new NotFoundException('University not found');
     }
 
-    return university;
+    // University documents are stored as private bucket keys.
+    return this.storage.signDeep(university);
   }
 
   async create(dto: CreateUniversityDto) {
@@ -700,12 +701,16 @@ export class UniversitiesService {
 
   async uploadDocument(id: string, dto: UploadUniversityDocumentDto) {
     await this.findByIdOrThrow(id);
+    if (!dto.fileKey.startsWith('documents/')) {
+      throw new BadRequestException('Invalid file key');
+    }
+    await this.storage.assertExists(dto.fileKey);
 
     return this.prisma.universityDocument.create({
       data: {
         universityId: id,
         type: dto.type,
-        fileUrl: dto.fileUrl,
+        fileUrl: dto.fileKey,
         fileName: dto.fileName,
         fileSize: dto.fileSize,
       },
@@ -715,10 +720,11 @@ export class UniversitiesService {
   async getDocuments(id: string) {
     await this.findByIdOrThrow(id);
 
-    return this.prisma.universityDocument.findMany({
+    const documents = await this.prisma.universityDocument.findMany({
       where: { universityId: id },
       orderBy: { uploadedAt: 'desc' },
     });
+    return this.storage.signDeep(documents);
   }
 
   async deleteDocument(documentId: string) {

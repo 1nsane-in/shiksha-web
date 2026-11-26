@@ -44,7 +44,15 @@ export const StepRenderer = React.memo(function StepRenderer(
           imageKeys={imageKeys}
           onSetImageKeys={onSetImageKeys}
           onRemoveImage={onRemoveImage}
-          onNormalizeUrl={normalizeUrlField}
+          onNormalizeUrl={(section, field, value) =>
+            normalizeUrlField(
+              section,
+              field,
+              value,
+              onRootFieldUpdate,
+              onFieldUpdate,
+            )
+          }
         />
       );
     case 1:

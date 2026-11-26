@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import type { Exam, ExamDetail, CreateFullExamInput, CreateQuestionInput, ReorderQuestionsInput } from "./exams.types";
+import type { Exam, ExamDetail, CreateExamInput, CreateFullExamInput, CreateQuestionInput, ReorderQuestionsInput } from "./exams.types";
 import {
   createExam,
   updateExam,

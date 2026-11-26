@@ -186,7 +186,7 @@ export function ApplicationForm({
   // pre-fill email from logged-in user
   useEffect(() => {
     if (user?.email && !formData.email) {
-      setFormData((prev) => ({ ...prev, email: user.email }));
+      setFormData((prev) => ({ ...prev, email: user.email ?? "" }));
     }
   }, [user?.email]);
 

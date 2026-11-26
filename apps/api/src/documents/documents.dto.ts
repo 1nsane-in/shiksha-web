@@ -10,14 +10,19 @@ export class UploadDocumentDto {
   @IsString()
   documentTypeId!: string;
 
+  /** Bucket key returned by POST /upload (never a client-supplied URL). */
   @IsString()
-  fileUrl!: string;
+  fileKey!: string;
 
   @IsString()
   fileName!: string;
 
   @IsNumber()
   fileSize!: number;
+
+  @IsOptional()
+  @IsString()
+  mimeType?: string;
 }
 
 export class VerifyDocumentDto {

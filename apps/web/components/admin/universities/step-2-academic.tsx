@@ -337,7 +337,7 @@ export function AcademicStep({ formData, formErrors, onFieldUpdate, onRootFieldU
                 onFieldUpdate("academic", "medium", v);
               }
               if (v && formErrors["academic.medium"]) {
-                onSetFormErrors((prev: any) => ({ ...prev, "academic.medium": undefined }));
+                onSetFormErrors((prev: any) => ({ ...prev, "academic.medium": "" }));
               }
             }}
           >

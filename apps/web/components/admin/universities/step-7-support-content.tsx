@@ -25,7 +25,7 @@ export function SupportContentStep({ formData, formErrors, onFieldUpdate }: Wiza
             { key: "careerGuidance", label: "Career Guidance" },
           ].map((item) => (
             <label key={item.key} className="flex items-center gap-3 rounded-md border border-border/60 p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-              <Checkbox checked={formData.support[item.key]} onCheckedChange={(checked) => onFieldUpdate("support", item.key, checked)} />
+              <Checkbox checked={formData.support[item.key as keyof typeof formData.support] as boolean} onCheckedChange={(checked) => onFieldUpdate("support", item.key, checked)} />
               <span className="text-sm">{item.label}</span>
             </label>
           ))}
