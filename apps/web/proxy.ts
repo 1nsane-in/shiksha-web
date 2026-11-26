@@ -94,5 +94,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // "/" is included so logged-in admins/parents get redirected off the static home.
   matcher: ["/", "/admin/:path*", "/student/:path*", "/parents/:path*", "/login", "/register", "/forgot-password", "/auth/:path*"],
 };
